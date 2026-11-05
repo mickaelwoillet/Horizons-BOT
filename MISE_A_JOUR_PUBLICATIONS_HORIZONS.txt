@@ -1,0 +1,48 @@
+MISE À JOUR DES PUBLICATIONS HORIZONS
+=====================================
+
+Nouveautés intégrées
+--------------------
+- Horizon du jour : tous les jours à 09 h 30, dans le salon 1567844795307532308.
+- Question du jour : tous les jours à 10 h 00, dans le Forum 1566849962153611354 (fonction déjà présente).
+- Devinette : tous les jours à 12 h 15, dans le même Forum, sous forme d'une publication distincte avec boutons de réponse.
+- Blague : tous les jours à 12 h 00, dans le salon 1566566574641512529.
+- Débat hebdomadaire : le dimanche à 18 h 00, dans le Forum 1566850089761382553.
+- Fuseau horaire : Europe/Paris.
+
+IMPORTANT : mise à jour du fichier .env local
+---------------------------------------------
+Le fichier .env local existant prend priorité sur les valeurs par défaut de config.py.
+Ouvre ton propre fichier .env sur ton ordinateur et vérifie/modifie uniquement ces lignes :
+
+JOKE_DAILY_CHANNEL_ID=1566566574641512529
+RIDDLE_DAILY_CHANNEL_ID=1566849962153611354
+DAILY_QUESTION_CHANNEL_ID=1566849962153611354
+HORIZON_DAILY_CHANNEL_ID=1567844795307532308
+DEBATE_CHANNEL_ID=1566850089761382553
+TIMEZONE=Europe/Paris
+
+Conserve SUCCESS_CHANNEL_ID=1566566574641512529 : il reste volontairement configuré
+sur le même salon que #sourire, comme demandé. Ne partage jamais ton vrai fichier .env.
+
+Installation
+------------
+1. Arrête le bot (ferme sa fenêtre de terminal).
+2. Fais une copie de sauvegarde complète de ton dossier actuel « Bot Horizons »,
+   en particulier du dossier data/ qui contient la base SQLite et les historiques.
+3. Décompresse cette archive et remplace les fichiers du projet par ceux de l'archive.
+4. Recopie ton fichier .env local dans le nouveau dossier (il n'est volontairement pas
+   inclus dans l'archive), puis vérifie les six lignes de configuration ci-dessus.
+5. Si ton environnement Python existant est conservé, vérifie les dépendances avec :
+   python -m pip install -r requirements.txt
+6. Démarre le bot avec start_windows.bat ou la commande habituelle.
+7. Vérifie les journaux au démarrage et les permissions du bot dans les salons :
+   Voir les salons, Envoyer des messages, Intégrer des liens, Lire l'historique,
+   Créer des publications dans les salons Forum et Envoyer des messages dans les fils.
+
+Limites des vérifications
+-------------------------
+Les tests locaux valident la syntaxe Python, les fichiers JSON, les commandes slash,
+les extensions, les données SQLite et la configuration modèle. Ils ne se connectent
+pas à Discord : il faudra confirmer les permissions et les publications à l'heure prévue
+avec le bot réellement démarré.

@@ -1,0 +1,80 @@
+"""Configuration centralisée du bot HORIZONS (aucun secret n'est versionné)."""
+from __future__ import annotations
+import json
+import os
+from pathlib import Path
+from typing import Final
+from zoneinfo import ZoneInfo
+from dotenv import load_dotenv
+
+BASE_DIR: Final[Path] = Path(__file__).resolve().parent
+load_dotenv(BASE_DIR / ".env")
+
+
+def env_int(name: str, default: int | None = None) -> int | None:
+    raw = os.getenv(name)
+    if raw is None or not raw.strip(): return default
+    try: value = int(raw)
+    except ValueError as exc: raise RuntimeError(f"La variable {name} doit contenir un identifiant numérique.") from exc
+    if value <= 0: raise RuntimeError(f"La variable {name} doit être un entier positif.")
+    return value
+
+DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "").strip()
+GUILD_ID = env_int("GUILD_ID", 1566555854482702497)
+STAFF_ROLE_ID = env_int("STAFF_ROLE_ID", 1566561923670212828)
+# Rôles dédiés au centre staff (facultatifs tant que les IDs ne sont pas renseignés).
+ADMIN_ROLE_ID = env_int("ADMIN_ROLE_ID", None)
+MOD_ROLE_ID = env_int("MOD_ROLE_ID", None)
+ANIMATOR_ROLE_ID = env_int("ANIMATOR_ROLE_ID", None)
+ALERT_LOG_CHANNEL_ID = env_int("ALERT_LOG_CHANNEL_ID", 1566562240734175274)
+JOKE_DAILY_CHANNEL_ID = env_int("JOKE_DAILY_CHANNEL_ID", 1566566574641512529)
+RIDDLE_DAILY_CHANNEL_ID = env_int("RIDDLE_DAILY_CHANNEL_ID", 1566849962153611354)
+LOG_CHANNEL_ID = env_int("LOG_CHANNEL_ID", 1566562245574656140)
+MOD_LOG_CHANNEL_ID = env_int("MOD_LOG_CHANNEL_ID", 1566562244005986344)
+WELCOME_CHANNEL_ID = env_int("WELCOME_CHANNEL_ID", 1566562049222250647)
+LEAVE_CHANNEL_ID = env_int("LEAVE_CHANNEL_ID", 1566562049222250647)
+CHARTER_CHANNEL_ID = env_int("CHARTER_CHANNEL_ID", 1566562055811633353)
+NEW_MEMBER_ROLE_ID = env_int("NEW_MEMBER_ROLE_ID", 1566561929349304360)
+MEMBER_ROLE_ID = env_int("MEMBER_ROLE_ID", 1566561934533468294)
+BIRTHDAY_CHANNEL_ID = env_int("BIRTHDAY_CHANNEL_ID", 1566953048071344158)
+SUGGESTION_CHANNEL_ID = env_int("SUGGESTION_CHANNEL_ID", 1566850538417426442)
+INTRO_CHANNEL_ID = env_int("INTRO_CHANNEL_ID", 1566565826293661696)
+ANONYMOUS_CHANNEL_ID = env_int("ANONYMOUS_CHANNEL_ID", 1567218950180311210)
+CONFESSION_CHANNEL_ID = env_int("CONFESSION_CHANNEL_ID", 1566562128461037618)
+SPIRIT_CHANNEL_ID = env_int("SPIRIT_CHANNEL_ID", 1566562054591086702)
+STAFF_COMMANDS_CHANNEL_ID = env_int("STAFF_COMMANDS_CHANNEL_ID", 1566562235793416242)
+DAILY_QUESTION_CHANNEL_ID = env_int("DAILY_QUESTION_CHANNEL_ID", 1566849962153611354)
+HORIZON_DAILY_CHANNEL_ID = env_int("HORIZON_DAILY_CHANNEL_ID", 1567844795307532308)
+DEBATE_CHANNEL_ID = env_int("DEBATE_CHANNEL_ID", 1566850089761382553)
+EXPERIENCES_CATEGORY_ID = env_int("EXPERIENCES_CATEGORY_ID", 1567247035688554596)
+MISSIONS_CHANNEL_ID = env_int("MISSIONS_CHANNEL_ID", 1567247269970059345)
+FIND_PARTNER_CHANNEL_ID = env_int("FIND_PARTNER_CHANNEL_ID", 1567247627181883483)
+COLLECTIVE_CHALLENGES_CHANNEL_ID = env_int("COLLECTIVE_CHALLENGES_CHANNEL_ID", 1567247726985355424)
+MOOD_CHANNEL_ID = env_int("MOOD_CHANNEL_ID", 1567290709583593503)
+SUCCESS_CHANNEL_ID = env_int("SUCCESS_CHANNEL_ID", 1566566574641512529)
+AGENDA_CHANNEL_ID = env_int("AGENDA_CHANNEL_ID", 1566569087184797786)
+AFFINITY_CHANNEL_ID = env_int("AFFINITY_CHANNEL_ID", 1567291911176323173)
+IDEAS_CHANNEL_ID = env_int("IDEAS_CHANNEL_ID", 1567300011165880451)
+SOLIDARITY_CHANNEL_ID = env_int("SOLIDARITY_CHANNEL_ID", 1567300152945942659)
+QUIZ_CHANNEL_ID = env_int("QUIZ_CHANNEL_ID", 1566957238625632399)
+TEMP_VOICE_TRIGGER_ID = env_int("TEMP_VOICE_TRIGGER_ID", None)
+TEMP_VOICE_CATEGORY_ID = env_int("TEMP_VOICE_CATEGORY_ID", None)
+TICKET_CATEGORY_ID = env_int("TICKET_CATEGORY_ID", None)
+TICKET_REQUEST_CHANNEL_ID = env_int("TICKET_REQUEST_CHANNEL_ID", None)
+AUTO_MOD_ENABLED = os.getenv("AUTO_MOD_ENABLED", "true").strip().lower() in {"1", "true", "yes", "oui"}
+BLOCK_DISCORD_INVITES = os.getenv("BLOCK_DISCORD_INVITES", "false").strip().lower() in {"1", "true", "yes", "oui"}
+TRANSLATE_API_URL = os.getenv("TRANSLATE_API_URL", "").strip()
+TRANSLATE_API_KEY = os.getenv("TRANSLATE_API_KEY", "").strip()
+try:
+    RANK_ROLE_IDS = json.loads(os.getenv("RANK_ROLE_IDS", "{}"))
+    if not isinstance(RANK_ROLE_IDS, dict): raise ValueError("RANK_ROLE_IDS doit être un objet JSON.")
+except json.JSONDecodeError as exc:
+    raise RuntimeError("RANK_ROLE_IDS contient un JSON invalide.") from exc
+DEFAULT_ANNOUNCEMENT_IMAGE_URL = os.getenv("DEFAULT_ANNOUNCEMENT_IMAGE_URL", "").strip()
+TIMEZONE_NAME = os.getenv("TIMEZONE", "Europe/Paris").strip() or "Europe/Paris"
+try: LOCAL_TIMEZONE = ZoneInfo(TIMEZONE_NAME)
+except Exception as exc: raise RuntimeError(f"Fuseau horaire invalide dans TIMEZONE : {TIMEZONE_NAME}") from exc
+
+COGS_DIR = BASE_DIR / "cogs"
+DATA_DIR = BASE_DIR / "data"
+LOG_DIR = BASE_DIR / "logs"
