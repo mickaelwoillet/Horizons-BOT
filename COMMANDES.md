@@ -23,6 +23,7 @@ Les commandes slash sont disponibles depuis Discord. Les commandes d'équipe né
 - `/traduire texte langue` — traduction si un service LibreTranslate est configuré.
 - `/blague [categorie]` — afficher une blague, puis utiliser « Une autre ! ».
 - `/devinette` — jouer et révéler la réponse avec les boutons.
+- `/tester_publications` — publier un exemplaire de chaque publication dans les salons prévus (administrateurs Discord uniquement ; les messages portent la mention TEST TECHNIQUE – HORIZONS).
 
 ## Quiz culturel
 - `/quiz_lancer [manches]` — lancer un quiz de 1 à 10 manches dans le salon configuré (équipe uniquement, 12 joueurs maximum).
@@ -56,10 +57,20 @@ Les commandes slash sont disponibles depuis Discord. Les commandes d'équipe né
 - `/actualiser_rangs` — recalculer les rangs (permission Gérer les rôles requise).
 
 ## Publications automatiques (heure de Paris)
+- 08 h 00 : journée ou événement thématique du calendrier, lorsqu'une date correspond.
 - 09 h 00 : souhaits d'anniversaire, si des membres ont choisi d'enregistrer leur date.
+- 09 h 30 : Horizon du jour.
 - 10 h 00 : question du jour.
 - 12 h 00 : blague du jour.
 - 12 h 15 : devinette du jour.
+- 13 h 00 : quiz du jour.
+- 14 h 00 : citation du jour.
+- 16 h 00 : proverbe du jour.
+- 18 h 00 le dimanche : débat hebdomadaire.
+- 20 h 00 : message bienveillant du jour.
+- Les missions de la semaine et les guides communautaires conservent leurs mécanismes hebdomadaires existants.
+
+Les citations et proverbes sont publiés dans `#horizon-du-jour`. Les banques `jeux.json` et `questions.json` restent destinées aux animations ponctuelles et ne déclenchent pas de publication automatique.
 
 ## Configuration requise
 - Les salons de vocaux temporaires, le panneau de tickets et les messages anonymes sont configurés dans `.env`.

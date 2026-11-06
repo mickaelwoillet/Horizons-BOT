@@ -1,1 +1,502 @@
-[]
+[
+  {
+    "question": "Quelle est la capitale de l'Australie ?",
+    "reponse": "Canberra",
+    "categorie": "Géographie"
+  },
+  {
+    "question": "Quel pays a pour capitale Reykjavik ?",
+    "reponse": "L'Islande",
+    "categorie": "Géographie"
+  },
+  {
+    "question": "Quel fleuve traverse Londres ?",
+    "reponse": "La Tamise",
+    "categorie": "Géographie"
+  },
+  {
+    "question": "Dans quel pays se trouve le site antique de Pétra ?",
+    "reponse": "La Jordanie",
+    "categorie": "Géographie"
+  },
+  {
+    "question": "Quelle est la capitale du Portugal ?",
+    "reponse": "Lisbonne",
+    "categorie": "Géographie"
+  },
+  {
+    "question": "Quel désert couvre une grande partie du nord de l'Afrique ?",
+    "reponse": "Le Sahara",
+    "categorie": "Géographie"
+  },
+  {
+    "question": "Quel est le plus grand pays du monde par superficie ?",
+    "reponse": "La Russie",
+    "categorie": "Géographie"
+  },
+  {
+    "question": "Sur quel continent se trouve le Suriname ?",
+    "reponse": "L'Amérique du Sud",
+    "categorie": "Géographie"
+  },
+  {
+    "question": "Quelle mer borde notamment la côte nord de l'Égypte ?",
+    "reponse": "La mer Méditerranée",
+    "categorie": "Géographie"
+  },
+  {
+    "question": "Quel pays est surnommé le pays du Soleil-Levant ?",
+    "reponse": "Le Japon",
+    "categorie": "Géographie"
+  },
+  {
+    "question": "Quelle ville italienne est traversée par le Grand Canal ?",
+    "reponse": "Venise",
+    "categorie": "Géographie"
+  },
+  {
+    "question": "Quel est le plus petit continent par superficie ?",
+    "reponse": "L'Océanie",
+    "categorie": "Géographie"
+  },
+  {
+    "question": "Quel pays partage une frontière terrestre avec le Portugal ?",
+    "reponse": "L'Espagne",
+    "categorie": "Géographie"
+  },
+  {
+    "question": "Quelle chaîne de montagnes sépare en partie la France et l'Espagne ?",
+    "reponse": "Les Pyrénées",
+    "categorie": "Géographie"
+  },
+  {
+    "question": "Quelle est la capitale de la Norvège ?",
+    "reponse": "Oslo",
+    "categorie": "Géographie"
+  },
+  {
+    "question": "En quelle année a commencé la Première Guerre mondiale ?",
+    "reponse": "1914",
+    "categorie": "Histoire"
+  },
+  {
+    "question": "En quelle année s'est terminée la Seconde Guerre mondiale en Europe ?",
+    "reponse": "1945",
+    "categorie": "Histoire"
+  },
+  {
+    "question": "Quel événement français est célébré le 14 juillet ?",
+    "reponse": "La fête nationale, en référence à la prise de la Bastille et à la Fête de la Fédération",
+    "categorie": "Histoire"
+  },
+  {
+    "question": "Qui était le premier président de la Ve République française ?",
+    "reponse": "Charles de Gaulle",
+    "categorie": "Histoire"
+  },
+  {
+    "question": "Quelle civilisation a développé l'écriture cunéiforme en Mésopotamie ?",
+    "reponse": "Les Sumériens",
+    "categorie": "Histoire"
+  },
+  {
+    "question": "Quel navigateur est associé au premier voyage européen documenté vers les Amériques en 1492 ?",
+    "reponse": "Christophe Colomb",
+    "categorie": "Histoire"
+  },
+  {
+    "question": "Quel traité signé en 1919 met officiellement fin à l'état de guerre entre l'Allemagne et les Alliés ?",
+    "reponse": "Le traité de Versailles",
+    "categorie": "Histoire"
+  },
+  {
+    "question": "Quelle reine d'Égypte antique est associée à Jules César et Marc Antoine ?",
+    "reponse": "Cléopâtre VII",
+    "categorie": "Histoire"
+  },
+  {
+    "question": "Quel empire avait Constantinople pour capitale ?",
+    "reponse": "L'Empire byzantin",
+    "categorie": "Histoire"
+  },
+  {
+    "question": "En quelle année le mur de Berlin a-t-il été ouvert ?",
+    "reponse": "1989",
+    "categorie": "Histoire"
+  },
+  {
+    "question": "Qui a peint le plafond de la chapelle Sixtine ?",
+    "reponse": "Michel-Ange",
+    "categorie": "Arts"
+  },
+  {
+    "question": "Quel peintre est associé au tableau La Nuit étoilée ?",
+    "reponse": "Vincent van Gogh",
+    "categorie": "Arts"
+  },
+  {
+    "question": "Dans quelle ville se trouve le musée du Prado ?",
+    "reponse": "Madrid",
+    "categorie": "Arts"
+  },
+  {
+    "question": "Quel mouvement artistique est associé à Claude Monet ?",
+    "reponse": "L'impressionnisme",
+    "categorie": "Arts"
+  },
+  {
+    "question": "Quel sculpteur a réalisé Le Penseur ?",
+    "reponse": "Auguste Rodin",
+    "categorie": "Arts"
+  },
+  {
+    "question": "Quel peintre espagnol a cofondé le cubisme avec Georges Braque ?",
+    "reponse": "Pablo Picasso",
+    "categorie": "Arts"
+  },
+  {
+    "question": "Quel instrument est associé à la famille des bois et possède une anche simple ?",
+    "reponse": "La clarinette",
+    "categorie": "Musique"
+  },
+  {
+    "question": "Qui a composé le ballet Le Lac des cygnes ?",
+    "reponse": "Piotr Ilitch Tchaïkovski",
+    "categorie": "Musique"
+  },
+  {
+    "question": "Combien de lignes comporte une portée musicale classique ?",
+    "reponse": "Cinq",
+    "categorie": "Musique"
+  },
+  {
+    "question": "Quel compositeur est devenu sourd à la fin de sa vie ?",
+    "reponse": "Ludwig van Beethoven",
+    "categorie": "Musique"
+  },
+  {
+    "question": "Quel instrument possède généralement six cordes dans sa version classique ?",
+    "reponse": "La guitare",
+    "categorie": "Musique"
+  },
+  {
+    "question": "Quel genre musical est né à La Nouvelle-Orléans au tournant du XXe siècle ?",
+    "reponse": "Le jazz",
+    "categorie": "Musique"
+  },
+  {
+    "question": "Qui a écrit le roman Les Misérables ?",
+    "reponse": "Victor Hugo",
+    "categorie": "Littérature"
+  },
+  {
+    "question": "Quel auteur a créé le personnage d'Hercule Poirot ?",
+    "reponse": "Agatha Christie",
+    "categorie": "Littérature"
+  },
+  {
+    "question": "Qui a écrit Le Petit Prince ?",
+    "reponse": "Antoine de Saint-Exupéry",
+    "categorie": "Littérature"
+  },
+  {
+    "question": "Quel dramaturge a écrit Roméo et Juliette ?",
+    "reponse": "William Shakespeare",
+    "categorie": "Littérature"
+  },
+  {
+    "question": "Dans quelle langue originale a été écrit Don Quichotte ?",
+    "reponse": "L'espagnol",
+    "categorie": "Littérature"
+  },
+  {
+    "question": "Quel écrivain français a créé Arsène Lupin ?",
+    "reponse": "Maurice Leblanc",
+    "categorie": "Littérature"
+  },
+  {
+    "question": "Quelle planète est la plus proche du Soleil ?",
+    "reponse": "Mercure",
+    "categorie": "Sciences"
+  },
+  {
+    "question": "Quel est le symbole chimique du sodium ?",
+    "reponse": "Na",
+    "categorie": "Sciences"
+  },
+  {
+    "question": "Combien de pattes possède un insecte ?",
+    "reponse": "Six",
+    "categorie": "Sciences"
+  },
+  {
+    "question": "Quel phénomène permet aux plantes de convertir la lumière en énergie chimique ?",
+    "reponse": "La photosynthèse",
+    "categorie": "Sciences"
+  },
+  {
+    "question": "Quelle est l'unité de mesure de la fréquence ?",
+    "reponse": "Le hertz",
+    "categorie": "Sciences"
+  },
+  {
+    "question": "Quel est le satellite naturel de la Terre ?",
+    "reponse": "La Lune",
+    "categorie": "Sciences"
+  },
+  {
+    "question": "Quel organe humain filtre le sang et produit l'urine ?",
+    "reponse": "Les reins",
+    "categorie": "Sciences"
+  },
+  {
+    "question": "Quel est le nom du processus par lequel l'eau liquide devient vapeur ?",
+    "reponse": "L'évaporation",
+    "categorie": "Sciences"
+  },
+  {
+    "question": "Quel gaz est le plus abondant dans l'atmosphère terrestre ?",
+    "reponse": "L'azote",
+    "categorie": "Sciences"
+  },
+  {
+    "question": "Combien de chromosomes possède généralement une cellule humaine somatique ?",
+    "reponse": "46",
+    "categorie": "Sciences"
+  },
+  {
+    "question": "Quel est le plus grand mammifère vivant ?",
+    "reponse": "La baleine bleue",
+    "categorie": "Nature"
+  },
+  {
+    "question": "Quel animal est connu pour changer de couleur grâce à des cellules spécialisées ?",
+    "reponse": "Le caméléon",
+    "categorie": "Nature"
+  },
+  {
+    "question": "Comment appelle-t-on un animal qui se nourrit principalement de végétaux ?",
+    "reponse": "Un herbivore",
+    "categorie": "Nature"
+  },
+  {
+    "question": "Quel arbre produit des glands ?",
+    "reponse": "Le chêne",
+    "categorie": "Nature"
+  },
+  {
+    "question": "Quel est le nom du petit de la grenouille après l'éclosion ?",
+    "reponse": "Le têtard",
+    "categorie": "Nature"
+  },
+  {
+    "question": "Quel oiseau est emblématique de la Nouvelle-Zélande ?",
+    "reponse": "Le kiwi",
+    "categorie": "Nature"
+  },
+  {
+    "question": "Combien de joueurs une équipe de football compte-t-elle sur le terrain au début d'un match ?",
+    "reponse": "Onze",
+    "categorie": "Sport"
+  },
+  {
+    "question": "Dans quel sport utilise-t-on un volant ?",
+    "reponse": "Le badminton",
+    "categorie": "Sport"
+  },
+  {
+    "question": "Quelle est la longueur officielle d'un marathon ?",
+    "reponse": "42,195 kilomètres",
+    "categorie": "Sport"
+  },
+  {
+    "question": "Dans quel sport le Tour de France est-il une compétition majeure ?",
+    "reponse": "Le cyclisme",
+    "categorie": "Sport"
+  },
+  {
+    "question": "Combien de points vaut un lancer franc au basketball ?",
+    "reponse": "Un point",
+    "categorie": "Sport"
+  },
+  {
+    "question": "Sur quelle surface se joue traditionnellement le tournoi de Wimbledon ?",
+    "reponse": "Le gazon",
+    "categorie": "Sport"
+  },
+  {
+    "question": "Quel est le principal ingrédient du guacamole ?",
+    "reponse": "L'avocat",
+    "categorie": "Cuisine"
+  },
+  {
+    "question": "De quel pays le sushi est-il originaire ?",
+    "reponse": "Le Japon",
+    "categorie": "Cuisine"
+  },
+  {
+    "question": "Quelle céréale est utilisée pour préparer traditionnellement le risotto ?",
+    "reponse": "Le riz",
+    "categorie": "Cuisine"
+  },
+  {
+    "question": "Quel fromage entre dans la préparation classique d'une tartiflette ?",
+    "reponse": "Le reblochon",
+    "categorie": "Cuisine"
+  },
+  {
+    "question": "Quel fruit est l'ingrédient principal du cidre traditionnel ?",
+    "reponse": "La pomme",
+    "categorie": "Cuisine"
+  },
+  {
+    "question": "Quelle épice donne sa couleur jaune au curry de nombreuses recettes ?",
+    "reponse": "Le curcuma",
+    "categorie": "Cuisine"
+  },
+  {
+    "question": "Quel est le langage de balisage principalement utilisé pour structurer une page web ?",
+    "reponse": "HTML",
+    "categorie": "Numérique"
+  },
+  {
+    "question": "Que signifie l'acronyme URL ?",
+    "reponse": "Uniform Resource Locator",
+    "categorie": "Numérique"
+  },
+  {
+    "question": "Quel composant d'un ordinateur exécute principalement les instructions des programmes ?",
+    "reponse": "Le processeur (CPU)",
+    "categorie": "Numérique"
+  },
+  {
+    "question": "Quel protocole sécurise la navigation web avec chiffrement ?",
+    "reponse": "HTTPS",
+    "categorie": "Numérique"
+  },
+  {
+    "question": "Quel système de numération utilise uniquement 0 et 1 ?",
+    "reponse": "Le système binaire",
+    "categorie": "Numérique"
+  },
+  {
+    "question": "Quel est le nom du logiciel qui gère les ressources d'un ordinateur ?",
+    "reponse": "Le système d'exploitation",
+    "categorie": "Numérique"
+  },
+  {
+    "question": "Combien de côtés possède un dodécagone ?",
+    "reponse": "Douze",
+    "categorie": "Mathématiques"
+  },
+  {
+    "question": "Quel est le résultat de 9 au carré ?",
+    "reponse": "81",
+    "categorie": "Mathématiques"
+  },
+  {
+    "question": "Comment appelle-t-on un angle de 90 degrés ?",
+    "reponse": "Un angle droit",
+    "categorie": "Mathématiques"
+  },
+  {
+    "question": "Quel nombre premier vient juste après 11 ?",
+    "reponse": "13",
+    "categorie": "Mathématiques"
+  },
+  {
+    "question": "Combien de minutes y a-t-il dans deux heures et demie ?",
+    "reponse": "150",
+    "categorie": "Mathématiques"
+  },
+  {
+    "question": "Quelle est la valeur décimale de la fraction un quart ?",
+    "reponse": "0,25",
+    "categorie": "Mathématiques"
+  },
+  {
+    "question": "Quel est le nom de la peur des espaces clos ?",
+    "reponse": "La claustrophobie",
+    "categorie": "Culture générale"
+  },
+  {
+    "question": "Combien de couleurs compte traditionnellement l'arc-en-ciel ?",
+    "reponse": "Sept",
+    "categorie": "Culture générale"
+  },
+  {
+    "question": "Quelle langue compte le plus de locuteurs natifs dans le monde ?",
+    "reponse": "Le mandarin",
+    "categorie": "Culture générale"
+  },
+  {
+    "question": "Quel métal est liquide à température ambiante dans les conditions usuelles ?",
+    "reponse": "Le mercure",
+    "categorie": "Culture générale"
+  },
+  {
+    "question": "Quel est le nom de la monnaie utilisée en Suisse ?",
+    "reponse": "Le franc suisse",
+    "categorie": "Culture générale"
+  },
+  {
+    "question": "Quel instrument mesure la pression atmosphérique ?",
+    "reponse": "Le baromètre",
+    "categorie": "Culture générale"
+  },
+  {
+    "question": "Quel pays a offert la Statue de la Liberté aux États-Unis ?",
+    "reponse": "La France",
+    "categorie": "Culture générale"
+  },
+  {
+    "question": "Quelle ville est surnommée la Ville éternelle ?",
+    "reponse": "Rome",
+    "categorie": "Culture générale"
+  },
+  {
+    "question": "Quel est le nom du mouvement de la Terre autour du Soleil ?",
+    "reponse": "La révolution",
+    "categorie": "Sciences"
+  },
+  {
+    "question": "Quel océan se trouve entre l'Afrique et l'Australie ?",
+    "reponse": "L'océan Indien",
+    "categorie": "Géographie"
+  },
+  {
+    "question": "Quel écrivain a écrit Vingt mille lieues sous les mers ?",
+    "reponse": "Jules Verne",
+    "categorie": "Littérature"
+  },
+  {
+    "question": "Quelle scientifique a reçu deux prix Nobel dans deux disciplines scientifiques différentes ?",
+    "reponse": "Marie Curie",
+    "categorie": "Sciences"
+  },
+  {
+    "question": "Quel pays est associé à la fête du Día de los Muertos ?",
+    "reponse": "Le Mexique",
+    "categorie": "Culture générale"
+  },
+  {
+    "question": "Quelle est la capitale de la Slovénie ?",
+    "reponse": "Ljubljana",
+    "categorie": "Géographie"
+  },
+  {
+    "question": "Quelle partie de la plante absorbe principalement l'eau du sol ?",
+    "reponse": "Les racines",
+    "categorie": "Nature"
+  },
+  {
+    "question": "Quel est le nom de la couche gazeuse qui protège la Terre d'une grande partie des UV ?",
+    "reponse": "La couche d'ozone",
+    "categorie": "Sciences"
+  },
+  {
+    "question": "Quel peintre a réalisé Guernica ?",
+    "reponse": "Pablo Picasso",
+    "categorie": "Arts"
+  }
+]

@@ -1,1 +1,802 @@
-[]
+[
+  {
+    "id": "EVT001",
+    "date": "01-01",
+    "titre": "Jour de l'An",
+    "description": "Une nouvelle année commence : partager un souhait ou une intention pour les mois à venir.",
+    "categorie": "Fête",
+    "reference": "Annuel"
+  },
+  {
+    "id": "EVT002",
+    "date": "04-01",
+    "titre": "Journée internationale de la sensibilisation au problème des mines",
+    "description": "Mettre en lumière la prévention des risques liés aux mines et aux restes explosifs de guerre.",
+    "categorie": "Sensibilisation",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT003",
+    "date": "06-01",
+    "titre": "Épiphanie",
+    "description": "Découvrir les traditions et recettes associées à cette célébration.",
+    "categorie": "Culture",
+    "reference": "Tradition"
+  },
+  {
+    "id": "EVT004",
+    "date": "24-01",
+    "titre": "Journée internationale de l'éducation",
+    "description": "Célébrer l'accès au savoir, à l'apprentissage et à l'éducation tout au long de la vie.",
+    "categorie": "ONU",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT005",
+    "date": "27-01",
+    "titre": "Journée internationale dédiée à la mémoire des victimes de l'Holocauste",
+    "description": "Se souvenir et transmettre l'histoire pour lutter contre l'antisémitisme et toutes les formes de haine.",
+    "categorie": "Mémoire",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT006",
+    "date": "04-02",
+    "titre": "Journée mondiale contre le cancer",
+    "description": "Relayer des messages de prévention, d'information fiable et de soutien aux personnes concernées.",
+    "categorie": "Santé",
+    "reference": "OMS"
+  },
+  {
+    "id": "EVT007",
+    "date": "06-02",
+    "titre": "Journée internationale de tolérance zéro à l'égard des mutilations génitales féminines",
+    "description": "Informer et soutenir les actions de prévention et de protection des droits des filles et des femmes.",
+    "categorie": "Droits",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT008",
+    "date": "11-02",
+    "titre": "Journée internationale des femmes et des filles de science",
+    "description": "Mettre en avant les parcours et contributions des femmes dans les sciences.",
+    "categorie": "Sciences",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT009",
+    "date": "13-02",
+    "titre": "Journée mondiale de la radio",
+    "description": "Célébrer la radio, la diversité des voix et l'accès à l'information.",
+    "categorie": "Culture",
+    "reference": "UNESCO"
+  },
+  {
+    "id": "EVT010",
+    "date": "20-02",
+    "titre": "Journée mondiale de la justice sociale",
+    "description": "Échanger sur l'égalité des chances, la dignité et la solidarité.",
+    "categorie": "Société",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT011",
+    "date": "21-02",
+    "titre": "Journée internationale de la langue maternelle",
+    "description": "Valoriser la diversité linguistique et les langues transmises en famille.",
+    "categorie": "Culture",
+    "reference": "UNESCO"
+  },
+  {
+    "id": "EVT012",
+    "date": "01-03",
+    "titre": "Journée zéro discrimination",
+    "description": "Promouvoir l'égalité de traitement et le respect de chaque personne.",
+    "categorie": "Droits",
+    "reference": "ONUSIDA"
+  },
+  {
+    "id": "EVT013",
+    "date": "03-03",
+    "titre": "Journée mondiale de la vie sauvage",
+    "description": "Découvrir les espèces et les écosystèmes à protéger.",
+    "categorie": "Nature",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT014",
+    "date": "08-03",
+    "titre": "Journée internationale des droits des femmes",
+    "description": "Mettre en lumière les droits des femmes et les avancées restant à accomplir.",
+    "categorie": "Droits",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT015",
+    "date": "14-03",
+    "titre": "Journée internationale des mathématiques",
+    "description": "Partager des énigmes et montrer la place des mathématiques dans le quotidien.",
+    "categorie": "Sciences",
+    "reference": "UNESCO"
+  },
+  {
+    "id": "EVT016",
+    "date": "20-03",
+    "titre": "Journée internationale du bonheur",
+    "description": "Partager une petite source de joie, sans injonction à aller bien.",
+    "categorie": "Bien-être",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT017",
+    "date": "21-03",
+    "titre": "Journée mondiale de la poésie",
+    "description": "Lire, écrire ou partager quelques vers, dans le respect du droit d'auteur.",
+    "categorie": "Culture",
+    "reference": "UNESCO"
+  },
+  {
+    "id": "EVT018",
+    "date": "21-03",
+    "titre": "Journée internationale pour l'élimination de la discrimination raciale",
+    "description": "Rappeler l'importance de l'égalité et de la lutte contre le racisme.",
+    "categorie": "Droits",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT019",
+    "date": "21-03",
+    "titre": "Journée mondiale de la trisomie 21",
+    "description": "Sensibiliser à l'inclusion et à la participation des personnes porteuses de trisomie 21.",
+    "categorie": "Inclusion",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT020",
+    "date": "22-03",
+    "titre": "Journée mondiale de l'eau",
+    "description": "Évoquer la préservation de l'eau et son accès pour toutes et tous.",
+    "categorie": "Environnement",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT021",
+    "date": "27-03",
+    "titre": "Journée mondiale du théâtre",
+    "description": "Célébrer les arts vivants, les scènes locales et les découvertes culturelles.",
+    "categorie": "Culture",
+    "reference": "ITI"
+  },
+  {
+    "id": "EVT022",
+    "date": "02-04",
+    "titre": "Journée mondiale de sensibilisation à l'autisme",
+    "description": "Promouvoir la compréhension, l'accessibilité et le respect des personnes autistes.",
+    "categorie": "Inclusion",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT023",
+    "date": "07-04",
+    "titre": "Journée mondiale de la santé",
+    "description": "Mettre en avant la prévention et l'accès à une information de santé fiable.",
+    "categorie": "Santé",
+    "reference": "OMS"
+  },
+  {
+    "id": "EVT024",
+    "date": "12-04",
+    "titre": "Journée internationale du vol spatial habité",
+    "description": "Explorer l'histoire de la conquête spatiale et les sciences associées.",
+    "categorie": "Sciences",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT025",
+    "date": "15-04",
+    "titre": "Journée mondiale de l'art",
+    "description": "Découvrir des œuvres, des artistes et des pratiques créatives.",
+    "categorie": "Culture",
+    "reference": "UNESCO"
+  },
+  {
+    "id": "EVT026",
+    "date": "22-04",
+    "titre": "Journée internationale de la Terre nourricière",
+    "description": "Parler de biodiversité, de climat et de gestes de préservation réalistes.",
+    "categorie": "Environnement",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT027",
+    "date": "23-04",
+    "titre": "Journée mondiale du livre et du droit d'auteur",
+    "description": "Partager ses lectures et découvrir des auteurs et autrices.",
+    "categorie": "Culture",
+    "reference": "UNESCO"
+  },
+  {
+    "id": "EVT028",
+    "date": "25-04",
+    "titre": "Journée mondiale de lutte contre le paludisme",
+    "description": "Relayer des informations de prévention et les enjeux de santé mondiale.",
+    "categorie": "Santé",
+    "reference": "OMS"
+  },
+  {
+    "id": "EVT029",
+    "date": "29-04",
+    "titre": "Journée internationale de la danse",
+    "description": "Célébrer la danse sous toutes ses formes et ses cultures.",
+    "categorie": "Culture",
+    "reference": "UNESCO"
+  },
+  {
+    "id": "EVT030",
+    "date": "01-05",
+    "titre": "Fête du Travail",
+    "description": "Reconnaître les travailleurs et évoquer les droits sociaux et la solidarité.",
+    "categorie": "Société",
+    "reference": "France"
+  },
+  {
+    "id": "EVT031",
+    "date": "03-05",
+    "titre": "Journée mondiale de la liberté de la presse",
+    "description": "Rappeler le rôle du journalisme et l'importance de l'information fiable.",
+    "categorie": "Droits",
+    "reference": "UNESCO"
+  },
+  {
+    "id": "EVT032",
+    "date": "05-05",
+    "titre": "Journée mondiale de l'hygiène des mains",
+    "description": "Rappeler les gestes d'hygiène qui contribuent à prévenir les infections.",
+    "categorie": "Santé",
+    "reference": "OMS"
+  },
+  {
+    "id": "EVT033",
+    "date": "08-05",
+    "titre": "Commémoration de la victoire de 1945 en Europe",
+    "description": "Se souvenir de la fin de la Seconde Guerre mondiale en Europe et des victimes du conflit.",
+    "categorie": "Mémoire",
+    "reference": "France"
+  },
+  {
+    "id": "EVT034",
+    "date": "12-05",
+    "titre": "Journée internationale des infirmières",
+    "description": "Mettre en lumière le rôle des infirmières et infirmiers dans les soins.",
+    "categorie": "Santé",
+    "reference": "ICN"
+  },
+  {
+    "id": "EVT035",
+    "date": "15-05",
+    "titre": "Journée internationale des familles",
+    "description": "Célébrer la diversité des liens familiaux et des formes de solidarité.",
+    "categorie": "Société",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT036",
+    "date": "17-05",
+    "titre": "Journée internationale contre l'homophobie, la biphobie et la transphobie",
+    "description": "Défendre l'égalité des droits et la sécurité des personnes LGBTQIA+.",
+    "categorie": "LGBTQIA+",
+    "reference": "IDAHOBIT"
+  },
+  {
+    "id": "EVT037",
+    "date": "18-05",
+    "titre": "Journée internationale des musées",
+    "description": "Découvrir les musées, leurs collections et leurs initiatives locales.",
+    "categorie": "Culture",
+    "reference": "ICOM"
+  },
+  {
+    "id": "EVT038",
+    "date": "20-05",
+    "titre": "Journée mondiale des abeilles",
+    "description": "Sensibiliser au rôle des pollinisateurs et à la protection de la biodiversité.",
+    "categorie": "Environnement",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT039",
+    "date": "21-05",
+    "titre": "Journée mondiale de la diversité culturelle",
+    "description": "Valoriser les cultures, les échanges et le dialogue entre les peuples.",
+    "categorie": "Culture",
+    "reference": "UNESCO"
+  },
+  {
+    "id": "EVT040",
+    "date": "31-05",
+    "titre": "Journée mondiale sans tabac",
+    "description": "Informer sur les risques du tabac et les ressources d'aide au sevrage.",
+    "categorie": "Santé",
+    "reference": "OMS"
+  },
+  {
+    "id": "EVT041",
+    "date": "05-06",
+    "titre": "Journée mondiale de l'environnement",
+    "description": "Mettre en avant des actions concrètes en faveur des écosystèmes.",
+    "categorie": "Environnement",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT042",
+    "date": "08-06",
+    "titre": "Journée mondiale des océans",
+    "description": "Découvrir les océans et les enjeux de leur préservation.",
+    "categorie": "Environnement",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT043",
+    "date": "12-06",
+    "titre": "Journée mondiale contre le travail des enfants",
+    "description": "Sensibiliser à la protection des droits et de l'enfance.",
+    "categorie": "Droits",
+    "reference": "OIT"
+  },
+  {
+    "id": "EVT044",
+    "date": "14-06",
+    "titre": "Journée mondiale du donneur de sang",
+    "description": "Remercier les donneurs et informer sur le don du sang.",
+    "categorie": "Santé",
+    "reference": "OMS"
+  },
+  {
+    "id": "EVT045",
+    "date": "20-06",
+    "titre": "Journée mondiale des réfugiés",
+    "description": "Écouter les parcours d'exil et rappeler les droits des personnes réfugiées.",
+    "categorie": "Solidarité",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT046",
+    "date": "21-06",
+    "titre": "Fête de la musique",
+    "description": "Partager une découverte musicale et célébrer la diversité des styles.",
+    "categorie": "Culture",
+    "reference": "France"
+  },
+  {
+    "id": "EVT047",
+    "date": "21-06",
+    "titre": "Solstice d'été",
+    "description": "Marquer le début astronomique de l'été dans l'hémisphère nord.",
+    "categorie": "Saison",
+    "reference": "Astronomie"
+  },
+  {
+    "id": "EVT048",
+    "date": "26-06",
+    "titre": "Journée internationale contre l'abus et le trafic de drogues",
+    "description": "Privilégier la prévention, la réduction des risques et l'accès à l'accompagnement.",
+    "categorie": "Santé",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT049",
+    "date": "30-06",
+    "titre": "Journée internationale des astéroïdes",
+    "description": "Découvrir les objets célestes et les recherches de défense planétaire.",
+    "categorie": "Sciences",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT050",
+    "date": "11-07",
+    "titre": "Journée mondiale de la population",
+    "description": "Aborder les évolutions démographiques et les enjeux sociaux associés.",
+    "categorie": "Société",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT051",
+    "date": "18-07",
+    "titre": "Journée internationale Nelson Mandela",
+    "description": "Mettre en avant l'engagement citoyen, la dignité et la réconciliation.",
+    "categorie": "Mémoire",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT052",
+    "date": "28-07",
+    "titre": "Journée mondiale contre l'hépatite",
+    "description": "Informer sur le dépistage, la vaccination et la prise en charge des hépatites virales.",
+    "categorie": "Santé",
+    "reference": "OMS"
+  },
+  {
+    "id": "EVT053",
+    "date": "30-07",
+    "titre": "Journée internationale de l'amitié",
+    "description": "Célébrer les liens amicaux et les gestes qui entretiennent la confiance.",
+    "categorie": "Relations",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT054",
+    "date": "09-08",
+    "titre": "Journée internationale des peuples autochtones",
+    "description": "Faire connaître les cultures, droits et savoirs des peuples autochtones.",
+    "categorie": "Droits",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT055",
+    "date": "12-08",
+    "titre": "Journée internationale de la jeunesse",
+    "description": "Donner de la place aux idées et aux engagements des jeunes.",
+    "categorie": "Jeunesse",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT056",
+    "date": "19-08",
+    "titre": "Journée mondiale de l'aide humanitaire",
+    "description": "Rendre hommage aux personnes qui apportent une aide dans les crises.",
+    "categorie": "Solidarité",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT057",
+    "date": "29-08",
+    "titre": "Journée internationale contre les essais nucléaires",
+    "description": "Rappeler les enjeux humanitaires et environnementaux des essais nucléaires.",
+    "categorie": "Paix",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT058",
+    "date": "08-09",
+    "titre": "Journée internationale de l'alphabétisation",
+    "description": "Valoriser l'accès à la lecture, à l'écriture et aux apprentissages.",
+    "categorie": "Éducation",
+    "reference": "UNESCO"
+  },
+  {
+    "id": "EVT059",
+    "date": "10-09",
+    "titre": "Journée mondiale de prévention du suicide",
+    "description": "Promouvoir l'écoute, la prévention et l'orientation vers des professionnels ou services d'urgence.",
+    "categorie": "Santé mentale",
+    "reference": "IASP/OMS"
+  },
+  {
+    "id": "EVT060",
+    "date": "15-09",
+    "titre": "Journée internationale de la démocratie",
+    "description": "Échanger sur la participation citoyenne, les libertés et le pluralisme.",
+    "categorie": "Société",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT061",
+    "date": "16-09",
+    "titre": "Journée internationale de la protection de la couche d'ozone",
+    "description": "Découvrir les actions internationales de protection de l'atmosphère.",
+    "categorie": "Environnement",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT062",
+    "date": "21-09",
+    "titre": "Journée internationale de la paix",
+    "description": "Promouvoir le dialogue, la non-violence et la coopération.",
+    "categorie": "Paix",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT063",
+    "date": "23-09",
+    "titre": "Journée internationale des langues des signes",
+    "description": "Valoriser les langues des signes et l'accessibilité des échanges.",
+    "categorie": "Inclusion",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT064",
+    "date": "27-09",
+    "titre": "Journée mondiale du tourisme",
+    "description": "Découvrir les patrimoines et les pratiques de tourisme responsable.",
+    "categorie": "Voyage",
+    "reference": "ONU Tourisme"
+  },
+  {
+    "id": "EVT065",
+    "date": "29-09",
+    "titre": "Journée mondiale du cœur",
+    "description": "Sensibiliser à la santé cardiovasculaire et à la prévention.",
+    "categorie": "Santé",
+    "reference": "WHF"
+  },
+  {
+    "id": "EVT066",
+    "date": "01-10",
+    "titre": "Journée internationale des personnes âgées",
+    "description": "Valoriser la place des aînés et les liens entre générations.",
+    "categorie": "Société",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT067",
+    "date": "02-10",
+    "titre": "Journée internationale de la non-violence",
+    "description": "Mettre en avant la résolution pacifique des conflits.",
+    "categorie": "Paix",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT068",
+    "date": "05-10",
+    "titre": "Journée mondiale des enseignants",
+    "description": "Remercier les personnes qui transmettent des savoirs et accompagnent les apprentissages.",
+    "categorie": "Éducation",
+    "reference": "UNESCO"
+  },
+  {
+    "id": "EVT069",
+    "date": "10-10",
+    "titre": "Journée mondiale de la santé mentale",
+    "description": "Parler de santé mentale sans stigmatisation et rappeler les ressources de soutien.",
+    "categorie": "Santé mentale",
+    "reference": "OMS"
+  },
+  {
+    "id": "EVT070",
+    "date": "11-10",
+    "titre": "Journée internationale des filles",
+    "description": "Promouvoir les droits, la sécurité et les possibilités offertes aux filles.",
+    "categorie": "Droits",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT071",
+    "date": "16-10",
+    "titre": "Journée mondiale de l'alimentation",
+    "description": "Évoquer l'accès à une alimentation suffisante, saine et durable.",
+    "categorie": "Société",
+    "reference": "FAO"
+  },
+  {
+    "id": "EVT072",
+    "date": "17-10",
+    "titre": "Journée internationale pour l'élimination de la pauvreté",
+    "description": "Rappeler les enjeux de dignité, d'accès aux droits et de solidarité.",
+    "categorie": "Société",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT073",
+    "date": "24-10",
+    "titre": "Journée des Nations Unies",
+    "description": "Découvrir la coopération internationale et les objectifs communs.",
+    "categorie": "Société",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT074",
+    "date": "31-10",
+    "titre": "Halloween",
+    "description": "Proposer une animation créative autour des histoires mystérieuses et des déguisements.",
+    "categorie": "Culture",
+    "reference": "Tradition"
+  },
+  {
+    "id": "EVT075",
+    "date": "01-11",
+    "titre": "Toussaint",
+    "description": "Évoquer les traditions de mémoire et de recueillement avec respect des convictions de chacun.",
+    "categorie": "Tradition",
+    "reference": "France"
+  },
+  {
+    "id": "EVT076",
+    "date": "13-11",
+    "titre": "Journée mondiale de la gentillesse",
+    "description": "Lancer un défi de petites attentions et de paroles encourageantes.",
+    "categorie": "Bienveillance",
+    "reference": "Tradition"
+  },
+  {
+    "id": "EVT077",
+    "date": "14-11",
+    "titre": "Journée mondiale du diabète",
+    "description": "Partager des informations de prévention et rappeler l'importance du suivi médical.",
+    "categorie": "Santé",
+    "reference": "OMS"
+  },
+  {
+    "id": "EVT078",
+    "date": "16-11",
+    "titre": "Journée internationale de la tolérance",
+    "description": "Promouvoir le respect des différences et le dialogue.",
+    "categorie": "Inclusion",
+    "reference": "UNESCO"
+  },
+  {
+    "id": "EVT079",
+    "date": "19-11",
+    "titre": "Journée internationale des hommes",
+    "description": "Ouvrir un échange équilibré sur la santé, les rôles sociaux et le bien-être des hommes.",
+    "categorie": "Société",
+    "reference": "Tradition"
+  },
+  {
+    "id": "EVT080",
+    "date": "20-11",
+    "titre": "Journée mondiale de l'enfance",
+    "description": "Rappeler les droits de l'enfant et l'importance de sa protection.",
+    "categorie": "Droits",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT081",
+    "date": "25-11",
+    "titre": "Journée internationale pour l'élimination de la violence à l'égard des femmes",
+    "description": "Informer sur les violences, les dispositifs d'aide et la prévention.",
+    "categorie": "Droits",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT082",
+    "date": "01-12",
+    "titre": "Journée mondiale de lutte contre le sida",
+    "description": "Informer sur le VIH, la prévention combinée, le dépistage et la lutte contre la sérophobie.",
+    "categorie": "Santé/LGBTQIA+",
+    "reference": "ONUSIDA"
+  },
+  {
+    "id": "EVT083",
+    "date": "03-12",
+    "titre": "Journée internationale des personnes handicapées",
+    "description": "Promouvoir l'accessibilité, l'autonomie et la participation de toutes et tous.",
+    "categorie": "Inclusion",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT084",
+    "date": "05-12",
+    "titre": "Journée internationale des bénévoles",
+    "description": "Remercier les personnes engagées dans les associations et l'entraide.",
+    "categorie": "Solidarité",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT085",
+    "date": "09-12",
+    "titre": "Journée internationale de lutte contre la corruption",
+    "description": "Évoquer la transparence, l'intégrité et la responsabilité publique.",
+    "categorie": "Société",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT086",
+    "date": "10-12",
+    "titre": "Journée des droits de l'homme",
+    "description": "Rappeler que les droits et la dignité concernent chaque personne.",
+    "categorie": "Droits",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT087",
+    "date": "18-12",
+    "titre": "Journée internationale des migrants",
+    "description": "Mettre en lumière les parcours migratoires et les droits fondamentaux.",
+    "categorie": "Solidarité",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT088",
+    "date": "20-12",
+    "titre": "Journée internationale de la solidarité humaine",
+    "description": "Célébrer l'entraide et les actions collectives.",
+    "categorie": "Solidarité",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT089",
+    "date": "24-12",
+    "titre": "Veille de Noël",
+    "description": "Partager des traditions ou un moment chaleureux, sans présumer des convictions de chacun.",
+    "categorie": "Culture",
+    "reference": "Tradition"
+  },
+  {
+    "id": "EVT090",
+    "date": "25-12",
+    "titre": "Noël",
+    "description": "Évoquer les traditions de fête, de partage et de convivialité dans leur diversité.",
+    "categorie": "Culture",
+    "reference": "Tradition"
+  },
+  {
+    "id": "EVT091",
+    "date": "31-12",
+    "titre": "Réveillon du Nouvel An",
+    "description": "Faire le bilan de l'année et partager, si on le souhaite, un souhait pour la suite.",
+    "categorie": "Fête",
+    "reference": "Tradition"
+  },
+  {
+    "id": "EVT092",
+    "date": "04-10",
+    "titre": "Journée mondiale des animaux",
+    "description": "Sensibiliser au bien-être animal et à la protection des espèces.",
+    "categorie": "Nature",
+    "reference": "Tradition"
+  },
+  {
+    "id": "EVT093",
+    "date": "09-10",
+    "titre": "Journée mondiale de la poste",
+    "description": "Découvrir l'histoire du courrier et les métiers de la distribution.",
+    "categorie": "Culture",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT094",
+    "date": "20-11",
+    "titre": "Journée du souvenir trans",
+    "description": "Honorer la mémoire des personnes trans victimes de violences et promouvoir leur sécurité.",
+    "categorie": "LGBTQIA+",
+    "reference": "TDoR"
+  },
+  {
+    "id": "EVT095",
+    "date": "28-06",
+    "titre": "Journée internationale de la fierté LGBTQIA+ (date de référence de nombreuses marches)",
+    "description": "Célébrer la visibilité, les droits et la diversité LGBTQIA+, en tenant compte des dates locales des marches.",
+    "categorie": "LGBTQIA+",
+    "reference": "Repère communautaire"
+  },
+  {
+    "id": "EVT096",
+    "date": "06-04",
+    "titre": "Journée internationale du sport au service du développement et de la paix",
+    "description": "Découvrir le rôle du sport dans l'inclusion et la coopération.",
+    "categorie": "Sport",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT097",
+    "date": "23-06",
+    "titre": "Journée olympique",
+    "description": "Célébrer le mouvement sportif et les valeurs de pratique accessible.",
+    "categorie": "Sport",
+    "reference": "CIO"
+  },
+  {
+    "id": "EVT098",
+    "date": "07-04",
+    "titre": "Journée mondiale de la santé (rappel thématique)",
+    "description": "Proposer un contenu de prévention sourcé et accessible.",
+    "categorie": "Santé",
+    "reference": "OMS"
+  },
+  {
+    "id": "EVT099",
+    "date": "15-05",
+    "titre": "Journée internationale des familles (idée d'animation)",
+    "description": "Mettre à l'honneur les liens choisis, familiaux et amicaux.",
+    "categorie": "Relations",
+    "reference": "ONU"
+  },
+  {
+    "id": "EVT100",
+    "date": "22-09",
+    "titre": "Équinoxe de septembre",
+    "description": "Marquer le début astronomique de l'automne dans l'hémisphère nord et partager les changements de saison.",
+    "categorie": "Saison",
+    "reference": "Astronomie"
+  }
+]

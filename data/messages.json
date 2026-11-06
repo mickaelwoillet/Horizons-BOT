@@ -1,1 +1,252 @@
-[]
+[
+  {
+    "id": "MSG001",
+    "texte": "Bienvenue dans HORIZONS ! Installe-toi à ton rythme : tu peux participer, observer ou simplement prendre le temps de découvrir la communauté.",
+    "categorie": "Accueil"
+  },
+  {
+    "id": "MSG002",
+    "texte": "Ici, chacun a le droit d'être soi-même. Le respect et l'écoute sont la base de nos échanges.",
+    "categorie": "Inclusion"
+  },
+  {
+    "id": "MSG003",
+    "texte": "Tu n'es pas obligé de répondre à tout ni d'être présent tout le temps. Ta place ne dépend pas de ton activité.",
+    "categorie": "Bien-être"
+  },
+  {
+    "id": "MSG004",
+    "texte": "Un petit mot gentil peut faire beaucoup. Aujourd'hui, pourquoi ne pas en offrir un à quelqu'un ?",
+    "categorie": "Bienveillance"
+  },
+  {
+    "id": "MSG005",
+    "texte": "Si une conversation te met mal à l'aise, tu peux poser une limite ou demander de l'aide à l'équipe.",
+    "categorie": "Sécurité"
+  },
+  {
+    "id": "MSG006",
+    "texte": "Les différences d'opinion sont possibles ; les attaques personnelles, elles, n'ont pas leur place ici.",
+    "categorie": "Respect"
+  },
+  {
+    "id": "MSG007",
+    "texte": "Prends le temps de lire, de découvrir les salons et de choisir ce qui te correspond.",
+    "categorie": "Accueil"
+  },
+  {
+    "id": "MSG008",
+    "texte": "Une communauté se construit avec des personnes différentes qui apprennent à se connaître.",
+    "categorie": "Communauté"
+  },
+  {
+    "id": "MSG009",
+    "texte": "Tu peux demander des précisions sans craindre de déranger : personne ne sait tout.",
+    "categorie": "Curiosité"
+  },
+  {
+    "id": "MSG010",
+    "texte": "Merci à celles et ceux qui prennent le temps d'accueillir les nouveaux membres.",
+    "categorie": "Gratitude"
+  },
+  {
+    "id": "MSG011",
+    "texte": "Le silence n'est pas un manque d'intérêt. Chacun participe à sa manière.",
+    "categorie": "Inclusion"
+  },
+  {
+    "id": "MSG012",
+    "texte": "N'oublie pas de respecter le rythme et les disponibilités des autres membres.",
+    "categorie": "Respect"
+  },
+  {
+    "id": "MSG013",
+    "texte": "Une discussion agréable commence souvent par une écoute attentive.",
+    "categorie": "Dialogue"
+  },
+  {
+    "id": "MSG014",
+    "texte": "Tu as le droit de changer d'avis lorsque tu découvres de nouvelles informations.",
+    "categorie": "Ouverture"
+  },
+  {
+    "id": "MSG015",
+    "texte": "Les messages privés doivent respecter le consentement de chacun. Un non doit être accepté sans insistance.",
+    "categorie": "Sécurité"
+  },
+  {
+    "id": "MSG016",
+    "texte": "Si tu traverses une période compliquée, tu peux en parler à une personne de confiance ou solliciter un soutien adapté.",
+    "categorie": "Soutien"
+  },
+  {
+    "id": "MSG017",
+    "texte": "Félicitons les efforts autant que les résultats : chaque progrès mérite d'être reconnu.",
+    "categorie": "Encouragement"
+  },
+  {
+    "id": "MSG018",
+    "texte": "Un désaccord n'empêche pas de rester courtois. On peut discuter sans chercher à blesser.",
+    "categorie": "Dialogue"
+  },
+  {
+    "id": "MSG019",
+    "texte": "La confidentialité est essentielle : ne partage pas les informations personnelles d'un autre membre sans son accord.",
+    "categorie": "Sécurité"
+  },
+  {
+    "id": "MSG020",
+    "texte": "Aujourd'hui, faisons une place aux personnes qui parlent moins facilement.",
+    "categorie": "Inclusion"
+  },
+  {
+    "id": "MSG021",
+    "texte": "Un conseil est plus utile lorsqu'il est proposé avec tact et sans jugement.",
+    "categorie": "Bienveillance"
+  },
+  {
+    "id": "MSG022",
+    "texte": "Tu peux refuser une activité, une conversation ou une demande sans devoir te justifier longuement.",
+    "categorie": "Limites"
+  },
+  {
+    "id": "MSG023",
+    "texte": "Merci de contribuer à faire de HORIZONS un espace accueillant et vivant.",
+    "categorie": "Gratitude"
+  },
+  {
+    "id": "MSG024",
+    "texte": "La curiosité est bienvenue, à condition de respecter les limites et l'intimité de chacun.",
+    "categorie": "Respect"
+  },
+  {
+    "id": "MSG025",
+    "texte": "Quand tu ne sais pas quoi dire, un simple « je t'écoute » peut déjà compter.",
+    "categorie": "Écoute"
+  },
+  {
+    "id": "MSG026",
+    "texte": "Prends soin de toi aussi en ligne : fais des pauses et éloigne-toi des échanges qui te pèsent.",
+    "categorie": "Bien-être"
+  },
+  {
+    "id": "MSG027",
+    "texte": "Les témoignages personnels méritent de l'écoute, pas des diagnostics improvisés.",
+    "categorie": "Soutien"
+  },
+  {
+    "id": "MSG028",
+    "texte": "Pense à vérifier une information avant de la partager, surtout lorsqu'elle concerne la santé.",
+    "categorie": "Prévention"
+  },
+  {
+    "id": "MSG029",
+    "texte": "Chacun avance avec son histoire. Évitons les comparaisons qui minimisent les difficultés des autres.",
+    "categorie": "Respect"
+  },
+  {
+    "id": "MSG030",
+    "texte": "Un compliment sincère porte sur un geste ou une qualité, sans mettre la personne mal à l'aise.",
+    "categorie": "Bienveillance"
+  },
+  {
+    "id": "MSG031",
+    "texte": "La solidarité commence parfois par une réaction, une réponse ou une présence discrète.",
+    "categorie": "Communauté"
+  },
+  {
+    "id": "MSG032",
+    "texte": "Si tu commets une maladresse, reconnaître son impact et s'excuser peut réparer beaucoup.",
+    "categorie": "Dialogue"
+  },
+  {
+    "id": "MSG033",
+    "texte": "Aucune identité ne devrait être tournée en dérision. Ici, la dignité de chacun compte.",
+    "categorie": "Inclusion"
+  },
+  {
+    "id": "MSG034",
+    "texte": "N'hésite pas à signaler un comportement problématique à l'équipe plutôt que de gérer seul une situation difficile.",
+    "categorie": "Sécurité"
+  },
+  {
+    "id": "MSG035",
+    "texte": "Les espaces communautaires sont plus agréables lorsque chacun laisse de la place aux autres.",
+    "categorie": "Respect"
+  },
+  {
+    "id": "MSG036",
+    "texte": "Tu peux participer à une animation simplement pour essayer, sans obligation de résultat.",
+    "categorie": "Animation"
+  },
+  {
+    "id": "MSG037",
+    "texte": "La bienveillance n'interdit pas les limites : elle invite à les exprimer clairement.",
+    "categorie": "Limites"
+  },
+  {
+    "id": "MSG038",
+    "texte": "Merci aux membres qui partagent leurs passions et donnent envie de découvrir de nouvelles choses.",
+    "categorie": "Gratitude"
+  },
+  {
+    "id": "MSG039",
+    "texte": "On peut soutenir quelqu'un sans prétendre avoir toutes les solutions.",
+    "categorie": "Soutien"
+  },
+  {
+    "id": "MSG040",
+    "texte": "Un espace inclusif se construit chaque jour, par des actes simples et cohérents.",
+    "categorie": "Inclusion"
+  },
+  {
+    "id": "MSG041",
+    "texte": "Aujourd'hui, choisis une petite chose qui te fait du bien et accorde-lui quelques minutes.",
+    "categorie": "Bien-être"
+  },
+  {
+    "id": "MSG042",
+    "texte": "Les informations de santé sont personnelles. Évitons les questions intrusives et les conseils risqués.",
+    "categorie": "Prévention"
+  },
+  {
+    "id": "MSG043",
+    "texte": "La meilleure conversation n'est pas forcément la plus longue, mais celle où chacun se sent respecté.",
+    "categorie": "Dialogue"
+  },
+  {
+    "id": "MSG044",
+    "texte": "Tu peux demander une pause dans une discussion si elle devient trop intense.",
+    "categorie": "Bien-être"
+  },
+  {
+    "id": "MSG045",
+    "texte": "Un merci, une réponse ou un encouragement peuvent valoriser le temps donné par un autre membre.",
+    "categorie": "Gratitude"
+  },
+  {
+    "id": "MSG046",
+    "texte": "L'humour rassemble lorsqu'il ne se fait pas aux dépens d'une personne ou d'un groupe.",
+    "categorie": "Respect"
+  },
+  {
+    "id": "MSG047",
+    "texte": "Chacun mérite d'être accueilli sans pression concernant son identité, son apparence ou son parcours.",
+    "categorie": "Inclusion"
+  },
+  {
+    "id": "MSG048",
+    "texte": "Si tu ne connais pas un sujet, poser une question respectueuse est un bon début.",
+    "categorie": "Curiosité"
+  },
+  {
+    "id": "MSG049",
+    "texte": "La confiance se gagne avec le temps : respectons les étapes de chacun.",
+    "categorie": "Relations"
+  },
+  {
+    "id": "MSG050",
+    "texte": "Rappel amical : les règles protègent la liberté de chacun de participer sereinement.",
+    "categorie": "Sécurité"
+  }
+]

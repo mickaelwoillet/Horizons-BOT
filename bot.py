@@ -133,6 +133,8 @@ EXTENSIONS: Final[tuple[str, ...]] = (
     "cogs.quizzes",
     "cogs.community",
     "cogs.horizons_daily",
+    "cogs.publication_calendar",
+    "cogs.publication_tests",
     "cogs.experiences",
     "cogs.horizons_path",
     "cogs.server_guides",

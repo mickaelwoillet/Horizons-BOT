@@ -10,11 +10,11 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 
 def main() -> None:
-    py_files = [p for p in ROOT.rglob("*.py") if "__pycache__" not in p.parts]
+    py_files = [p for p in ROOT.rglob("*.py") if "__pycache__" not in p.parts and ".venv" not in p.parts]
     for path in py_files:
         ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
 
-    json_files = list(ROOT.rglob("*.json"))
+    json_files = [p for p in ROOT.rglob("*.json") if ".venv" not in p.parts and "__pycache__" not in p.parts]
     for path in json_files:
         json.loads(path.read_text(encoding="utf-8"))
     # Les banques de blagues sont stockées sous la forme {categorie: [textes]}.
@@ -39,6 +39,31 @@ def main() -> None:
     compliments = json.loads((ROOT / "data" / "compliments.json").read_text(encoding="utf-8"))
     if not isinstance(questions, list) or not questions or not isinstance(compliments, list) or not compliments:
         raise SystemExit("Les contenus communautaires sont absents ou invalides.")
+
+    # Banques du calendrier éditorial : formats et volumes validés avant déploiement.
+    expected_banks = {
+        "citations.json": (50, {"id", "texte", "auteur", "theme"}),
+        "proverbes.json": (50, {"id", "texte", "origine", "theme"}),
+        "evenements.json": (100, {"id", "date", "titre", "description", "categorie", "reference"}),
+        "messages.json": (50, {"id", "texte", "categorie"}),
+        "quiz.json": (100, {"question", "reponse", "categorie"}),
+        "jeux.json": (50, {"id", "nom", "consigne", "categorie", "duree", "materiel"}),
+        "questions.json": (100, {"id", "texte", "categorie"}),
+    }
+    for filename, (expected_count, required_keys) in expected_banks.items():
+        payload = json.loads((ROOT / "data" / filename).read_text(encoding="utf-8"))
+        if not isinstance(payload, list) or len(payload) != expected_count:
+            raise SystemExit(f"{filename} doit contenir exactement {expected_count} entrées.")
+        for index, item in enumerate(payload, 1):
+            if not isinstance(item, dict) or not required_keys.issubset(item):
+                raise SystemExit(f"Entrée {index} invalide dans {filename}.")
+            if any(not str(item[key]).strip() for key in required_keys):
+                raise SystemExit(f"Champ vide dans {filename}, entrée {index}.")
+
+    calendar_cog = ROOT / "cogs" / "publication_calendar.py"
+    test_cog = ROOT / "cogs" / "publication_tests.py"
+    if not calendar_cog.is_file() or not test_cog.is_file():
+        raise SystemExit("Les extensions du calendrier ou des tests de publications sont absentes.")
 
     storage = (ROOT / "cogs" / "storage.py").read_text(encoding="utf-8")
     start = storage.index('SCHEMA = """') + len('SCHEMA = """')
@@ -89,6 +114,24 @@ def main() -> None:
     if not (ROOT / ".env.example").is_file():
         raise SystemExit("Le modèle .env.example est absent.")
     env_example = (ROOT / ".env.example").read_text(encoding="utf-8")
+    config_source = (ROOT / "config.py").read_text(encoding="utf-8")
+    if "RIDDLE_DAILY_CHANNEL_ID = env_int(\"RIDDLE_DAILY_CHANNEL_ID\", 1567198113318568158)" not in config_source:
+        raise SystemExit("L'identifiant par défaut du salon des devinettes est incorrect.")
+    if "RIDDLE_DAILY_CHANNEL_ID=1567198113318568158" not in env_example:
+        raise SystemExit("Le salon des devinettes n'est pas corrigé dans .env.example.")
+
+    calendar_source = (ROOT / "cogs" / "publication_calendar.py").read_text(encoding="utf-8")
+    for schedule in (
+        "time(hour=8, minute=0", "time(hour=13, minute=0", "time(hour=14, minute=0",
+        "time(hour=16, minute=0", "time(hour=20, minute=0",
+    ):
+        if schedule not in calendar_source:
+            raise SystemExit(f"Horaire quotidien manquant dans le calendrier : {schedule}")
+    test_source = (ROOT / "cogs" / "publication_tests.py").read_text(encoding="utf-8")
+    if "@app_commands.checks.has_permissions(administrator=True)" not in test_source:
+        raise SystemExit("/tester_publications n'est pas protégé par la permission Administrateur.")
+    if "TEST TECHNIQUE – HORIZONS" not in test_source:
+        raise SystemExit("Le marqueur des publications de test est absent.")
     required_settings = {
         "TEMP_VOICE_TRIGGER_ID", "TEMP_VOICE_CATEGORY_ID",
         "TICKET_REQUEST_CHANNEL_ID", "TICKET_CATEGORY_ID",
