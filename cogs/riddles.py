@@ -90,7 +90,7 @@ class Riddles(commands.Cog):
                     embed=embed,
                     view=view,
                 )
-            elif isinstance(channel, (discord.TextChannel, discord.NewsChannel)):
+            elif isinstance(channel, (discord.TextChannel)):
                 await channel.send(embed=embed, view=view)
             else:
                 log.error("Le salon des devinettes n'est ni un Forum ni un salon textuel (type : %s).", type(channel).__name__)

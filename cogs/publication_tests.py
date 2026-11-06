@@ -57,14 +57,25 @@ async def send_test(bot: commands.Bot, channel_id: int | None, name: str, embed:
         if isinstance(channel, discord.ForumChannel):
             title = (embed.title or name)[:85]
             await channel.create_thread(name=f"[TEST] {title}"[:100], content=marker, embed=embed, view=view)
-        elif isinstance(channel, (discord.TextChannel, discord.NewsChannel, discord.Thread)):
+        elif isinstance(channel, (discord.TextChannel, discord.Thread)):
             await channel.send(content=marker, embed=embed, view=view)
         else:
             return False, f"{name} : type de salon non pris en charge ({type(channel).__name__})."
         return True, f"{name} → #{getattr(channel, 'name', str(channel.id))}"
-    except (discord.Forbidden, discord.HTTPException) as exc:
-        log.exception("Échec du test %s dans %s", name, channel_id)
-        return False, f"{name} → #{getattr(channel, 'name', str(channel.id))} : {type(exc).__name__}."
+    except discord.Forbidden as exc:
+        log.exception("Permissions insuffisantes pour le test %s dans %s", name, channel_id)
+        return False, (
+            f"{name} → #{getattr(channel, 'name', str(channel.id))} : "
+            f"permissions insuffisantes (HTTP {getattr(exc, 'status', '?')})."
+        )
+    except discord.HTTPException as exc:
+        log.exception("Erreur HTTP Discord pendant le test %s dans %s", name, channel_id)
+        detail = (getattr(exc, "text", None) or str(exc) or "détail non fourni")[:250]
+        return False, (
+            f"{name} → #{getattr(channel, 'name', str(channel.id))} : "
+            f"HTTP {getattr(exc, 'status', '?')} / code {getattr(exc, 'code', '?')} "
+            f"({detail})."
+        )
 
 
 class PublicationTests(commands.Cog):

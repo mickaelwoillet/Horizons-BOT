@@ -92,7 +92,7 @@ async def _send_embed(bot: commands.Bot, channel_id: int | None, embed: discord.
         if isinstance(channel, discord.ForumChannel):
             title = (thread_title or embed.title or "Publication HORIZONS").strip()
             await channel.create_thread(name=title[:100], content="✦ Une nouvelle publication HORIZONS", embed=embed)
-        elif isinstance(channel, (discord.TextChannel, discord.NewsChannel, discord.Thread)):
+        elif isinstance(channel, (discord.TextChannel, discord.Thread)):
             await channel.send(embed=embed)
         else:
             log.error("Type de salon non pris en charge pour %s : %s", channel_id, type(channel).__name__)

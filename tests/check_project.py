@@ -12,7 +12,10 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 def main() -> None:
     py_files = [p for p in ROOT.rglob("*.py") if "__pycache__" not in p.parts and ".venv" not in p.parts]
     for path in py_files:
-        ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        source = path.read_text(encoding="utf-8")
+        ast.parse(source, filename=str(path))
+        if path.name != "check_project.py" and ("discord." + "NewsChannel") in source:
+            raise SystemExit(f"Type discord.NewsChannel non pris en charge dans {path.relative_to(ROOT)}.")
 
     json_files = [p for p in ROOT.rglob("*.json") if ".venv" not in p.parts and "__pycache__" not in p.parts]
     for path in json_files:

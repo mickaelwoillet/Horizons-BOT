@@ -76,7 +76,7 @@ class Community(commands.Cog):
                         content="💬 La question du jour est lancée ! Répondez directement sous cette publication.",
                         embeds=[embed],
                     )
-                elif isinstance(channel, (discord.TextChannel, discord.NewsChannel)):
+                elif isinstance(channel, (discord.TextChannel)):
                     # Compatibilité avec un salon textuel si le salon est changé ultérieurement.
                     await channel.send(embed=embed)
                 else:

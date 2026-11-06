@@ -162,7 +162,7 @@ class HorizonsDaily(commands.Cog):
         embed = horizons_embed(title=title, description=content, color=discord.Color.blurple())
         embed.set_footer(text="HORIZONS • Un rendez-vous quotidien pour se retrouver")
         try:
-            if isinstance(channel, (discord.TextChannel, discord.NewsChannel)):
+            if isinstance(channel, (discord.TextChannel)):
                 await channel.send(embed=embed)
             else:
                 log.error("Le salon Horizon du jour doit être un salon textuel (type : %s).", type(channel).__name__)
@@ -205,7 +205,7 @@ class HorizonsDaily(commands.Cog):
                     content="🗣️ Le débat HORIZONS de la semaine est ouvert. Vous pouvez répondre directement dans cette publication.",
                     embed=embed,
                 )
-            elif isinstance(channel, (discord.TextChannel, discord.NewsChannel)):
+            elif isinstance(channel, (discord.TextChannel)):
                 await channel.send(embed=embed)
             else:
                 log.error("Le salon des débats doit être un Forum ou un salon textuel (type : %s).", type(channel).__name__)
