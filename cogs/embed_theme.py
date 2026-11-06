@@ -66,5 +66,7 @@ def horizons_embed(*args: Any, **kwargs: Any) -> discord.Embed:
         footer_text = f"{footer_text} • HORIZONS" if footer_text else "HORIZONS • Nos différences nous rapprochent"
     elif "nos différences nous rapprochent" not in footer_text.lower():
         footer_text = f"{footer_text} • Nos différences nous rapprochent"
-    embed.set_footer(text=footer_text, icon_url=embed.footer.icon_url or discord.utils.MISSING)
+    # Ne transmettre aucun icon_url lorsqu’il n’existe pas : discord.py peut
+    # sérialiser la valeur sentinelle MISSING comme une URL invalide.
+    embed.set_footer(text=footer_text)
     return embed

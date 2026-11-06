@@ -345,10 +345,20 @@ class ServerGuides(commands.Cog):
             else:
                 chunks = [value]
             for idx, chunk in enumerate(chunks, start=1):
-                if len(current.fields) >= 20:
+                field_name = category + (f" (suite {idx})" if idx > 1 else "")
+                # Discord limite chaque embed à 6 000 caractères au total
+                # (titre, description, champs et pied de page compris).
+                # On conserve une marge pour le footer ajouté ensuite.
+                if current.fields and (
+                    len(current.fields) >= 20
+                    or len(current) + len(field_name) + len(chunk) > 5400
+                ):
                     embeds.append(current)
-                    current = horizons_embed(title="✦ Guide des commandes HORIZONS — suite", color=discord.Color.dark_purple())
-                current.add_field(name=category + (f" (suite {idx})" if idx > 1 else ""), value=chunk or "Aucune commande.", inline=False)
+                    current = horizons_embed(
+                        title="✦ Guide des commandes HORIZONS — suite",
+                        color=discord.Color.dark_purple(),
+                    )
+                current.add_field(name=field_name, value=chunk or "Aucune commande.", inline=False)
         current.set_footer(text=f"HORIZONS • Commandes réellement chargées • {week} • {FOOTER_PREFIX}commandes_staff")
         embeds.append(current)
         return embeds
