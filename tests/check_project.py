@@ -135,6 +135,15 @@ def main() -> None:
         raise SystemExit("/tester_publications n'est pas protégé par la permission Administrateur.")
     if "TEST TECHNIQUE – HORIZONS" not in test_source:
         raise SystemExit("Le marqueur des publications de test est absent.")
+
+    audit_cog = ROOT / "cogs" / "server_audit_export.py"
+    if not audit_cog.is_file():
+        raise SystemExit("La commande /export_structure est absente.")
+    audit_source = audit_cog.read_text(encoding="utf-8")
+    if "@app_commands.checks.has_permissions(administrator=True)" not in audit_source or "ephemeral=True" not in audit_source:
+        raise SystemExit("/export_structure doit être réservée aux administrateurs et répondre en privé.")
+    if "cogs.server_audit_export" not in extensions:
+        raise SystemExit("L'extension /export_structure n'est pas chargée par bot.py.")
     required_settings = {
         "TEMP_VOICE_TRIGGER_ID", "TEMP_VOICE_CATEGORY_ID",
         "TICKET_REQUEST_CHANNEL_ID", "TICKET_CATEGORY_ID",
