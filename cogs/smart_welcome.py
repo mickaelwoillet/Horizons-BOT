@@ -10,7 +10,7 @@ from discord.ext import commands, tasks
 
 from config import (
     WELCOME_CHANNEL_ID, CHARTER_CHANNEL_ID, INTRO_CHANNEL_ID,
-    NEW_MEMBER_ROLE_ID, MEMBER_ROLE_ID, GUILD_ID,
+    DAILY_QUESTION_CHANNEL_ID, NEW_MEMBER_ROLE_ID, MEMBER_ROLE_ID, GUILD_ID,
 )
 from cogs.embed_theme import horizons_embed, wait_for_logo_ready
 from cogs.storage import db
@@ -36,6 +36,8 @@ def ensure_table() -> None:
                 participated INTEGER NOT NULL DEFAULT 0,
                 reminder_sent INTEGER NOT NULL DEFAULT 0,
                 completed_at TEXT,
+                charter_welcome_sent INTEGER NOT NULL DEFAULT 0,
+                profile_customized INTEGER NOT NULL DEFAULT 0,
                 PRIMARY KEY (guild_id, user_id)
             )
         """)
@@ -43,6 +45,16 @@ def ensure_table() -> None:
             CREATE INDEX IF NOT EXISTS idx_onboarding_followup
             ON onboarding_progress(guild_id, participated, reminder_sent, joined_at)
         """)
+        # Migration non destructive : les anciennes bases conservent leur historique.
+        columns = {row[1] for row in conn.execute("PRAGMA table_info(onboarding_progress)").fetchall()}
+        if "charter_welcome_sent" not in columns:
+            conn.execute(
+                "ALTER TABLE onboarding_progress ADD COLUMN charter_welcome_sent INTEGER NOT NULL DEFAULT 0"
+            )
+        if "profile_customized" not in columns:
+            conn.execute(
+                "ALTER TABLE onboarding_progress ADD COLUMN profile_customized INTEGER NOT NULL DEFAULT 0"
+            )
 
 
 class WelcomeView(discord.ui.View):
@@ -55,11 +67,70 @@ class WelcomeView(discord.ui.View):
                 label="Lire la charte", emoji="📜", style=discord.ButtonStyle.link,
                 url=f"https://discord.com/channels/{GUILD_ID}/{CHARTER_CHANNEL_ID}"
             ))
+        # La présentation n'est accessible qu'après validation de la charte.
+        # On évite donc de proposer un lien prématuré depuis le premier accueil.
+
+
+class DiscoveryLinksView(discord.ui.View):
+    """Liens directs proposés après validation de la charte."""
+
+    def __init__(self, guild: discord.Guild):
+        super().__init__(timeout=None)
+        links = []
+        if CHARTER_CHANNEL_ID:
+            links.append(("Charte", "📜", CHARTER_CHANNEL_ID))
         if INTRO_CHANNEL_ID:
+            links.append(("Présentation", "👋", INTRO_CHANNEL_ID))
+        if DAILY_QUESTION_CHANNEL_ID:
+            links.append(("Question du jour", "❓", DAILY_QUESTION_CHANNEL_ID))
+        roles_channel = next(
+            (channel for channel in guild.text_channels
+             if "choix-des-rôles" in channel.name.casefold() or "choix-des-roles" in channel.name.casefold()),
+            None,
+        )
+        if roles_channel:
+            links.insert(1, ("Choisir mes rôles", "🎭", roles_channel.id))
+        for label, emoji, channel_id in links[:5]:
             self.add_item(discord.ui.Button(
-                label="Se présenter", emoji="👋", style=discord.ButtonStyle.link,
-                url=f"https://discord.com/channels/{GUILD_ID}/{INTRO_CHANNEL_ID}"
+                label=label,
+                emoji=emoji,
+                style=discord.ButtonStyle.link,
+                url=f"https://discord.com/channels/{guild.id}/{channel_id}",
             ))
+
+
+def build_first_steps_embed() -> discord.Embed:
+    embed = horizons_embed(
+        title="🧭 Tes premiers pas sur HORIZONS",
+        description=(
+            "Tu as maintenant accès à la communauté ! 💜\n\n"
+            "Il n'y a aucun parcours obligatoire à suivre et tu n'as pas besoin de tout faire aujourd'hui. "
+            "Voici quelques portes que tu peux ouvrir, dans l'ordre qui te convient."
+        ),
+        color=discord.Color.teal(),
+    )
+    embed.add_field(
+        name="🎭 1. Personnalise ton expérience",
+        value="Dans **choix-des-rôles**, sélectionne les centres d'intérêt, langues, jeux ou préférences que tu souhaites afficher. Les choix personnels restent facultatifs.",
+        inline=False,
+    )
+    embed.add_field(
+        name="💬 2. Fais un premier petit pas",
+        value="Tu peux répondre à la question du jour, réagir à une publication ou simplement parcourir les discussions. Aucune présentation n'est exigée.",
+        inline=False,
+    )
+    embed.add_field(
+        name="🌅 3. Explore à ton rythme",
+        value="La commande **/parcours** te propose cinq chemins de découverte facultatifs : curiosité, confiance, solidarité, créativité et découverte.",
+        inline=False,
+    )
+    embed.add_field(
+        name="🤝 4. Tu n'es pas seul",
+        value="Si tu as une question, tu peux contacter l'équipe ou utiliser les espaces d'entraide. Tu peux aussi rester discret le temps de prendre tes repères.",
+        inline=False,
+    )
+    embed.set_footer(text="HORIZONS • Tu es libre d'avancer à ton rythme")
+    return embed
 
 
 class SmartWelcome(commands.Cog):
@@ -81,7 +152,8 @@ class SmartWelcome(commands.Cog):
                 ON CONFLICT(guild_id, user_id) DO UPDATE SET
                     joined_at=excluded.joined_at,
                     charter_accepted=excluded.charter_accepted,
-                    intro_posted=0, participated=0, reminder_sent=0, completed_at=NULL
+                    intro_posted=0, participated=0, reminder_sent=0, completed_at=NULL,
+                    charter_welcome_sent=0, profile_customized=0
             """, (
                 member.guild.id, member.id, utc_now().isoformat(),
                 int(bool(MEMBER_ROLE_ID and discord.utils.get(member.roles, id=MEMBER_ROLE_ID)))
@@ -106,9 +178,9 @@ class SmartWelcome(commands.Cog):
                 "sans obligation de te présenter immédiatement.\n\n"
                 "**Pour commencer, voici trois petits pas :**\n"
                 "📜 **1. Découvrir la charte** : lis-la puis utilise le bouton d'acceptation dans le salon dédié.\n"
-                "👋 **2. Faire connaissance** : présente-toi si tu en as envie.\n"
-                "🧭 **3. Explorer** : découvre les salons, les expériences et les animations à ton rythme.\n\n"
-                "Tu peux simplement observer au début. Ici, chacun avance à son rythme : bienvenue chez toi ! ✨"
+                "🧭 **2. Après la charte** : tu pourras personnaliser ton expérience dans le choix des rôles.\n"
+                "💬 **3. Explorer** : découvre les salons, les expériences et les animations à ton rythme.\n\n"
+                "Tu peux simplement observer au début. La présentation est facultative : ici, chacun avance à son rythme. Bienvenue chez toi ! ✨"
             ),
             color=discord.Color.gold(),
         )
@@ -127,13 +199,38 @@ class SmartWelcome(commands.Cog):
         has_role = any(role.id == MEMBER_ROLE_ID for role in after.roles)
         if had_role or not has_role:
             return
+        should_send_guide = False
+        now = utc_now().isoformat()
         with db() as conn:
+            # Couvre aussi un membre dont l'événement d'arrivée n'aurait pas été enregistré.
+            conn.execute("""
+                INSERT OR IGNORE INTO onboarding_progress(guild_id, user_id, joined_at, charter_accepted)
+                VALUES (?, ?, ?, 1)
+            """, (after.guild.id, after.id, now))
+            row = conn.execute("""
+                SELECT charter_welcome_sent FROM onboarding_progress
+                WHERE guild_id=? AND user_id=?
+            """, (after.guild.id, after.id)).fetchone()
+            should_send_guide = bool(row and not row["charter_welcome_sent"])
             conn.execute("""
                 UPDATE onboarding_progress
                 SET charter_accepted=1,
-                    completed_at=CASE WHEN intro_posted=1 THEN ? ELSE completed_at END
+                    completed_at=CASE WHEN intro_posted=1 THEN ? ELSE completed_at END,
+                    charter_welcome_sent=CASE WHEN charter_welcome_sent=0 THEN 1 ELSE charter_welcome_sent END
                 WHERE guild_id=? AND user_id=?
-            """, (utc_now().isoformat(), after.guild.id, after.id))
+            """, (now, after.guild.id, after.id))
+
+        if should_send_guide:
+            try:
+                await after.send(
+                    embed=build_first_steps_embed(),
+                    view=DiscoveryLinksView(after.guild),
+                )
+                logger.info("Guide de découverte envoyé après validation de la charte (%s).", after.id)
+            except discord.Forbidden:
+                logger.info("Guide de découverte non envoyé (DM fermés) pour %s ; /premiers_pas reste disponible.", after.id)
+            except discord.HTTPException:
+                logger.warning("Échec de l'envoi du guide de découverte pour %s.", after.id)
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -153,6 +250,37 @@ class SmartWelcome(commands.Cog):
                     WHERE guild_id=? AND user_id=?
                 """, (message.guild.id, message.author.id))
 
+    @commands.Cog.listener()
+    async def on_interaction(self, interaction: discord.Interaction):
+        # Les commandes slash, boutons et menus comptent comme une première interaction.
+        if not interaction.guild_id or interaction.user.bot:
+            return
+        if GUILD_ID and interaction.guild_id != GUILD_ID:
+            return
+        if interaction.type not in {
+            discord.InteractionType.application_command,
+            discord.InteractionType.component,
+            discord.InteractionType.modal_submit,
+        }:
+            return
+        with db() as conn:
+            conn.execute(
+                "UPDATE onboarding_progress SET participated=1 WHERE guild_id=? AND user_id=?",
+                (interaction.guild_id, interaction.user.id),
+            )
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
+        if not payload.guild_id or (self.bot.user and payload.user_id == self.bot.user.id):
+            return
+        if GUILD_ID and payload.guild_id != GUILD_ID:
+            return
+        with db() as conn:
+            conn.execute(
+                "UPDATE onboarding_progress SET participated=1 WHERE guild_id=? AND user_id=?",
+                (payload.guild_id, payload.user_id),
+            )
+
     @tasks.loop(hours=1)
     async def followup_loop(self):
         if not GUILD_ID:
@@ -160,21 +288,21 @@ class SmartWelcome(commands.Cog):
         cutoff = (utc_now() - REMINDER_AFTER).isoformat()
         with db() as conn:
             rows = conn.execute("""
-                SELECT user_id FROM onboarding_progress
+                SELECT user_id, charter_accepted FROM onboarding_progress
                 WHERE guild_id=? AND participated=0 AND reminder_sent=0 AND joined_at<=?
             """, (GUILD_ID, cutoff)).fetchall()
             # Marquer avant l'envoi : un DM fermé ne doit pas provoquer des tentatives répétées.
-            ids = [int(row["user_id"]) for row in rows]
-            if ids:
+            pending = [(int(row["user_id"]), bool(row["charter_accepted"])) for row in rows]
+            if pending:
                 conn.executemany("""
                     UPDATE onboarding_progress SET reminder_sent=1
                     WHERE guild_id=? AND user_id=?
-                """, [(GUILD_ID, uid) for uid in ids])
+                """, [(GUILD_ID, uid) for uid, _ in pending])
 
         guild = self.bot.get_guild(GUILD_ID)
         if guild is None:
             return
-        for user_id in ids:
+        for user_id, charter_accepted in pending:
             member = guild.get_member(user_id)
             if member is None:
                 try:
@@ -182,13 +310,20 @@ class SmartWelcome(commands.Cog):
                 except (discord.NotFound, discord.Forbidden, discord.HTTPException):
                     continue
             try:
-                await member.send(
-                    "🌅 Petit coucou de HORIZONS !\n\n"
-                    "Nous espérons que tu te sens bien parmi nous. Si tu le souhaites, "
-                    "tu peux reprendre tranquillement ton parcours en découvrant la charte, "
-                    "les présentations et les salons qui t'intéressent. Aucune obligation : "
-                    "prends ton temps, nous sommes heureux de t'accueillir. 💜"
-                )
+                if not charter_accepted:
+                    await member.send(
+                        "🌅 Petit coucou de HORIZONS !\n\n"
+                        "Si tu souhaites poursuivre ton arrivée, tu peux retrouver la charte dans le salon "
+                        "📏・la-charte. Sa validation te donnera accès aux autres espaces.\n\n"
+                        "Aucune urgence : prends le temps qu'il te faut. 💜"
+                    )
+                else:
+                    await member.send(
+                        "🌅 Petit coucou de HORIZONS !\n\n"
+                        "Si tu souhaites découvrir quelques espaces, la commande **/premiers_pas** "
+                        "te donnera les liens utiles et quelques idées pour commencer.\n\n"
+                        "Tu peux aussi simplement observer et avancer à ton rythme. 💜"
+                    )
             except discord.Forbidden:
                 logger.info("Rappel d'accueil non envoyé (DM fermés) pour %s.", user_id)
             except discord.HTTPException:
@@ -197,6 +332,23 @@ class SmartWelcome(commands.Cog):
     @followup_loop.before_loop
     async def before_followup_loop(self):
         await self.bot.wait_until_ready()
+
+    @app_commands.command(name="premiers_pas", description="Retrouver ton guide de découverte et les liens utiles HORIZONS.")
+    async def premiers_pas(self, interaction: discord.Interaction):
+        if not isinstance(interaction.user, discord.Member) or interaction.guild is None:
+            await interaction.response.send_message("Cette commande est disponible sur le serveur HORIZONS.", ephemeral=True)
+            return
+        if MEMBER_ROLE_ID and not any(role.id == MEMBER_ROLE_ID for role in interaction.user.roles):
+            await interaction.response.send_message(
+                "🌱 Pour accéder au guide, commence par lire et accepter la charte dans **📏・la-charte**. Tu pourras ensuite revenir ici.",
+                ephemeral=True,
+            )
+            return
+        await interaction.response.send_message(
+            embed=build_first_steps_embed(),
+            view=DiscoveryLinksView(interaction.guild),
+            ephemeral=True,
+        )
 
     @app_commands.command(name="accueil_bilan", description="Consulter le suivi privé des nouveaux membres HORIZONS.")
     @app_commands.checks.has_permissions(manage_guild=True)
@@ -221,6 +373,12 @@ class SmartWelcome(commands.Cog):
             reminded = conn.execute("""
                 SELECT COUNT(*) FROM onboarding_progress WHERE guild_id=? AND joined_at>=? AND reminder_sent=1
             """, (interaction.guild.id, since)).fetchone()[0]
+            guides = conn.execute("""
+                SELECT COUNT(*) FROM onboarding_progress WHERE guild_id=? AND joined_at>=? AND charter_welcome_sent=1
+            """, (interaction.guild.id, since)).fetchone()[0]
+            customized = conn.execute("""
+                SELECT COUNT(*) FROM onboarding_progress WHERE guild_id=? AND joined_at>=? AND profile_customized=1
+            """, (interaction.guild.id, since)).fetchone()[0]
         embed = horizons_embed(
             title="🧭 Accueil intelligent — bilan des 7 derniers jours",
             description=(
@@ -228,6 +386,8 @@ class SmartWelcome(commands.Cog):
                 f"**Charte acceptée :** {charter}\n"
                 f"**Présentation publiée :** {intro}\n"
                 f"**Aucune participation détectée :** {quiet}\n"
+                f"**Guides après charte proposés :** {guides}\n"
+                f"**Profils personnalisés (centres d'intérêt et préférences non sensibles) :** {customized}\n"
                 f"**Rappels privés tentés :** {reminded}\n\n"
                 "Ces indicateurs servent à améliorer l'accueil, pas à juger les membres. "
                 "Une personne peut choisir de lire et d'observer sans écrire."

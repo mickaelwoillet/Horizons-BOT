@@ -80,6 +80,21 @@ class RoleSelect(discord.ui.Select):
         except discord.HTTPException:
             await interaction.response.send_message("Discord n'a pas accepté la modification. Réessaie.", ephemeral=True)
             return
+        # Le suivi d'accueil ne conserve aucun rôle ni choix personnel.
+        # Il note seulement qu'un membre a personnalisé des préférences non sensibles.
+        trackable_categories = {
+            "Langues", "Cultures à partager ou découvrir", "Centres d'intérêt",
+            "Styles musicaux", "Jeux", "Communication", "Disponibilités",
+            "Tempérament", "Notifications",
+        }
+        if self.category in trackable_categories:
+            with db() as conn:
+                columns = {row[1] for row in conn.execute("PRAGMA table_info(onboarding_progress)").fetchall()}
+                if "profile_customized" in columns:
+                    conn.execute(
+                        "UPDATE onboarding_progress SET profile_customized=1 WHERE guild_id=? AND user_id=?",
+                        (interaction.guild.id, interaction.user.id),
+                    )
         await interaction.response.send_message("Tes rôles ont été mis à jour. 💜", ephemeral=True)
 
 class RolePanelView(discord.ui.View):

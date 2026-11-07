@@ -39,6 +39,7 @@ STAFF_PERMISSIONS = {
     "alerte_equipe": "Commande d'alerte interne, accès staff.",
 }
 CATEGORIES = (
+    ("🙌 Accueil et découverte", {"premiers_pas"}),
     ("⚙️ Informations et profils", {"ping", "aide", "profil", "serveur", "presentation"}),
     ("💬 Communauté et entraide", {"question_du_jour", "compliment", "idee", "mes_idees", "idee_statut", "remercier", "proposer"}),
     ("🧭 Missions et expériences", {"mon_passeport", "valider_mission", "chercher", "defi_collectif", "rejoindre_defi", "creer_defi", "parcours", "parcours_badges", "mon_parcours", "actualiser_rangs"}),
