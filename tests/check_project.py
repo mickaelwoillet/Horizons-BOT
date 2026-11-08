@@ -99,6 +99,21 @@ def main() -> None:
         if not module_path.is_file():
             raise SystemExit(f"Extension absente : {extension}")
 
+    # Vérifie que chaque symbole importé depuis config.py est réellement défini.
+    config_tree = ast.parse((ROOT / "config.py").read_text(encoding="utf-8"))
+    config_names = set()
+    for node in ast.walk(config_tree):
+        if isinstance(node, (ast.Assign, ast.AnnAssign)):
+            targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+            config_names.update(target.id for target in targets if isinstance(target, ast.Name))
+    for source_path in [ROOT / "bot.py", *((ROOT / "cogs").glob("*.py"))]:
+        source_tree = ast.parse(source_path.read_text(encoding="utf-8"))
+        for node in ast.walk(source_tree):
+            if isinstance(node, ast.ImportFrom) and node.module == "config":
+                missing_names = [item.name for item in node.names if item.name not in config_names]
+                if missing_names:
+                    raise SystemExit(f"Import(s) config.py manquant(s) dans {source_path.name} : {missing_names}")
+
     commands = []
     for path in py_files:
         tree = ast.parse(path.read_text(encoding="utf-8"))
@@ -121,11 +136,11 @@ def main() -> None:
     # Progression communautaire : contributions, entraide, missions et parcours
     # doivent alimenter le même registre de succès, sans système de points/classement.
     progression_sources = {
-        "cogs/horizons_features.py": ("first_idea", "idea_accepted", "first_thanks_given", "first_thanks_received", "challenge_joined", "collective_success", "path_decouverte"),
+        "cogs/horizons_features.py": ("ACHIEVEMENTS", "first_day", "seven_days", "thirty_days", "passport_week", "check_achievements"),
         "cogs/community_hub.py": ("check_achievements", "solidarity_thanks", "community_ideas"),
         "cogs/experiences.py": ("check_achievements", "passport_completions", "collective_challenge_members"),
         "cogs/horizons_path.py": ("check_achievements", "horizons_path_progress"),
-        "cogs/community_ranks.py": ("name=\"progression\"", "LOCAL_TIMEZONE", "activity_days"),
+        "cogs/community_ranks.py": ("name=\"mon_parcours\"", "datetime.now(timezone.utc)", "activity_days"),
     }
     for filename, markers in progression_sources.items():
         source = (ROOT / filename).read_text(encoding="utf-8")
@@ -167,8 +182,20 @@ def main() -> None:
     for filename, marker in schedule_sources.items():
         if marker not in (ROOT / filename).read_text(encoding="utf-8"):
             raise SystemExit(f"Horaire éditorial manquant dans {filename}: {marker}")
-    if "cogs.weekly_animations" not in extensions:
-        raise SystemExit("Le module d'animations hebdomadaires n'est pas chargé.")
+    for required_extension in ("cogs.horizons_daily", "cogs.publication_calendar", "cogs.weekly_animations", "cogs.server_reorganization"):
+        if required_extension not in extensions:
+            raise SystemExit(f"Extension attendue non chargée : {required_extension}")
+    for setting in (
+        'HORIZON_DAILY_CHANNEL_ID = env_int("HORIZON_DAILY_CHANNEL_ID", 1567844795307532308)',
+        'DEBATE_CHANNEL_ID = env_int("DEBATE_CHANNEL_ID", 1566850089761382553)',
+        'INSPIRATION_CHANNEL_ID = env_int("INSPIRATION_CHANNEL_ID", 1568958163875528754)',
+    ):
+        if setting not in config_source:
+            raise SystemExit(f"Configuration de publication manquante : {setting}")
+    reorganization_source = (ROOT / "cogs" / "server_reorganization.py").read_text(encoding="utf-8")
+    for marker in ("previsualiser_reorganisation", "appliquer_reorganisation", "restaurer_structure", "_write_backup", "ARCHIVE_CHANNEL_IDS", "FORUM_TAGS"):
+        if marker not in reorganization_source:
+            raise SystemExit(f"Fonction de réorganisation manquante : {marker}")
     test_source = (ROOT / "cogs" / "publication_tests.py").read_text(encoding="utf-8")
     if "@app_commands.checks.has_permissions(administrator=True)" not in test_source:
         raise SystemExit("/tester_publications n'est pas protégé par la permission Administrateur.")

@@ -98,7 +98,7 @@ class WeeklyAnimations(commands.Cog):
         embed.set_footer(text="HORIZONS • Le rendez-vous collectif du vendredi")
         try:
             if isinstance(channel, discord.ForumChannel):
-                await channel.create_thread(name=f"🎯 {item['nom']}"[:100], content="L'animation collective de la semaine est ouverte !", embed=embed)
+                await channel.create_thread(name=f"🎯 {item['nom']}"[:100], content="L'animation collective de la semaine est ouverte !", embeds=[embed])
             else:
                 await channel.send(embed=embed)
             state = load_history()

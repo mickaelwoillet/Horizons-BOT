@@ -91,7 +91,7 @@ async def _send_embed(bot: commands.Bot, channel_id: int | None, embed: discord.
     try:
         if isinstance(channel, discord.ForumChannel):
             title = (thread_title or embed.title or "Publication HORIZONS").strip()
-            await channel.create_thread(name=title[:100], content="✦ Une nouvelle publication HORIZONS", embed=embed)
+            await channel.create_thread(name=title[:100], content="✦ Une nouvelle publication HORIZONS", embeds=[embed])
         elif isinstance(channel, (discord.TextChannel, discord.Thread)):
             await channel.send(embed=embed)
         else:
@@ -147,6 +147,9 @@ class PublicationCalendar(commands.Cog):
 
     @tasks.loop(time=time(hour=13, minute=30, tzinfo=LOCAL_TIMEZONE))
     async def daily_quiz(self):
+        # Trois rendez-vous hebdomadaires pour ne pas saturer la routine.
+        if datetime.now(LOCAL_TIMEZONE).weekday() not in (0, 2, 5):
+            return
         today = datetime.now(LOCAL_TIMEZONE).date().isoformat()
         state = _load_state()
         if state.get("published_dates", {}).get("quiz") == today:
@@ -172,7 +175,7 @@ class PublicationCalendar(commands.Cog):
         # Le vendredi est réservé à l'animation collective et le dimanche au débat.
         # On évite donc toute publication concurrente à 19 h 30 ces deux jours.
         weekday = datetime.now(LOCAL_TIMEZONE).weekday()
-        if weekday in (4, 6):
+        if weekday not in (0, 2, 5):  # lundi, mercredi, samedi
             return
         today = datetime.now(LOCAL_TIMEZONE).date().isoformat()
         state = _load_state()
@@ -203,6 +206,9 @@ class PublicationCalendar(commands.Cog):
 
     @tasks.loop(time=time(hour=21, minute=30, tzinfo=LOCAL_TIMEZONE))
     async def daily_positive_message(self):
+        # Mardi, jeudi et dimanche : un dernier message doux, sans publication quotidienne excessive.
+        if datetime.now(LOCAL_TIMEZONE).weekday() not in (1, 3, 6):
+            return
         await self._publish_daily_bank("messages.json", "messages", INSPIRATION_CHANNEL_ID, "🌻 Le message bienveillant du jour", discord.Color.gold())
 
     @daily_positive_message.before_loop

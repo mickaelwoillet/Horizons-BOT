@@ -30,55 +30,68 @@ from config import (
 # Identité visuelle : le logo est publié une seule fois comme pièce jointe Discord.
 from cogs.embed_theme import LOGO_PATH, LOGO_STATE_PATH, set_logo_url
 
+_LOGO_SETUP_LOCK = asyncio.Lock()
+_LOGO_SETUP_ATTEMPTED = False
+# Référence du dépôt déjà présent sur Discord et consignée dans le ZIP fourni.
+LOGO_FALLBACK_CHANNEL_ID = 1566562235793416242
+LOGO_FALLBACK_MESSAGE_ID = 1567595402247667802
+
 
 async def ensure_horizons_logo_asset(bot: commands.Bot) -> None:
     """Publie/réutilise le logo sur Discord pour que tous les embeds puissent l'afficher."""
-    if not LOGO_PATH.is_file():
-        logger.warning("Logo HORIZONS introuvable : %s", LOGO_PATH)
-        return
-
-    state = {}
-    try:
-        state = json.loads(LOGO_STATE_PATH.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        state = {}
-
-    channel_id = state.get("channel_id")
-    message_id = state.get("message_id")
-    if channel_id and message_id:
-        try:
-            channel = bot.get_channel(int(channel_id)) or await bot.fetch_channel(int(channel_id))
-            message = await channel.fetch_message(int(message_id))
-            if message.attachments:
-                set_logo_url(message.attachments[0].url)
-                return
-        except (discord.HTTPException, discord.NotFound, discord.Forbidden, ValueError, AttributeError):
-            logger.info("Ancien dépôt du logo HORIZONS introuvable : nouvelle publication nécessaire.")
-
-    destination_id = STAFF_COMMANDS_CHANNEL_ID or LOG_CHANNEL_ID
-    if not destination_id:
-        logger.warning("Aucun salon de dépôt du logo configuré (STAFF_COMMANDS_CHANNEL_ID / LOG_CHANNEL_ID).")
-        return
-    try:
-        channel = bot.get_channel(destination_id) or await bot.fetch_channel(destination_id)
-        message = await channel.send(
-            "🎨 **Identité visuelle HORIZONS** — ressource technique utilisée par les embeds du serveur. "
-            "Merci de ne pas supprimer ce message.",
-            file=discord.File(str(LOGO_PATH), filename="horizons_logo.png"),
-            allowed_mentions=discord.AllowedMentions.none(),
-        )
-        if not message.attachments:
-            logger.warning("Discord n'a pas retourné la pièce jointe du logo HORIZONS.")
+    global _LOGO_SETUP_ATTEMPTED
+    async with _LOGO_SETUP_LOCK:
+        if _LOGO_SETUP_ATTEMPTED:
             return
-        set_logo_url(message.attachments[0].url)
-        LOGO_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
-        LOGO_STATE_PATH.write_text(
-            json.dumps({"channel_id": channel.id, "message_id": message.id}, ensure_ascii=False, indent=2),
-            encoding="utf-8",
-        )
-        logger.info("Logo HORIZONS prêt : les embeds utiliseront la miniature officielle.")
-    except (discord.HTTPException, discord.Forbidden, OSError) as exc:
-        logger.warning("Impossible de publier le logo HORIZONS : %s", exc)
+        _LOGO_SETUP_ATTEMPTED = True
+        if not LOGO_PATH.is_file():
+            logger.warning("Logo HORIZONS introuvable : %s", LOGO_PATH)
+            return
+
+        state = {}
+        try:
+            state = json.loads(LOGO_STATE_PATH.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            state = {}
+
+        channel_id = state.get("channel_id") or LOGO_FALLBACK_CHANNEL_ID
+        message_id = state.get("message_id") or LOGO_FALLBACK_MESSAGE_ID
+        if channel_id and message_id:
+            try:
+                channel = bot.get_channel(int(channel_id)) or await bot.fetch_channel(int(channel_id))
+                message = await channel.fetch_message(int(message_id))
+                if message.attachments:
+                    set_logo_url(message.attachments[0].url)
+                    return
+            except (discord.HTTPException, discord.NotFound, discord.Forbidden, ValueError, AttributeError):
+                logger.info("Ancien dépôt du logo HORIZONS introuvable : nouvelle publication nécessaire.")
+
+        destination_id = STAFF_COMMANDS_CHANNEL_ID or LOG_CHANNEL_ID
+        if not destination_id:
+            logger.warning("Aucun salon de dépôt du logo configuré (STAFF_COMMANDS_CHANNEL_ID / LOG_CHANNEL_ID).")
+            return
+        try:
+            channel = bot.get_channel(destination_id) or await bot.fetch_channel(destination_id)
+            message = await channel.send(
+                "🎨 **Identité visuelle HORIZONS** — ressource technique utilisée par les embeds du serveur. "
+                "Merci de ne pas supprimer ce message.",
+                file=discord.File(str(LOGO_PATH), filename="horizons_logo.png"),
+                allowed_mentions=discord.AllowedMentions.none(),
+            )
+            if not message.attachments:
+                logger.warning("Discord n'a pas retourné la pièce jointe du logo HORIZONS.")
+                return
+            set_logo_url(message.attachments[0].url)
+            LOGO_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+            temporary = LOGO_STATE_PATH.with_suffix(".tmp")
+            temporary.write_text(
+                json.dumps({"channel_id": channel.id, "message_id": message.id}, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+            temporary.replace(LOGO_STATE_PATH)
+            logger.info("Logo HORIZONS prêt : les embeds utiliseront la miniature officielle.")
+        except (discord.HTTPException, discord.Forbidden, OSError) as exc:
+            logger.warning("Impossible de publier le logo HORIZONS : %s", exc)
 
 
 # Charger uniquement les extensions présentes. Les extensions pourront être
@@ -108,6 +121,10 @@ EXTENSIONS: Final[tuple[str, ...]] = (
     "cogs.seasons",
     "cogs.circle_guides",
     "cogs.server_audit_export",
+    "cogs.horizons_daily",
+    "cogs.publication_calendar",
+    "cogs.weekly_animations",
+    "cogs.server_reorganization",
     "cogs.horizons_path",
     "cogs.server_guides",
     "cogs.tickets",

@@ -156,16 +156,29 @@ class HorizonsDaily(commands.Cog):
         if channel is None:
             log.warning("HORIZON_DAILY_CHANNEL_ID non configuré ou salon inaccessible.")
             return
-        today = datetime.now(LOCAL_TIMEZONE).weekday()
+        now = datetime.now(LOCAL_TIMEZONE)
+        day_key = now.date().isoformat()
+        history = _load_history()
+        if history.get("published_horizon_date") == day_key:
+            return
+        today = now.weekday()
         title, pool = DAILY_CONTENT[today]
         content = _pick_unseen(f"day_{today}", pool)
         embed = horizons_embed(title=title, description=content, color=discord.Color.blurple())
         embed.set_footer(text="HORIZONS • Un rendez-vous quotidien pour se retrouver")
         try:
-            if isinstance(channel, (discord.TextChannel)):
+            if isinstance(channel, (discord.TextChannel, discord.Thread)):
                 await channel.send(embed=embed)
+                history = _load_history()
+                history["published_horizon_date"] = day_key
+                _save_history(history)
+            elif isinstance(channel, discord.ForumChannel):
+                await channel.create_thread(name=title[:100], content="🌅 Le rendez-vous quotidien HORIZONS est ouvert.", embeds=[embed])
+                history = _load_history()
+                history["published_horizon_date"] = day_key
+                _save_history(history)
             else:
-                log.error("Le salon Horizon du jour doit être un salon textuel (type : %s).", type(channel).__name__)
+                log.error("Le salon Horizon du jour doit être textuel ou Forum (type : %s).", type(channel).__name__)
         except discord.Forbidden:
             log.exception("Permissions insuffisantes pour publier Horizon du jour.")
         except discord.HTTPException:
@@ -179,7 +192,12 @@ class HorizonsDaily(commands.Cog):
     @tasks.loop(time=time(hour=19, minute=30, tzinfo=LOCAL_TIMEZONE))
     async def weekly_debate(self):
         # Le contrôle du jour évite une publication quotidienne : dimanche uniquement.
-        if datetime.now(LOCAL_TIMEZONE).weekday() != 6:
+        now = datetime.now(LOCAL_TIMEZONE)
+        if now.weekday() != 6:
+            return
+        week_key = now.strftime("%G-W%V")
+        history = _load_history()
+        if history.get("published_debate_week") == week_key:
             return
         channel = await _get_channel(self.bot, DEBATE_CHANNEL_ID)
         if channel is None:
@@ -203,12 +221,16 @@ class HorizonsDaily(commands.Cog):
                 await channel.create_thread(
                     name=title,
                     content="🗣️ Le débat HORIZONS de la semaine est ouvert. Vous pouvez répondre directement dans cette publication.",
-                    embed=embed,
+                    embeds=[embed],
                 )
             elif isinstance(channel, (discord.TextChannel)):
                 await channel.send(embed=embed)
             else:
                 log.error("Le salon des débats doit être un Forum ou un salon textuel (type : %s).", type(channel).__name__)
+                return
+            history = _load_history()
+            history["published_debate_week"] = week_key
+            _save_history(history)
         except discord.Forbidden:
             log.exception("Permissions insuffisantes pour publier le débat hebdomadaire.")
         except discord.HTTPException:
