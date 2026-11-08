@@ -10,6 +10,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 
 def main() -> None:
+    errors = []
     py_files = [p for p in ROOT.rglob("*.py") if "__pycache__" not in p.parts and ".venv" not in p.parts]
     for path in py_files:
         source = path.read_text(encoding="utf-8")
@@ -85,9 +86,16 @@ def main() -> None:
     connection = sqlite3.connect(":memory:")
     connection.executescript(storage[start:end])
     tables = {row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-    required = {"warnings", "member_notes", "birthdays", "events", "event_rsvps", "giveaways", "giveaway_entries", "tickets", "activity_days", "passport_completions", "passport_week_announcements", "activity_requests", "activity_request_interests", "collective_challenges", "collective_challenge_members", "role_panels", "bot_settings", "mood_entries", "success_unlocks", "success_activity_days", "affinity_optins", "event_reminders", "community_ideas", "community_idea_votes", "solidarity_thanks", "staff_tasks", "staff_task_history", "staff_shifts", "staff_alerts", "horizons_dashboard_message_daily", "horizons_dashboard_member_daily", "horizons_dashboard_meta"}
+    required = {"warnings", "member_notes", "birthdays", "events", "event_rsvps", "giveaways", "giveaway_entries", "tickets", "activity_days", "passport_completions", "passport_week_announcements", "activity_requests", "activity_request_interests", "collective_challenges", "collective_challenge_members", "role_panels", "bot_settings", "mood_entries", "success_unlocks", "success_activity_days", "affinity_optins", "event_reminders", "community_ideas", "community_idea_votes", "solidarity_thanks", "staff_tasks", "staff_task_history", "staff_shifts", "staff_alerts", "horizons_dashboard_message_daily", "horizons_dashboard_member_daily", "horizons_dashboard_meta", "celestial_game_xp", "celestial_game_rewards", "celestial_game_settings", "celestial_stars", "celestial_dust", "celestial_fragments", "celestial_daily_cards", "celestial_gift_cards", "celestial_gift_history", "celestial_star_progress"}
     if required - tables:
         raise SystemExit(f"Tables manquantes : {sorted(required - tables)}")
+    treasures_source = (ROOT / "cogs" / "celestial_treasures.py").read_text(encoding="utf-8")
+    if "STAR_PITY_LIMIT = 12" not in treasures_source:
+        raise SystemExit("La protection contre les séries de doublons doit être réglée à 12 tirages.")
+    if "REWARD_WEIGHTS = {\"thought\": 40, \"dust\": 25, \"xp\": 15, \"star\": 12, \"fragment\": 7, \"surprise\": 1}" not in treasures_source:
+        raise SystemExit("La pondération des cartes à gratter est absente ou modifiée.")
+    if "choose_star_key" not in treasures_source or "consecutive_duplicates" not in treasures_source:
+        raise SystemExit("La protection de progression des étoiles est incomplète.")
 
     bot_tree = ast.parse((ROOT / "bot.py").read_text(encoding="utf-8"))
     extensions = []
@@ -197,8 +205,44 @@ def main() -> None:
     for required_extension in ("cogs.horizons_daily", "cogs.publication_calendar", "cogs.weekly_animations"):
         if required_extension not in extensions:
             raise SystemExit(f"Extension attendue non chargée : {required_extension}")
+    for required_extension in ("cogs.ludic_structure", "cogs.horizons_arcade", "cogs.celestial_treasures"):
+        if required_extension not in extensions:
+            raise SystemExit(f"Extension ludique non chargée : {required_extension}")
+    for marker in ("name=\"ajoutstructure\"", "CATEGORY_NAME", "constellation_role_ids"):
+        if marker not in (ROOT / "cogs" / "ludic_structure.py").read_text(encoding="utf-8"):
+            raise SystemExit(f"Structure ludique incomplète : {marker}")
+    arcade_source = (ROOT / "cogs" / "horizons_arcade.py").read_text(encoding="utf-8")
+    for marker in ("name=\"quizjeu\"", "name=\"anagramme\"", "name=\"enigme\"", "name=\"arcade_collectif\"", "CollectiveGameView", "active_collective_sessions", "Terminer le défi", "BEGIN IMMEDIATE", "DAILY_CAP = 60", "celestial_game_rewards", "refresh_arcade_info"):
+        if marker not in arcade_source:
+            raise SystemExit(f"Système Arcade incomplet : {marker}")
+    treasures_source = (ROOT / "cogs" / "celestial_treasures.py").read_text(encoding="utf-8")
+    for marker in ("BEGIN IMMEDIATE", "recompense_thought.png", "recompense_star.png", "recompense_dust.png", "missing_assets"):
+        if marker not in treasures_source:
+            errors.append(f"Sécurité / visuels Trésors du Ciel : marqueur absent {marker}")
+    for asset in ("carte_celeste.png", "recompense_thought.png", "recompense_star.png", "recompense_dust.png", "recompense_xp.png", "recompense_fragment.png", "recompense_surprise.png", "souvenir_origines.png", "souvenir_liens.png", "souvenir_forces.png", "souvenir_lumieres.png", "souvenir_infini.png", "souvenir_complet.png"):
+        if not (ROOT / "data" / "assets" / "celestial" / asset).is_file():
+            errors.append(f"Visuel céleste manquant : {asset}")
+    for marker in ("name=\"gratter\"", "name=\"givegratte\"", "name=\"collection_etoiles\"", "name=\"constellations\"", "name=\"inventaire_celeste\"", "name=\"etoile\"", "name=\"echanger_fragments\"", "name=\"echanger_poussiere\"", "name=\"souvenirs_celestes\"", "10 fragments", 'REWARD_WEIGHTS = {"thought": 40, "dust": 25, "xp": 15, "star": 12, "fragment": 7, "surprise": 1}', "refresh_treasures_info", "Gardien des 20 étoiles", "STAR_PITY_LIMIT = 12", "sync_collection_unlocks"):
+        if marker not in treasures_source:
+            raise SystemExit(f"Système Trésors du Ciel incomplet : {marker}")
+    if "CREATE TABLE IF NOT EXISTS celestial_collection_unlocks" not in (ROOT / "cogs" / "storage.py").read_text(encoding="utf-8"):
+        raise SystemExit("La persistance des souvenirs de collection est absente du schéma SQLite.")
+    if "async def on_member_join" not in treasures_source or "award_star_roles(member.guild, member)" not in treasures_source:
+        raise SystemExit("La restauration automatique des rôles célestes à la reconnexion est absente.")
+    for asset in ("carte_celeste.png", "recompense_thought.png", "recompense_star.png", "recompense_dust.png", "recompense_xp.png", "recompense_fragment.png", "recompense_surprise.png", "souvenir_origines.png", "souvenir_liens.png", "souvenir_forces.png", "souvenir_lumieres.png", "souvenir_infini.png", "souvenir_complet.png"):
+        if not (ROOT / "data" / "assets" / "celestial" / asset).is_file():
+            raise SystemExit(f"Illustration céleste absente : {asset}")
+    for filename in ("jokes.py", "riddles.py", "quizzes.py", "horizons_daily.py"):
+        if not (ROOT / "cogs" / filename).is_file():
+            raise SystemExit(f"Routine quotidienne existante absente : {filename}")
+    structure_source = (ROOT / "cogs" / "ludic_structure.py").read_text(encoding="utf-8")
+    if "build_treasures_embed" not in structure_source or "treasures_info_message_id" not in structure_source:
+        raise SystemExit("Le panneau d'information initial du salon Trésors du Ciel est absent.")
     if 'SUGGESTION_CHANNEL_ID = env_int("SUGGESTION_CHANNEL_ID", 1566620913254932633)' not in config_source:
         raise SystemExit("L’identifiant du salon suggestions ne correspond pas au nouvel export.")
+
+    if errors:
+        raise SystemExit("\n".join(errors))
 
     for setting in (
         'HORIZON_DAILY_CHANNEL_ID = env_int("HORIZON_DAILY_CHANNEL_ID", 1567844795307532308)',

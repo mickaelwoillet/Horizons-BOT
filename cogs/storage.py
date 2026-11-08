@@ -213,6 +213,62 @@ CREATE TABLE IF NOT EXISTS horizons_dashboard_member_daily (
 CREATE TABLE IF NOT EXISTS horizons_dashboard_meta (
  key TEXT PRIMARY KEY, value TEXT NOT NULL
 );
+
+-- Progression ludique HORIZONS : indépendante des rangs communautaires.
+CREATE TABLE IF NOT EXISTS celestial_game_xp (
+ guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL, xp INTEGER NOT NULL DEFAULT 0,
+ updated_at TEXT NOT NULL, PRIMARY KEY(guild_id,user_id)
+);
+CREATE TABLE IF NOT EXISTS celestial_game_rewards (
+ guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL, reward_date TEXT NOT NULL,
+ game_key TEXT NOT NULL, xp_awarded INTEGER NOT NULL, created_at TEXT NOT NULL,
+ PRIMARY KEY(guild_id,user_id,reward_date,game_key)
+);
+CREATE TABLE IF NOT EXISTS celestial_game_settings (
+ guild_id INTEGER NOT NULL, setting_key TEXT NOT NULL, setting_value TEXT NOT NULL,
+ PRIMARY KEY(guild_id,setting_key)
+);
+-- Trésors du Ciel : inventaire, cartes quotidiennes/offertes et historique des cadeaux.
+CREATE TABLE IF NOT EXISTS celestial_stars (
+ guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL, star_key TEXT NOT NULL,
+ obtained_at TEXT NOT NULL, source TEXT NOT NULL DEFAULT 'carte',
+ PRIMARY KEY(guild_id,user_id,star_key)
+);
+CREATE TABLE IF NOT EXISTS celestial_star_progress (
+ guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
+ consecutive_duplicates INTEGER NOT NULL DEFAULT 0,
+ total_star_draws INTEGER NOT NULL DEFAULT 0,
+ updated_at TEXT NOT NULL,
+ PRIMARY KEY(guild_id,user_id)
+);
+CREATE TABLE IF NOT EXISTS celestial_collection_unlocks (
+ guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
+ reward_key TEXT NOT NULL, unlocked_at TEXT NOT NULL,
+ PRIMARY KEY(guild_id,user_id,reward_key)
+);
+CREATE TABLE IF NOT EXISTS celestial_dust (
+ guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL, dust INTEGER NOT NULL DEFAULT 0,
+ PRIMARY KEY(guild_id,user_id)
+);
+CREATE TABLE IF NOT EXISTS celestial_fragments (
+ guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL, fragments INTEGER NOT NULL DEFAULT 0,
+ PRIMARY KEY(guild_id,user_id)
+);
+CREATE TABLE IF NOT EXISTS celestial_daily_cards (
+ id INTEGER PRIMARY KEY AUTOINCREMENT, guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
+ card_date TEXT NOT NULL, used_at TEXT,
+ UNIQUE(guild_id,user_id,card_date)
+);
+CREATE TABLE IF NOT EXISTS celestial_gift_cards (
+ id INTEGER PRIMARY KEY AUTOINCREMENT, guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
+ granted_by INTEGER NOT NULL, reason TEXT NOT NULL, created_at TEXT NOT NULL, used_at TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_celestial_gift_cards_available
+ ON celestial_gift_cards(guild_id,user_id,used_at,id);
+CREATE TABLE IF NOT EXISTS celestial_gift_history (
+ id INTEGER PRIMARY KEY AUTOINCREMENT, guild_id INTEGER NOT NULL, recipient_id INTEGER NOT NULL,
+ giver_id INTEGER NOT NULL, quantity INTEGER NOT NULL, reason TEXT NOT NULL, created_at TEXT NOT NULL
+);
 """
 
 
