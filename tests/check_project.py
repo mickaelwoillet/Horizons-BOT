@@ -85,7 +85,7 @@ def main() -> None:
     connection = sqlite3.connect(":memory:")
     connection.executescript(storage[start:end])
     tables = {row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-    required = {"warnings", "member_notes", "birthdays", "events", "event_rsvps", "giveaways", "giveaway_entries", "tickets", "activity_days", "passport_completions", "passport_week_announcements", "activity_requests", "activity_request_interests", "collective_challenges", "collective_challenge_members", "role_panels", "bot_settings", "mood_entries", "success_unlocks", "success_activity_days", "affinity_optins", "event_reminders", "community_ideas", "community_idea_votes", "solidarity_thanks", "staff_tasks", "staff_task_history", "staff_shifts", "staff_alerts"}
+    required = {"warnings", "member_notes", "birthdays", "events", "event_rsvps", "giveaways", "giveaway_entries", "tickets", "activity_days", "passport_completions", "passport_week_announcements", "activity_requests", "activity_request_interests", "collective_challenges", "collective_challenge_members", "role_panels", "bot_settings", "mood_entries", "success_unlocks", "success_activity_days", "affinity_optins", "event_reminders", "community_ideas", "community_idea_votes", "solidarity_thanks", "staff_tasks", "staff_task_history", "staff_shifts", "staff_alerts", "horizons_dashboard_message_daily", "horizons_dashboard_member_daily", "horizons_dashboard_meta"}
     if required - tables:
         raise SystemExit(f"Tables manquantes : {sorted(required - tables)}")
 
@@ -147,6 +147,18 @@ def main() -> None:
         for marker in markers:
             if marker not in source:
                 raise SystemExit(f"Intégration de progression manquante : {filename} / {marker}")
+
+    dashboard_path = ROOT / "cogs" / "horizons_dashboard.py"
+    if not dashboard_path.is_file():
+        raise SystemExit("Le tableau de bord analytique HORIZONS est absent.")
+    dashboard_source = dashboard_path.read_text(encoding="utf-8")
+    for marker in (
+        'name="horizons_dashboard"', "access_level(interaction.user)",
+        "horizons_dashboard_message_daily", "activity_days",
+        "Aucune statistique individuelle", "ephemeral=True",
+    ):
+        if marker not in dashboard_source:
+            raise SystemExit(f"Protection ou indicateur manquant dans le tableau de bord : {marker}")
 
     theme = (ROOT / "cogs" / "embed_theme.py").read_text(encoding="utf-8")
     if "def horizons_embed(" not in theme or not (ROOT / "data" / "assets" / "logo_horizons.png").is_file():

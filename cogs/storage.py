@@ -196,6 +196,23 @@ CREATE TABLE IF NOT EXISTS horizons_season_rewards (
  PRIMARY KEY(season_id,user_id,reward_key),
  FOREIGN KEY(season_id) REFERENCES horizons_seasons(id) ON DELETE CASCADE
 );
+
+-- Statistiques agrégées du tableau de bord HORIZONS (aucun contenu de message).
+CREATE TABLE IF NOT EXISTS horizons_dashboard_message_daily (
+ guild_id INTEGER NOT NULL, activity_date TEXT NOT NULL, channel_id INTEGER NOT NULL,
+ message_count INTEGER NOT NULL DEFAULT 0,
+ PRIMARY KEY(guild_id,activity_date,channel_id)
+);
+CREATE INDEX IF NOT EXISTS idx_horizons_dashboard_messages_date
+ ON horizons_dashboard_message_daily(guild_id,activity_date);
+CREATE TABLE IF NOT EXISTS horizons_dashboard_member_daily (
+ guild_id INTEGER NOT NULL, activity_date TEXT NOT NULL,
+ joins INTEGER NOT NULL DEFAULT 0, leaves INTEGER NOT NULL DEFAULT 0, member_count INTEGER NOT NULL DEFAULT 0,
+ PRIMARY KEY(guild_id,activity_date)
+);
+CREATE TABLE IF NOT EXISTS horizons_dashboard_meta (
+ key TEXT PRIMARY KEY, value TEXT NOT NULL
+);
 """
 
 

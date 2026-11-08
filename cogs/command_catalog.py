@@ -12,7 +12,7 @@ STAFF_ONLY = {
     "creer_defi", "creer", "annuler", "reroll", "quiz_lancer",
     "quiz_arreter", "publier_roles", "avertir", "avertissements",
     "retirer_avertissement", "timeout", "untimeout", "expulser",
-    "bannir", "debannir", "purger", "note_membre", "dashboard",
+    "bannir", "debannir", "purger", "note_membre", "dashboard", "horizons_dashboard",
     "tache_creer", "taches", "tache_statut", "service", "alerte_equipe",
 }
 MIXED_ACCESS = {
@@ -33,6 +33,7 @@ STAFF_PERMISSIONS = {
     "quiz_arreter": "Administrateur ou rôle staff.",
     "publier_roles": "Administrateur, Gérer le serveur ou rôle staff.",
     "dashboard": "Staff habilité ; certaines rubriques exigent une prise de service.",
+    "horizons_dashboard": "Staff habilité ; statistiques collectives uniquement.",
     "tache_creer": "Staff habilité en service (création selon niveau d'accès).",
     "taches": "Fondateur, administrateur ou modérateur en service.",
     "tache_statut": "Staff en service ; les membres du staff modifient leurs tâches attribuées.",
@@ -48,7 +49,7 @@ CATEGORIES = (
     ("🎂 Anniversaires", {"anniversaire_definir", "anniversaire_supprimer"}),
     ("🌿 Bien-être et affinités", {"humeur", "ma_meteo", "mes_succes", "affinites activer", "affinites desactiver", "affinites trouver"}),
     ("🎫 Assistance et sécurité", {"ticket_ouvrir", "ticket_fermer", "signaler", "message_anonyme", "traduire"}),
-    ("🛡️ Modération et gestion", {"avertir", "avertissements", "retirer_avertissement", "timeout", "untimeout", "expulser", "bannir", "debannir", "purger", "note_membre", "annonce", "alerte_equipe", "dashboard", "tache_creer", "taches", "tache_statut", "service", "publier_roles"}),
+    ("🛡️ Modération et gestion", {"avertir", "avertissements", "retirer_avertissement", "timeout", "untimeout", "expulser", "bannir", "debannir", "purger", "note_membre", "annonce", "alerte_equipe", "dashboard", "horizons_dashboard", "tache_creer", "taches", "tache_statut", "service", "publier_roles"}),
 )
 
 def _category(name: str) -> str:
