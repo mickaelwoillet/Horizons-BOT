@@ -224,6 +224,34 @@ CREATE TABLE IF NOT EXISTS celestial_game_rewards (
  game_key TEXT NOT NULL, xp_awarded INTEGER NOT NULL, created_at TEXT NOT NULL,
  PRIMARY KEY(guild_id,user_id,reward_date,game_key)
 );
+CREATE TABLE IF NOT EXISTS celestial_game_history (
+ session_id TEXT PRIMARY KEY, guild_id INTEGER NOT NULL, game_key TEXT NOT NULL,
+ mode TEXT NOT NULL, players_json TEXT NOT NULL, winners_json TEXT NOT NULL DEFAULT '[]',
+ status TEXT NOT NULL, scores_json TEXT NOT NULL DEFAULT '{}',
+ started_at TEXT NOT NULL, ended_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_celestial_game_history_user
+ ON celestial_game_history(guild_id,game_key,ended_at);
+CREATE TABLE IF NOT EXISTS celestial_game_player_stats (
+ guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL, game_key TEXT NOT NULL,
+ played INTEGER NOT NULL DEFAULT 0, wins INTEGER NOT NULL DEFAULT 0,
+ losses INTEGER NOT NULL DEFAULT 0, draws INTEGER NOT NULL DEFAULT 0,
+ updated_at TEXT NOT NULL,
+ PRIMARY KEY(guild_id,user_id,game_key)
+);
+CREATE TABLE IF NOT EXISTS celestial_game_achievements (
+ guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL, achievement_key TEXT NOT NULL,
+ unlocked_at TEXT NOT NULL,
+ PRIMARY KEY(guild_id,user_id,achievement_key)
+);
+CREATE TABLE IF NOT EXISTS celestial_weekly_missions (
+ guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL, week_key TEXT NOT NULL,
+ mission_key TEXT NOT NULL, progress INTEGER NOT NULL DEFAULT 0,
+ completed_at TEXT, claimed_at TEXT, xp_awarded INTEGER NOT NULL DEFAULT 0,
+ PRIMARY KEY(guild_id,user_id,week_key,mission_key)
+);
+CREATE INDEX IF NOT EXISTS idx_celestial_weekly_missions_user
+ ON celestial_weekly_missions(guild_id,user_id,week_key);
 CREATE TABLE IF NOT EXISTS celestial_game_settings (
  guild_id INTEGER NOT NULL, setting_key TEXT NOT NULL, setting_value TEXT NOT NULL,
  PRIMARY KEY(guild_id,setting_key)

@@ -250,6 +250,33 @@ class CelestialTreasures(commands.Cog):
     def cog_unload(self):
         self.refresh_treasures_info.cancel()
 
+    def treasures_channel_id(self, guild: discord.Guild) -> int | None:
+        """Récupère ou détecte le salon Trésors du Ciel sans modifier Discord."""
+        setting_key = f"ludic:{guild.id}:treasures_channel_id"
+        channel_id = get_ludic_setting(guild.id, "treasures_channel_id")
+        if channel_id:
+            try:
+                channel = guild.get_channel(int(channel_id))
+                if isinstance(channel, discord.TextChannel):
+                    return int(channel_id)
+            except (TypeError, ValueError):
+                pass
+        candidates = [
+            channel for channel in guild.text_channels
+            if channel.name == "🌌・trésors-du-ciel"
+            or "trésors-du-ciel" in channel.name.casefold()
+            or "tresors-du-ciel" in channel.name.casefold()
+        ]
+        if not candidates:
+            return None
+        channel_id = candidates[0].id
+        with db() as conn:
+            conn.execute(
+                "INSERT INTO bot_settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+                (setting_key, json.dumps(channel_id)),
+            )
+        return channel_id
+
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
         """Restaure les rôles célestes correspondant à la collection persistante."""
@@ -279,7 +306,7 @@ class CelestialTreasures(commands.Cog):
     @tasks.loop(hours=2)
     async def refresh_treasures_info(self):
         for guild in self.bot.guilds:
-            channel_id = get_ludic_setting(guild.id, "treasures_channel_id")
+            channel_id = self.treasures_channel_id(guild)
             if not channel_id:
                 continue
             channel = guild.get_channel(int(channel_id))
@@ -309,9 +336,9 @@ class CelestialTreasures(commands.Cog):
         if not interaction.guild_id:
             await interaction.response.send_message("Cette commande est disponible sur le serveur HORIZONS.", ephemeral=True)
             return False
-        channel_id = get_ludic_setting(interaction.guild_id, "treasures_channel_id")
+        channel_id = self.treasures_channel_id(interaction.guild) if interaction.guild else None
         if not channel_id:
-            await interaction.response.send_message("L'espace Trésors du Ciel n'est pas encore créé. L'équipe doit lancer `/ajoutstructure`.", ephemeral=True)
+            await interaction.response.send_message("Je ne trouve pas le salon `🌌・trésors-du-ciel`. L'équipe doit vérifier son nom et mes accès.", ephemeral=True)
             return False
         if interaction.channel_id != int(channel_id):
             channel = interaction.guild.get_channel(int(channel_id)) if interaction.guild else None

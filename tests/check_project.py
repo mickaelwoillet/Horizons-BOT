@@ -86,7 +86,7 @@ def main() -> None:
     connection = sqlite3.connect(":memory:")
     connection.executescript(storage[start:end])
     tables = {row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-    required = {"warnings", "member_notes", "birthdays", "events", "event_rsvps", "giveaways", "giveaway_entries", "tickets", "activity_days", "passport_completions", "passport_week_announcements", "activity_requests", "activity_request_interests", "collective_challenges", "collective_challenge_members", "role_panels", "bot_settings", "mood_entries", "success_unlocks", "success_activity_days", "affinity_optins", "event_reminders", "community_ideas", "community_idea_votes", "solidarity_thanks", "staff_tasks", "staff_task_history", "staff_shifts", "staff_alerts", "horizons_dashboard_message_daily", "horizons_dashboard_member_daily", "horizons_dashboard_meta", "celestial_game_xp", "celestial_game_rewards", "celestial_game_settings", "celestial_stars", "celestial_dust", "celestial_fragments", "celestial_daily_cards", "celestial_gift_cards", "celestial_gift_history", "celestial_star_progress"}
+    required = {"warnings", "member_notes", "birthdays", "events", "event_rsvps", "giveaways", "giveaway_entries", "tickets", "activity_days", "passport_completions", "passport_week_announcements", "activity_requests", "activity_request_interests", "collective_challenges", "collective_challenge_members", "role_panels", "bot_settings", "mood_entries", "success_unlocks", "success_activity_days", "affinity_optins", "event_reminders", "community_ideas", "community_idea_votes", "solidarity_thanks", "staff_tasks", "staff_task_history", "staff_shifts", "staff_alerts", "horizons_dashboard_message_daily", "horizons_dashboard_member_daily", "horizons_dashboard_meta", "celestial_game_xp", "celestial_game_rewards", "celestial_game_settings", "celestial_game_history", "celestial_game_player_stats", "celestial_game_achievements", "celestial_weekly_missions", "celestial_stars", "celestial_dust", "celestial_fragments", "celestial_daily_cards", "celestial_gift_cards", "celestial_gift_history", "celestial_star_progress"}
     if required - tables:
         raise SystemExit(f"Tables manquantes : {sorted(required - tables)}")
     treasures_source = (ROOT / "cogs" / "celestial_treasures.py").read_text(encoding="utf-8")
@@ -205,17 +205,40 @@ def main() -> None:
     for required_extension in ("cogs.horizons_daily", "cogs.publication_calendar", "cogs.weekly_animations"):
         if required_extension not in extensions:
             raise SystemExit(f"Extension attendue non chargée : {required_extension}")
-    for required_extension in ("cogs.ludic_structure", "cogs.horizons_arcade", "cogs.celestial_treasures"):
+    for required_extension in ("cogs.horizons_arcade", "cogs.celestial_treasures"):
         if required_extension not in extensions:
             raise SystemExit(f"Extension ludique non chargée : {required_extension}")
-    for marker in ("name=\"ajoutstructure\"", "CATEGORY_NAME", "constellation_role_ids"):
-        if marker not in (ROOT / "cogs" / "ludic_structure.py").read_text(encoding="utf-8"):
-            raise SystemExit(f"Structure ludique incomplète : {marker}")
+    if "cogs.ludic_structure" in extensions:
+        raise SystemExit("L'ancienne extension de création de structure ne doit plus être chargée.")
+    retired_structure = (ROOT / "cogs" / "ludic_structure.py").read_text(encoding="utf-8")
+    if 'name="ajoutstructure"' in retired_structure or "@app_commands.command" in retired_structure:
+        raise SystemExit("La commande historique /ajoutstructure doit être retirée.")
     arcade_source = (ROOT / "cogs" / "horizons_arcade.py").read_text(encoding="utf-8")
-    for marker in ("name=\"quizjeu\"", "name=\"anagramme\"", "name=\"enigme\"", "name=\"arcade_collectif\"", "CollectiveGameView", "active_collective_sessions", "Terminer le défi", "BEGIN IMMEDIATE", "DAILY_CAP = 60", "celestial_game_rewards", "refresh_arcade_info"):
+    for marker in ("name=\"quizjeu\"", "name=\"anagramme\"", "name=\"enigme\"", "name=\"arcade_collectif\"", "CollectiveGameView", "active_collective_sessions", "Terminer le défi", "BEGIN IMMEDIATE", "DAILY_CAP = 60", "celestial_game_rewards", "refresh_arcade_info", "ArcadeMenuView", "arcade_channel_id", "self.arcade_channel_id(interaction.guild)"):
         if marker not in arcade_source:
             raise SystemExit(f"Système Arcade incomplet : {marker}")
+    arcade_games_path = ROOT / "cogs" / "arcade_games.py"
+    if not arcade_games_path.is_file():
+        raise SystemExit("Le module des nouveaux jeux interactifs est absent.")
+    if not (ROOT / "tests" / "test_arcade_games.py").is_file():
+        raise SystemExit("Les tests locaux de logique Arcade sont absents.")
+    arcade_games_source = arcade_games_path.read_text(encoding="utf-8")
+    for marker in ("class ArcadeMenuView", "class TicTacToeView", "class ConnectFourView", "class MemoryView", "class CodeSecretView", "class PetitBacView", "class NavalBattleGame", "class NavalPrivateView", "class ArcadeNightView", "class ArcadeNightButton", "class ChallengeInviteView", "class AbandonGameButton", "_minimax", "difficile", "puissance4", "PETIT_BAC_CATEGORIES", "NAVAL_SHIPS"):
+        if marker not in arcade_games_source:
+            raise SystemExit(f"Nouveau jeu interactif incomplet : {marker}")
+    if 'name="jeux"' not in arcade_source or "view=view" not in arcade_source:
+        raise SystemExit("/jeux doit ouvrir le nouveau menu interactif.")
+    progress_source = (ROOT / "cogs" / "arcade_progress.py").read_text(encoding="utf-8")
+    for marker in ("def record_game_result", "def get_game_stats", "def get_game_history", "def get_achievements", "def get_weekly_missions", "def get_pending_weekly_missions", "def claim_all_weekly_missions", "class ProgressView", "premiere_victoire", "bataille_navale_5", "WEEKLY_MISSIONS"):
+        if marker not in progress_source:
+            raise SystemExit(f"Progression Arcade incomplète : {marker}")
+    if 'name="xpjeux"' not in arcade_source or "ProgressView" not in arcade_source:
+        raise SystemExit("/xpjeux doit ouvrir le passeport interactif.")
+    if not (ROOT / "tests" / "test_arcade_progress.py").is_file():
+        raise SystemExit("Les tests de statistiques et de succès Arcade sont absents.")
     treasures_source = (ROOT / "cogs" / "celestial_treasures.py").read_text(encoding="utf-8")
+    if "def treasures_channel_id" not in treasures_source:
+        raise SystemExit("La détection du salon Trésors du Ciel est absente.")
     for marker in ("BEGIN IMMEDIATE", "recompense_thought.png", "recompense_star.png", "recompense_dust.png", "missing_assets"):
         if marker not in treasures_source:
             errors.append(f"Sécurité / visuels Trésors du Ciel : marqueur absent {marker}")
@@ -235,9 +258,10 @@ def main() -> None:
     for filename in ("jokes.py", "riddles.py", "quizzes.py", "horizons_daily.py"):
         if not (ROOT / "cogs" / filename).is_file():
             raise SystemExit(f"Routine quotidienne existante absente : {filename}")
-    structure_source = (ROOT / "cogs" / "ludic_structure.py").read_text(encoding="utf-8")
-    if "build_treasures_embed" not in structure_source or "treasures_info_message_id" not in structure_source:
-        raise SystemExit("Le panneau d'information initial du salon Trésors du Ciel est absent.")
+    if "build_treasures_embed" not in treasures_source or "refresh_treasures_info" not in treasures_source:
+        raise SystemExit("Le panneau d'information du salon Trésors du Ciel est absent.")
+    if "build_arcade_embed" not in arcade_source or "refresh_arcade_info" not in arcade_source:
+        raise SystemExit("Le panneau d'information du salon Arcade HORIZONS est absent.")
     if 'SUGGESTION_CHANNEL_ID = env_int("SUGGESTION_CHANNEL_ID", 1566620913254932633)' not in config_source:
         raise SystemExit("L’identifiant du salon suggestions ne correspond pas au nouvel export.")
 
