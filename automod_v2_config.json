@@ -1,0 +1,192 @@
+{
+  "version": 2,
+  "enabled": true,
+  "delete_messages": true,
+  "warning_delete_delay": 8,
+  "exempt_role_ids": [
+    1566561887305339001,
+    1566561889188839477,
+    1566561900865785918,
+    1566561923670212828
+  ],
+  "exempt_channel_ids": [],
+  "discord_invites": {
+    "enabled": true,
+    "patterns": [
+      "discord.gg/",
+      "discord.com/invite/",
+      "discordapp.com/invite/"
+    ],
+    "reason": "Publicité / Invitation Discord"
+  },
+  "caps": {
+    "enabled": true,
+    "min_chars": 15,
+    "max_ratio": 0.7,
+    "min_uppercase": 10,
+    "reason": "Majuscules excessives"
+  },
+  "emojis": {
+    "enabled": true,
+    "min_emojis": 10,
+    "max_ratio": 0.5,
+    "reason": "Émojis excessifs"
+  },
+  "mentions": {
+    "enabled": true,
+    "max_mentions_message": 5,
+    "max_mentions_30s": 5,
+    "window_seconds": 30,
+    "reason": "Mentions excessives"
+  },
+  "spam": {
+    "enabled": true,
+    "max_messages": 15,
+    "window_seconds": 30,
+    "reason": "Spam"
+  },
+  "repetition": {
+    "enabled": true,
+    "max_repeated": 5,
+    "window_seconds": 30,
+    "reason": "Répétition de message"
+  },
+  "forbidden_pings": {
+    "enabled": false,
+    "protected_user_ids": [],
+    "protected_role_ids": [],
+    "reason": "Ping interdit"
+  },
+  "forbidden_words": {
+    "enabled": true,
+    "words": [
+      "connard",
+      "connasse",
+      "enculé",
+      "enculer",
+      "va te faire foutre",
+      "vtff",
+      "pute",
+      "putain",
+      "salope",
+      "bâtard",
+      "batard",
+      "fils de pute",
+      "fdp",
+      "fils de chien",
+      "ntm",
+      "nique ta mère",
+      "va niquer ta mère",
+      "mange tes morts",
+      "ta gueule",
+      "tg",
+      "enfoiré",
+      "enfoire",
+      "ordure",
+      "déchet",
+      "dechet",
+      "clochard",
+      "abruti",
+      "débile",
+      "debile",
+      "mongol",
+      "imbécile",
+      "imbecile",
+      "idiot",
+      "sale merde",
+      "sale race",
+      "sous race",
+      "sous-race",
+      "sale pédé",
+      "sale pede",
+      "sale gouine",
+      "sale trans",
+      "sale lesbienne",
+      "sale gay",
+      "sale arabe",
+      "sale noir",
+      "sale juif",
+      "sale musulman",
+      "sale chrétien",
+      "sale chretien",
+      "sale étranger",
+      "sale etranger",
+      "sale femme",
+      "sale homme",
+      "sale tapette",
+      "va crever",
+      "crève",
+      "creve"
+    ],
+    "reason": "Vocabulaire injurieux interdit"
+  },
+  "sensitive_alerts": {
+    "enabled": true,
+    "terms_file": "data/automod_sensitive_terms.json",
+    "ignore_channels": []
+  },
+  "predefined_sanctions": {
+    "Spam": {
+      "type": "warn",
+      "duration_seconds": 0
+    },
+    "Publicité / Invitation Discord": {
+      "type": "warn",
+      "duration_seconds": 0
+    },
+    "Majuscules excessives": {
+      "type": "warn",
+      "duration_seconds": 0
+    },
+    "Émojis excessifs": {
+      "type": "warn",
+      "duration_seconds": 0
+    },
+    "Mentions excessives": {
+      "type": "warn",
+      "duration_seconds": 0
+    },
+    "Ping interdit": {
+      "type": "warn",
+      "duration_seconds": 0
+    },
+    "Répétition de message": {
+      "type": "warn",
+      "duration_seconds": 0
+    },
+    "Vocabulaire injurieux interdit": {
+      "type": "warn",
+      "duration_seconds": 0
+    }
+  },
+  "escalation": [
+    {
+      "count": 3,
+      "window_seconds": 172800,
+      "type": "mute",
+      "duration_seconds": 3600,
+      "label": "3 infractions en 48 h"
+    },
+    {
+      "count": 5,
+      "window_seconds": 172800,
+      "type": "mute",
+      "duration_seconds": 86400,
+      "label": "5 infractions en 48 h"
+    },
+    {
+      "count": 7,
+      "window_seconds": 259200,
+      "type": "tempban",
+      "duration_seconds": 259200,
+      "label": "7 infractions en 72 h"
+    },
+    {
+      "count": 10,
+      "window_seconds": 604800,
+      "type": "tempban",
+      "duration_seconds": 604800,
+      "label": "10 infractions en 7 jours"
+    }
+  ]
+}

@@ -59,6 +59,22 @@ CREATE TABLE IF NOT EXISTS member_notes (
  id INTEGER PRIMARY KEY AUTOINCREMENT, guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
  moderator_id INTEGER NOT NULL, note TEXT NOT NULL, created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS automod_infractions (
+ id INTEGER PRIMARY KEY AUTOINCREMENT, guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
+ channel_id INTEGER, message_id INTEGER, reason TEXT NOT NULL, source TEXT NOT NULL DEFAULT 'automod',
+ created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_automod_infractions_user ON automod_infractions(guild_id,user_id,created_at);
+CREATE TABLE IF NOT EXISTS automod_sanctions (
+ id INTEGER PRIMARY KEY AUTOINCREMENT, guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
+ infraction_id INTEGER, action TEXT NOT NULL, reason TEXT NOT NULL, duration_seconds INTEGER NOT NULL DEFAULT 0,
+ source TEXT NOT NULL, status TEXT NOT NULL, created_at TEXT NOT NULL, expires_at TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_automod_sanctions_user ON automod_sanctions(guild_id,user_id,created_at);
+CREATE TABLE IF NOT EXISTS automod_tempbans (
+ guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL, reason TEXT NOT NULL, expires_at TEXT NOT NULL,
+ status TEXT NOT NULL DEFAULT 'active', PRIMARY KEY(guild_id,user_id)
+);
 CREATE INDEX IF NOT EXISTS idx_warnings_user ON warnings(guild_id,user_id,active);
 CREATE INDEX IF NOT EXISTS idx_events_status ON events(guild_id,status,starts_at);
 

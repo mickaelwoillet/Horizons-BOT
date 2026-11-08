@@ -8,7 +8,6 @@ from __future__ import annotations
 import asyncio
 import logging
 import json
-import hashlib
 import os
 import sys
 from typing import Final
@@ -29,23 +28,13 @@ from config import (
 )
 
 # Identité visuelle : le logo est publié une seule fois comme pièce jointe Discord.
-from cogs.embed_theme import LOGO_PATH, LOGO_STATE_PATH, begin_logo_loading, set_logo_url
+from cogs.embed_theme import LOGO_PATH, LOGO_STATE_PATH, set_logo_url
 
 
 async def ensure_horizons_logo_asset(bot: commands.Bot) -> None:
     """Publie/réutilise le logo sur Discord pour que tous les embeds puissent l'afficher."""
-    # Empêche deux événements on_ready concurrents de publier deux dépôts.
-    if getattr(bot, "_horizons_logo_lock", None) is None:
-        bot._horizons_logo_lock = asyncio.Lock()
-    async with bot._horizons_logo_lock:
-        await _ensure_horizons_logo_asset_locked(bot)
-
-
-async def _ensure_horizons_logo_asset_locked(bot: commands.Bot) -> None:
-    begin_logo_loading()
     if not LOGO_PATH.is_file():
         logger.warning("Logo HORIZONS introuvable : %s", LOGO_PATH)
-        set_logo_url(None)
         return
 
     state = {}
@@ -56,33 +45,19 @@ async def _ensure_horizons_logo_asset_locked(bot: commands.Bot) -> None:
 
     channel_id = state.get("channel_id")
     message_id = state.get("message_id")
-    current_hash = hashlib.sha256(LOGO_PATH.read_bytes()).hexdigest()
-    # Une nouvelle version du logo doit être republiée : ne jamais garder
-    # silencieusement l'ancienne pièce jointe CDN.
-    if channel_id and message_id and state.get("sha256") == current_hash:
+    if channel_id and message_id:
         try:
             channel = bot.get_channel(int(channel_id)) or await bot.fetch_channel(int(channel_id))
             message = await channel.fetch_message(int(message_id))
             if message.attachments:
-                attachment = message.attachments[0]
-                # Le premier état enregistré ne contenait pas toujours le hash.
-                # On réutilise le dépôt existant si le nom et la taille correspondent.
-                if attachment.filename == "horizons_logo.png" and attachment.size == LOGO_PATH.stat().st_size:
-                    set_logo_url(attachment.url)
-                    LOGO_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
-                    LOGO_STATE_PATH.write_text(
-                        json.dumps({"channel_id": channel.id, "message_id": message.id, "sha256": current_hash}, ensure_ascii=False, indent=2),
-                        encoding="utf-8",
-                    )
-                    logger.info("Dépôt du logo HORIZONS réutilisé.")
-                    return
+                set_logo_url(message.attachments[0].url)
+                return
         except (discord.HTTPException, discord.NotFound, discord.Forbidden, ValueError, AttributeError):
             logger.info("Ancien dépôt du logo HORIZONS introuvable : nouvelle publication nécessaire.")
 
     destination_id = STAFF_COMMANDS_CHANNEL_ID or LOG_CHANNEL_ID
     if not destination_id:
         logger.warning("Aucun salon de dépôt du logo configuré (STAFF_COMMANDS_CHANNEL_ID / LOG_CHANNEL_ID).")
-        set_logo_url(None)
         return
     try:
         channel = bot.get_channel(destination_id) or await bot.fetch_channel(destination_id)
@@ -94,18 +69,16 @@ async def _ensure_horizons_logo_asset_locked(bot: commands.Bot) -> None:
         )
         if not message.attachments:
             logger.warning("Discord n'a pas retourné la pièce jointe du logo HORIZONS.")
-            set_logo_url(None)
             return
         set_logo_url(message.attachments[0].url)
         LOGO_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
         LOGO_STATE_PATH.write_text(
-            json.dumps({"channel_id": channel.id, "message_id": message.id, "sha256": current_hash}, ensure_ascii=False, indent=2),
+            json.dumps({"channel_id": channel.id, "message_id": message.id}, ensure_ascii=False, indent=2),
             encoding="utf-8",
         )
         logger.info("Logo HORIZONS prêt : les embeds utiliseront la miniature officielle.")
     except (discord.HTTPException, discord.Forbidden, OSError) as exc:
         logger.warning("Impossible de publier le logo HORIZONS : %s", exc)
-        set_logo_url(None)
 
 
 # Charger uniquement les extensions présentes. Les extensions pourront être
@@ -113,9 +86,9 @@ async def _ensure_horizons_logo_asset_locked(bot: commands.Bot) -> None:
 EXTENSIONS: Final[tuple[str, ...]] = (
     "cogs.general",
     "cogs.onboarding",
-    "cogs.smart_welcome",
     "cogs.moderation",
     "cogs.logging_tools",
+    "cogs.automod",
     "cogs.birthdays",
     "cogs.announcements",
     "cogs.jokes",
@@ -123,7 +96,6 @@ EXTENSIONS: Final[tuple[str, ...]] = (
     "cogs.community_ranks",
     "cogs.events",
     "cogs.staff_tools",
-    "cogs.automod",
     "cogs.voice_rooms",
     "cogs.giveaways",
     "cogs.role_panels",
@@ -132,14 +104,9 @@ EXTENSIONS: Final[tuple[str, ...]] = (
     "cogs.staff_dashboard",
     "cogs.quizzes",
     "cogs.community",
-    "cogs.horizons_daily",
-    "cogs.publication_calendar",
-    "cogs.weekly_animations",
-    "cogs.publication_tests",
     "cogs.experiences",
     "cogs.horizons_path",
     "cogs.server_guides",
-    "cogs.server_audit_export",
     "cogs.tickets",
     "cogs.translation",
 )

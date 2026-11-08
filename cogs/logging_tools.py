@@ -4,10 +4,20 @@ from cogs.embed_theme import horizons_embed
 from datetime import datetime, timezone
 import discord
 from discord.ext import commands
-from config import LOG_CHANNEL_ID, MOD_LOG_CHANNEL_ID, LEAVE_CHANNEL_ID, WELCOME_CHANNEL_ID, NEW_MEMBER_ROLE_ID
+from config import (
+    LOG_CHANNEL_ID, MOD_LOG_CHANNEL_ID, WELCOME_CHANNEL_ID, LEAVE_CHANNEL_ID,
+    NEW_MEMBER_ROLE_ID, MESSAGE_LOG_CHANNEL_ID, ROLE_LOG_CHANNEL_ID,
+    VOICE_LOG_CHANNEL_ID, INFRACTION_LOG_CHANNEL_ID, TICKET_CATEGORY_ID,
+)
 
 class LoggingTools(commands.Cog):
     def __init__(self, bot: commands.Bot): self.bot = bot
+
+    def is_ticket_channel(self, channel: discord.abc.GuildChannel) -> bool:
+        name = str(getattr(channel, "name", "")).lower()
+        if name.startswith(("ticket-", "ferme-ticket-")):
+            return True
+        return bool(TICKET_CATEGORY_ID and getattr(channel, "category_id", None) == TICKET_CATEGORY_ID)
 
     async def send_log(self, guild: discord.Guild, title: str, description: str, color: discord.Color = discord.Color.blurple(), channel_id: int | None = None):
         cid = channel_id or LOG_CHANNEL_ID
@@ -27,7 +37,17 @@ class LoggingTools(commands.Cog):
             except discord.Forbidden:
                 await self.send_log(member.guild, "⚠️ Rôle de bienvenue non attribué",
                     f"Impossible d'attribuer {newcomer_role.mention} à {member.mention}. Vérifier la hiérarchie des rôles et la permission Gérer les rôles.", discord.Color.red())
-        # Le message d’accueil guidé est désormais géré par cogs.smart_welcome.
+        channel = member.guild.get_channel(WELCOME_CHANNEL_ID) if WELCOME_CHANNEL_ID else None
+        if channel:
+            embed = horizons_embed(
+                title="🌅 Bienvenue dans HORIZONS !",
+                description=(f"Bienvenue {member.mention} ! 💜\n\n"
+                    "Nous sommes heureux de t'accueillir. Tu disposes du rôle **🌱 Nouveau membre**.\n\n"
+                    "📜 Passe dans le salon <#1566562055811633353>, lis la charte puis clique sur **J'accepte le règlement** pour obtenir le rôle **Membre** et accéder au reste de la communauté.\n\n"
+                    "Prends le temps de découvrir les salons et avance à ton rythme. Ici, chacun a sa place !"),
+                color=discord.Color.blurple())
+            embed.set_author(name=f'Membre : {member.display_name}', icon_url=member.display_avatar.url)
+            await channel.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_member_remove(self, member: discord.Member):
@@ -44,17 +64,23 @@ class LoggingTools(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_delete(self, message: discord.Message):
-        if not message.guild or message.author.bot: return
+        # Les suppressions AutoMod sont déjà détaillées dans #logs-automod.
+        deleted_ids = getattr(self.bot, "automod_deleted_ids", set())
+        if message.id in deleted_ids:
+            deleted_ids.discard(message.id)
+            return
+        if not message.guild or message.author.bot or self.is_ticket_channel(message.channel): return
         content = message.content.strip() or "[contenu non textuel ou indisponible]"
         content = discord.utils.escape_markdown(content[:1200])
-        await self.send_log(message.guild, "🗑️ Message supprimé", f"Auteur : {message.author.mention} (`{message.author.id}`)\nSalon : {message.channel.mention}\nContenu :\n{content}", discord.Color.orange())
+        await self.send_log(message.guild, "🗑️ Message supprimé", f"Auteur : {message.author.mention} (`{message.author.id}`)\nSalon : {message.channel.mention}\nContenu :\n{content}", discord.Color.orange(), MESSAGE_LOG_CHANNEL_ID)
 
     @commands.Cog.listener()
     async def on_message_edit(self, before: discord.Message, after: discord.Message):
-        if not before.guild or before.author.bot or before.content == after.content: return
+        if after.id in getattr(self.bot, "automod_blocked_message_ids", set()): return
+        if not before.guild or before.author.bot or before.content == after.content or self.is_ticket_channel(before.channel): return
         old = discord.utils.escape_markdown(before.content[:900] or "[vide]")
         new = discord.utils.escape_markdown(after.content[:900] or "[vide]")
-        await self.send_log(before.guild, "✏️ Message modifié", f"Auteur : {before.author.mention}\nSalon : {before.channel.mention}\nAvant :\n{old}\n\nAprès :\n{new}")
+        await self.send_log(before.guild, "✏️ Message modifié", f"Auteur : {before.author.mention}\nSalon : {before.channel.mention}\nAvant :\n{old}\n\nAprès :\n{new}", channel_id=MESSAGE_LOG_CHANNEL_ID)
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
@@ -65,7 +91,7 @@ class LoggingTools(commands.Cog):
             detail = f"{member.mention} a quitté {before.channel.mention}."
         else:
             detail = f"{member.mention} est passé de {before.channel.mention} à {after.channel.mention}."
-        await self.send_log(member.guild, "🔊 Activité vocale", detail)
+        await self.send_log(member.guild, "🔊 Activité vocale", detail, channel_id=VOICE_LOG_CHANNEL_ID)
 
     @commands.Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member):
@@ -76,23 +102,31 @@ class LoggingTools(commands.Cog):
             parts = []
             if added: parts.append("Ajoutés : " + ", ".join(added))
             if removed: parts.append("Retirés : " + ", ".join(removed))
-            await self.send_log(after.guild, "🎭 Rôles modifiés", f"Membre : {after.mention}\n" + "\n".join(parts))
+            await self.send_log(after.guild, "🎭 Rôles modifiés", f"Membre : {after.mention}\n" + "\n".join(parts), channel_id=ROLE_LOG_CHANNEL_ID)
 
     @commands.Cog.listener()
     async def on_guild_role_delete(self, role: discord.Role):
-        await self.send_log(role.guild, "🗑️ Rôle supprimé", f"Rôle : **{role.name}** (`{role.id}`)")
+        await self.send_log(role.guild, "🗑️ Rôle supprimé", f"Rôle : **{role.name}** (`{role.id}`)", channel_id=ROLE_LOG_CHANNEL_ID)
 
     @commands.Cog.listener()
     async def on_guild_role_create(self, role: discord.Role):
-        await self.send_log(role.guild, "🎭 Rôle créé", f"Rôle : {role.mention} (`{role.id}`)")
+        await self.send_log(role.guild, "🎭 Rôle créé", f"Rôle : {role.mention} (`{role.id}`)", channel_id=ROLE_LOG_CHANNEL_ID)
 
     @commands.Cog.listener()
     async def on_member_ban(self, guild: discord.Guild, user: discord.User):
-        await self.send_log(guild, "⛔ Bannissement détecté", f"Utilisateur : **{discord.utils.escape_markdown(str(user))}** (`{user.id}`).", discord.Color.red(), MOD_LOG_CHANNEL_ID)
+        action_ids = getattr(self.bot, "moderation_ban_ids", set())
+        if user.id in action_ids:
+            action_ids.discard(user.id)
+            return
+        await self.send_log(guild, "⛔ Bannissement détecté", f"Utilisateur : **{discord.utils.escape_markdown(str(user))}** (`{user.id}`).", discord.Color.red(), INFRACTION_LOG_CHANNEL_ID)
 
     @commands.Cog.listener()
     async def on_member_unban(self, guild: discord.Guild, user: discord.User):
-        await self.send_log(guild, "✅ Débannissement détecté", f"Utilisateur : **{discord.utils.escape_markdown(str(user))}** (`{user.id}`).", discord.Color.green(), MOD_LOG_CHANNEL_ID)
+        action_ids = getattr(self.bot, "moderation_unban_ids", set())
+        if user.id in action_ids:
+            action_ids.discard(user.id)
+            return
+        await self.send_log(guild, "✅ Débannissement détecté", f"Utilisateur : **{discord.utils.escape_markdown(str(user))}** (`{user.id}`).", discord.Color.green(), INFRACTION_LOG_CHANNEL_ID)
 
     @commands.Cog.listener()
     async def on_guild_role_update(self, before: discord.Role, after: discord.Role):
@@ -100,6 +134,6 @@ class LoggingTools(commands.Cog):
         if before.name != after.name: changes.append(f"Nom : **{before.name}** → **{after.name}**")
         if before.permissions != after.permissions: changes.append("Permissions modifiées")
         if changes:
-            await self.send_log(after.guild, "🎭 Rôle modifié", f"Rôle : {after.mention} (`{after.id}`)\n" + "\n".join(changes))
+            await self.send_log(after.guild, "🎭 Rôle modifié", f"Rôle : {after.mention} (`{after.id}`)\n" + "\n".join(changes), channel_id=ROLE_LOG_CHANNEL_ID)
 
 async def setup(bot: commands.Bot): await bot.add_cog(LoggingTools(bot))
