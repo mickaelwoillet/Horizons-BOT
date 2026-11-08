@@ -178,6 +178,9 @@ class CommunityHub(commands.Cog):
         if isinstance(staff_channel, discord.TextChannel):
             audit = horizons_embed(title=f"Journal interne — idée #{idea_id}", description=f"Auteur : {interaction.user} (`{interaction.user.id}`)\nMessage : {msg.jump_url}", color=discord.Color.dark_grey())
             await staff_channel.send(embed=audit)
+        features = self.bot.get_cog("HorizonsFeatures")
+        if features and isinstance(interaction.user, discord.Member) and interaction.guild:
+            await features.check_achievements(interaction.guild, interaction.user)
         await interaction.response.send_message("Merci ! Ton idée a été déposée anonymement. 💡", ephemeral=True)
 
     @app_commands.command(name="mes_idees", description="Consulter tes propositions envoyées à la boîte à idées.")
@@ -222,6 +225,18 @@ class CommunityHub(commands.Cog):
                 if msg:
                     await msg.edit(embed=idea_embed(identifiant,row['content'],statut.value), view=IdeaVoteView(identifiant) if statut.value not in ('done','rejected') else None)
             except discord.HTTPException: pass
+        with db() as conn:
+            author_row = conn.execute("SELECT user_id FROM community_ideas WHERE id=? AND guild_id=?", (identifiant, interaction.guild_id or 0)).fetchone()
+        if author_row and interaction.guild:
+            author = interaction.guild.get_member(int(author_row["user_id"]))
+            if author is None:
+                try:
+                    author = await interaction.guild.fetch_member(int(author_row["user_id"]))
+                except discord.HTTPException:
+                    author = None
+            features = self.bot.get_cog("HorizonsFeatures")
+            if features and isinstance(author, discord.Member):
+                await features.check_achievements(interaction.guild, author)
         await interaction.response.send_message(f"Statut de l'idée #{identifiant} mis à jour : **{statut.name}**.", ephemeral=True)
 
     @app_commands.command(name="remercier", description="Remercier publiquement un membre sur le mur de la solidarité.")
@@ -245,6 +260,11 @@ class CommunityHub(commands.Cog):
         else:
             posted = await channel.send(embed=embed, allowed_mentions=discord.AllowedMentions(users=True))
         with db() as conn: conn.execute("INSERT INTO solidarity_thanks(guild_id,author_id,target_id,reason,message_id,created_at) VALUES(?,?,?,?,?,?)", (interaction.guild_id or 0,interaction.user.id,membre.id,motif.value,posted.id,datetime.now(timezone.utc).isoformat()))
+        features = self.bot.get_cog("HorizonsFeatures")
+        if features and interaction.guild:
+            if isinstance(interaction.user, discord.Member):
+                await features.check_achievements(interaction.guild, interaction.user)
+            await features.check_achievements(interaction.guild, membre)
         await interaction.response.send_message(f"Ton remerciement a été publié dans {channel.mention}. 💜", ephemeral=True)
 
     def dashboard_embed(self, guild: discord.Guild, section: str):

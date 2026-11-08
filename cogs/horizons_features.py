@@ -36,6 +36,18 @@ ACHIEVEMENTS = {
     "seven_days": ("🌿 Présence régulière", "Tu as été actif(ve) pendant 7 jours différents."),
     "thirty_days": ("🌳 Horizon durable", "Tu as été actif(ve) pendant 30 jours différents."),
     "passport_week": ("🧭 Passeport accompli", "Tu as validé les trois missions de ton passeport hebdomadaire."),
+    "first_idea": ("💡 Esprit d'initiative", "Tu as proposé une première idée pour faire grandir HORIZONS."),
+    "idea_accepted": ("✨ Idée adoptée", "Une de tes propositions a été retenue par l'équipe."),
+    "idea_realized": ("🏗️ Horizon construit", "Une de tes idées a été mise en œuvre sur HORIZONS."),
+    "first_thanks_given": ("💜 Merci partagé", "Tu as pris le temps de remercier publiquement un autre membre."),
+    "first_thanks_received": ("🤝 Soutien reconnu", "Un membre a tenu à saluer ton aide ou ta bienveillance."),
+    "challenge_joined": ("🌟 Force collective", "Tu as rejoint un défi collectif HORIZONS."),
+    "collective_success": ("🌈 Ensemble, plus loin", "Tu as contribué à la réussite d'un défi collectif."),
+    "path_decouverte": ("🌅 Explorateur des possibles", "Tu as terminé le thème Découverte du Parcours des horizons."),
+    "path_confiance": ("💜 Confiance en chemin", "Tu as terminé le thème Confiance du Parcours des horizons."),
+    "path_solidarite": ("🤝 Esprit solidaire", "Tu as terminé le thème Solidarité du Parcours des horizons."),
+    "path_curiosite": ("🔎 Curieux d'horizons", "Tu as terminé le thème Curiosité du Parcours des horizons."),
+    "path_creativite": ("🎨 Créateur d'horizons", "Tu as terminé le thème Créativité du Parcours des horizons."),
 }
 
 
@@ -185,14 +197,16 @@ class HorizonsFeatures(commands.Cog):
             return
         await interaction.response.send_message(f"Ta météo du jour : **{row['mood']}**. ✦", ephemeral=True)
 
-    async def unlock(self, guild: discord.Guild, member: discord.Member, key: str):
+    async def unlock(self, guild: discord.Guild, member: discord.Member, key: str, *, announce: bool = True):
+        if key not in ACHIEVEMENTS:
+            return
         title, description = ACHIEVEMENTS[key]
         with db() as conn:
             inserted = conn.execute(
                 "INSERT OR IGNORE INTO success_unlocks(guild_id,user_id,achievement_key,unlocked_at) VALUES(?,?,?,?)",
                 (guild.id, member.id, key, datetime.now(timezone.utc).isoformat()),
             ).rowcount
-        if not inserted:
+        if not inserted or not announce:
             return
         channel = guild.get_channel(SUCCESS_CHANNEL_ID)
         if channel is None:
@@ -222,14 +236,61 @@ class HorizonsFeatures(commands.Cog):
                 "SELECT COUNT(*) FROM passport_completions WHERE guild_id=? AND user_id=? AND week_key=?",
                 (guild.id, member.id, current_week_key()),
             ).fetchone()[0]
-        if active_days >= 1:
-            await self.unlock(guild, member, "first_day")
-        if active_days >= 7:
-            await self.unlock(guild, member, "seven_days")
-        if active_days >= 30:
-            await self.unlock(guild, member, "thirty_days")
-        if missions >= 3:
-            await self.unlock(guild, member, "passport_week")
+            ideas = conn.execute(
+                "SELECT COUNT(*) FROM community_ideas WHERE guild_id=? AND user_id=?",
+                (guild.id, member.id),
+            ).fetchone()[0]
+            accepted_ideas = conn.execute(
+                "SELECT COUNT(*) FROM community_ideas WHERE guild_id=? AND user_id=? AND status IN ('accepted','done')",
+                (guild.id, member.id),
+            ).fetchone()[0]
+            realized_ideas = conn.execute(
+                "SELECT COUNT(*) FROM community_ideas WHERE guild_id=? AND user_id=? AND status='done'",
+                (guild.id, member.id),
+            ).fetchone()[0]
+            thanks_given = conn.execute(
+                "SELECT COUNT(*) FROM solidarity_thanks WHERE guild_id=? AND author_id=?",
+                (guild.id, member.id),
+            ).fetchone()[0]
+            thanks_received = conn.execute(
+                "SELECT COUNT(*) FROM solidarity_thanks WHERE guild_id=? AND target_id=?",
+                (guild.id, member.id),
+            ).fetchone()[0]
+            challenge_joined = conn.execute(
+                "SELECT COUNT(*) FROM collective_challenge_members m JOIN collective_challenges c ON c.id=m.challenge_id WHERE c.guild_id=? AND m.user_id=?",
+                (guild.id, member.id),
+            ).fetchone()[0]
+            collective_success = conn.execute(
+                "SELECT COUNT(*) FROM collective_challenge_members m JOIN collective_challenges c ON c.id=m.challenge_id WHERE c.guild_id=? AND m.user_id=? AND c.status='completed'",
+                (guild.id, member.id),
+            ).fetchone()[0]
+            completed_paths = {
+                row["theme_key"] for row in conn.execute(
+                    "SELECT theme_key FROM horizons_path_progress WHERE guild_id=? AND user_id=? GROUP BY theme_key HAVING COUNT(DISTINCT step_number)>=3",
+                    (guild.id, member.id),
+                ).fetchall()
+            }
+        thresholds = (
+            (active_days >= 1, "first_day"),
+            (active_days >= 7, "seven_days"),
+            (active_days >= 30, "thirty_days"),
+            (missions >= 3, "passport_week"),
+            (ideas >= 1, "first_idea"),
+            (accepted_ideas >= 1, "idea_accepted"),
+            (realized_ideas >= 1, "idea_realized"),
+            (thanks_given >= 1, "first_thanks_given"),
+            (thanks_received >= 1, "first_thanks_received"),
+            (challenge_joined >= 1, "challenge_joined"),
+            (collective_success >= 1, "collective_success"),
+            ("decouverte" in completed_paths, "path_decouverte"),
+            ("confiance" in completed_paths, "path_confiance"),
+            ("solidarite" in completed_paths, "path_solidarite"),
+            ("curiosite" in completed_paths, "path_curiosite"),
+            ("creativite" in completed_paths, "path_creativite"),
+        )
+        for reached, key in thresholds:
+            if reached:
+                await self.unlock(guild, member, key, announce=(key != "collective_success"))
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -239,11 +300,12 @@ class HorizonsFeatures(commands.Cog):
             return
         day = datetime.now(LOCAL_TIMEZONE).date().isoformat()
         with db() as conn:
-            conn.execute(
+            inserted = conn.execute(
                 "INSERT OR IGNORE INTO success_activity_days(guild_id,user_id,active_date) VALUES(?,?,?)",
                 (message.guild.id, message.author.id, day),
-            )
-        await self.check_achievements(message.guild, message.author)
+            ).rowcount
+        if inserted:
+            await self.check_achievements(message.guild, message.author)
 
     @app_commands.command(name="mes_succes", description="Consulter tes succès HORIZONS débloqués.")
     async def mes_succes(self, interaction: discord.Interaction):

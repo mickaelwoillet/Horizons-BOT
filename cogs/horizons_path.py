@@ -113,8 +113,11 @@ class PathView(discord.ui.View):
             )
         self.progress[self.theme_key].add(next_step)
         if len(self.progress[self.theme_key]) == len(steps):
+            features = self.cog.bot.get_cog("HorizonsFeatures")
+            if features and interaction.guild and isinstance(interaction.user, discord.Member):
+                await features.check_achievements(interaction.guild, interaction.user)
             await interaction.response.edit_message(embed=overview_embed(self.progress), view=self)
-            await interaction.followup.send(f"✨ Bravo ! Tu as terminé le thème **{THEMES[self.theme_key][0]}**. Ton badge est maintenant débloqué dans ton parcours.", ephemeral=True)
+            await interaction.followup.send(f"✨ Bravo ! Tu as terminé le thème **{THEMES[self.theme_key][0]}**. Ton badge est également ajouté à tes succès HORIZONS.", ephemeral=True)
         else:
             await interaction.response.edit_message(embed=overview_embed(self.progress), view=self)
 

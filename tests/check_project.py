@@ -118,6 +118,21 @@ def main() -> None:
     if len(commands) != len(set(commands)):
         raise SystemExit("Des noms de commandes slash sont dupliqués.")
 
+    # Progression communautaire : contributions, entraide, missions et parcours
+    # doivent alimenter le même registre de succès, sans système de points/classement.
+    progression_sources = {
+        "cogs/horizons_features.py": ("first_idea", "idea_accepted", "first_thanks_given", "first_thanks_received", "challenge_joined", "collective_success", "path_decouverte"),
+        "cogs/community_hub.py": ("check_achievements", "solidarity_thanks", "community_ideas"),
+        "cogs/experiences.py": ("check_achievements", "passport_completions", "collective_challenge_members"),
+        "cogs/horizons_path.py": ("check_achievements", "horizons_path_progress"),
+        "cogs/community_ranks.py": ("name=\"progression\"", "LOCAL_TIMEZONE", "activity_days"),
+    }
+    for filename, markers in progression_sources.items():
+        source = (ROOT / filename).read_text(encoding="utf-8")
+        for marker in markers:
+            if marker not in source:
+                raise SystemExit(f"Intégration de progression manquante : {filename} / {marker}")
+
     theme = (ROOT / "cogs" / "embed_theme.py").read_text(encoding="utf-8")
     if "def horizons_embed(" not in theme or not (ROOT / "data" / "assets" / "logo_horizons.png").is_file():
         raise SystemExit("Le système d'identité visuelle HORIZONS ou son logo est absent.")

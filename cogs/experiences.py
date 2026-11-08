@@ -527,7 +527,27 @@ class Experiences(commands.Cog):
             f"Tu as rejoint le défi **{challenge['title']}** ! Nous sommes maintenant **{count}/{challenge['target']}**. 🌱",
             ephemeral=True,
         )
+        features = self.bot.get_cog("HorizonsFeatures")
+        if features and interaction.guild and isinstance(interaction.user, discord.Member):
+            await features.check_achievements(interaction.guild, interaction.user)
         if completed_now:
+            # Le succès collectif est attribué à tous les membres inscrits, sans publier
+            # une avalanche d'annonces individuelles dans le salon des succès.
+            if features and interaction.guild:
+                with db() as conn:
+                    participant_ids = [int(row[0]) for row in conn.execute(
+                        "SELECT user_id FROM collective_challenge_members WHERE challenge_id=?",
+                        (challenge["id"],),
+                    ).fetchall()]
+                for participant_id in participant_ids:
+                    participant = interaction.guild.get_member(participant_id)
+                    if participant is None:
+                        try:
+                            participant = await interaction.guild.fetch_member(participant_id)
+                        except discord.HTTPException:
+                            participant = None
+                    if isinstance(participant, discord.Member):
+                        await features.check_achievements(interaction.guild, participant)
             await self.announce_challenge(
                 interaction.guild,
                 f"🎉 **Défi réussi !** « {challenge['title']} » a atteint son objectif grâce à vous : "
