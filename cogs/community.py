@@ -49,7 +49,7 @@ class Community(commands.Cog):
         embed.set_footer(text=f"Offert par {interaction.user.display_name} • HORIZONS")
         await interaction.response.send_message(embed=embed)
 
-    @tasks.loop(time=time(hour=10,minute=0,tzinfo=LOCAL_TIMEZONE))
+    @tasks.loop(time=time(hour=11,minute=30,tzinfo=LOCAL_TIMEZONE))
     async def daily_question(self):
         channel = self.bot.get_channel(DAILY_QUESTION_CHANNEL_ID) if DAILY_QUESTION_CHANNEL_ID else None
         if channel is None and DAILY_QUESTION_CHANNEL_ID:

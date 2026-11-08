@@ -176,7 +176,7 @@ class HorizonsDaily(commands.Cog):
         await self.bot.wait_until_ready()
         await wait_for_logo_ready()
 
-    @tasks.loop(time=time(hour=18, minute=0, tzinfo=LOCAL_TIMEZONE))
+    @tasks.loop(time=time(hour=19, minute=30, tzinfo=LOCAL_TIMEZONE))
     async def weekly_debate(self):
         # Le contrôle du jour évite une publication quotidienne : dimanche uniquement.
         if datetime.now(LOCAL_TIMEZONE).weekday() != 6:

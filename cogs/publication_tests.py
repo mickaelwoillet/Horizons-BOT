@@ -16,7 +16,7 @@ from config import (
     CONFESSION_CHANNEL_ID, DATA_DIR, DAILY_QUESTION_CHANNEL_ID, DEBATE_CHANNEL_ID,
     FIND_PARTNER_CHANNEL_ID, HORIZON_DAILY_CHANNEL_ID, INTRO_CHANNEL_ID,
     JOKE_DAILY_CHANNEL_ID, MISSIONS_CHANNEL_ID, QUIZ_CHANNEL_ID,
-    RIDDLE_DAILY_CHANNEL_ID, STAFF_COMMANDS_CHANNEL_ID, SUCCESS_CHANNEL_ID,
+    RIDDLE_DAILY_CHANNEL_ID, STAFF_COMMANDS_CHANNEL_ID, SUCCESS_CHANNEL_ID, INSPIRATION_CHANNEL_ID,
 )
 from cogs.embed_theme import horizons_embed
 from cogs.experiences import current_missions, week_key
@@ -138,20 +138,30 @@ class PublicationTests(commands.Cog):
             else:
                 results.append((False, "Quiz du jour : aucune entrée valide dans quiz.json."))
 
-            for filename, key, title, field, channel_id, color in (
-                ("citations.json", "citation", "✦ La citation du jour", "texte", HORIZON_DAILY_CHANNEL_ID, discord.Color.blurple()),
-                ("proverbes.json", "proverbe", "🌿 Le proverbe du jour", "texte", HORIZON_DAILY_CHANNEL_ID, discord.Color.green()),
-                ("messages.json", "message positif", "🌻 Le message bienveillant du jour", "texte", SUCCESS_CHANNEL_ID, discord.Color.gold()),
-            ):
-                items = read_json(filename, [])
-                item = next((x for x in items if isinstance(x, dict) and x.get(field)), None)
-                if item:
-                    embed = horizons_embed(title=title, description=str(item[field]), color=color)
-                    for optional in ("auteur", "origine", "theme", "categorie"):
-                        if item.get(optional): embed.add_field(name=optional.capitalize(), value=str(item[optional]), inline=True)
-                    await attempt(key.capitalize(), channel_id, embed)
-                else:
-                    results.append((False, f"{key.capitalize()} : banque {filename} vide ou invalide."))
+            citations = read_json("citations.json", [])
+            proverbes = read_json("proverbes.json", [])
+            quote = next((x for x in citations if isinstance(x, dict) and x.get("texte")), None)
+            proverb = next((x for x in proverbes if isinstance(x, dict) and x.get("texte")), None)
+            if quote and proverb:
+                description = (
+                    f"✦ **La citation**\n{quote['texte']}\n— {quote.get('auteur', 'Pensée HORIZONS')}\n\n"
+                    f"🌿 **Le proverbe**\n{proverb['texte']}"
+                )
+                embed = horizons_embed(title="📚 L'inspiration du soir", description=description, color=discord.Color.blurple())
+                if quote.get("theme"): embed.add_field(name="Thème de la citation", value=str(quote["theme"]), inline=True)
+                if proverb.get("origine"): embed.add_field(name="Origine du proverbe", value=str(proverb["origine"]), inline=True)
+                await attempt("Citation et proverbe réunis", INSPIRATION_CHANNEL_ID, embed)
+            else:
+                results.append((False, "Inspiration du soir : banque citations.json ou proverbes.json vide ou invalide."))
+
+            messages = read_json("messages.json", [])
+            message_item = next((x for x in messages if isinstance(x, dict) and x.get("texte")), None)
+            if message_item:
+                embed = horizons_embed(title="🌻 Le message bienveillant du jour", description=str(message_item["texte"]), color=discord.Color.gold())
+                if message_item.get("categorie"): embed.add_field(name="Catégorie", value=str(message_item["categorie"]), inline=True)
+                await attempt("Message bienveillant", INSPIRATION_CHANNEL_ID, embed)
+            else:
+                results.append((False, "Message bienveillant : banque messages.json vide ou invalide."))
 
             events = read_json("evenements.json", [])
             event_item = next((x for x in events if isinstance(x, dict) and x.get("titre") and x.get("description")), None)
@@ -185,6 +195,20 @@ class PublicationTests(commands.Cog):
             except Exception as exc:
                 log.exception("Impossible de construire les guides de test")
                 results.append((False, f"Guides communautaires : erreur {type(exc).__name__} : {exc}"))
+
+            weekly_animations = read_json("weekly_animations.json", [])
+            animation = next((x for x in weekly_animations if isinstance(x, dict) and x.get("nom") and x.get("consigne")), None)
+            if animation:
+                embed = horizons_embed(
+                    title=f"🎯 Animation collective de la semaine — {animation['nom']}",
+                    description=f"{animation.get('description', '')}\n\n**Comment participer ?**\n{animation['consigne']}",
+                    color=discord.Color.blurple(),
+                )
+                if animation.get("duree"): embed.add_field(name="Durée indicative", value=str(animation["duree"]), inline=True)
+                if animation.get("categorie"): embed.add_field(name="Thème", value=str(animation["categorie"]), inline=True)
+                await attempt("Animation hebdomadaire", COLLECTIVE_CHALLENGES_CHANNEL_ID, embed)
+            else:
+                results.append((False, "Animation hebdomadaire : weekly_animations.json vide ou invalide."))
 
             games = read_json("jeux.json", [])
             game = next((x for x in games if isinstance(x, dict) and x.get("nom") and x.get("consigne")), None)

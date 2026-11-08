@@ -13,9 +13,9 @@ from config import (
     AGENDA_CHANNEL_ID,
     DATA_DIR,
     HORIZON_DAILY_CHANNEL_ID,
+    INSPIRATION_CHANNEL_ID,
     LOCAL_TIMEZONE,
     QUIZ_CHANNEL_ID,
-    SUCCESS_CHANNEL_ID,
 )
 from cogs.embed_theme import horizons_embed, wait_for_logo_ready
 
@@ -107,15 +107,13 @@ class PublicationCalendar(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.daily_quiz.start()
-        self.daily_quote.start()
-        self.daily_proverb.start()
+        self.daily_inspiration.start()
         self.daily_positive_message.start()
         self.daily_thematic_event.start()
 
     def cog_unload(self):
         self.daily_quiz.cancel()
-        self.daily_quote.cancel()
-        self.daily_proverb.cancel()
+        self.daily_inspiration.cancel()
         self.daily_positive_message.cancel()
         self.daily_thematic_event.cancel()
 
@@ -147,7 +145,7 @@ class PublicationCalendar(commands.Cog):
             state.setdefault("published_dates", {})[key] = today
             _save_state(state)
 
-    @tasks.loop(time=time(hour=13, minute=0, tzinfo=LOCAL_TIMEZONE))
+    @tasks.loop(time=time(hour=13, minute=30, tzinfo=LOCAL_TIMEZONE))
     async def daily_quiz(self):
         today = datetime.now(LOCAL_TIMEZONE).date().isoformat()
         state = _load_state()
@@ -169,35 +167,43 @@ class PublicationCalendar(commands.Cog):
     async def before_daily_quiz(self):
         await self.bot.wait_until_ready(); await wait_for_logo_ready()
 
-    @tasks.loop(time=time(hour=14, minute=0, tzinfo=LOCAL_TIMEZONE))
-    async def daily_quote(self):
-        await self._publish_daily_bank("citations.json", "citations", HORIZON_DAILY_CHANNEL_ID, "✦ La citation du jour", discord.Color.blurple(), extra="auteur")
+    @tasks.loop(time=time(hour=19, minute=30, tzinfo=LOCAL_TIMEZONE))
+    async def daily_inspiration(self):
+        # Le vendredi est réservé à l'animation collective et le dimanche au débat.
+        # On évite donc toute publication concurrente à 19 h 30 ces deux jours.
+        weekday = datetime.now(LOCAL_TIMEZONE).weekday()
+        if weekday in (4, 6):
+            return
+        today = datetime.now(LOCAL_TIMEZONE).date().isoformat()
+        state = _load_state()
+        if state.get("published_dates", {}).get("inspiration") == today:
+            return
+        quote = _pick_item("citations.json", "citations")
+        proverb = _pick_item("proverbes.json", "proverbes")
+        if not quote or not quote.get("texte") or not proverb or not proverb.get("texte"):
+            log.warning("Banque citations.json ou proverbes.json vide/invalide.")
+            return
+        description = (
+            f"✦ **La citation**\n{quote['texte']}\n"
+            f"— {quote.get('auteur', 'Pensée HORIZONS')}\n\n"
+            f"🌿 **Le proverbe**\n{proverb['texte']}"
+        )
+        embed = horizons_embed(title="📚 L'inspiration du soir", description=description, color=discord.Color.blurple())
+        if quote.get("theme"):
+            embed.add_field(name="Thème de la citation", value=str(quote["theme"]), inline=True)
+        if proverb.get("origine"):
+            embed.add_field(name="Origine du proverbe", value=str(proverb["origine"]), inline=True)
+        embed.set_footer(text="HORIZONS • Une pensée à emporter avec soi")
+        if await _send_embed(self.bot, INSPIRATION_CHANNEL_ID, embed):
+            state = _load_state(); state.setdefault("published_dates", {})["inspiration"] = today; _save_state(state)
 
-    @daily_quote.before_loop
-    async def before_daily_quote(self):
+    @daily_inspiration.before_loop
+    async def before_daily_inspiration(self):
         await self.bot.wait_until_ready(); await wait_for_logo_ready()
 
-    @tasks.loop(time=time(hour=16, minute=0, tzinfo=LOCAL_TIMEZONE))
-    async def daily_proverb(self):
-        today = datetime.now(LOCAL_TIMEZONE).date().isoformat(); state = _load_state()
-        if state.get("published_dates", {}).get("proverbe") == today: return
-        item = _pick_item("proverbes.json", "proverbes")
-        if not item or not item.get("texte"):
-            log.warning("Banque proverbes.json vide ou invalide."); return
-        embed = horizons_embed(title="🌿 Le proverbe du jour", description=str(item["texte"]), color=discord.Color.green())
-        if item.get("origine"): embed.add_field(name="Origine", value=str(item["origine"]), inline=True)
-        if item.get("theme"): embed.add_field(name="Thème", value=str(item["theme"]), inline=True)
-        embed.set_footer(text="HORIZONS • Un proverbe à méditer")
-        if await _send_embed(self.bot, HORIZON_DAILY_CHANNEL_ID, embed):
-            state = _load_state(); state.setdefault("published_dates", {})["proverbe"] = today; _save_state(state)
-
-    @daily_proverb.before_loop
-    async def before_daily_proverb(self):
-        await self.bot.wait_until_ready(); await wait_for_logo_ready()
-
-    @tasks.loop(time=time(hour=20, minute=0, tzinfo=LOCAL_TIMEZONE))
+    @tasks.loop(time=time(hour=21, minute=30, tzinfo=LOCAL_TIMEZONE))
     async def daily_positive_message(self):
-        await self._publish_daily_bank("messages.json", "messages", SUCCESS_CHANNEL_ID, "🌻 Le message bienveillant du jour", discord.Color.gold())
+        await self._publish_daily_bank("messages.json", "messages", INSPIRATION_CHANNEL_ID, "🌻 Le message bienveillant du jour", discord.Color.gold())
 
     @daily_positive_message.before_loop
     async def before_daily_positive_message(self):

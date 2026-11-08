@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, timezone
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
-from config import LOCAL_TIMEZONE, STAFF_ROLE_ID, AGENDA_CHANNEL_ID
+from config import LOCAL_TIMEZONE, STAFF_ROLE_ID, ANIMATOR_ROLE_ID, AGENDA_CHANNEL_ID
 from .storage import db
 
 class EventRSVPView(discord.ui.View):
@@ -49,9 +49,9 @@ class Events(commands.Cog):
     @app_commands.describe(date_heure="Format JJ/MM/AAAA HH:MM, heure de Paris", salon="Salon de publication (Agenda par défaut)")
     async def evenement_creer(self, interaction: discord.Interaction, titre: app_commands.Range[str,3,100], date_heure: str, description: app_commands.Range[str,5,1800], lieu: str = "En ligne / à préciser", salon: discord.TextChannel | None = None):
         member = interaction.user
-        allowed = isinstance(member, discord.Member) and (member.guild_permissions.administrator or (STAFF_ROLE_ID and any(r.id == STAFF_ROLE_ID for r in member.roles)))
+        allowed = isinstance(member, discord.Member) and (member.guild_permissions.administrator or (STAFF_ROLE_ID and any(r.id == STAFF_ROLE_ID for r in member.roles)) or (ANIMATOR_ROLE_ID and any(r.id == ANIMATOR_ROLE_ID for r in member.roles)))
         if not allowed:
-            await interaction.response.send_message("Cette commande est réservée à l'équipe HORIZONS.", ephemeral=True); return
+            await interaction.response.send_message("Cette commande est réservée à l'équipe et aux animateurs HORIZONS.", ephemeral=True); return
         if salon is None:
             salon = interaction.guild.get_channel(AGENDA_CHANNEL_ID) if interaction.guild else None
             if salon is None:

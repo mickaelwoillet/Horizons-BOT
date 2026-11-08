@@ -59,7 +59,7 @@ class Riddles(commands.Cog):
         embed.set_footer(text="HORIZONS • À toi de jouer !")
         await interaction.response.send_message(embed=embed, view=RiddleView(interaction.user.id, item["reponse"]))
 
-    @tasks.loop(time=time(hour=12, minute=15, tzinfo=LOCAL_TIMEZONE))
+    @tasks.loop(time=time(hour=17, minute=30, tzinfo=LOCAL_TIMEZONE))
     async def daily_riddle(self):
         channel = self.bot.get_channel(RIDDLE_DAILY_CHANNEL_ID) if RIDDLE_DAILY_CHANNEL_ID else None
         if channel is None and RIDDLE_DAILY_CHANNEL_ID:

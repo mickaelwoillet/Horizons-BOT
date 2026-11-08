@@ -63,6 +63,17 @@ def main() -> None:
             if any(not str(item[key]).strip() for key in required_keys):
                 raise SystemExit(f"Champ vide dans {filename}, entrée {index}.")
 
+    weekly = json.loads((ROOT / "data" / "weekly_animations.json").read_text(encoding="utf-8"))
+    if not isinstance(weekly, list) or len(weekly) < 20:
+        raise SystemExit("La banque des animations hebdomadaires doit contenir au moins 20 activités.")
+    weekly_ids = [item.get("id") for item in weekly if isinstance(item, dict)]
+    if len(weekly_ids) != len(weekly) or len(weekly_ids) != len(set(weekly_ids)):
+        raise SystemExit("Identifiants invalides ou doublons dans weekly_animations.json.")
+    for index, item in enumerate(weekly, 1):
+        required = {"id", "nom", "description", "consigne", "categorie", "duree", "materiel"}
+        if not isinstance(item, dict) or not required.issubset(item) or any(not str(item[k]).strip() for k in required):
+            raise SystemExit(f"Animation hebdomadaire incomplète : entrée {index}.")
+
     calendar_cog = ROOT / "cogs" / "publication_calendar.py"
     test_cog = ROOT / "cogs" / "publication_tests.py"
     if not calendar_cog.is_file() or not test_cog.is_file():
@@ -125,11 +136,24 @@ def main() -> None:
 
     calendar_source = (ROOT / "cogs" / "publication_calendar.py").read_text(encoding="utf-8")
     for schedule in (
-        "time(hour=8, minute=0", "time(hour=13, minute=0", "time(hour=14, minute=0",
-        "time(hour=16, minute=0", "time(hour=20, minute=0",
+        "time(hour=8, minute=0", "time(hour=13, minute=30", "time(hour=19, minute=30",
+        "time(hour=21, minute=30",
     ):
         if schedule not in calendar_source:
             raise SystemExit(f"Horaire quotidien manquant dans le calendrier : {schedule}")
+    schedule_sources = {
+        "cogs/community.py": "time(hour=11,minute=30",
+        "cogs/jokes.py": "time(hour=15, minute=30",
+        "cogs/riddles.py": "time(hour=17, minute=30",
+        "cogs/horizons_daily.py": "time(hour=9, minute=30",
+        "cogs/birthdays.py": "time(hour=9, minute=0",
+        "cogs/weekly_animations.py": "time(hour=19, minute=30",
+    }
+    for filename, marker in schedule_sources.items():
+        if marker not in (ROOT / filename).read_text(encoding="utf-8"):
+            raise SystemExit(f"Horaire éditorial manquant dans {filename}: {marker}")
+    if "cogs.weekly_animations" not in extensions:
+        raise SystemExit("Le module d'animations hebdomadaires n'est pas chargé.")
     test_source = (ROOT / "cogs" / "publication_tests.py").read_text(encoding="utf-8")
     if "@app_commands.checks.has_permissions(administrator=True)" not in test_source:
         raise SystemExit("/tester_publications n'est pas protégé par la permission Administrateur.")
@@ -145,7 +169,7 @@ def main() -> None:
     if "cogs.server_audit_export" not in extensions:
         raise SystemExit("L'extension /export_structure n'est pas chargée par bot.py.")
     required_settings = {
-        "TEMP_VOICE_TRIGGER_ID", "TEMP_VOICE_CATEGORY_ID",
+        "INSPIRATION_CHANNEL_ID", "TEMP_VOICE_TRIGGER_ID", "TEMP_VOICE_CATEGORY_ID",
         "TICKET_REQUEST_CHANNEL_ID", "TICKET_CATEGORY_ID",
         "ANONYMOUS_CHANNEL_ID", "RANK_ROLE_IDS", "EXPERIENCES_CATEGORY_ID", "MISSIONS_CHANNEL_ID", "FIND_PARTNER_CHANNEL_ID", "COLLECTIVE_CHALLENGES_CHANNEL_ID", "MOOD_CHANNEL_ID", "SUCCESS_CHANNEL_ID", "AGENDA_CHANNEL_ID", "AFFINITY_CHANNEL_ID", "HORIZON_DAILY_CHANNEL_ID", "DEBATE_CHANNEL_ID",
     }
@@ -170,7 +194,7 @@ def main() -> None:
 
     print(f"Contrôles réussis : {len(py_files)} fichiers Python, {len(json_files)} fichiers JSON, {len(extensions)} extensions et {len(commands)} commandes slash.")
     print(f"Contenus vérifiés : {joke_count} blagues, {len(riddles)} devinettes, {len(quiz)} questions de quiz, {len(questions)} questions du jour et {len(compliments)} compliments.")
-    print("Syntaxe, données JSON, noms de commandes et schéma SQLite vérifiés.")
+    print("Syntaxe, données JSON, banques quotidiennes/hebdomadaires, noms de commandes et schéma SQLite vérifiés.")
     print("Ce contrôle ne se connecte pas à Discord et ne remplace pas un test avec le bot en ligne.")
 
 

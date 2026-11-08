@@ -60,7 +60,7 @@ class Jokes(commands.Cog):
     async def category_autocomplete(self, interaction: discord.Interaction, current: str):
         return [app_commands.Choice(name=nice_category(c), value=c) for c in categories() if current.lower() in c.lower()][:25]
 
-    @tasks.loop(time=time(hour=12, minute=0, tzinfo=LOCAL_TIMEZONE))
+    @tasks.loop(time=time(hour=15, minute=30, tzinfo=LOCAL_TIMEZONE))
     async def daily_joke(self):
         channel = self.bot.get_channel(JOKE_DAILY_CHANNEL_ID) if JOKE_DAILY_CHANNEL_ID else None
         if channel is None and JOKE_DAILY_CHANNEL_ID:
