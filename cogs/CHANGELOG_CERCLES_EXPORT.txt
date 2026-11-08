@@ -1,0 +1,15 @@
+MISE À JOUR HORIZONS — CERCLES ET EXPORT
+
+1. Rétablissement de /export_structure
+   - Le module cogs.server_audit_export existait déjà mais n'était plus chargé dans bot.py.
+   - Son chargement est rétabli ; export JSON privé, réservé aux administrateurs.
+
+2. Guides permanents des Cercles
+   - Ajout de cogs.circle_guides.
+   - Ajout de /publier_guides_cercles (permission Administrateur).
+   - Publication / actualisation des embeds dans les deux salons configurés.
+   - Prise en charge d'un salon texte ou d'un salon Forum pour cercles-horizons.
+   - Les références de publication sont conservées dans une nouvelle table SQLite non destructive.
+
+Aucune donnée SQLite existante n'est supprimée ou réinitialisée.
+Aucune permission Discord ni aucun salon n'est modifié.

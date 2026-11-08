@@ -24,7 +24,7 @@ STAFF_ONLY = {
     "retirer_avertissement", "timeout", "untimeout", "expulser", "bannir",
     "debannir", "purger", "note_membre", "evenement_creer", "evenement_fermer",
     "concours_creer", "concours_annuler", "quiz_lancer", "quiz_arreter", "creer_defi",
-    "dashboard", "tache_creer", "taches", "tache_statut", "service",
+    "dashboard", "tache_creer", "taches", "tache_statut", "service", "publier_guides_cercles",
 }
 CATEGORY = {
     "ping": "⚙️ Outils généraux", "aide": "⚙️ Outils généraux", "profil": "⚙️ Outils généraux",
@@ -50,7 +50,7 @@ CATEGORY = {
     "note_membre": "🛡️ Modération (équipe)", "annonce": "📣 Communication (équipe)",
     "dashboard": "🧭 Centre de commandement staff", "service": "🧭 Centre de commandement staff",
     "tache_creer": "📋 Organisation du staff", "taches": "📋 Organisation du staff",
-    "tache_statut": "📋 Organisation du staff", "traduire": "🌍 Utilitaires",
+    "tache_statut": "📋 Organisation du staff", "traduire": "🌍 Utilitaires", "publier_guides_cercles": "🧭 Organisation communautaire (équipe)",
 }
 
 class ServerGuides(commands.Cog):
