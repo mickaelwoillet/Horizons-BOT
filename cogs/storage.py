@@ -59,22 +59,6 @@ CREATE TABLE IF NOT EXISTS member_notes (
  id INTEGER PRIMARY KEY AUTOINCREMENT, guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
  moderator_id INTEGER NOT NULL, note TEXT NOT NULL, created_at TEXT NOT NULL
 );
-CREATE TABLE IF NOT EXISTS automod_infractions (
- id INTEGER PRIMARY KEY AUTOINCREMENT, guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
- channel_id INTEGER, message_id INTEGER, reason TEXT NOT NULL, source TEXT NOT NULL DEFAULT 'automod',
- created_at TEXT NOT NULL
-);
-CREATE INDEX IF NOT EXISTS idx_automod_infractions_user ON automod_infractions(guild_id,user_id,created_at);
-CREATE TABLE IF NOT EXISTS automod_sanctions (
- id INTEGER PRIMARY KEY AUTOINCREMENT, guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
- infraction_id INTEGER, action TEXT NOT NULL, reason TEXT NOT NULL, duration_seconds INTEGER NOT NULL DEFAULT 0,
- source TEXT NOT NULL, status TEXT NOT NULL, created_at TEXT NOT NULL, expires_at TEXT
-);
-CREATE INDEX IF NOT EXISTS idx_automod_sanctions_user ON automod_sanctions(guild_id,user_id,created_at);
-CREATE TABLE IF NOT EXISTS automod_tempbans (
- guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL, reason TEXT NOT NULL, expires_at TEXT NOT NULL,
- status TEXT NOT NULL DEFAULT 'active', PRIMARY KEY(guild_id,user_id)
-);
 CREATE INDEX IF NOT EXISTS idx_warnings_user ON warnings(guild_id,user_id,active);
 CREATE INDEX IF NOT EXISTS idx_events_status ON events(guild_id,status,starts_at);
 
@@ -179,6 +163,38 @@ CREATE TABLE IF NOT EXISTS staff_alerts (
  id INTEGER PRIMARY KEY AUTOINCREMENT, guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
  reporter_id INTEGER NOT NULL, reason TEXT NOT NULL, channel_id INTEGER, message_id TEXT,
  status TEXT NOT NULL DEFAULT 'open', created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS horizons_seasons (
+ id INTEGER PRIMARY KEY AUTOINCREMENT, guild_id INTEGER NOT NULL, title TEXT NOT NULL,
+ description TEXT NOT NULL, starts_at TEXT NOT NULL, ends_at TEXT NOT NULL,
+ status TEXT NOT NULL DEFAULT 'active', created_by INTEGER NOT NULL, created_at TEXT NOT NULL, closed_at TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_horizons_seasons_active ON horizons_seasons(guild_id,status,ends_at);
+CREATE TABLE IF NOT EXISTS horizons_season_participants (
+ season_id INTEGER NOT NULL, guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL, joined_at TEXT NOT NULL,
+ PRIMARY KEY(season_id,user_id), FOREIGN KEY(season_id) REFERENCES horizons_seasons(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS horizons_season_completions (
+ season_id INTEGER NOT NULL, guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
+ week_number INTEGER NOT NULL, mission_number INTEGER NOT NULL, completed_at TEXT NOT NULL,
+ PRIMARY KEY(season_id,user_id,week_number,mission_number),
+ FOREIGN KEY(season_id) REFERENCES horizons_seasons(id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_horizons_season_completions ON horizons_season_completions(season_id,completed_at);
+CREATE TABLE IF NOT EXISTS horizons_season_milestones (
+ season_id INTEGER NOT NULL, threshold INTEGER NOT NULL, reached_at TEXT NOT NULL,
+ PRIMARY KEY(season_id,threshold), FOREIGN KEY(season_id) REFERENCES horizons_seasons(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS horizons_season_week_announcements (
+ season_id INTEGER NOT NULL, week_number INTEGER NOT NULL, posted_at TEXT NOT NULL,
+ PRIMARY KEY(season_id,week_number), FOREIGN KEY(season_id) REFERENCES horizons_seasons(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS horizons_season_rewards (
+ season_id INTEGER NOT NULL, guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
+ reward_key TEXT NOT NULL, unlocked_at TEXT NOT NULL,
+ PRIMARY KEY(season_id,user_id,reward_key),
+ FOREIGN KEY(season_id) REFERENCES horizons_seasons(id) ON DELETE CASCADE
 );
 """
 
