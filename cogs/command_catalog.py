@@ -8,7 +8,7 @@ from .embed_theme import horizons_embed
 # Les commandes ci-dessous ont un contrôle d'accès staff dans leur implémentation.
 # Les autorisations exactes restent vérifiées par la commande elle-même.
 STAFF_ONLY = {
-    "annonce", "idee_statut", "actualiser_rangs", "evenement_creer",
+    "annonce", "export_structure", "idee_statut", "actualiser_rangs", "evenement_creer",
     "creer_defi", "creer", "annuler", "reroll", "quiz_lancer",
     "quiz_arreter", "publier_roles", "avertir", "avertissements",
     "retirer_avertissement", "timeout", "untimeout", "expulser",
@@ -20,6 +20,7 @@ MIXED_ACCESS = {
     "ticket_fermer": "Membres (dans leur ticket) et équipe habilitée",
 }
 STAFF_PERMISSIONS = {
+    "export_structure": "Permission Administrateur Discord.",
     "annonce": "Rôle staff autorisé ou permission de gestion prévue par le serveur.",
     "idee_statut": "Rôle staff ou administrateur.",
     "actualiser_rangs": "Permission Gérer les rôles.",

@@ -119,7 +119,20 @@ class General(commands.Cog):
         embed = horizons_embed(title="💡 Nouvelle proposition", description=idee, color=discord.Color.teal())
         embed.set_author(name=str(interaction.user), icon_url=interaction.user.display_avatar.url)
         embed.timestamp = datetime.now(LOCAL_TIMEZONE)
-        await channel.send(embed=embed)
+        if isinstance(channel, discord.ForumChannel):
+            title = " ".join(idee.split()).strip()
+            title = title[:97].rstrip()
+            if len(" ".join(idee.split())) > 97:
+                title += "..."
+            await channel.create_thread(name=f"💡 {title}"[:100], embed=embed)
+        elif isinstance(channel, (discord.TextChannel, discord.Thread)):
+            await channel.send(embed=embed)
+        else:
+            await interaction.response.send_message(
+                "Le salon des propositions n'est pas configuré avec un type compatible. Contacte l'équipe.",
+                ephemeral=True,
+            )
+            return
         await interaction.response.send_message("Merci ! Ta proposition a été transmise à l'équipe.", ephemeral=True)
 
     @app_commands.command(name="presentation", description="Recevoir un rappel pour se présenter.")

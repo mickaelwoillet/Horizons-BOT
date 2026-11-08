@@ -182,9 +182,12 @@ def main() -> None:
     for filename, marker in schedule_sources.items():
         if marker not in (ROOT / filename).read_text(encoding="utf-8"):
             raise SystemExit(f"Horaire éditorial manquant dans {filename}: {marker}")
-    for required_extension in ("cogs.horizons_daily", "cogs.publication_calendar", "cogs.weekly_animations", "cogs.server_reorganization"):
+    for required_extension in ("cogs.horizons_daily", "cogs.publication_calendar", "cogs.weekly_animations"):
         if required_extension not in extensions:
             raise SystemExit(f"Extension attendue non chargée : {required_extension}")
+    if 'SUGGESTION_CHANNEL_ID = env_int("SUGGESTION_CHANNEL_ID", 1566620913254932633)' not in config_source:
+        raise SystemExit("L’identifiant du salon suggestions ne correspond pas au nouvel export.")
+
     for setting in (
         'HORIZON_DAILY_CHANNEL_ID = env_int("HORIZON_DAILY_CHANNEL_ID", 1567844795307532308)',
         'DEBATE_CHANNEL_ID = env_int("DEBATE_CHANNEL_ID", 1566850089761382553)',
@@ -192,10 +195,13 @@ def main() -> None:
     ):
         if setting not in config_source:
             raise SystemExit(f"Configuration de publication manquante : {setting}")
-    reorganization_source = (ROOT / "cogs" / "server_reorganization.py").read_text(encoding="utf-8")
-    for marker in ("previsualiser_reorganisation", "appliquer_reorganisation", "restaurer_structure", "_write_backup", "ARCHIVE_CHANNEL_IDS", "FORUM_TAGS"):
-        if marker not in reorganization_source:
-            raise SystemExit(f"Fonction de réorganisation manquante : {marker}")
+    if "cogs.server_reorganization" in extensions or (ROOT / "cogs" / "server_reorganization.py").exists():
+        raise SystemExit("Les commandes de restructuration doivent être retirées du bot.")
+
+    general_source = (ROOT / "cogs" / "general.py").read_text(encoding="utf-8")
+    if "isinstance(channel, discord.ForumChannel)" not in general_source or "channel.create_thread" not in general_source:
+        raise SystemExit("La commande /proposer doit prendre en charge le salon Suggestions de type Forum.")
+
     test_source = (ROOT / "cogs" / "publication_tests.py").read_text(encoding="utf-8")
     if "@app_commands.checks.has_permissions(administrator=True)" not in test_source:
         raise SystemExit("/tester_publications n'est pas protégé par la permission Administrateur.")
