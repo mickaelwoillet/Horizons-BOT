@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 from datetime import datetime, timedelta, timezone
 
 import discord
@@ -9,7 +10,7 @@ from discord import app_commands
 from discord.ext import commands, tasks
 
 from config import (
-    WELCOME_CHANNEL_ID, CHARTER_CHANNEL_ID, INTRO_CHANNEL_ID,
+    DATA_DIR, WELCOME_CHANNEL_ID, CHARTER_CHANNEL_ID, INTRO_CHANNEL_ID,
     DAILY_QUESTION_CHANNEL_ID, NEW_MEMBER_ROLE_ID, MEMBER_ROLE_ID, GUILD_ID,
 )
 from cogs.embed_theme import horizons_embed, wait_for_logo_ready
@@ -18,6 +19,55 @@ from cogs.storage import db
 logger = logging.getLogger("horizons.smart_welcome")
 WELCOME_MARKER = "HORIZONS_SMART_WELCOME_V1"
 REMINDER_AFTER = timedelta(hours=36)
+
+# Images livrées avec le bot, jamais hébergées sur un service externe.
+WELCOME_IMAGE_PATHS = (
+    DATA_DIR / "welcome_images" / "activites.png",
+    DATA_DIR / "welcome_images" / "commandes.png",
+    DATA_DIR / "welcome_images" / "parcours.png",
+)
+
+
+def build_charter_welcome(member: discord.Member) -> discord.Embed:
+    """Message privé envoyé uniquement lors de l'attribution du rôle Membre."""
+    safe_name = discord.utils.escape_markdown(member.display_name)
+    embed = horizons_embed(
+        title="🌌 Bienvenue dans l'univers HORIZONS !",
+        description=(
+            f"Coucou **{safe_name}** ! 💙\n\n"
+            "Une nouvelle étoile vient de rejoindre notre ciel… **et cette étoile, c'est toi !** ✨\n\n"
+            "Ta charte est validée et ton aventure commence ! Tu trouveras ici des échanges, "
+            "des jeux, des événements et des découvertes, toujours à ton rythme.\n\n"
+            "🎮 **Les activités** : tout ce que tu peux vivre sur le serveur.\n"
+            "🧭 **Les commandes** : les raccourcis essentiels.\n"
+            "🌠 **Ton parcours** : trois étapes pour prendre tes repères.\n\n"
+            "**Pour commencer, utilise `/centre` sur le serveur.** "
+            "Et si tu as une question, `/aide` est là pour toi.\n\n"
+            "Prends ton temps, découvre et surtout, sois toi-même. 💜"
+        ),
+        color=discord.Color.from_rgb(111, 69, 193),
+    )
+    embed.set_footer(text="HORIZONS • Avec toute la bienveillance de l'équipe")
+    return embed
+
+
+async def send_charter_welcome(member: discord.Member) -> None:
+    """Envoi unique : un MP avec jusqu'à trois images, sans relance automatique."""
+    from contextlib import ExitStack
+    with ExitStack() as stack:
+        files = []
+        for path in WELCOME_IMAGE_PATHS:
+            if not path.is_file():
+                logger.warning("Affiche d'accueil absente : %s", path)
+                continue
+            files.append(discord.File(stack.enter_context(path.open("rb")), filename=path.name))
+        await member.send(
+            embed=build_charter_welcome(member),
+            files=files,
+            view=DiscoveryLinksView(member.guild),
+            allowed_mentions=discord.AllowedMentions.none(),
+        )
+
 
 
 def utc_now() -> datetime:
@@ -250,11 +300,8 @@ class SmartWelcome(commands.Cog):
 
         if should_send_guide:
             try:
-                await after.send(
-                    embed=build_first_steps_embed(),
-                    view=DiscoveryLinksView(after.guild),
-                )
-                logger.info("Guide de découverte envoyé après validation de la charte (%s).", after.id)
+                await send_charter_welcome(after)
+                logger.info("Bienvenue illustrée envoyée après validation de la charte (%s).", after.id)
             except discord.Forbidden:
                 logger.info("Guide de découverte non envoyé (DM fermés) pour %s ; /premiers_pas reste disponible.", after.id)
             except discord.HTTPException:
