@@ -318,3 +318,9 @@ Une anomalie automatique est proposée après 18 h (Paris), au maximum une fois 
 **Fonctionnement :** 16 anomalies différentes, 3 décisions chacune, le premier clic valide détermine la conséquence, des jauges persistantes, quatre stades de Nox, six lieux progressifs, cinq chapitres, six objets à collectionner et une évolution quotidienne douce. Les boutons survivent aux redémarrages. Une seule anomalie automatique par jour après 18 h (Paris), si activée et aucune anomalie en cours. L'édition utilise exclusivement la base `data/chaos_cosmique.sqlite3`, sans modifier les données des autres modules.
 
 **Sécurité :** le bot doit posséder `Gérer les salons` pour installer, `Envoyer des messages`, `Intégrer des liens` et `Lire l'historique` dans les salons. Ne supprime pas la base SQLite en mise à jour. Les créations sont idempotentes par nom, mais une catégorie ou des salons renommés manuellement ne seront pas reconnus par ce mécanisme. La publication est limitée pour éviter le spam ; l'absence de membres n'entraîne aucune punition.
+
+### Chaos Cosmique — histoire officielle (V9.6)
+- `/cosmos installer` : crée ou réutilise la catégorie cosmique et ses six salons, harmonise leur calligraphie, configure le salon histoire en lecture/réactions uniquement et publie l'embed avec son image. Peut être relancée après une installation V9.5.
+- `/cosmos histoire` : republie l'histoire uniquement si le message officiel est absent (commande staff).
+- Le salon `📖・𝓱𝓲𝓼𝓽𝓸𝓲𝓻𝓮-𝓭𝓾-𝓬𝓱𝓪𝓸𝓼` autorise les réactions mais interdit les messages et fils aux membres ordinaires.
+- Image : `data/chaos_cosmique/histoire_chaos_cosmique.png`.

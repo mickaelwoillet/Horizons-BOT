@@ -88,3 +88,6 @@ Un univers narratif optionnel, activable via `/cosmos canal` puis `/cosmos activ
 ### Chaos Cosmique — univers complet optionnel
 
 L'extension `cogs.chaos_cosmique` fournit désormais l'installation d'une catégorie dédiée, Nox, des anomalies narratives, des chroniques, une carte progressive et un inventaire. **Aucun salon n'est créé automatiquement au démarrage** : l'administrateur lance `/cosmos installer`, puis `/cosmos activer actif:True`. Toutes les commandes sont documentées dans `COMMANDES.md`. L'extension reste désactivée par défaut et conserve sa propre base SQLite.
+
+### V9.6 — Histoire du Chaos Cosmique
+Après déploiement, lancer `/cosmos installer` (staff) pour harmoniser la catégorie existante, ajouter le salon de lecture seule `histoire-du-chaos` et y publier une présentation illustrée. La commande est conçue pour réutiliser les salons déjà créés. `/cosmos histoire` restaure le message officiel s'il a été supprimé. Conserver le fichier image dans `data/chaos_cosmique/` : il fait partie du dépôt, contrairement aux bases SQLite de production.

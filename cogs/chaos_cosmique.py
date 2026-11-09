@@ -6,6 +6,7 @@ import logging
 import random
 import json
 import sqlite3
+from pathlib import Path
 from datetime import datetime, timedelta
 
 import discord
@@ -375,20 +376,39 @@ class ChaosCosmique(commands.Cog):
         me=guild.me
         if not me or not me.guild_permissions.manage_channels:
             return await interaction.followup.send('Il me faut la permission **Gérer les salons**.', ephemeral=True)
-        category=discord.utils.get(guild.categories, name='🌌 CHAOS COSMIQUE')
+        category=next((c for c in guild.categories if c.name in ('🌌 CHAOS COSMIQUE', '🌌・ＣＨＡＯＳ・ＣＯＳＭＩＱＵＥ')), None)
+        channel_specs=[
+            ('🔭・observatoire','🔭・𝓸𝓫𝓼𝓮𝓻𝓿𝓪𝓽𝓸𝓲𝓻𝓮'),
+            ('🌀・anomalies','🌀・𝓪𝓷𝓸𝓶𝓪𝓵𝓲𝓮𝓼'),
+            ('👾・nox','👾・𝓷𝓸𝔁'),
+            ('📜・chroniques','📜・𝓬𝓱𝓻𝓸𝓷𝓲𝓺𝓾𝓮𝓼'),
+            ('🗺️・exploration','🗺️・𝓮𝔁𝓹𝓵𝓸𝓻𝓪𝓽𝓲𝓸𝓷'),
+            ('📖・histoire-du-chaos','📖・𝓱𝓲𝓼𝓽𝓸𝓲𝓻𝓮-𝓭𝓾-𝓬𝓱𝓪𝓸𝓼'),
+        ]
+        channels={}
         try:
             if category is None:
-                category=await guild.create_category('🌌 CHAOS COSMIQUE', reason='Installation optionnelle de Chaos Cosmique')
-            names=['🔭・observatoire', '🌀・anomalies', '👾・nox', '📜・chroniques', '🗺️・exploration']
-            channels={}
-            for name in names:
-                channel=discord.utils.get(category.text_channels,name=name)
+                category=await guild.create_category('🌌・ＣＨＡＯＳ・ＣＯＳＭＩＱＵＥ', reason='Installation de Chaos Cosmique')
+            elif category.name != '🌌・ＣＨＡＯＳ・ＣＯＳＭＩＱＵＥ':
+                await category.edit(name='🌌・ＣＨＡＯＳ・ＣＯＳＭＩＱＵＥ', reason='Harmonisation cosmique')
+            for legacy, name in channel_specs:
+                channel=next((c for c in category.text_channels if c.name in (legacy,name)),None)
                 if channel is None:
                     channel=await guild.create_text_channel(name, category=category, reason='Installation Chaos Cosmique')
-                channels[name]=channel
-        except (discord.Forbidden, discord.HTTPException) as exc:
+                elif channel.name != name:
+                    await channel.edit(name=name, reason='Harmonisation des noms Chaos Cosmique')
+                channels[legacy]=channel
+            story_channel=channels['📖・histoire-du-chaos']
+            # Permissions: lecture et réactions autorisées, écriture interdite aux membres.
+            await story_channel.set_permissions(guild.default_role, view_channel=True, read_message_history=True,
+                                                add_reactions=True, send_messages=False,
+                                                create_public_threads=False, create_private_threads=False,
+                                                send_messages_in_threads=False,
+                                                reason='Salon de lecture seule pour l’histoire cosmique')
+            await self.publish_story(story_channel)
+        except (discord.Forbidden, discord.HTTPException, OSError) as exc:
             log.warning('Installation Cosmos: %s',exc)
-            return await interaction.followup.send('Création impossible : vérifie les permissions et les limites de salons.', ephemeral=True)
+            return await interaction.followup.send('Installation incomplète : vérifie les permissions Gérer les salons, Envoyer des messages et Joindre des fichiers.', ephemeral=True)
         with connect() as conn:
             ensure_world(conn,guild.id)
             creature(conn,guild.id)
@@ -396,7 +416,62 @@ class ChaosCosmique(commands.Cog):
             conn.execute('UPDATE cosmic_world SET channel_id=? WHERE guild_id=?', (channels['🌀・anomalies'].id,guild.id))
             journal(conn,guild.id,'L’Observatoire ouvre ses portes.')
         await self.refresh_panel(guild, channels['🔭・observatoire'])
-        await interaction.followup.send('🌌 Installation terminée : catégorie et cinq salons créés ou réutilisés. **Le monde reste en pause.** Active-le avec `/cosmos activer actif:True` lorsque tu es prêt.',ephemeral=True)
+        await interaction.followup.send('🌌 Installation terminée : catégorie et six salons créés ou réutilisés, dont l’histoire en lecture seule. **Le monde reste en pause.** Active-le avec `/cosmos activer actif:True` lorsque tu es prêt.',ephemeral=True)
+
+    async def publish_story(self, channel: discord.TextChannel):
+        """Publie une seule présentation officielle; conserve les réactions existantes."""
+        marker='CHAOS COSMIQUE · LE GRAND COMMENCEMENT'
+        async for message in channel.history(limit=100):
+            if message.author.id == self.bot.user.id and message.embeds and any(
+                marker in (embed.footer.text or '') for embed in message.embeds
+            ):
+                return False
+        embed=discord.Embed(
+            title='🌌 La légende du Chaos Cosmique',
+            description=(
+                '**Il était une fois… un univers qui avait oublié de lire son mode d’emploi.**\n\n'
+                'Au commencement, il y eut une étoile. Puis une deuxième. Puis un stagiaire cosmique '
+                'qui appuya sur un bouton marqué « SURTOUT PAS ». Ainsi naquit **HORIZONS**, '
+                'un monde suspendu entre trois forces : **Énergie**, **Chaos** et **Harmonie**.\n\n'
+                'Au sommet des îles flottantes se dressa **l’Observatoire**, chargé de surveiller '
+                'les portes impossibles, les horloges syndiquées et les constellations fugueuses. '
+                'Mais un matin, une petite boule de lumière éternua dans une nébuleuse… '
+                'et **Nox** apparut. Personne ne sait s’il est né d’une étoile ou d’un biscuit oublié.\n\n'
+                'Depuis, Nox grandit avec les attentions des voyageurs. Il adore les découvertes, '
+                'les câlins et poser des questions auxquelles même les galaxies refusent de répondre.\n\n'
+                'Et comme si cela ne suffisait pas, **le Canard Suprême** a revendiqué la propriété '
+                'de l’univers. Son premier décret ? « Chaque météorite doit porter un petit chapeau. » '
+                'Le tribunal cosmique examine toujours sa demande.\n\n'
+                'Des **anomalies** surgissent désormais : portes qui parlent, jardins d’étoiles, '
+                'trains sans rails… Chaque choix peut transformer le monde et enrichir ses chroniques.\n\n'
+                '✨ **Et maintenant, l’histoire attend ses nouveaux personnages : vous.**'
+            ),
+            colour=discord.Colour.from_rgb(88, 90, 240),
+        )
+        embed.add_field(name='👾 Prendre soin de Nox',value='`/cosmos nox` · `/cosmos soigner`',inline=False)
+        embed.add_field(name='🗺️ Partir à l’aventure',value='`/cosmos carte` · `/cosmos visiter` · `/cosmos sac`',inline=False)
+        embed.add_field(name='📜 Percer les secrets',value='`/cosmos chroniques` · `/cosmos observatoire` · `/cosmos journal`',inline=False)
+        embed.set_footer(text=marker)
+        art=Path(__file__).resolve().parent.parent/'data'/'chaos_cosmique'/'histoire_chaos_cosmique.png'
+        if art.is_file():
+            embed.set_image(url='attachment://histoire_chaos_cosmique.png')
+            await channel.send(embed=embed,file=discord.File(art,filename='histoire_chaos_cosmique.png'),
+                               allowed_mentions=discord.AllowedMentions.none())
+        else:
+            await channel.send(embed=embed,allowed_mentions=discord.AllowedMentions.none())
+        return True
+
+    @cosmos.command(name='histoire', description='Staff : publier ou restaurer l’histoire officielle')
+    @app_commands.guild_only()
+    @app_commands.checks.has_permissions(manage_guild=True)
+    async def histoire(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=True)
+        category=next((c for c in interaction.guild.categories if c.name in ('🌌 CHAOS COSMIQUE','🌌・ＣＨＡＯＳ・ＣＯＳＭＩＱＵＥ')),None)
+        channel=next((c for c in category.text_channels if '𝓱𝓲𝓼𝓽𝓸𝓲𝓻𝓮' in c.name or 'histoire-du-chaos' in c.name),None) if category else None
+        if channel is None:
+            return await interaction.followup.send('Utilise d’abord `/cosmos installer` pour créer le salon.',ephemeral=True)
+        created=await self.publish_story(channel)
+        await interaction.followup.send('📖 Histoire publiée.' if created else '📖 Histoire déjà présente : aucun doublon créé.',ephemeral=True)
 
     async def refresh_panel(self, guild, channel=None):
         with connect() as conn:
