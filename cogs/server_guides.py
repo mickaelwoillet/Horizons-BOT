@@ -245,7 +245,7 @@ class ServerGuides(commands.Cog):
             ), color=blue,
         )
         partner.add_field(name="✨ Petit conseil", value="Précise le jeu, le créneau ou le type d'échange recherché pour faciliter les rencontres.", inline=False)
-        result.append((FIND_PARTNER_CHANNEL_ID, "chercher", partner))
+        # Ancien panneau remplacé par le panneau interactif géré par salon_harmony.
 
         challenge = horizons_embed(
             title="✦ Défis collectifs HORIZONS",
@@ -258,7 +258,7 @@ class ServerGuides(commands.Cog):
             ), color=teal,
         )
         challenge.add_field(name="🧭 L'esprit du défi", value="Un objectif partagé, une participation libre et une communauté qui progresse à son rythme.", inline=False)
-        result.append((COLLECTIVE_CHALLENGES_CHANNEL_ID, "defis", challenge))
+        # Ancien panneau remplacé par le panneau interactif géré par salon_harmony.
 
         birthday = horizons_embed(
             title="✦ Les anniversaires HORIZONS",

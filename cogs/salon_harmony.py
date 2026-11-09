@@ -10,7 +10,7 @@ from config import (GUILD_ID, AFFINITY_CHANNEL_ID, MOOD_CHANNEL_ID,
                     IDEAS_CHANNEL_ID, SOLIDARITY_CHANNEL_ID,
                     FIND_PARTNER_CHANNEL_ID, COLLECTIVE_CHALLENGES_CHANNEL_ID)
 from .storage import db
-from .embed_theme import wait_for_logo_ready
+from .embed_theme import wait_for_logo_ready, horizons_embed
 
 log = logging.getLogger(__name__)
 # Identifiants constants : aucun salon ni permission n'est recréé.
@@ -126,7 +126,7 @@ class SalonHarmony(commands.Cog):
         await wait_for_logo_ready()
         # La nouvelle identité visuelle prime sur les anciens noms V7.
         # Les panneaux interactifs restent gérés ici, sans conflit de renommage.
-        visual_names = set()
+        visual_names = set(NAMES)
         try:
             from .visual_identity import load_config
             cfg = load_config()
@@ -153,7 +153,7 @@ class SalonHarmony(commands.Cog):
         self._done = True
 
     async def ensure_panel(self, channel: discord.TextChannel, title: str, description: str):
-        embed = discord.Embed(title=title, description=description, color=discord.Color.blurple())
+        embed = horizons_embed(title=title, description=description)
         embed.set_footer(text='HORIZONS • Panneau interactif permanent')
         view = ActivitySalonView() if channel.id == FIND_PARTNER_CHANNEL_ID else CollectiveSalonView()
         key = f'v7_harmony_panel_{channel.id}'
@@ -190,6 +190,21 @@ class SalonHarmony(commands.Cog):
         with db() as conn:
             conn.execute('INSERT INTO bot_settings(key,value) VALUES(?,?) '
                          'ON CONFLICT(key) DO UPDATE SET value=excluded.value', (key, str(message.id)))
+        # Migration ciblée des anciens panneaux statiques du bot. La suppression
+        # intervient uniquement après création/récupération du panneau interactif.
+        legacy_titles = {
+            FIND_PARTNER_CHANNEL_ID: {"✦ Cherche quelqu'un pour partager une activité"},
+            COLLECTIVE_CHALLENGES_CHANNEL_ID: {"✦ Défis collectifs HORIZONS"},
+        }
+        try:
+            async for old in channel.history(limit=250):
+                if old.id == message.id or old.author.id != self.bot.user.id:
+                    continue
+                if any(e.title in legacy_titles.get(channel.id, set()) for e in old.embeds):
+                    await old.delete(reason="Migration HORIZONS : panneau statique remplacé par panneau interactif")
+                    log.info("Ancien panneau statique supprimé : %s dans %s", old.id, channel.id)
+        except (discord.Forbidden, discord.HTTPException):
+            log.warning("Migration : ancien panneau non supprimé dans %s (permissions/historique)", channel.id)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(SalonHarmony(bot))

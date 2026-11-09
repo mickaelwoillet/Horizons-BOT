@@ -73,7 +73,7 @@ class VisualIdentity(commands.Cog):
         changes = 0
         for section, enabled, expected_type in (
             ("category_names", "manage_category_names", discord.CategoryChannel),
-            ("channel_names", "manage_channel_names", discord.TextChannel),
+            ("channel_names", "manage_channel_names", (discord.TextChannel, discord.ForumChannel, discord.VoiceChannel, discord.StageChannel)),
         ):
             if not cfg.get(enabled, False):
                 continue

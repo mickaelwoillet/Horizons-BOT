@@ -50,7 +50,7 @@ async def ensure_horizons_logo_asset(bot: commands.Bot) -> None:
         _LOGO_SETUP_ATTEMPTED = True
         if not LOGO_PATH.is_file():
             logger.warning("Logo HORIZONS introuvable : %s", LOGO_PATH)
-            set_logo_url(None)
+            set_logo_url(bot.user.display_avatar.url if bot.user else None)
             return
 
         try:
@@ -112,27 +112,15 @@ async def ensure_horizons_logo_asset(bot: commands.Bot) -> None:
                 # Une erreur réseau/permission ne signifie pas que le message a
                 # disparu. Ne jamais republier dans ce cas.
                 logger.warning("Recherche du logo impossible (%s) : aucune republication automatique.", exc)
-                set_logo_url(None)
+                set_logo_url(bot.user.display_avatar.url if bot.user else None)
                 return
 
-        if destination is None:
-            logger.warning("Salon technique de dépôt du logo introuvable ; aucune publication.")
-            set_logo_url(None)
-            return
-        try:
-            message = await destination.send(
-                "🎨 **Identité visuelle HORIZONS** — ressource technique utilisée par les embeds du serveur. "
-                "Merci de ne pas supprimer ce message.",
-                file=discord.File(str(LOGO_PATH), filename="horizons_logo.png"),
-                allowed_mentions=discord.AllowedMentions.none(),
-            )
-            if not remember(message):
-                logger.warning("La publication du logo n'a pas retourné la pièce jointe attendue.")
-                set_logo_url(None)
-        except (discord.Forbidden, discord.HTTPException, OSError) as exc:
-            logger.warning("Impossible de publier le logo HORIZONS : %s", exc)
-            set_logo_url(None)
-
+        # Ne jamais publier une image technique automatiquement au démarrage.
+        # Le logo Discord existant ou l'avatar de l'application servent de secours.
+        fallback_avatar = bot.user.display_avatar.url if bot.user else None
+        logger.warning("Dépôt du logo introuvable : avatar du bot utilisé sans publication.")
+        set_logo_url(fallback_avatar)
+        return
 
 # Charger uniquement les extensions présentes. Les extensions pourront être
 # ajoutées progressivement sans empêcher le démarrage du bot.

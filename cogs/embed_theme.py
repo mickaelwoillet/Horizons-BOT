@@ -58,7 +58,7 @@ def horizons_embed(*args: Any, **kwargs: Any) -> discord.Embed:
     """Construit un embed harmonisé : accent or, logo en haut à droite, signature."""
     kwargs["color"] = GOLD
     embed = discord.Embed(*args, **kwargs)
-    if _logo_url:
+    if _logo_url and not embed.thumbnail.url:
         # Miniature officielle en haut à droite : ne remplace jamais l'image du contenu.
         embed.set_thumbnail(url=_logo_url)
     footer_text = embed.footer.text or ""
