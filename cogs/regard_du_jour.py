@@ -122,6 +122,7 @@ class RegardDuJour(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.lock = asyncio.Lock()
+        self.regeneration_lock = asyncio.Lock()
         with connect() as c: pass
         self.scheduler.start()
 
@@ -405,7 +406,7 @@ class RegardDuJour(commands.Cog):
         except discord.HTTPException:
             logger.warning('Sommaire quotidien impossible pour %s ; une reprise aura lieu au prochain passage.',day)
 
-    async def publish(self, day):
+    async def publish(self, day, *, rebuild=False):
         forum,_=await self.channels()
         if forum is None: raise RuntimeError('Forum absent : utilise /regard_installer ou configure son ID.')
         async with self.lock:
@@ -416,7 +417,9 @@ class RegardDuJour(commands.Cog):
                 logger.warning('Regard %s : aucune actualité validée ; publication vide annulée.', day)
                 return 'Aucune actualité vérifiée : publication reportée. Consulte /regard_diagnostic.'
             music=await self.select_music(day) if AUTO_MODE else None
-            if not old:
+            if rebuild:
+                old = None
+            if not old and not rebuild:
                 # Après un crash entre la création Discord et l'enregistrement SQLite,
                 # récupérer le sujet existant au lieu d'en ouvrir un deuxième.
                 title='🌍 Le Regard du Jour — '+datetime.fromisoformat(day).strftime('%d/%m/%Y')
@@ -446,8 +449,12 @@ class RegardDuJour(commands.Cog):
                     allowed_mentions=discord.AllowedMentions.none())
                 thread=result.thread
                 with connect() as db:
-                    db.execute('INSERT OR IGNORE INTO regard_posts(day,thread_id,published_at) VALUES(?,?,?)',
-                        (day,thread.id,datetime.now(TZ).isoformat()))
+                    if rebuild:
+                        db.execute('INSERT OR REPLACE INTO regard_posts(day,thread_id,published_at,archived_at) VALUES(?,?,?,NULL)',
+                            (day,thread.id,datetime.now(TZ).isoformat()))
+                    else:
+                        db.execute('INSERT OR IGNORE INTO regard_posts(day,thread_id,published_at) VALUES(?,?,?)',
+                            (day,thread.id,datetime.now(TZ).isoformat()))
             else:
                 thread=forum.get_thread(old['thread_id']) or self.bot.get_channel(old['thread_id'])
                 if thread is None:thread=await self.bot.fetch_channel(old['thread_id'])
@@ -744,6 +751,98 @@ class RegardDuJour(commands.Cog):
             msg=await self.publish(day)
         except (RuntimeError,discord.HTTPException) as exc: msg=f'Échec : {exc}'
         await interaction.followup.send(msg,ephemeral=True)
+
+    @app_commands.command(name='regard_regenerer',description='Reconstruire l’édition du jour après confirmation (staff).')
+    @app_commands.describe(confirmer='Mettre Oui pour remplacer le sujet existant après vérification')
+    async def regenerer(self, interaction:discord.Interaction, confirmer:bool=False):
+        if not staff(interaction.user):
+            return await interaction.response.send_message('Réservé au staff.',ephemeral=True)
+        day=datetime.now(TZ).date().isoformat()
+        if not confirmer:
+            with connect() as db:
+                n=db.execute("SELECT COUNT(*) FROM regard_items WHERE day=? AND category!='🎵 Musique' AND status IN ('approved','pending')",(day,)).fetchone()[0]
+                old=db.execute('SELECT thread_id FROM regard_posts WHERE day=?',(day,)).fetchone()
+            return await interaction.response.send_message(
+                f'📰 **Prévisualisation de régénération — {day}**\n'
+                f'{n} article(s) disponibles pour une nouvelle sélection.\n'
+                f'Sujet existant : {"oui" if old else "non"}.\n'
+                'Cette opération peut remplacer le sujet du jour et ses réponses. '
+                'Les autres journées, XP et archives SQLite sont conservés.\n'
+                '**Pour confirmer :** `/regard_regenerer confirmer:Oui`.',ephemeral=True)
+        await interaction.response.defer(ephemeral=True)
+        async with self.regeneration_lock:
+            # Prépare la nouvelle sélection sans supprimer les données existantes.
+            with connect() as db:
+                backup_status=[(r['id'],r['status'],r['reviewed_by']) for r in db.execute(
+                    "SELECT id,status,reviewed_by FROM regard_items WHERE day=? AND category!='🎵 Musique'",(day,))]
+                previous=db.execute('SELECT * FROM regard_posts WHERE day=?',(day,)).fetchone()
+                previous_parts=[(r['part_key'],r['message_id']) for r in db.execute('SELECT part_key,message_id FROM regard_thread_parts WHERE day=?',(day,))]
+                previous_index=db.execute('SELECT value FROM regard_state WHERE key=?',('index:'+day,)).fetchone()
+            new_thread_id=None
+            try:
+                # Les anciennes validations automatiques sont recalculées; les choix
+                # explicitement effectués par le staff restent prioritaires.
+                with connect() as db:
+                    db.execute("UPDATE regard_items SET status='pending' WHERE day=? AND status='approved' AND reviewed_by IS NULL AND category!='🎵 Musique'",(day,))
+                await self.collect(day)
+                self.auto_select(day)
+                with connect() as db:
+                    selected=db.execute("SELECT id,title FROM regard_items WHERE day=? AND status='approved' AND category!='🎵 Musique' ORDER BY id LIMIT ?",(day,ARTICLE_MAX)).fetchall()
+                if not selected:
+                    raise RuntimeError('Aucun article fiable sélectionné : ancienne publication conservée.')
+                # Empêche une régénération lorsque les anciens choix du staff
+                # remplissent déjà les cinq places, sans masquer cette limite.
+                with connect() as db:
+                    db.execute('DELETE FROM regard_thread_parts WHERE day=?',(day,))
+                    db.execute('DELETE FROM regard_state WHERE key=?',('index:'+day,))
+                # publish utilise son propre verrou; celui-ci est libéré le temps
+                # de l’appel, tandis que le scheduler vérifie l’état SQLite.
+            except Exception as exc:
+                with connect() as db:
+                    for item_id,status,reviewed_by in backup_status:
+                        db.execute('UPDATE regard_items SET status=?,reviewed_by=? WHERE id=?',(status,reviewed_by,item_id))
+                return await interaction.followup.send(f'Régénération annulée : {exc}',ephemeral=True)
+        # La publication construit un nouveau fil. En cas d’échec, restaurer
+        # les références précédentes pour pouvoir retenter sans perte.
+        try:
+            result=await self.publish(day,rebuild=True)
+            with connect() as db:
+                current=db.execute('SELECT thread_id FROM regard_posts WHERE day=?',(day,)).fetchone()
+                new_thread_id=current['thread_id'] if current else None
+            if previous and previous['thread_id']!=new_thread_id:
+                try:
+                    old_thread=self.bot.get_channel(previous['thread_id']) or await self.bot.fetch_channel(previous['thread_id'])
+                    if isinstance(old_thread,discord.Thread):
+                        await old_thread.delete(reason='Regard du Jour régénéré et remplacé par le staff')
+                except discord.NotFound:
+                    pass
+                except discord.HTTPException:
+                    logger.exception('Ancien sujet Regard non supprimé ; nettoyage manuel possible')
+                    result+='\n⚠️ Ancien sujet non supprimé : vérifie le forum pour éviter un doublon.'
+            await interaction.followup.send('✅ '+result+'\nNouvelle sélection : '+str(len(selected))+' article(s).',ephemeral=True)
+        except Exception as exc:
+            logger.exception('Échec de régénération Regard %s',day)
+            with connect() as db:
+                for item_id,status,reviewed_by in backup_status:
+                    db.execute('UPDATE regard_items SET status=?,reviewed_by=? WHERE id=?',(status,reviewed_by,item_id))
+                db.execute('DELETE FROM regard_thread_parts WHERE day=?',(day,))
+                db.executemany('INSERT INTO regard_thread_parts(day,part_key,message_id) VALUES(?,?,?)',
+                               [(day,k,v) for k,v in previous_parts])
+                db.execute('DELETE FROM regard_posts WHERE day=?',(day,))
+                if previous:
+                    db.execute('INSERT INTO regard_posts(day,thread_id,published_at,archived_at) VALUES(?,?,?,?)',
+                               (day,previous['thread_id'],previous['published_at'],previous['archived_at']))
+                db.execute('DELETE FROM regard_state WHERE key=?',('index:'+day,))
+                if previous_index:
+                    db.execute('INSERT INTO regard_state(key,value) VALUES(?,?)',('index:'+day,previous_index['value']))
+            if new_thread_id and (not previous or new_thread_id != previous['thread_id']):
+                try:
+                    orphan=self.bot.get_channel(new_thread_id) or await self.bot.fetch_channel(new_thread_id)
+                    if isinstance(orphan,discord.Thread):
+                        await orphan.delete(reason='Nettoyage d’une régénération interrompue')
+                except discord.HTTPException:
+                    logger.warning('Nettoyage manuel nécessaire pour le sujet incomplet %s',new_thread_id)
+            await interaction.followup.send(f'❌ Régénération interrompue : {type(exc).__name__}. Ancienne édition conservée.',ephemeral=True)
 
     @app_commands.command(name='regard_retirer',description='Retirer un article public avec trace de modération (staff).')
     @app_commands.describe(article_id='Identifiant visible dans /regard_selection',motif='Raison courte du retrait')

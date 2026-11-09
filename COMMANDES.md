@@ -269,3 +269,10 @@ Depuis `/centre` → « Mes Passerelles », le membre peut sélectionner jusqu'�
 - `/renvoyer_bienvenue membre:@pseudo` (staff) : renvoie le même guide à un membre possédant le rôle Membre, sans modifier son suivi SQLite.
 - Les commandes sont restreintes au staff côté Python et au niveau Discord. Résultat visible uniquement par l’auteur (réponse éphémère). Les MP fermés sont signalés sans casser le bot.
 - L’envoi automatique après validation de la charte reste inchangé.
+
+## HORIZONS V8.8.9 — Régénérer le Regard du Jour
+
+- `/regard_regenerer` : affiche une prévisualisation privée au staff, sans modification.
+- `/regard_regenerer confirmer:Oui` : relance la collecte RSS, recalcule la sélection automatique, crée un nouveau sujet avec la présentation actuelle, puis supprime l'ancien sujet Discord **uniquement après** une publication réussie. Les articles validés explicitement par le staff sont conservés. Les autres dates, votes, XP et données SQLite restent intacts.
+- Attention : les réponses des membres dans l'ancien sujet Discord seront supprimées avec celui-ci. Sauvegarder le fil avant de confirmer si nécessaire.
+- Ne pas supprimer les bases SQLite ou le fichier `.env` de l'hébergement pendant le déploiement.
