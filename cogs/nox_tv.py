@@ -170,6 +170,10 @@ SCENE_VERDICTS = {
         '🛡️ Nox sauve la tartine avec une couverture en chocolat. Le Conseil applaudit.',
         '🦆 Coin-Coin réquisitionne le grille-pain et proclame la loi martiale du petit-déjeuner.',
         '🏃 Les habitants évacuent. Grille-Pain 3000 se nomme ministre de la panique.'),
+    'nox_faim_anime': (
+        '🍪 Nox dévore 47 biscuits stellaires et déclare officiellement la paix avec son estomac.',
+        '🦆 Coin-Coin réquisitionne les réserves alimentaires. Nox dépose une plainte pour disparition de goûter.',
+        '🏃 Nox poursuit une comète en forme de cookie. L’Observatoire classe l’événement comme catastrophe pâtissière.'),
     'nox_faim': (
         '🍪 Les habitants organisent une collecte de biscuits pour Nox. Coin-Coin doit signer le reçu.',
         '🦆 Coin-Coin nationalise le garde-manger. Nox fonde aussitôt un syndicat des estomacs vides.',

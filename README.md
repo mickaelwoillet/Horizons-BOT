@@ -247,3 +247,7 @@ Ajout de quatre PNG originaux : conférence de Coin-Coin, ascenseur temporel, si
 
 ### V10.36 — Galerie 30/30
 Cinq nouvelles scènes originales : planète biscuit, couronne rebelle, réveil temporel, tartine candidate et portail des chaussettes. Les tests Discord réels restent nécessaires.
+
+
+### V10.37 — Correctif audit NOX TV
+Ajout des trois verdicts de `nox_faim_anime` (GIF de Nox affamé). Aucune modification des médias, salons, horaires ni paramètres. Relancer `/noxtv audit` après déploiement : résultat attendu 30/30, zéro anomalie.

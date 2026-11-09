@@ -434,3 +434,7 @@ Aucune nouvelle commande : correction des tests de validation de la galerie anim
 Quatre nouvelles scènes consultables via `/noxtv catalogue` et `/noxtv apercu`.
 
 V10.36 : `/noxtv catalogue`, `/noxtv apercu`, `/noxtv audit` couvrent les 30 scènes.
+
+
+### V10.37 — Correctif audit NOX TV
+Ajout des trois verdicts de `nox_faim_anime` (GIF de Nox affamé). Aucune modification des médias, salons, horaires ni paramètres. Relancer `/noxtv audit` après déploiement : résultat attendu 30/30, zéro anomalie.
