@@ -28,6 +28,9 @@ GAMES = {
     "code_secret": "🔐 Code secret",
     "petit_bac": "📝 Petit Bac",
     "bataille": "🚢 Bataille navale",
+    "de": "🎲 Dé", "pileface": "🪙 Pile ou face", "nombre_mystere": "🔢 Nombre mystère",
+    "quizjeu": "🧠 Quiz rapide", "anagramme": "🔤 Anagramme", "enigme": "🧩 Énigme",
+    "reflexe": "⚡ Réflexe", "arcade_collectif": "🤝 Défi collectif",
 }
 
 
@@ -109,6 +112,7 @@ class ArcadeMenuView(discord.ui.View):
         self.add_item(ChallengeButton(self))
         self.add_item(CollectivePetitBacButton(self))
         self.add_item(ArcadeNightButton(self))
+        self.add_item(QuickGameButton(self))
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user.id != self.owner_id:
@@ -131,6 +135,17 @@ class ArcadeMenuView(discord.ui.View):
             details = "Déduis une combinaison secrète de quatre chiffres parmi six, avec les indices de bonne position et de bonne valeur. **Mode solo**."
         elif self.game == "petit_bac":
             details = "Une lettre, quatre catégories et un temps limité. Les participants pourront signaler les réponses ambiguës et voter. **Partie collective**."
+        elif self.game in {"de", "pileface", "nombre_mystere", "quizjeu", "anagramme", "enigme", "reflexe", "arcade_collectif"}:
+            details = {
+                "de": "Lance un dé à six faces et gagne des XP Célestes.",
+                "pileface": "Choisis pile ou face et tente ta chance.",
+                "nombre_mystere": "Devine un nombre de 1 à 10 grâce à un formulaire.",
+                "quizjeu": "Réponds à une question de culture générale.",
+                "anagramme": "Remets les lettres mélangées dans le bon ordre.",
+                "enigme": "Résous une énigme et gagne des XP.",
+                "reflexe": "Attends le signal puis réagis le plus vite possible.",
+                "arcade_collectif": "Choisis parmi sept mini-jeux collectifs et invite tout le salon à participer.",
+            }[self.game]
         else:
             details = "Place tes navires sur une grille privée et tente de couler la flotte adverse. **Mode duel**, tirs alternés et grilles privées envoyées en message direct."
         return horizons_embed(title="🎮 Arcade HORIZONS", description=f"**Jeu sélectionné : {GAMES[self.game]}**\n\n{details}")
@@ -150,6 +165,14 @@ class GameSelect(discord.ui.Select):
                 discord.SelectOption(label="Code secret", value="code_secret", emoji="🔐", description="Déchiffrer une combinaison en solo"),
                 discord.SelectOption(label="Petit Bac", value="petit_bac", emoji="📝", description="Partie collective chronométrée"),
                 discord.SelectOption(label="Bataille navale", value="bataille", emoji="🚢", description="Duel avec grilles privées en messages directs"),
+                discord.SelectOption(label="Dé", value="de", emoji="🎲"),
+                discord.SelectOption(label="Pile ou face", value="pileface", emoji="🪙"),
+                discord.SelectOption(label="Nombre mystère", value="nombre_mystere", emoji="🔢"),
+                discord.SelectOption(label="Quiz rapide", value="quizjeu", emoji="🧠"),
+                discord.SelectOption(label="Anagramme", value="anagramme", emoji="🔤"),
+                discord.SelectOption(label="Énigme", value="enigme", emoji="🧩"),
+                discord.SelectOption(label="Réflexe", value="reflexe", emoji="⚡"),
+                discord.SelectOption(label="Défi collectif", value="arcade_collectif", emoji="🤝"),
             ],
             row=0,
         )
@@ -159,7 +182,60 @@ class GameSelect(discord.ui.Select):
         self.parent_view.children[1].disabled = self.parent_view.game not in {"morpion", "memory", "code_secret"}
         self.parent_view.children[2].disabled = self.parent_view.game not in {"morpion", "puissance4", "bataille"}
         self.parent_view.children[3].disabled = self.parent_view.game != "petit_bac"
+        self.parent_view.children[5].disabled = self.parent_view.game not in {"de", "pileface", "nombre_mystere", "quizjeu", "anagramme", "enigme", "reflexe", "arcade_collectif"}
         await interaction.response.edit_message(embed=self.parent_view.menu_embed(), view=self.parent_view)
+
+
+class QuickNumberModal(discord.ui.Modal, title="Nombre mystère"):
+    nombre = discord.ui.TextInput(label="Ton nombre entre 1 et 10", max_length=2)
+    def __init__(self, cog):
+        super().__init__(); self.cog = cog
+    async def on_submit(self, interaction: discord.Interaction):
+        try:
+            n = int(str(self.nombre.value))
+            if not 1 <= n <= 10: raise ValueError
+        except ValueError:
+            await interaction.response.send_message("Indique un nombre entier entre 1 et 10.", ephemeral=True); return
+        await self.cog.nombre_mystere(interaction, n)
+
+
+class CollectiveGameSelect(discord.ui.Select):
+    def __init__(self, cog, owner_id):
+        self.cog, self.owner_id = cog, owner_id
+        super().__init__(placeholder="Choisir le défi collectif…", options=[
+            discord.SelectOption(label=label, value=key, emoji=emoji) for key, label, emoji in [
+                ("de", "Dé", "🎲"), ("pileface", "Pile ou face", "🪙"),
+                ("nombre", "Nombre mystère", "🔢"), ("quiz", "Quiz", "🧠"),
+                ("anagramme", "Anagramme", "🔤"), ("enigme", "Énigme", "🧩"),
+                ("reflexe", "Réflexe", "⚡")]])
+    async def callback(self, interaction: discord.Interaction):
+        if interaction.user.id != self.owner_id:
+            await interaction.response.send_message("Ce sélecteur ne t'appartient pas.", ephemeral=True); return
+        from discord import app_commands
+        await self.cog.defi_collectif(interaction, app_commands.Choice(name=self.values[0], value=self.values[0]))
+
+
+class CollectiveGameMenu(discord.ui.View):
+    def __init__(self, cog, owner_id):
+        super().__init__(timeout=180)
+        self.add_item(CollectiveGameSelect(cog, owner_id))
+
+
+class QuickGameButton(discord.ui.Button):
+    def __init__(self, parent: ArcadeMenuView):
+        self.parent_view = parent
+        super().__init__(label="Lancer ce mini-jeu", style=discord.ButtonStyle.primary, emoji="🎲", row=2, disabled=True)
+    async def callback(self, interaction: discord.Interaction):
+        game = self.parent_view.game
+        cog = self.parent_view.cog
+        if game == "nombre_mystere":
+            await interaction.response.send_modal(QuickNumberModal(cog)); return
+        if game == "arcade_collectif":
+            await interaction.response.edit_message(embed=horizons_embed(title="🤝 Défi collectif", description="Choisis le mini-jeu à proposer au salon."), view=CollectiveGameMenu(cog, interaction.user.id)); return
+        command = getattr(cog, game, None)
+        if command is None or not callable(command):
+            await interaction.response.send_message("Ce mini-jeu est indisponible.", ephemeral=True); return
+        await command(interaction)
 
 
 class LaunchSoloButton(discord.ui.Button):

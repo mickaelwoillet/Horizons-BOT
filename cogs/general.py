@@ -15,75 +15,28 @@ class General(commands.Cog):
         ms = round(self.bot.latency * 1000)
         await interaction.response.send_message(f"🏓 Pong ! Latence : **{ms} ms**", ephemeral=True)
 
-    @app_commands.command(name="aide", description="Afficher le centre d'aide HORIZONS.")
+    async def _send_command_guide(self, interaction: discord.Interaction, audience: str) -> None:
+        """Affiche uniquement les commandes réellement chargées, en pages privées."""
+        from cogs.command_catalog import build_catalog_embeds
+        pages = build_catalog_embeds(self.bot, audience=audience)
+        # Discord autorise au maximum 10 embeds par message ; limiter davantage
+        # pour rester sous la limite cumulée de 6000 caractères par message.
+        await interaction.response.defer(ephemeral=True)
+        for page in pages:
+            await interaction.followup.send(embed=page, ephemeral=True)
+
+    @app_commands.command(name="aide", description="Consulter les commandes accessibles aux membres HORIZONS.")
     async def aide(self, interaction: discord.Interaction):
-        embed = horizons_embed(
-            title="✦ HORIZONS — Centre d'aide",
-            description=(
-                "Retrouve ici les principales commandes du serveur. "
-                "Les commandes réservées à l'équipe ne sont utilisables que par les personnes habilitées."
-            ),
-            color=discord.Color.gold(),
-        )
-        sections = [
-            (
-                "👋 Membres",
-                "`/ping` — vérifier la latence du bot.\n"
-                "`/profil [membre]` — consulter un profil public.\n"
-                "`/serveur` — découvrir les informations de HORIZONS.\n"
-                "`/presentation` — retrouver le salon de présentation.\n"
-                "`/proposer idee` — transmettre une suggestion à l'équipe.\n"
-                "`/mon_parcours` — consulter son rang honorifique.",
-            ),
-            (
-                "💬 Communauté et détente",
-                "`/question_du_jour` — lancer une discussion.\n"
-                "`/compliment [membre]` — partager un mot positif.\n"
-                "`/blague [categorie]` — découvrir une blague.\n"
-                "`/devinette` — résoudre une devinette.\n"
-                "`/traduire texte langue` — traduire si le service est configuré.",
-            ),
-            (
-                "🧠 Quiz culturel",
-                "`/quiz_lancer [manches]` — lancer un quiz (1 à 10 manches, 12 joueurs maximum). "
-                "Chaque bonne réponse rapporte un point.\n"
-                "`/quiz_arreter` — arrêter le quiz et publier le classement. "
-                "Commandes réservées à l'équipe.",
-            ),
-            (
-                "🎫 Tickets et signalements",
-                "Dans le salon de demande de ticket, clique sur **Créer un ticket** puis remplis le formulaire.\n"
-                "`/ticket_ouvrir sujet details` — autre moyen d'ouvrir un ticket privé.\n"
-                "`/ticket_fermer` — fermer le ticket depuis son salon.\n"
-                "`/signaler motif [salon] [message_id]` — transmettre discrètement un signalement.",
-            ),
-            (
-                "🎉 Événements et concours",
-                "`/evenements` — consulter les prochains événements.\n"
-                "`/evenement_creer titre date_heure description salon [lieu]` — publier un événement.\n"
-                "`/evenement_fermer numero` — fermer les inscriptions.\n"
-                "`/concours_creer prix duree_heures [gagnants] [salon]` — lancer un concours.\n"
-                "`/concours_annuler numero` — annuler un concours (équipe).",
-            ),
-            (
-                "🛡️ Équipe et modération",
-                "`/annonce salon titre message [image]` · `/alerte_equipe message` · `/message_anonyme message`\n"
-                "`/avertir` · `/avertissements` · `/retirer_avertissement`\n"
-                "`/timeout` · `/untimeout` · `/expulser` · `/bannir` · `/debannir`\n"
-                "`/purger` · `/note_membre` · `/actualiser_rangs`\n"
-                "Ces commandes nécessitent les permissions ou le rôle d'équipe approprié.",
-            ),
-            (
-                "🎂 Anniversaires",
-                "`/anniversaire_definir jour mois` — enregistrer uniquement le jour et le mois.\n"
-                "`/anniversaire_supprimer` — supprimer la date enregistrée.\n"
-                "Les souhaits sont publiés automatiquement à 9 h, heure de Paris.",
-            ),
-        ]
-        for name, value in sections:
-            embed.add_field(name=name, value=value, inline=False)
-        embed.set_footer(text="HORIZONS • Nos différences nous rapprochent")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        await self._send_command_guide(interaction, "members")
+
+    @app_commands.command(name="aidestaff", description="Consulter les commandes et permissions de l'équipe HORIZONS.")
+    @app_commands.guild_only()
+    async def aidestaff(self, interaction: discord.Interaction):
+        from cogs.staff_dashboard import access_level
+        if not isinstance(interaction.user, discord.Member) or access_level(interaction.user) is None:
+            await interaction.response.send_message("🔒 Cette aide est réservée à l'équipe HORIZONS.", ephemeral=True)
+            return
+        await self._send_command_guide(interaction, "staff")
 
     @app_commands.command(name="profil", description="Afficher les informations publiques d'un membre.")
     async def profil(self, interaction: discord.Interaction, membre: discord.Member | None = None):

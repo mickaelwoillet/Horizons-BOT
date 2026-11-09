@@ -162,7 +162,7 @@ class ReflexView(discord.ui.View):
         if elapsed is None:
             if interaction.guild_id:
                 record_game_result(interaction.guild_id, "reflexe", "solo", [interaction.user.id], status="loss")
-            await interaction.response.edit_message(content="Le signal n'était pas prêt. Relance `/reflexe`.", view=self); return
+            await interaction.response.edit_message(content="Le signal n'était pas prêt. Relance le jeu depuis `/jeux`.", view=self); return
         points = award_xp(interaction.guild_id, interaction.user.id, "reflexe", 5) if elapsed >= 0 and interaction.guild_id else 0
         if interaction.guild_id:
             record_game_result(interaction.guild_id, "reflexe", "solo", [interaction.user.id], winners=[interaction.user.id], status="completed")
@@ -334,7 +334,8 @@ class HorizonsArcade(commands.Cog):
     def build_arcade_embed(self) -> discord.Embed:
         embed = horizons_embed(title="🎮 L'Arcade HORIZONS", description="Choisis un jeu avec `/jeux` et lance une partie grâce aux menus interactifs. Les blagues, devinettes et quiz quotidiens restent dans leurs salons habituels : ils ne font pas partie de cette progression.")
         embed.add_field(name="🕹️ Jeux interactifs", value="⭕ **Morpion** — solo contre l'IA (3 niveaux) ou duel.\n🔴 **Puissance 4** — duel au tour par tour.\n🧠 **Memory** — retrouver les huit paires en solo.\n🔐 **Code secret** — déchiffrer une combinaison en solo.\n📝 **Petit Bac** — partie collective chronométrée et vote sur les réponses ambiguës.\n🚢 **Bataille navale** — duel avec grilles privées en messages directs.", inline=False)
-        embed.add_field(name="🎲 Jeux historiques", value="Les commandes existantes `/de`, `/pileface`, `/nombre_mystere`, `/quizjeu`, `/anagramme`, `/enigme`, `/reflexe` et `/arcade_collectif` restent disponibles pendant la transition.", inline=False)
+        embed.add_field(name="🎲 Mini-jeux rapides", value="Dé, pile ou face, nombre mystère, quiz, anagramme, énigme et réflexe sont accessibles depuis le sélecteur `/jeux`.", inline=False)
+        embed.add_field(name="🤝 Défis collectifs", value="Choisis **Défi collectif** dans `/jeux`, puis le mini-jeu à partager avec le salon.", inline=False)
         embed.add_field(name="🌠 Soirées Arcade", value="Ouvre un salon d'attente depuis `/jeux`, rassemble jusqu'à douze membres et lance trois manches collectives chronométrées.", inline=False)
         embed.add_field(name="🌟 XP Célestes", value="Les parties et bonnes réponses rapportent des XP. Une récompense par mini-jeu et par jour, avec un plafond de **60 XP par jour** pour préserver l'équité.", inline=False)
         embed.set_footer(text="HORIZONS • Les routines quotidiennes restent indépendantes")
@@ -380,20 +381,44 @@ class HorizonsArcade(commands.Cog):
             channel = guild.get_channel(channel_id)
             if not isinstance(channel, discord.TextChannel):
                 continue
-            # Republier le panneau pour qu'il revienne en bas du salon, au-dessus
-            # des échanges récents. Seul notre ancien panneau est supprimé.
+            # Panneau stable : on édite le message existant au lieu de le supprimer.
+            # Les discussions des membres ne sont jamais déplacées ou effacées.
             try:
+                message = None
                 if msg_row:
                     try:
-                        old_message = await channel.fetch_message(int(json.loads(msg_row[0])))
-                        await old_message.delete()
-                    except (discord.NotFound, discord.Forbidden, discord.HTTPException, ValueError):
+                        message_id = int(json.loads(msg_row[0]))
+                        candidate = await channel.fetch_message(message_id)
+                        if self.bot.user and candidate.author.id == self.bot.user.id:
+                            message = candidate
+                    except (discord.NotFound, discord.Forbidden, discord.HTTPException, ValueError, TypeError):
                         pass
-                message = await channel.send(embed=self.build_arcade_embed())
+                if message is None:
+                    # Une restauration de la base ne doit pas créer un doublon.
+                    try:
+                        async for candidate in channel.history(limit=100):
+                            if self.bot.user and candidate.author.id == self.bot.user.id and any(
+                                e.footer and "HORIZONS-ARCADE:PANNEAU" in (e.footer.text or "")
+                                for e in candidate.embeds
+                            ):
+                                message = candidate
+                                break
+                    except (discord.Forbidden, discord.HTTPException):
+                        pass
+                embed = self.build_arcade_embed()
+                embed.set_footer(text="HORIZONS • HORIZONS-ARCADE:PANNEAU")
+                if message is None:
+                    message = await channel.send(embed=embed, allowed_mentions=discord.AllowedMentions.none())
+                else:
+                    await message.edit(embed=embed)
                 with db() as conn:
-                    conn.execute("INSERT INTO bot_settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value", (f"ludic:{guild.id}:arcade_info_message_id", json.dumps(message.id)))
+                    conn.execute(
+                        "INSERT INTO bot_settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+                        (f"ludic:{guild.id}:arcade_info_message_id", json.dumps(message.id)),
+                    )
             except (discord.Forbidden, discord.HTTPException):
-                pass
+                import logging
+                logging.getLogger(__name__).exception("Panneau Arcade inaccessible dans %s", channel.id)
 
     @refresh_arcade_info.before_loop
     async def before_refresh_arcade_info(self):
@@ -434,7 +459,6 @@ class HorizonsArcade(commands.Cog):
         view = ProgressView(interaction.guild_id, interaction.user.id, xp, level, title)
         await interaction.response.send_message(embed=view.overview_embed(), view=view, ephemeral=True)
 
-    @app_commands.command(name="de", description="Lancer un dé à six faces et gagner des XP Célestes.")
     async def de(self, interaction: discord.Interaction):
         if not await self.require_arcade_channel(interaction): return
         result = random.randint(1,6); points = award_xp(interaction.guild_id,interaction.user.id,"de",5) if interaction.guild_id else 0
@@ -442,13 +466,10 @@ class HorizonsArcade(commands.Cog):
             record_game_result(interaction.guild_id, "de", "solo", [interaction.user.id], status="completed", scores={interaction.user.id: result})
         await interaction.response.send_message(embed=horizons_embed(title="🎲 Le dé HORIZONS", description=f"Le dé affiche **{result}** !\n**+{points} XP Célestes**"))
 
-    @app_commands.command(name="pileface", description="Tenter ta chance au pile ou face.")
     async def pileface(self, interaction: discord.Interaction):
         if not await self.require_arcade_channel(interaction): return
         await interaction.response.send_message(embed=horizons_embed(title="🪙 Pile ou face", description="Choisis le côté de la pièce. Bonne chance !"), view=CoinView(self,interaction.user.id), ephemeral=True)
 
-    @app_commands.command(name="nombre_mystere", description="Trouver le nombre mystère entre 1 et 10.")
-    @app_commands.describe(proposition="Ton nombre, entre 1 et 10")
     async def nombre_mystere(self, interaction: discord.Interaction, proposition: app_commands.Range[int,1,10]):
         if not await self.require_arcade_channel(interaction): return
         secret = random.randint(1,10)
@@ -463,14 +484,12 @@ class HorizonsArcade(commands.Cog):
             text = f"Le nombre mystère était **{secret}**. Tu avais proposé **{proposition}**. Retente demain !"
         await interaction.response.send_message(embed=horizons_embed(title="🔢 Le nombre mystère", description=text), ephemeral=True)
 
-    @app_commands.command(name="quizjeu", description="Lancer un quiz interactif ouvert aux membres présents.")
     async def quizjeu(self, interaction: discord.Interaction):
         if not await self.require_arcade_channel(interaction): return
         item = random.choice(ARCADE_QUIZ)
         embed = horizons_embed(title="🧠 Quiz de l'Arcade", description=f"{item['q']}\n\n" + "\n".join(f"**{i+1}.** {v}" for i,v in enumerate(item['choices'])) + "\n\nChaque membre peut tenter sa chance : une bonne réponse rapporte des XP Célestes.")
         await interaction.response.send_message(embed=embed, view=AnswerView(self,interaction.user.id,"quizjeu", "Ta réponse",item['a'],10,True))
 
-    @app_commands.command(name="anagramme", description="Retrouver le mot caché dans une anagramme.")
     async def anagramme(self, interaction: discord.Interaction):
         if not await self.require_arcade_channel(interaction): return
         _, solution = random.choice(ANAGRAMS)
@@ -479,13 +498,11 @@ class HorizonsArcade(commands.Cog):
         embed = horizons_embed(title="🔤 L'anagramme", description=f"Remets ces lettres dans l'ordre :\n\n# {' · '.join(letters)}")
         await interaction.response.send_message(embed=embed, view=AnswerView(self,interaction.user.id,"anagramme","Quel est le mot ?",solution,10),ephemeral=True)
 
-    @app_commands.command(name="enigme", description="Résoudre une énigme inédite de l'Arcade HORIZONS.")
     async def enigme(self, interaction: discord.Interaction):
         if not await self.require_arcade_channel(interaction): return
         question, solution = random.choice(RIDDLES)
         await interaction.response.send_message(embed=horizons_embed(title="🧩 Énigme de l'Arcade", description=question), view=AnswerView(self,interaction.user.id,"enigme","Ta réponse",solution,10),ephemeral=True)
 
-    @app_commands.command(name="reflexe", description="Mesurer ton temps de réaction dans un défi éclair.")
     async def reflexe(self, interaction: discord.Interaction):
         if not await self.require_arcade_channel(interaction): return
         view = ReflexView(self,interaction.user.id)
@@ -494,17 +511,6 @@ class HorizonsArcade(commands.Cog):
         await view.arm(message)
 
 
-    @app_commands.command(name="arcade_collectif", description="Lancer un mini-jeu ouvert à tous les membres présents.")
-    @app_commands.describe(jeu="Choisis le jeu auquel tout le monde pourra participer")
-    @app_commands.choices(jeu=[
-        app_commands.Choice(name="Dé", value="de"),
-        app_commands.Choice(name="Pile ou face", value="pileface"),
-        app_commands.Choice(name="Nombre mystère", value="nombre"),
-        app_commands.Choice(name="Quiz", value="quiz"),
-        app_commands.Choice(name="Anagramme", value="anagramme"),
-        app_commands.Choice(name="Énigme", value="enigme"),
-        app_commands.Choice(name="Réflexe", value="reflexe"),
-    ])
     async def defi_collectif(self, interaction: discord.Interaction, jeu: app_commands.Choice[str]):
         if not await self.require_arcade_channel(interaction): return
         game = jeu.value

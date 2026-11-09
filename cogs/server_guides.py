@@ -29,7 +29,7 @@ STAFF_ONLY = {
 CATEGORY = {
     "ping": "⚙️ Outils généraux", "aide": "⚙️ Outils généraux", "profil": "⚙️ Outils généraux",
     "serveur": "⚙️ Outils généraux", "proposer": "⚙️ Outils généraux", "presentation": "⚙️ Outils généraux",
-    "anniversaire_definir": "🎂 Anniversaires", "anniversaire_supprimer": "🎂 Anniversaires",
+    "anniversaire_supprimer": "🎂 Anniversaires",
     "question_du_jour": "💬 Vie communautaire", "compliment": "💬 Vie communautaire",
     "blague": "🎲 Jeux et détente", "devinette": "🎲 Jeux et détente",
     "quiz_lancer": "🎲 Jeux et détente", "quiz_arreter": "🎲 Jeux et détente",
@@ -153,7 +153,7 @@ class ServerGuides(commands.Cog):
             return
         self.record_post(channel, guide_key, period_key, message.id)
 
-    async def update_permanent(self, channel_id: int | None, guide_key: str, embed: discord.Embed):
+    async def update_permanent(self, channel_id: int | None, guide_key: str, embed: discord.Embed, view: discord.ui.View | None = None):
         """Met à jour le message permanent existant au lieu d'en publier un nouveau."""
         channel = await self.resolve_channel(channel_id)
         if channel is None:
@@ -189,7 +189,7 @@ class ServerGuides(commands.Cog):
 
         try:
             if message is not None:
-                await message.edit(embed=embed)
+                await message.edit(embed=embed, view=view)
                 with db() as conn:
                     conn.execute(
                         "INSERT INTO guide_publications(guild_id,channel_id,guide_key,period_key,message_id,published_at) VALUES(?,?,?,?,?,?) "
@@ -199,7 +199,7 @@ class ServerGuides(commands.Cog):
                 return
 
             # Aucun ancien message retrouvé : une seule création, puis mémorisation.
-            message = await channel.send(embed=embed, allowed_mentions=discord.AllowedMentions.none())
+            message = await channel.send(embed=embed, view=view, allowed_mentions=discord.AllowedMentions.none())
             with db() as conn:
                 conn.execute(
                     "INSERT INTO guide_publications(guild_id,channel_id,guide_key,period_key,message_id,published_at) VALUES(?,?,?,?,?,?) "
@@ -263,10 +263,10 @@ class ServerGuides(commands.Cog):
         birthday = horizons_embed(
             title="✦ Les anniversaires HORIZONS",
             description=(
-                "Tu souhaites que la communauté puisse te souhaiter ton anniversaire ? Tu peux enregistrer ta date avec `/anniversaire_definir jour mois`.\n\n"
-                "Seuls le **jour et le mois** sont conservés : aucune année de naissance n'est demandée ni enregistrée. "
+                "Clique sur le bouton **Enregistrer / modifier mon anniversaire** pour indiquer ton jour et ton mois de naissance.\n\n"
+                "Tu peux aussi ajouter ton **année de naissance**, mais elle reste facultative. Si tu la renseignes, ton âge sera annoncé le jour de ton anniversaire. "
                 "Le bot publie un petit message dans ce salon le jour venu, à 9 h (heure de Paris).\n\n"
-                "Tu peux modifier ta date en relançant la commande ou la supprimer à tout moment avec `/anniversaire_supprimer`. "
+                "Tu peux modifier ta date avec le même bouton ou la supprimer à tout moment avec `/anniversaire_supprimer`. "
                 "Cette démarche est entièrement facultative."
             ), color=gold,
         )
@@ -300,68 +300,12 @@ class ServerGuides(commands.Cog):
         )
         result.append((INTRO_CHANNEL_ID, "presentation", intro))
 
-        staff = self.staff_command_embeds(week)
-        for i, embed in enumerate(staff, start=1):
-            result.append((STAFF_COMMANDS_CHANNEL_ID, f"commandes_staff_{i}", embed))
         return result
 
     def staff_command_embeds(self, week: str) -> list[discord.Embed]:
-        commands_list = [c for c in self.bot.tree.walk_commands() if isinstance(c, discord.app_commands.Command)]
-        grouped: dict[str, list[str]] = {}
-        for command in commands_list:
-            name = command.name
-            category = CATEGORY.get(name, "🧰 Autres commandes")
-            params = []
-            for param in command.parameters:
-                required = getattr(param, "required", False)
-                params.append(f"{'<' if required else '['}{param.name}{'>' if required else ']'}")
-            signature = f"`/{name}{(' ' + ' '.join(params)) if params else ''}`"
-            audience = " · **Équipe**" if name in STAFF_ONLY else " · Membres"
-            description = (command.description or "Commande HORIZONS.").strip()
-            grouped.setdefault(category, []).append(f"{signature}{audience}\n{description}")
-
-        embeds: list[discord.Embed] = []
-        current = horizons_embed(
-            title="✦ Guide des commandes HORIZONS — Équipe",
-            description=(
-                "Répertoire des commandes slash chargées par le bot. Les paramètres entre `< >` sont à renseigner ; "
-                "ceux entre `[ ]` sont facultatifs. Les commandes marquées **Équipe** sont réservées aux personnes autorisées.\n"
-                f"Mise à jour : {week}"
-            ), color=discord.Color.dark_purple(),
-        )
-        for category, lines in grouped.items():
-            value = "\n\n".join(lines)
-            if len(value) > 1000:
-                # Découpage prudent pour respecter la limite Discord de 1024 caractères par champ.
-                chunks: list[str] = []
-                buf = ""
-                for line in lines:
-                    candidate = f"{buf}\n\n{line}" if buf else line
-                    if len(candidate) > 1000 and buf:
-                        chunks.append(buf); buf = line
-                    else:
-                        buf = candidate
-                if buf: chunks.append(buf)
-            else:
-                chunks = [value]
-            for idx, chunk in enumerate(chunks, start=1):
-                field_name = category + (f" (suite {idx})" if idx > 1 else "")
-                # Discord limite chaque embed à 6 000 caractères au total
-                # (titre, description, champs et pied de page compris).
-                # On conserve une marge pour le footer ajouté ensuite.
-                if current.fields and (
-                    len(current.fields) >= 20
-                    or len(current) + len(field_name) + len(chunk) > 5400
-                ):
-                    embeds.append(current)
-                    current = horizons_embed(
-                        title="✦ Guide des commandes HORIZONS — suite",
-                        color=discord.Color.dark_purple(),
-                    )
-                current.add_field(name=field_name, value=chunk or "Aucune commande.", inline=False)
-        current.set_footer(text=f"HORIZONS • Commandes réellement chargées • {week} • {FOOTER_PREFIX}commandes_staff")
-        embeds.append(current)
-        return embeds
+        """Même source que /aidestaff : pas de catalogue contradictoire."""
+        from .command_catalog import build_catalog_embeds
+        return build_catalog_embeds(self.bot, audience="staff", updated=week)
 
     @tasks.loop(minutes=30)
     async def publish_guides(self):
@@ -369,10 +313,14 @@ class ServerGuides(commands.Cog):
             return
         week = self.week_key()
         for channel_id, key, embed in self.weekly_embeds():
-            # Nouvelle clé de version pour republier le catalogue enrichi une fois,
-            # même si l'ancienne édition de cette semaine existe déjà.
-            period = f"{week}-dashboard-v2" if key.startswith("commandes_staff_") else week
-            await self.publish(channel_id, key, period, embed)
+            if key == "anniversaires":
+                continue
+            await self.publish(channel_id, key, week, embed)
+
+        # Catalogue staff : panneaux permanents, mis à jour en place plutôt que
+        # repostés chaque semaine. Il reflète exactement la commande /aidestaff.
+        for index, embed in enumerate(self.staff_command_embeds(week), start=1):
+            await self.update_permanent(STAFF_COMMANDS_CHANNEL_ID, f"catalogue_staff_{index}", embed)
 
         spirit = horizons_embed(
             title="✦ L'histoire de HORIZONS",
@@ -401,6 +349,11 @@ class ServerGuides(commands.Cog):
             color=discord.Color.gold(),
         )
         await self.update_permanent(SPIRIT_CHANNEL_ID, "notre_esprit", spirit)
+        # Panneau d'anniversaire persistant : mis à jour en place, jamais dupliqué.
+        from .birthdays import BirthdayPanel
+        for channel_id, key, embed in self.weekly_embeds():
+            if key == "anniversaires":
+                await self.update_permanent(channel_id, "anniversaires_bouton", embed, view=BirthdayPanel())
 
     @publish_guides.before_loop
     async def before_publish_guides(self):

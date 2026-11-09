@@ -96,6 +96,8 @@ class DashboardView(discord.ui.View):
             if level in {"founder", "admin", "moderator"}:
                 self.add_item(ModerationTargetSelect())
                 self.add_item(QuickModerationSelect(cog))
+        if on_service:
+            self.add_item(RefreshDashboardButton(cog))
         self.add_item(ShiftButton(cog, start=not on_service))
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
@@ -106,6 +108,32 @@ class DashboardView(discord.ui.View):
             await interaction.response.send_message("Tu n'as plus accès à ce dashboard.", ephemeral=True)
             return False
         return True
+
+
+class RefreshDashboardButton(discord.ui.Button):
+    """Actualise le bilan du staff sans nouvelle commande."""
+    def __init__(self, cog: "StaffDashboard"):
+        self.cog = cog
+        super().__init__(label="Actualiser le bilan", emoji="🔄", style=discord.ButtonStyle.secondary, row=4)
+
+    async def callback(self, interaction: discord.Interaction):
+        if not isinstance(interaction.user, discord.Member) or not interaction.guild:
+            await interaction.response.send_message("Action indisponible.", ephemeral=True)
+            return
+        if not is_on_service(interaction.guild.id, interaction.user.id):
+            await interaction.response.send_message("Prends d'abord ton service.", ephemeral=True)
+            return
+        level = access_level(interaction.user)
+        if not level:
+            await interaction.response.send_message("Accès réservé au staff.", ephemeral=True)
+            return
+        view = DashboardView(self.cog, interaction.user.id, on_service=True, level=level)
+        section_select = next(item for item in view.children if isinstance(item, DashboardSelect))
+        section_select.options = [discord.SelectOption(label=SECTIONS[k][0], value=k)
+                                  for k in SECTIONS if can_view(level, k)]
+        await interaction.response.edit_message(
+            embed=self.cog.section_embed(interaction.guild, "overview", interaction.user), view=view,
+        )
 
 
 class ShiftButton(discord.ui.Button):

@@ -242,9 +242,78 @@ class ScratchView(discord.ui.View):
         await self.cog.reveal_card(interaction, self.owner_id)
 
 
+
+class TreasureStarSelect(discord.ui.Select):
+    def __init__(self, cog: "CelestialTreasures"):
+        self.cog = cog
+        super().__init__(placeholder="Choisir une étoile à découvrir…", min_values=1, max_values=1,
+                         options=[discord.SelectOption(label=data[0], value=key, emoji=data[3]) for key, data in STARS.items()],
+                         custom_id="horizons:treasures:star:select")
+
+    async def callback(self, interaction: discord.Interaction):
+        await self.cog.etoile(interaction, self.values[0])
+
+
+class TreasureStarsView(discord.ui.View):
+    def __init__(self, cog: "CelestialTreasures"):
+        super().__init__(timeout=180)
+        self.add_item(TreasureStarSelect(cog))
+
+
+class TreasurePanelView(discord.ui.View):
+    """Panneau permanent : toutes les actions sont personnelles et éphémères."""
+    def __init__(self, cog: "CelestialTreasures"):
+        super().__init__(timeout=None)
+        self.cog = cog
+
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        return await self.cog.require_treasures_channel(interaction)
+
+    @discord.ui.button(label="Gratter une carte", emoji="🎟️", style=discord.ButtonStyle.primary,
+                       custom_id="horizons:treasures:scratch", row=0)
+    async def scratch(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.cog.gratter(interaction)
+
+    @discord.ui.button(label="Ma collection", emoji="🌟", style=discord.ButtonStyle.secondary,
+                       custom_id="horizons:treasures:collection", row=0)
+    async def collection(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.cog.collection_etoiles(interaction)
+
+    @discord.ui.button(label="Constellations", emoji="🌌", style=discord.ButtonStyle.secondary,
+                       custom_id="horizons:treasures:constellations", row=0)
+    async def constellations(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.cog.constellations(interaction)
+
+    @discord.ui.button(label="Mon inventaire", emoji="🎒", style=discord.ButtonStyle.secondary,
+                       custom_id="horizons:treasures:inventory", row=1)
+    async def inventory(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.cog.inventaire_celeste(interaction)
+
+    @discord.ui.button(label="Mes souvenirs", emoji="📖", style=discord.ButtonStyle.secondary,
+                       custom_id="horizons:treasures:memories", row=1)
+    async def memories(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.cog.souvenirs_celestes(interaction)
+
+    @discord.ui.button(label="Découvrir une étoile", emoji="✨", style=discord.ButtonStyle.secondary,
+                       custom_id="horizons:treasures:star", row=1)
+    async def star(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_message("Choisis l'étoile dont tu souhaites lire l'histoire :",
+                                                view=TreasureStarsView(self.cog), ephemeral=True)
+
+    @discord.ui.button(label="20 poussières → 1 fragment", emoji="💠", style=discord.ButtonStyle.success,
+                       custom_id="horizons:treasures:dust", row=2)
+    async def dust(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.cog.echanger_poussiere(interaction)
+
+    @discord.ui.button(label="10 fragments → 1 carte", emoji="🎁", style=discord.ButtonStyle.success,
+                       custom_id="horizons:treasures:fragments", row=2)
+    async def fragments(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.cog.echanger_fragments(interaction)
+
 class CelestialTreasures(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self.bot.add_view(TreasurePanelView(self))
         self.refresh_treasures_info.start()
 
     def cog_unload(self):
@@ -295,12 +364,15 @@ class CelestialTreasures(commands.Cog):
             log.exception("Échec de la restauration des rôles célestes pour %s", member.id)
 
     def build_treasures_embed(self) -> discord.Embed:
-        embed = horizons_embed(title="🌌 Les Trésors du Ciel", description="Chaque carte peut révéler une pensée positive, de la poussière céleste, des XP ou l'une des **20 étoiles HORIZONS**. Les doublons deviennent automatiquement de la poussière céleste. Après 12 tirages d'étoile sans nouveauté, le suivant garantit une étoile manquante.")
-        embed.add_field(name="✨ Comment participer ?", value="`/gratter` · Une carte quotidienne par jour (heure de Paris). Les cartes offertes sont indépendantes de cette limite.", inline=False)
-        embed.add_field(name="🌠 Les 20 étoiles", value="Collectionne les étoiles Aube, Espérance, Courage, Sérénité, Liberté, Écoute, Amitié, Tendresse, Sagesse, Harmonie, Rêve, Confiance, Bienveillance, Résilience, Joie, Mystère, Partage, Unité, Éternité et HORIZONS.", inline=False)
-        embed.add_field(name="🌌 Les cinq constellations", value="🌅 Les Origines · 💗 Les Liens · 🔥 Les Forces · ✨ Les Lumières · 🌌 L'Infini\nChaque constellation complète attribue automatiquement son rôle et débloque un souvenir illustré. Les 20 étoiles réunies débloquent le rôle final et le souvenir ultime.", inline=False)
-        embed.add_field(name="📜 Tes commandes", value="`/collection_etoiles` · `/constellations` · `/inventaire_celeste` · `/etoile` · `/souvenirs_celestes` · `/echanger_fragments` · `/echanger_poussiere`\n10 fragments donnent une carte offerte ; 20 poussières donnent 1 fragment.", inline=False)
-        embed.set_footer(text="HORIZONS • Aucun achat : les cartes sont ludiques et sans valeur monétaire")
+        embed = horizons_embed(
+            title="🌌 Les Trésors du Ciel",
+            description="Bienvenue dans ton aventure céleste ! Utilise les **boutons ci-dessous** pour gratter une carte, explorer tes étoiles et gérer tes échanges. Aucun besoin de mémoriser des commandes.",
+        )
+        embed.add_field(name="🎟️ Une carte par jour", value="Gratte une carte quotidienne (heure de Paris). Les cartes offertes s'ajoutent à cette limite.", inline=False)
+        embed.add_field(name="🌟 20 étoiles et 5 constellations", value="Collectionne les étoiles pour compléter les cinq constellations, débloquer leurs rôles et découvrir six souvenirs illustrés.", inline=False)
+        embed.add_field(name="✨ Tes ressources", value="20 poussières célestes = 1 fragment · 10 fragments = 1 carte offerte. Les doublons d'étoiles deviennent de la poussière.", inline=False)
+        embed.add_field(name="🛡️ Protection céleste", value="Après 12 tirages d'étoile sans nouveauté, le suivant garantit une étoile manquante (si ta collection est incomplète).", inline=False)
+        embed.set_footer(text="HORIZONS • Actions privées • Jeu gratuit sans valeur monétaire")
         return embed
 
     @tasks.loop(hours=2)
@@ -319,10 +391,12 @@ class CelestialTreasures(commands.Cog):
                 if message_id:
                     try:
                         old_message = await channel.fetch_message(int(message_id))
-                        await old_message.delete()
+                        if old_message.author.id == self.bot.user.id:
+                            await old_message.edit(embed=self.build_treasures_embed(), view=TreasurePanelView(self))
+                            continue
                     except (discord.NotFound, discord.Forbidden, discord.HTTPException, ValueError):
                         pass
-                message = await channel.send(embed=self.build_treasures_embed())
+                message = await channel.send(embed=self.build_treasures_embed(), view=TreasurePanelView(self))
                 with db() as conn:
                     conn.execute("INSERT INTO bot_settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value", (f"ludic:{guild.id}:treasures_info_message_id", json.dumps(message.id)))
             except (discord.Forbidden, discord.HTTPException):
@@ -417,7 +491,6 @@ class CelestialTreasures(commands.Cog):
         files = [discord.File(CARD_ART, filename="carte_celeste.png"), discord.File(REWARD_ART[reward], filename=f"{reward}.png")]
         await interaction.response.edit_message(content=None, embed=embed, attachments=files, view=None)
 
-    @app_commands.command(name="gratter", description="Gratter ta carte quotidienne ou une carte offerte.")
     async def gratter(self, interaction: discord.Interaction):
         if not await self.require_treasures_channel(interaction):
             return
@@ -453,8 +526,6 @@ class CelestialTreasures(commands.Cog):
             conn.execute("INSERT INTO celestial_gift_history(guild_id,recipient_id,giver_id,quantity,reason,created_at) VALUES(?,?,?,?,?,?)", (interaction.guild_id,membre.id,interaction.user.id,quantite,raison[:300],stamp))
         await interaction.response.send_message(f"🎁 **{quantite} carte(s)** offerte(s) à {membre.mention}.\nMotif : {raison[:300]}", ephemeral=True)
 
-    @app_commands.command(name="echanger_fragments", description="Échanger 10 fragments contre une carte à gratter offerte.")
-    @app_commands.guild_only()
     async def echanger_fragments(self, interaction: discord.Interaction):
         if not await self.require_treasures_channel(interaction):
             return
@@ -485,12 +556,10 @@ class CelestialTreasures(commands.Cog):
             )
             remaining = balance - 10
         await interaction.response.send_message(
-            f"💠 Échange réussi ! 10 fragments ont été utilisés.\n🎟️ Une carte offerte a été ajoutée à ton inventaire.\nIl te reste **{remaining} fragment(s)**. Utilise `/gratter` pour la découvrir !",
+            f"💠 Échange réussi ! 10 fragments ont été utilisés.\n🎟️ Une carte offerte a été ajoutée à ton inventaire.\nIl te reste **{remaining} fragment(s)**. Utilise le bouton **Gratter une carte** du panneau pour la découvrir !",
             ephemeral=True,
         )
 
-    @app_commands.command(name="echanger_poussiere", description="Échanger 20 poussières célestes contre 1 fragment de constellation.")
-    @app_commands.guild_only()
     async def echanger_poussiere(self, interaction: discord.Interaction):
         if not await self.require_treasures_channel(interaction):
             return
@@ -529,7 +598,6 @@ class CelestialTreasures(commands.Cog):
             ephemeral=True,
         )
 
-    @app_commands.command(name="collection_etoiles", description="Consulter ta collection personnelle des 20 étoiles.")
     async def collection_etoiles(self, interaction: discord.Interaction):
         if not interaction.guild_id: return await interaction.response.send_message("Commande disponible sur HORIZONS.",ephemeral=True)
         owned = owned_stars(interaction.guild_id,interaction.user.id)
@@ -540,7 +608,6 @@ class CelestialTreasures(commands.Cog):
         embed.add_field(name="Progression", value=f"**{len(owned)}/20 étoiles** découvertes")
         await interaction.response.send_message(embed=embed,ephemeral=True)
 
-    @app_commands.command(name="constellations", description="Voir les constellations et leurs étoiles à réunir.")
     async def constellations(self, interaction: discord.Interaction):
         if not interaction.guild_id: return await interaction.response.send_message("Commande disponible sur HORIZONS.",ephemeral=True)
         owned = owned_stars(interaction.guild_id,interaction.user.id)
@@ -552,7 +619,6 @@ class CelestialTreasures(commands.Cog):
         embed.add_field(name="🌟 Collection complète", value=f"{len(owned)}/20 étoiles · rôle final **Gardien des 20 étoiles**")
         await interaction.response.send_message(embed=embed,ephemeral=True)
 
-    @app_commands.command(name="inventaire_celeste", description="Consulter tes poussières, fragments, cartes offertes et XP.")
     async def inventaire_celeste(self, interaction: discord.Interaction):
         if not interaction.guild_id: return await interaction.response.send_message("Commande disponible sur HORIZONS.",ephemeral=True)
         with db() as conn:
@@ -566,7 +632,6 @@ class CelestialTreasures(commands.Cog):
         embed.add_field(name="💱 Échanges disponibles", value="20 poussières = 1 fragment · 10 fragments = 1 carte offerte", inline=False)
         await interaction.response.send_message(embed=embed,ephemeral=True)
 
-    @app_commands.command(name="souvenirs_celestes", description="Retrouver les souvenirs illustrés débloqués par ta collection.")
     async def souvenirs_celestes(self, interaction: discord.Interaction):
         if not interaction.guild_id:
             await interaction.response.send_message("Commande disponible sur HORIZONS.", ephemeral=True)
@@ -596,12 +661,10 @@ class CelestialTreasures(commands.Cog):
             return
         await interaction.response.send_message(embeds=embeds, files=files, ephemeral=True)
 
-    @app_commands.command(name="etoile", description="Découvrir la signification d'une étoile HORIZONS.")
-    @app_commands.choices(nom=[app_commands.Choice(name=data[0],value=key) for key,data in STARS.items()])
-    async def etoile(self, interaction: discord.Interaction, nom: app_commands.Choice[str]):
-        data = STARS[nom.value]
+    async def etoile(self, interaction: discord.Interaction, nom: str):
+        data = STARS[nom]
         embed = horizons_embed(title=f"{data[3]} {data[0]}", description=f"**{data[1]}**\n\n{data[2]}")
-        if interaction.guild_id and nom.value in owned_stars(interaction.guild_id,interaction.user.id):
+        if interaction.guild_id and nom in owned_stars(interaction.guild_id,interaction.user.id):
             embed.add_field(name="Ta collection", value="Tu possèdes déjà cette étoile. 🌟")
         await interaction.response.send_message(embed=embed,ephemeral=True)
 

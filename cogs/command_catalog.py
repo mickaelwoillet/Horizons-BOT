@@ -8,12 +8,14 @@ from .embed_theme import horizons_embed
 # Les commandes ci-dessous ont un contrôle d'accès staff dans leur implémentation.
 # Les autorisations exactes restent vérifiées par la commande elle-même.
 STAFF_ONLY = {
-    "annonce", "export_structure", "idee_statut", "actualiser_rangs", "evenement_creer",
-    "creer_defi", "creer", "annuler", "reroll", "quiz_lancer",
-    "quiz_arreter", "publier_roles", "avertir", "avertissements",
-    "retirer_avertissement", "timeout", "untimeout", "expulser",
-    "bannir", "debannir", "purger", "note_membre", "dashboard", "horizons_dashboard",
-    "tache_creer", "taches", "tache_statut", "service", "alerte_equipe",
+    "aidestaff", "annonce", "export_structure", "idee_statut", "actualiser_rangs",
+    "evenement_creer", "creer_defi", "giveaway creer", "giveaway annuler", "giveaway reroll",
+    "quiz_lancer", "quiz_arreter", "publier_roles", "publier_guides_cercles",
+    "accueil_bilan", "saison_lancer", "saison_clore", "givegratte",
+    "avertir", "avertissements", "retirer_avertissement", "timeout", "untimeout",
+    "expulser", "bannir", "debannir", "purger", "note_membre", "dashboard",
+    "horizons_dashboard", "tache_creer", "taches", "tache_statut", "service",
+    "alerte_equipe",
 }
 MIXED_ACCESS = {
     "evenement_fermer": "Membres (créateur de l'événement) et équipe",
@@ -26,9 +28,9 @@ STAFF_PERMISSIONS = {
     "actualiser_rangs": "Permission Gérer les rôles.",
     "evenement_creer": "Rôle staff ou administrateur.",
     "creer_defi": "Permission Gérer le serveur.",
-    "creer": "Administrateur ou rôle staff.",
-    "annuler": "Administrateur ou rôle staff.",
-    "reroll": "Administrateur ou rôle staff.",
+    "giveaway creer": "Administrateur ou rôle staff.",
+    "giveaway annuler": "Administrateur ou rôle staff.",
+    "giveaway reroll": "Administrateur ou rôle staff.",
     "quiz_lancer": "Administrateur ou rôle staff.",
     "quiz_arreter": "Administrateur ou rôle staff.",
     "publier_roles": "Administrateur, Gérer le serveur ou rôle staff.",
@@ -39,22 +41,35 @@ STAFF_PERMISSIONS = {
     "tache_statut": "Staff en service ; les membres du staff modifient leurs tâches attribuées.",
     "service": "Staff habilité ; permet de prendre ou terminer son service.",
     "alerte_equipe": "Commande d'alerte interne, accès staff.",
+    "aidestaff": "Réservée aux membres de l'équipe autorisés.",
+    "givegratte": "Permission Administrateur Discord.",
+    "publier_guides_cercles": "Permission Administrateur Discord.",
+    "accueil_bilan": "Permission Gérer le serveur.",
+    "saison_lancer": "Équipe HORIZONS habilitée.",
+    "saison_clore": "Équipe HORIZONS habilitée.",
 }
 CATEGORIES = (
     ("🙌 Accueil et découverte", {"premiers_pas"}),
-    ("⚙️ Informations et profils", {"ping", "aide", "profil", "serveur", "presentation"}),
+    ("⚙️ Informations et profils", {"ping", "aide", "aidestaff", "profil", "serveur", "presentation"}),
     ("💬 Communauté et entraide", {"question_du_jour", "compliment", "idee", "mes_idees", "idee_statut", "remercier", "proposer"}),
     ("🧭 Missions et expériences", {"mon_passeport", "valider_mission", "chercher", "defi_collectif", "rejoindre_defi", "creer_defi", "parcours", "parcours_badges", "mon_parcours", "actualiser_rangs"}),
     ("🎉 Événements et jeux", {"evenement_creer", "evenements", "evenement_fermer", "creer", "annuler", "reroll", "quiz_lancer", "quiz_arreter", "blague", "devinette"}),
-    ("🎂 Anniversaires", {"anniversaire_definir", "anniversaire_supprimer"}),
+    ("🎮 Arcade et progression", {"jeux", "xpjeux"}),
+    ("🌌 Trésors et constellations", {"gratter", "givegratte", "echanger_fragments", "echanger_poussiere", "collection_etoiles", "constellations", "inventaire_celeste", "souvenirs_celestes", "etoile"}),
+    ("🌠 Saisons", {"saison", "rejoindre_saison", "missions_saison", "valider_etape_saison", "mes_recompenses_saison", "saison_lancer", "saison_clore"}),
+    ("🎂 Anniversaires", {"anniversaire_supprimer"}),
     ("🌿 Bien-être et affinités", {"humeur", "ma_meteo", "mes_succes", "affinites activer", "affinites desactiver", "affinites trouver"}),
     ("🎫 Assistance et sécurité", {"ticket_ouvrir", "ticket_fermer", "signaler", "message_anonyme", "traduire"}),
-    ("🛡️ Modération et gestion", {"avertir", "avertissements", "retirer_avertissement", "timeout", "untimeout", "expulser", "bannir", "debannir", "purger", "note_membre", "annonce", "alerte_equipe", "dashboard", "horizons_dashboard", "tache_creer", "taches", "tache_statut", "service", "publier_roles"}),
+    ("🛡️ Modération et gestion", {"avertir", "avertissements", "retirer_avertissement", "timeout", "untimeout", "expulser", "bannir", "debannir", "purger", "note_membre", "annonce", "alerte_equipe", "dashboard", "horizons_dashboard", "tache_creer", "taches", "tache_statut", "service", "publier_roles", "aidestaff", "export_structure", "publier_guides_cercles", "accueil_bilan"}),
 )
 
 def _category(name: str) -> str:
+    if name.startswith("giveaway "):
+        return "🎉 Événements et jeux"
+    if name.startswith("affinites "):
+        return "🌿 Bien-être et affinités"
     for label, names in CATEGORIES:
-        if name in names or name.split()[-1] in names:
+        if name in names or (" " not in name and name in names) or (name.startswith("giveaway ") and "giveaway" in names) or (name.startswith("affinites ") and "affinites" in names):
             return label
     return "🧰 Autres commandes"
 
@@ -87,9 +102,9 @@ def command_entries(bot) -> list[dict]:
             else f"[{getattr(p, 'display_name', None) or p.name}]"
             for p in parameters
         )) if parameters else "")
-        staff = leaf in STAFF_ONLY or name in STAFF_ONLY
+        staff = name in STAFF_ONLY or (" " not in name and leaf in STAFF_ONLY)
         access = "Équipe" if staff else MIXED_ACCESS.get(leaf, "Membres")
-        permission = STAFF_PERMISSIONS.get(leaf, "")
+        permission = STAFF_PERMISSIONS.get(name, STAFF_PERMISSIONS.get(leaf, "")) if staff else ""
         if leaf in {"timeout", "untimeout"}:
             permission = "Permission Modérer les membres ou rôle staff habilité."
         elif leaf in {"avertir", "avertissements", "retirer_avertissement", "expulser", "bannir", "debannir", "purger", "note_membre"}:
@@ -150,7 +165,7 @@ def build_catalog_embeds(bot, *, audience: str = "all", updated: str = "") -> li
         if buffer:
             chunks.append(buffer)
         for index, chunk in enumerate(chunks, 1):
-            if len(current.fields) >= 20:
+            if len(current.fields) >= 12 or len(current) + len(chunk) + len(field_name if False else category) > 5300:
                 embeds.append(current)
                 current = horizons_embed(title=f"{title} — suite")
                 current.set_footer(text="HORIZONS • Nos différences nous rapprochent")

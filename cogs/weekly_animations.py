@@ -1,11 +1,12 @@
 """Animation collective hebdomadaire automatique HORIZONS."""
 from __future__ import annotations
-import json, logging, random
+import json, logging, random, sqlite3
 from datetime import datetime, time
 import discord
 from discord.ext import commands, tasks
 from config import COLLECTIVE_CHALLENGES_CHANNEL_ID, DATA_DIR, LOCAL_TIMEZONE
 from cogs.embed_theme import horizons_embed, wait_for_logo_ready
+from cogs.storage import db
 
 log = logging.getLogger(__name__)
 BANK_FILE = DATA_DIR / "weekly_animations.json"
@@ -55,9 +56,51 @@ def pick_animation() -> dict | None:
     return chosen
 
 
+def ensure_weekly_participation_table():
+    with db() as conn:
+        conn.execute("""CREATE TABLE IF NOT EXISTS weekly_animation_participations (
+            guild_id INTEGER NOT NULL, week_key TEXT NOT NULL, user_id INTEGER NOT NULL,
+            joined_at TEXT NOT NULL, PRIMARY KEY(guild_id,week_key,user_id))""")
+
+
+class WeeklyParticipationView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+
+    @discord.ui.button(label="Je participe", emoji="🙌", style=discord.ButtonStyle.success,
+                       custom_id="horizons:weekly:participate:v1")
+    async def participate(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if not isinstance(interaction.user, discord.Member) or not interaction.guild:
+            await interaction.response.send_message("Réservé aux membres du serveur.", ephemeral=True)
+            return
+        # Vérifier que le bouton provient bien d'une animation publiée par le bot.
+        msg = interaction.message
+        if not msg or not interaction.client.user or msg.author.id != interaction.client.user.id:
+            await interaction.response.send_message("Animation introuvable.", ephemeral=True)
+            return
+        footer = next((e.footer.text for e in msg.embeds if e.footer and e.footer.text), "")
+        if not footer.startswith("HORIZONS-WEEKLY:"):
+            await interaction.response.send_message("Ce panneau n'est plus reconnu.", ephemeral=True)
+            return
+        week_key = footer.split(":", 1)[1]
+        now = datetime.now(LOCAL_TIMEZONE)
+        if week_key != f"{now.isocalendar().year}-{now.isocalendar().week:02d}":
+            await interaction.response.send_message("Cette animation est terminée. Retrouve celle de la semaine en cours !", ephemeral=True)
+            return
+        with db() as conn:
+            cursor = conn.execute(
+                "INSERT OR IGNORE INTO weekly_animation_participations(guild_id,week_key,user_id,joined_at) VALUES(?,?,?,?)",
+                (interaction.guild.id, week_key, interaction.user.id, now.isoformat()),
+            )
+        message = "🙌 Merci ! Ta participation est enregistrée. Amuse-toi à ton rythme." if cursor.rowcount else "💙 Tu participes déjà à cette animation."
+        await interaction.response.send_message(message, ephemeral=True)
+
+
 class WeeklyAnimations(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        ensure_weekly_participation_table()
+        self.bot.add_view(WeeklyParticipationView())
         self.friday_animation.start()
 
     def cog_unload(self):
@@ -95,12 +138,13 @@ class WeeklyAnimations(commands.Cog):
             embed.add_field(name="Durée indicative", value=str(item["duree"]), inline=True)
         if item.get("materiel"):
             embed.add_field(name="Matériel", value=str(item["materiel"]), inline=True)
-        embed.set_footer(text="HORIZONS • Le rendez-vous collectif du vendredi")
+        week_key = f"{now.isocalendar().year}-{now.isocalendar().week:02d}"
+        embed.set_footer(text=f"HORIZONS-WEEKLY:{week_key}")
         try:
             if isinstance(channel, discord.ForumChannel):
-                await channel.create_thread(name=f"🎯 {item['nom']}"[:100], content="L'animation collective de la semaine est ouverte !", embeds=[embed])
+                await channel.create_thread(name=f"🎯 {item['nom']}"[:100], content="L'animation collective de la semaine est ouverte !", embeds=[embed], view=WeeklyParticipationView())
             else:
-                await channel.send(embed=embed)
+                await channel.send(embed=embed, view=WeeklyParticipationView(), allowed_mentions=discord.AllowedMentions.none())
             state = load_history()
             state["published_week"] = list(now.date().isocalendar()[:2])
             state["published_at"] = now.isoformat()

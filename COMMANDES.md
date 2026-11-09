@@ -1,101 +1,134 @@
-# Commandes HORIZONS
+# HORIZONS — Répertoire des commandes
 
-Les commandes slash sont disponibles depuis Discord. Les commandes d'équipe nécessitent le rôle configuré ou les permissions Discord indiquées.
+Ce fichier est mis à jour à partir des commandes `app_commands` des extensions déclarées dans `bot.py`.
+Il décrit les commandes présentes dans le code, **sans garantir leur synchronisation effective sur Discord** (elle dépend du démarrage, de la configuration et du chargement des extensions).
+`/aide` affiche les commandes membres actuellement chargées ; `/aidestaff` est réservé à l’équipe et affiche les commandes staff.
 
-## Membres
-- `/ping` — vérifier la latence du bot.
-- `/aide` — afficher le centre d'aide interactif (réponse privée).
-- `/profil [membre]` — afficher le profil public d'un membre.
-- `/serveur` — afficher les informations de HORIZONS.
-- `/presentation` — rappeler le salon de présentation.
-- `/proposer idee` — transmettre une suggestion à l'équipe.
-- `/ticket_ouvrir sujet details` — ouvrir un espace privé avec l'équipe.
-- `/ticket_fermer` — fermer son ticket dans le salon concerné.
-- Dans le salon **Demande de ticket**, cliquer sur **Créer un ticket** ouvre également un formulaire privé.
-- `/signaler motif [salon] [message_id]` — transmettre un signalement confidentiel.
-- `/anniversaire_definir jour mois` — enregistrer son anniversaire sans année de naissance.
-- `/anniversaire_supprimer` — effacer son anniversaire.
-- `/mon_parcours` — consulter son rang honorifique.
+## Commandes membres (59)
 
-## Communauté et détente
-- `/question_du_jour` — proposer une question de discussion.
-- `/compliment [membre]` — partager un message positif.
-- `/traduire texte langue` — traduction si un service LibreTranslate est configuré.
-- `/blague [categorie]` — afficher une blague, puis utiliser « Une autre ! ».
-- `/devinette` — jouer et révéler la réponse avec les boutons.
-- `/tester_publications` — publier un exemplaire de chaque publication dans les salons prévus (administrateurs Discord uniquement ; les messages portent la mention TEST TECHNIQUE – HORIZONS).
+- `/affinites activer` — Autoriser les suggestions d'affinités amicales.
+- `/affinites desactiver` — Retirer ton profil des suggestions d'affinités.
+- `/affinites trouver` — Trouver des membres volontaires qui partagent tes centres d'intérêt.
+- `/aide` — Consulter les commandes accessibles aux membres HORIZONS.
+- `/anniversaire_supprimer` — Supprimer ton anniversaire enregistré.
+- `/blague` — Découvrir une blague HORIZONS.
+- `/chercher` — Publier une annonce pour trouver quelqu'un avec qui faire une activité.
+- `/compliment` — Offrir un mot positif à quelqu'un de la communauté.
+- `/defi_collectif` — Voir le défi collectif en cours et sa progression.
+- `/devinette` — Jouer à une devinette HORIZONS.
+- `/evenement_fermer` — Fermer les inscriptions d'un événement.
+- `/evenements` — Afficher les prochains événements HORIZONS.
+- `/humeur` — Enregistrer ton humeur du jour en privé.
+- `/idee` — Déposer anonymement une idée pour HORIZONS.
+- `/jeux` — Découvrir les mini-jeux interactifs HORIZONS.
+- `/ma_meteo` — Consulter ton humeur du jour en privé.
+- `/mes_idees` — Consulter tes propositions envoyées à la boîte à idées.
+- `/mes_recompenses_saison` — Consulter tes distinctions obtenues pendant les saisons.
+- `/mes_succes` — Consulter tes succès HORIZONS débloqués.
+- `/message_anonyme` — Publier un message sans afficher ton identité (si le salon est configuré).
+- `/missions_saison` — Consulter les trois étapes facultatives de la semaine.
+- `/mon_parcours` — Consulter ton rang honorifique HORIZONS.
+- `/mon_passeport` — Consulter tes missions et ta progression du Passeport HORIZONS.
+- `/parcours` — Découvrir et suivre ton Parcours des horizons.
+- `/parcours_badges` — Consulter les thèmes accomplis et tes badges HORIZONS.
+- `/ping` — Vérifier si le bot HORIZONS répond.
+- `/presentation` — Recevoir un rappel pour se présenter.
+- `/profil` — Afficher les informations publiques d'un membre.
+- `/proposer` — Transmettre une idée à l'équipe HORIZONS.
+- `/question_du_jour` — Afficher une question pour lancer la conversation.
+- `/rejoindre_defi` — Participer au défi collectif HORIZONS en cours.
+- `/rejoindre_saison` — Rejoindre volontairement l'aventure de la saison HORIZONS.
+- `/remercier` — Remercier publiquement un membre sur le mur de la solidarité.
+- `/saison` — Découvrir la saison HORIZONS en cours et son objectif collectif.
+- `/serveur` — Afficher les informations du serveur.
+- `/signaler` — Transmettre discrètement un signalement à l'équipe.
+- `/ticket_fermer` — Fermer le ticket actuel.
+- `/ticket_ouvrir` — Ouvrir un espace privé pour contacter l'équipe.
+- `/traduire` — Traduire un texte avec le service configuré par HORIZONS.
+- `/valider_etape_saison` — Valider une étape de ta saison en cours.
+- `/valider_mission` — Valider une mission accomplie dans ton Passeport HORIZONS.
+- `/xpjeux` — Consulter ta progression et tes XP Célestes.
 
-## Quiz culturel
-- `/quiz_lancer [manches]` — lancer un quiz de 1 à 10 manches dans le salon configuré (équipe uniquement, 12 joueurs maximum).
-- Les participants cliquent sur **Participer**, puis **Proposer une réponse**.
-- Une seule tentative est autorisée par participant et par manche.
-- Une bonne réponse rapporte un point ; le classement cumulé est publié à la fin.
-- Chaque manche dure au maximum 10 minutes.
-- `/quiz_arreter` — arrêter le quiz et publier le classement (équipe uniquement).
+## Commandes staff (34)
 
-## Événements et concours
-- `/evenement_creer titre date_heure description salon [lieu]` — publier un événement.
-- `/evenements` — consulter les prochains événements.
-- `/evenement_fermer numero` — fermer les inscriptions (créateur ou équipe).
-- `/concours_creer prix duree_heures [gagnants] [salon]` — créer un concours.
-- `/concours_annuler numero` — annuler un concours (équipe uniquement).
+Accès selon le rôle et les permissions Discord. Les commandes de modération nécessitent une **prise de service active**.
 
-## Équipe et modération
-- `/annonce salon titre message [image]` — publier une annonce officielle.
-- `/alerte_equipe message` — alerte interne urgente.
-- `/message_anonyme message` — publication anonyme dans le salon configuré.
-- `/avertir membre raison` — ajouter un avertissement.
-- `/avertissements membre` — consulter les avertissements actifs.
-- `/retirer_avertissement numero` — clôturer un avertissement.
-- `/timeout membre minutes [raison]` — mise en timeout.
-- `/untimeout membre [raison]` — retirer un timeout.
-- `/expulser membre [raison]` — expulser.
-- `/bannir membre [raison]` — bannir.
-- `/debannir utilisateur_id [raison]` — débannir.
-- `/purger nombre` — supprimer jusqu'à 100 messages dans le salon actuel.
-- `/note_membre membre note` — ajouter une note interne.
-- `/actualiser_rangs` — recalculer les rangs (permission Gérer les rôles requise).
+- `/actualiser_rangs` — Recalculer les rangs honorifiques des membres (équipe).
+- `/aidestaff` — Consulter les commandes et permissions de l'équipe HORIZONS.
+- `/alerte_equipe` — Envoyer une alerte urgente à l'équipe HORIZONS.
+- `/annonce` — Publier une annonce officielle dans un salon.
+- `/avertir` — Enregistrer un avertissement pour un membre.
+- `/avertissements` — Consulter les avertissements actifs d'un membre.
+- `/bannir` — Bannir un membre du serveur.
+- `/creer_defi` — Créer un nouveau défi collectif (équipe HORIZONS).
+- `/dashboard` — Ouvrir le centre de commandement HORIZONS (staff).
+- `/debannir` — Débannir un utilisateur à partir de son identifiant.
+- `/evenement_creer` — Créer un rendez-vous communautaire HORIZONS.
+- `/export_structure` — Exporter en privé les salons, rôles et permissions du serveur.
+- `/expulser` — Expulser un membre du serveur.
+- `/giveaway annuler` — Annuler un giveaway en cours.
+- `/giveaway creer` — Créer un giveaway avec une image facultative.
+- `/giveaway reroll` — Effectuer un nouveau tirage parmi les participants.
+- `/givegratte` — Offrir des cartes à gratter à un membre (administration).
+- `/horizons_dashboard` — Consulter les statistiques collectives HORIZONS (staff).
+- `/idee_statut` — Mettre à jour le statut d'une idée (staff).
+- `/note_membre` — Ajouter une note interne de modération à un membre.
+- `/publier_guides_cercles` — Publier ou actualiser les deux guides permanents des Cercles HORIZONS.
+- `/publier_roles` — Publier les panneaux de choix des rôles HORIZONS dans ce salon.
+- `/purger` — Supprimer un nombre de messages dans le salon actuel.
+- `/quiz_arreter` — Arrêter le quiz culturel en cours.
+- `/quiz_lancer` — Lancer un quiz culturel à plusieurs manches (12 joueurs maximum).
+- `/retirer_avertissement` — Clôturer un avertissement par son numéro.
+- `/saison_clore` — Clôturer immédiatement la saison en cours (équipe uniquement).
+- `/saison_lancer` — Lancer une nouvelle saison HORIZONS (équipe uniquement).
+- `/service` — Déclarer le début ou la fin de ton service staff.
+- `/tache_creer` — Créer une tâche pour un membre du staff.
+- `/tache_statut` — Mettre à jour une tâche qui t'est attribuée (ou tâche staff si admin).
+- `/taches` — Consulter les tâches de l'équipe staff.
+- `/timeout` — Mettre temporairement un membre en sourdine.
+- `/untimeout` — Retirer le timeout d'un membre.
 
-## Publications automatiques (heure de Paris)
-- 08 h 00 : journée ou événement thématique du calendrier, lorsqu'une date correspond.
-- 09 h 00 : souhaits d'anniversaire, si des membres ont choisi d'enregistrer leur date.
-- 09 h 30 : Horizon du jour.
-- 10 h 00 : question du jour.
-- 12 h 00 : blague du jour.
-- 12 h 15 : devinette du jour.
-- 13 h 00 : quiz du jour.
-- 14 h 00 : citation du jour.
-- 16 h 00 : proverbe du jour.
-- 18 h 00 le dimanche : débat hebdomadaire.
-- 20 h 00 : message bienveillant du jour.
-- Les missions de la semaine et les guides communautaires conservent leurs mécanismes hebdomadaires existants.
+## Accès mixtes et interfaces interactives
 
-Les citations et proverbes sont publiés dans `#horizon-du-jour`. Les banques `jeux.json` et `questions.json` restent destinées aux animations ponctuelles et ne déclenchent pas de publication automatique.
+- `/evenement_fermer` : fermeture par le créateur de l’événement ou l’équipe selon les contrôles du module.
+- `/ticket_fermer` : fermeture par le membre dans son ticket ou l’équipe habilitée.
+- `/affinites activer`, `/affinites desactiver`, `/affinites trouver` : sous-commandes membres.
+- `/giveaway creer`, `/giveaway annuler`, `/giveaway reroll` : sous-commandes staff.
+- `/jeux` : menu Arcade (Morpion, Puissance 4, Memory, Code secret, Petit Bac, Bataille navale), avec modes solo, duel et collectif selon le jeu.
+- Les panneaux, boutons et sélecteurs Discord complètent les commandes slash.
 
-## Configuration requise
-- Les salons de vocaux temporaires, le panneau de tickets et les messages anonymes sont configurés dans `.env`.
-- La traduction reste désactivée tant que `TRANSLATE_API_URL` n'est pas renseignée.
-- Les sept identifiants de rôles honorifiques doivent être ajoutés dans `RANK_ROLE_IDS`.
-- Le fichier `.env` doit rester local et ne doit jamais être partagé.
+## Modules présents mais non chargés
+
+- `cogs.smart_welcome` contient `/premiers_pas` et `/accueil_bilan`, mais ne figure pas dans `EXTENSIONS` : ces commandes ne sont pas chargées.
+
+## Publications et tâches
+
+Les horaires doivent être lus dans `cogs/publication_calendar.py`, `cogs/horizons_daily.py` et les modules de publication concernés ; ne pas utiliser les horaires de l’ancienne version de ce fichier comme source d’exécution.
+
+## Configuration
+
+- `.env` contient les paramètres locaux et doit rester privé.
+- Le bot synchronise ses commandes au démarrage si `GUILD_ID` est configuré.
+- Le rôle staff et les permissions Discord contrôlent l’accès aux commandes sensibles.
+- La traduction dépend de `TRANSLATE_API_URL`.
+
+## Actions par boutons (sans commande slash)
+- `/jeux` : sélecteur des 6 jeux principaux et des 8 mini-jeux rapides / collectifs.
+- Salon Arcade : panneau descriptif actualisé automatiquement.
+- Salon Anniversaires : bouton permanent « Enregistrer / modifier mon anniversaire » ; formulaire JJ/MM avec année facultative.
+- `/anniversaire_supprimer` : suppression de la date enregistrée.
+- Si l'année est renseignée, le message automatique à 09 h affiche l'âge atteint.
 
 
-## Expériences HORIZONS
+## 🌌 Trésors du Ciel — panneau interactif
 
-### Passeport
-- `/mon_passeport` : consulter les trois missions de la semaine.
-- `/valider_mission` : valider une mission accomplie (validation déclarative, basée sur la confiance).
+Dans le salon `🌌・trésors-du-ciel`, les membres utilisent désormais les **boutons permanents** du panneau : Gratter une carte, Ma collection, Constellations, Mon inventaire, Mes souvenirs, Découvrir une étoile (sélecteur), Échanger 20 poussières contre 1 fragment et Échanger 10 fragments contre 1 carte. Les huit anciennes commandes slash correspondantes sont retirées. `/givegratte` reste réservé aux administrateurs. Le panneau est mis à jour sans suppression toutes les deux heures et les actions sont privées.
 
-### Rencontres et activités
-- `/chercher` : publier une annonce dans `#cherche-quelquun`. Les membres intéressés utilisent le bouton de l'annonce ; l'auteur reçoit un message privé.
-- Le salon de recherche peut être un salon textuel ou un Forum.
-- Les annonces expirent après la durée choisie (1 à 24 heures).
+La commande `/tester_publications` et son module ont été supprimés.
 
-### Défis collectifs
-- `/defi_collectif` : consulter le défi en cours.
-- `/rejoindre_defi` : participer une seule fois au défi en cours.
-- `/creer_defi` : créer un défi (permission Gérer le serveur), avec un objectif de membres et une durée de 1 à 30 jours.
-- Le défi est automatiquement marqué comme réussi lorsque l'objectif de participants est atteint.
 
-## Parcours des horizons
-- `/parcours` — consulter et faire progresser son parcours personnel avec les boutons interactifs.
-- `/parcours_badges` — consulter les badges de thèmes débloqués.
+## Améliorations de finition
+
+- `/dashboard` : bouton « Actualiser le bilan » en service.
+- Animation collective du vendredi : bouton « Je participe » ; participation privée enregistrée en SQLite.
+- Les propositions d’activités et défis quotidiens sont accessibles depuis le panneau « Que faire aujourd’hui ? », sans nouvelle commande slash.

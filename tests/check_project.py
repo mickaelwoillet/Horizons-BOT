@@ -76,9 +76,10 @@ def main() -> None:
             raise SystemExit(f"Animation hebdomadaire incomplète : entrée {index}.")
 
     calendar_cog = ROOT / "cogs" / "publication_calendar.py"
-    test_cog = ROOT / "cogs" / "publication_tests.py"
-    if not calendar_cog.is_file() or not test_cog.is_file():
-        raise SystemExit("Les extensions du calendrier ou des tests de publications sont absentes.")
+    if not calendar_cog.is_file():
+        raise SystemExit("L’extension du calendrier est absente.")
+    if (ROOT / "cogs" / "publication_tests.py").exists():
+        raise SystemExit("Le module de test des publications doit rester supprimé.")
 
     storage = (ROOT / "cogs" / "storage.py").read_text(encoding="utf-8")
     start = storage.index('SCHEMA = """') + len('SCHEMA = """')
@@ -214,7 +215,7 @@ def main() -> None:
     if 'name="ajoutstructure"' in retired_structure or "@app_commands.command" in retired_structure:
         raise SystemExit("La commande historique /ajoutstructure doit être retirée.")
     arcade_source = (ROOT / "cogs" / "horizons_arcade.py").read_text(encoding="utf-8")
-    for marker in ("name=\"quizjeu\"", "name=\"anagramme\"", "name=\"enigme\"", "name=\"arcade_collectif\"", "CollectiveGameView", "active_collective_sessions", "Terminer le défi", "BEGIN IMMEDIATE", "DAILY_CAP = 60", "celestial_game_rewards", "refresh_arcade_info", "ArcadeMenuView", "arcade_channel_id", "self.arcade_channel_id(interaction.guild)"):
+    for marker in ("async def quizjeu", "async def anagramme", "async def enigme", "async def defi_collectif", "CollectiveGameView", "active_collective_sessions", "Terminer le défi", "BEGIN IMMEDIATE", "DAILY_CAP = 60", "celestial_game_rewards", "refresh_arcade_info", "ArcadeMenuView", "arcade_channel_id", "self.arcade_channel_id(interaction.guild)"):
         if marker not in arcade_source:
             raise SystemExit(f"Système Arcade incomplet : {marker}")
     arcade_games_path = ROOT / "cogs" / "arcade_games.py"
@@ -223,7 +224,7 @@ def main() -> None:
     if not (ROOT / "tests" / "test_arcade_games.py").is_file():
         raise SystemExit("Les tests locaux de logique Arcade sont absents.")
     arcade_games_source = arcade_games_path.read_text(encoding="utf-8")
-    for marker in ("class ArcadeMenuView", "class TicTacToeView", "class ConnectFourView", "class MemoryView", "class CodeSecretView", "class PetitBacView", "class NavalBattleGame", "class NavalPrivateView", "class ArcadeNightView", "class ArcadeNightButton", "class ChallengeInviteView", "class AbandonGameButton", "_minimax", "difficile", "puissance4", "PETIT_BAC_CATEGORIES", "NAVAL_SHIPS"):
+    for marker in ("class ArcadeMenuView", "class QuickGameButton", "class CollectiveGameSelect", "class TicTacToeView", "class ConnectFourView", "class MemoryView", "class CodeSecretView", "class PetitBacView", "class NavalBattleGame", "class NavalPrivateView", "class ArcadeNightView", "class ArcadeNightButton", "class ChallengeInviteView", "class AbandonGameButton", "_minimax", "difficile", "puissance4", "PETIT_BAC_CATEGORIES", "NAVAL_SHIPS"):
         if marker not in arcade_games_source:
             raise SystemExit(f"Nouveau jeu interactif incomplet : {marker}")
     if 'name="jeux"' not in arcade_source or "view=view" not in arcade_source:
@@ -245,7 +246,7 @@ def main() -> None:
     for asset in ("carte_celeste.png", "recompense_thought.png", "recompense_star.png", "recompense_dust.png", "recompense_xp.png", "recompense_fragment.png", "recompense_surprise.png", "souvenir_origines.png", "souvenir_liens.png", "souvenir_forces.png", "souvenir_lumieres.png", "souvenir_infini.png", "souvenir_complet.png"):
         if not (ROOT / "data" / "assets" / "celestial" / asset).is_file():
             errors.append(f"Visuel céleste manquant : {asset}")
-    for marker in ("name=\"gratter\"", "name=\"givegratte\"", "name=\"collection_etoiles\"", "name=\"constellations\"", "name=\"inventaire_celeste\"", "name=\"etoile\"", "name=\"echanger_fragments\"", "name=\"echanger_poussiere\"", "name=\"souvenirs_celestes\"", "10 fragments", 'REWARD_WEIGHTS = {"thought": 40, "dust": 25, "xp": 15, "star": 12, "fragment": 7, "surprise": 1}', "refresh_treasures_info", "Gardien des 20 étoiles", "STAR_PITY_LIMIT = 12", "sync_collection_unlocks"):
+    for marker in ("class TreasurePanelView", "name=\"givegratte\"", "10 fragments", 'REWARD_WEIGHTS = {"thought": 40, "dust": 25, "xp": 15, "star": 12, "fragment": 7, "surprise": 1}', "refresh_treasures_info", "Gardien des 20 étoiles", "STAR_PITY_LIMIT = 12", "sync_collection_unlocks"):
         if marker not in treasures_source:
             raise SystemExit(f"Système Trésors du Ciel incomplet : {marker}")
     if "CREATE TABLE IF NOT EXISTS celestial_collection_unlocks" not in (ROOT / "cogs" / "storage.py").read_text(encoding="utf-8"):
@@ -281,12 +282,6 @@ def main() -> None:
     general_source = (ROOT / "cogs" / "general.py").read_text(encoding="utf-8")
     if "isinstance(channel, discord.ForumChannel)" not in general_source or "channel.create_thread" not in general_source:
         raise SystemExit("La commande /proposer doit prendre en charge le salon Suggestions de type Forum.")
-
-    test_source = (ROOT / "cogs" / "publication_tests.py").read_text(encoding="utf-8")
-    if "@app_commands.checks.has_permissions(administrator=True)" not in test_source:
-        raise SystemExit("/tester_publications n'est pas protégé par la permission Administrateur.")
-    if "TEST TECHNIQUE – HORIZONS" not in test_source:
-        raise SystemExit("Le marqueur des publications de test est absent.")
 
     audit_cog = ROOT / "cogs" / "server_audit_export.py"
     if not audit_cog.is_file():

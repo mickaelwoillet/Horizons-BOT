@@ -313,6 +313,9 @@ def init_db() -> None:
     try:
         conn.executescript(SCHEMA)
         # Migrations non destructives pour les bases créées par une version antérieure.
+        birthday_columns = {row[1] for row in conn.execute("PRAGMA table_info(birthdays)").fetchall()}
+        if "birth_year" not in birthday_columns:
+            conn.execute("ALTER TABLE birthdays ADD COLUMN birth_year INTEGER")
         ticket_columns = {row[1] for row in conn.execute("PRAGMA table_info(tickets)").fetchall()}
         if "message_id" not in ticket_columns:
             conn.execute("ALTER TABLE tickets ADD COLUMN message_id INTEGER")

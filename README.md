@@ -73,3 +73,10 @@ Les embeds construits par les modules du bot utilisent maintenant `cogs.embed_th
 Au premier démarrage, le bot publie le fichier `data/assets/logo_horizons.png` une seule fois dans le salon configuré par `STAFF_COMMANDS_CHANNEL_ID` (ou `LOG_CHANNEL_ID` en secours), puis réutilise la pièce jointe Discord pour tous les embeds. Le message de dépôt contient une consigne de ne pas le supprimer.
 
 Permissions nécessaires dans ce salon : voir le salon, envoyer des messages et joindre des fichiers. Si le bot ne peut pas publier le logo, les embeds continuent de fonctionner mais sans miniature ; vérifiez les permissions puis relancez le bot.
+
+
+## Livraison finale cumulative
+
+Lire `BILAN_FINAL_ET_INSTALLATION.md` avant installation chez dimdam's.
+Les notes anciennes sont regroupées dans `docs/HISTORIQUE_DES_VERSIONS.md`.
+Le fichier `.env` n'est pas fourni. Préserver la base `data/` la plus récente.

@@ -67,8 +67,35 @@ class WelcomeView(discord.ui.View):
                 label="Lire la charte", emoji="📜", style=discord.ButtonStyle.link,
                 url=f"https://discord.com/channels/{GUILD_ID}/{CHARTER_CHANNEL_ID}"
             ))
+        self.add_item(ExploreButton())
         # La présentation n'est accessible qu'après validation de la charte.
         # On évite donc de proposer un lien prématuré depuis le premier accueil.
+
+
+class ExploreButton(discord.ui.Button):
+    """Bouton persistant, réponse privée et respect de la charte."""
+    def __init__(self):
+        super().__init__(
+            label="Découvrir HORIZONS", emoji="🧭",
+            style=discord.ButtonStyle.primary,
+            custom_id="horizons:welcome:explore:v1",
+        )
+
+    async def callback(self, interaction: discord.Interaction):
+        if not isinstance(interaction.user, discord.Member) or interaction.guild is None:
+            await interaction.response.send_message("Ce parcours est disponible sur HORIZONS.", ephemeral=True)
+            return
+        if MEMBER_ROLE_ID and not any(role.id == MEMBER_ROLE_ID for role in interaction.user.roles):
+            await interaction.response.send_message(
+                "📜 Pour découvrir les espaces, commence par accepter la charte. "
+                "Tu pourras ensuite revenir à ce bouton.", ephemeral=True,
+            )
+            return
+        await interaction.response.send_message(
+            embed=build_first_steps_embed(),
+            view=DiscoveryLinksView(interaction.guild),
+            ephemeral=True,
+        )
 
 
 class DiscoveryLinksView(discord.ui.View):
@@ -121,7 +148,7 @@ def build_first_steps_embed() -> discord.Embed:
     )
     embed.add_field(
         name="🌅 3. Explore à ton rythme",
-        value="La commande **/parcours** te propose cinq chemins de découverte facultatifs : curiosité, confiance, solidarité, créativité et découverte.",
+        value="Le parcours HORIZONS propose cinq chemins facultatifs : curiosité, confiance, solidarité, créativité et découverte. Consulte **/aide** si besoin.",
         inline=False,
     )
     embed.add_field(
@@ -139,6 +166,7 @@ class SmartWelcome(commands.Cog):
 
     async def cog_load(self):
         ensure_table()
+        self.bot.add_view(WelcomeView())
         self.followup_loop.start()
 
     async def cog_unload(self):
@@ -286,6 +314,9 @@ class SmartWelcome(commands.Cog):
         if not GUILD_ID:
             return
         cutoff = (utc_now() - REMINDER_AFTER).isoformat()
+        guild = self.bot.get_guild(GUILD_ID)
+        if guild is None:
+            return
         with db() as conn:
             rows = conn.execute("""
                 SELECT user_id, charter_accepted FROM onboarding_progress
@@ -299,9 +330,6 @@ class SmartWelcome(commands.Cog):
                     WHERE guild_id=? AND user_id=?
                 """, [(GUILD_ID, uid) for uid, _ in pending])
 
-        guild = self.bot.get_guild(GUILD_ID)
-        if guild is None:
-            return
         for user_id, charter_accepted in pending:
             member = guild.get_member(user_id)
             if member is None:
@@ -320,8 +348,8 @@ class SmartWelcome(commands.Cog):
                 else:
                     await member.send(
                         "🌅 Petit coucou de HORIZONS !\n\n"
-                        "Si tu souhaites découvrir quelques espaces, la commande **/premiers_pas** "
-                        "te donnera les liens utiles et quelques idées pour commencer.\n\n"
+                        "Si tu souhaites découvrir quelques espaces, utilise le bouton "
+                        "**Découvrir HORIZONS** dans le salon de bienvenue.\n\n"
                         "Tu peux aussi simplement observer et avancer à ton rythme. 💜"
                     )
             except discord.Forbidden:
