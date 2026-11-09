@@ -276,3 +276,45 @@ Depuis `/centre` → « Mes Passerelles », le membre peut sélectionner jusqu'�
 - `/regard_regenerer confirmer:Oui` : relance la collecte RSS, recalcule la sélection automatique, crée un nouveau sujet avec la présentation actuelle, puis supprime l'ancien sujet Discord **uniquement après** une publication réussie. Les articles validés explicitement par le staff sont conservés. Les autres dates, votes, XP et données SQLite restent intacts.
 - Attention : les réponses des membres dans l'ancien sujet Discord seront supprimées avec celui-ci. Sauvegarder le fil avant de confirmer si nécessaire.
 - Ne pas supprimer les bases SQLite ou le fichier `.env` de l'hébergement pendant le déploiement.
+
+## 🌌 Chaos Cosmique — V9.0
+
+Extension **optionnelle** (désactivée par défaut), avec base indépendante `data/chaos_cosmique.sqlite3`.
+
+- `/cosmos observatoire` : consulter les jauges du monde (réponse privée).
+- `/cosmos explorer` : découvrir l'Observatoire (réponse privée).
+- `/cosmos canal salon:#nom-du-salon` : choisir un salon textuel (permission Gérer le serveur).
+- `/cosmos activer actif:True` : activer le monde après configuration (permission Gérer le serveur).
+- `/cosmos activer actif:False` : mettre en pause le monde.
+- `/cosmos declencher` : publier une anomalie immédiatement pour la tester (une édition maximum par jour).
+
+Une anomalie automatique est proposée après 18 h (Paris), au maximum une fois par jour, si aucune anomalie ne reste à résoudre. Trois boutons persistants déterminent la conséquence. La première réponse valide tranche pour l'ensemble du serveur. Les jauges sont sauvegardées et évoluent lentement une fois par jour. Les commandes sont sans effet sur les autres jeux, XP, salons et permissions.
+
+**Sauvegarde :** préserver le dossier `data/` sur l'hébergement, notamment la nouvelle base `chaos_cosmique.sqlite3`. Ne jamais écraser `.env` ni les bases existantes lors du déploiement.
+
+## 🌌 Chaos Cosmique — édition intégrale (V9.5)
+
+**Installation différée :** aucune création de salon avant `/cosmos installer`. Le monde reste en pause par défaut.
+
+**Administration (permission Gérer le serveur)**
+- `/cosmos installer` : crée/réutilise la catégorie **🌌 CHAOS COSMIQUE** et cinq salons (Observatoire, Anomalies, Nox, Chroniques, Exploration), initialise le panneau sans activer les événements.
+- `/cosmos activer actif:True` ou `False` : démarrer/mettre en pause l'univers.
+- `/cosmos canal salon:#salon` : changer le salon des anomalies.
+- `/cosmos declencher` : publier une anomalie manuellement (une maximum par date locale).
+- `/cosmos actualiser` : actualiser le panneau de l'Observatoire.
+- `/cosmos diagnostic` : état et paramètres du monde.
+
+**Pour tous les membres**
+- `/cosmos observatoire` : état du monde, privé.
+- `/cosmos nox` : personnalité, stade et besoins de Nox.
+- `/cosmos soigner action:` : parler, explorer, nourrir ou méditer avec Nox (chaque action une fois par personne et par jour).
+- `/cosmos carte` : zones connues et conditions de déblocage.
+- `/cosmos visiter lieu:` : fouiller une zone débloquée (une fois par lieu/personne/jour) et recevoir un objet.
+- `/cosmos sac` : inventaire individuel.
+- `/cosmos chroniques` : lire les chapitres narratifs débloqués.
+- `/cosmos journal` : huit dernières traces du monde.
+- `/cosmos explorer` : visite introductive de l'Observatoire.
+
+**Fonctionnement :** 16 anomalies différentes, 3 décisions chacune, le premier clic valide détermine la conséquence, des jauges persistantes, quatre stades de Nox, six lieux progressifs, cinq chapitres, six objets à collectionner et une évolution quotidienne douce. Les boutons survivent aux redémarrages. Une seule anomalie automatique par jour après 18 h (Paris), si activée et aucune anomalie en cours. L'édition utilise exclusivement la base `data/chaos_cosmique.sqlite3`, sans modifier les données des autres modules.
+
+**Sécurité :** le bot doit posséder `Gérer les salons` pour installer, `Envoyer des messages`, `Intégrer des liens` et `Lire l'historique` dans les salons. Ne supprime pas la base SQLite en mise à jour. Les créations sont idempotentes par nom, mais une catégorie ou des salons renommés manuellement ne seront pas reconnus par ce mécanisme. La publication est limitée pour éviter le spam ; l'absence de membres n'entraîne aucune punition.

@@ -80,3 +80,11 @@ Permissions nécessaires dans ce salon : voir le salon, envoyer des messages et 
 Lire `BILAN_FINAL_ET_INSTALLATION.md` avant installation chez dimdam's.
 Les notes anciennes sont regroupées dans `docs/HISTORIQUE_DES_VERSIONS.md`.
 Le fichier `.env` n'est pas fourni. Préserver la base `data/` la plus récente.
+
+### Nouveauté V9.0 — Chaos Cosmique
+
+Un univers narratif optionnel, activable via `/cosmos canal` puis `/cosmos activer`. Les anomalies interactives sont limitées à une par jour, les jauges persistent dans une base SQLite séparée et l'extension reste en pause par défaut. Voir `COMMANDES.md` pour le détail.
+
+### Chaos Cosmique — univers complet optionnel
+
+L'extension `cogs.chaos_cosmique` fournit désormais l'installation d'une catégorie dédiée, Nox, des anomalies narratives, des chroniques, une carte progressive et un inventaire. **Aucun salon n'est créé automatiquement au démarrage** : l'administrateur lance `/cosmos installer`, puis `/cosmos activer actif:True`. Toutes les commandes sont documentées dans `COMMANDES.md`. L'extension reste désactivée par défaut et conserve sa propre base SQLite.
