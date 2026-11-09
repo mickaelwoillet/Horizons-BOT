@@ -1,0 +1,36 @@
+{
+  "enabled": true,
+  "category_names": {
+    "1567247035688554596": "✦ EXPÉRIENCES CÉLESTES ✦"
+  },
+  "channel_names": {
+    "1567291911176323173": "🧩・connexions-du-ciel",
+    "1567290709583593503": "💗・meteo-des-emotions",
+    "1567300011165880451": "💡・boite-a-idees",
+    "1567300152945942659": "💜・eclats-de-reconnaissance",
+    "1567247627181883483": "🤝・activites-ensemble",
+    "1567247726985355424": "🌟・defis-collectifs"
+  },
+  "role_colors": {
+    "1566561889188839477": "#D7AE59",
+    "1566561900865785918": "#8068D8",
+    "1566561919647875152": "#52AFC3",
+    "1566561934533468294": "#456BC9",
+    "1566561929349304360": "#8993AC"
+  },
+  "manage_role_colors": true,
+  "manage_category_names": true,
+  "manage_channel_names": true,
+  "dry_run": false,
+  "manage_guild_branding": false,
+  "guild_branding": {
+    "name": null,
+    "description": null,
+    "icon_file": null,
+    "banner_file": null
+  },
+  "manage_emojis": false,
+  "emoji_files": {},
+  "manage_role_icons": false,
+  "role_icon_files": {}
+}

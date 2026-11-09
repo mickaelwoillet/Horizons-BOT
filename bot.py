@@ -38,7 +38,11 @@ LOGO_FALLBACK_MESSAGE_ID = 1567595402247667802
 
 
 async def ensure_horizons_logo_asset(bot: commands.Bot) -> None:
-    """Publie/réutilise le logo sur Discord pour que tous les embeds puissent l'afficher."""
+    """Réutilise un dépôt existant ; ne republie pas si Discord est indisponible.
+
+    Les identifiants du ZIP peuvent être périmés sur l'hébergement : rechercher
+    dans l'historique avant de publier, puis enregistrer le message retrouvé.
+    """
     global _LOGO_SETUP_ATTEMPTED
     async with _LOGO_SETUP_LOCK:
         if _LOGO_SETUP_ATTEMPTED:
@@ -46,52 +50,88 @@ async def ensure_horizons_logo_asset(bot: commands.Bot) -> None:
         _LOGO_SETUP_ATTEMPTED = True
         if not LOGO_PATH.is_file():
             logger.warning("Logo HORIZONS introuvable : %s", LOGO_PATH)
+            set_logo_url(None)
             return
 
-        state = {}
         try:
             state = json.loads(LOGO_STATE_PATH.read_text(encoding="utf-8"))
+            if not isinstance(state, dict):
+                state = {}
         except (OSError, json.JSONDecodeError):
             state = {}
 
-        channel_id = state.get("channel_id") or LOGO_FALLBACK_CHANNEL_ID
-        message_id = state.get("message_id") or LOGO_FALLBACK_MESSAGE_ID
-        if channel_id and message_id:
+        def remember(message: discord.Message) -> bool:
+            attachments = [a for a in message.attachments if a.filename.lower() == "horizons_logo.png"]
+            if not attachments:
+                return False
+            set_logo_url(attachments[0].url)
             try:
-                channel = bot.get_channel(int(channel_id)) or await bot.fetch_channel(int(channel_id))
-                message = await channel.fetch_message(int(message_id))
-                if message.attachments:
-                    set_logo_url(message.attachments[0].url)
-                    return
-            except (discord.HTTPException, discord.NotFound, discord.Forbidden, ValueError, AttributeError):
-                logger.info("Ancien dépôt du logo HORIZONS introuvable : nouvelle publication nécessaire.")
+                LOGO_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+                temporary = LOGO_STATE_PATH.with_suffix(".tmp")
+                temporary.write_text(
+                    json.dumps({"channel_id": message.channel.id, "message_id": message.id},
+                               ensure_ascii=False, indent=2), encoding="utf-8")
+                temporary.replace(LOGO_STATE_PATH)
+            except OSError:
+                logger.warning("Impossible d'enregistrer la référence du logo ; recherche Discord au prochain démarrage.")
+            return True
 
-        destination_id = STAFF_COMMANDS_CHANNEL_ID or LOG_CHANNEL_ID
-        if not destination_id:
-            logger.warning("Aucun salon de dépôt du logo configuré (STAFF_COMMANDS_CHANNEL_ID / LOG_CHANNEL_ID).")
+        # L'historique du salon constitue la référence de secours si le fichier
+        # local est réinitialisé à chaque déploiement.
+        candidates = []
+        for cid in (state.get("channel_id"), LOGO_FALLBACK_CHANNEL_ID,
+                    STAFF_COMMANDS_CHANNEL_ID, LOG_CHANNEL_ID):
+            if cid and cid not in candidates:
+                candidates.append(cid)
+
+        destination = None
+        for cid in candidates:
+            try:
+                channel = bot.get_channel(int(cid)) or await bot.fetch_channel(int(cid))
+                if not isinstance(channel, discord.TextChannel):
+                    continue
+                if destination is None and cid in (STAFF_COMMANDS_CHANNEL_ID, LOG_CHANNEL_ID):
+                    destination = channel
+                if cid == state.get("channel_id") and state.get("message_id"):
+                    try:
+                        if remember(await channel.fetch_message(int(state["message_id"]))):
+                            return
+                    except discord.NotFound:
+                        pass
+                if cid == LOGO_FALLBACK_CHANNEL_ID:
+                    try:
+                        if remember(await channel.fetch_message(LOGO_FALLBACK_MESSAGE_ID)):
+                            return
+                    except discord.NotFound:
+                        pass
+                async for message in channel.history(limit=200):
+                    if message.author.id == bot.user.id and remember(message):
+                        logger.info("Dépôt du logo HORIZONS retrouvé dans l'historique Discord.")
+                        return
+            except (discord.Forbidden, discord.HTTPException, ValueError, AttributeError) as exc:
+                # Une erreur réseau/permission ne signifie pas que le message a
+                # disparu. Ne jamais republier dans ce cas.
+                logger.warning("Recherche du logo impossible (%s) : aucune republication automatique.", exc)
+                set_logo_url(None)
+                return
+
+        if destination is None:
+            logger.warning("Salon technique de dépôt du logo introuvable ; aucune publication.")
+            set_logo_url(None)
             return
         try:
-            channel = bot.get_channel(destination_id) or await bot.fetch_channel(destination_id)
-            message = await channel.send(
+            message = await destination.send(
                 "🎨 **Identité visuelle HORIZONS** — ressource technique utilisée par les embeds du serveur. "
                 "Merci de ne pas supprimer ce message.",
                 file=discord.File(str(LOGO_PATH), filename="horizons_logo.png"),
                 allowed_mentions=discord.AllowedMentions.none(),
             )
-            if not message.attachments:
-                logger.warning("Discord n'a pas retourné la pièce jointe du logo HORIZONS.")
-                return
-            set_logo_url(message.attachments[0].url)
-            LOGO_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
-            temporary = LOGO_STATE_PATH.with_suffix(".tmp")
-            temporary.write_text(
-                json.dumps({"channel_id": channel.id, "message_id": message.id}, ensure_ascii=False, indent=2),
-                encoding="utf-8",
-            )
-            temporary.replace(LOGO_STATE_PATH)
-            logger.info("Logo HORIZONS prêt : les embeds utiliseront la miniature officielle.")
-        except (discord.HTTPException, discord.Forbidden, OSError) as exc:
+            if not remember(message):
+                logger.warning("La publication du logo n'a pas retourné la pièce jointe attendue.")
+                set_logo_url(None)
+        except (discord.Forbidden, discord.HTTPException, OSError) as exc:
             logger.warning("Impossible de publier le logo HORIZONS : %s", exc)
+            set_logo_url(None)
 
 
 # Charger uniquement les extensions présentes. Les extensions pourront être
@@ -102,6 +142,7 @@ EXTENSIONS: Final[tuple[str, ...]] = (
     "cogs.smart_welcome",
     "cogs.today_hub",
     "cogs.salon_harmony",
+    "cogs.visual_identity",
     "cogs.continuity",
     "cogs.moderation",
     "cogs.logging_tools",
