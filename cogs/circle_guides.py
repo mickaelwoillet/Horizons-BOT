@@ -1,5 +1,6 @@
 """Guides permanents des Cercles HORIZONS."""
 from __future__ import annotations
+from .embed_theme import send_official_panel, edit_official_panel
 
 import logging
 
@@ -50,18 +51,31 @@ class CircleGuides(commands.Cog):
                 "SELECT message_id FROM circle_guide_publications WHERE channel_id=? AND guide_key='proposer_un_cercle'",
                 (CIRCLE_PROPOSALS_CHANNEL_ID,),
             ).fetchone()
-        if not row or not row[0]:
-            log.info("Guide Cercle non suivi : commande /publier_guides_cercles nécessaire une fois")
-            return
         channel = await self.resolve_channel(CIRCLE_PROPOSALS_CHANNEL_ID)
         if not isinstance(channel, discord.TextChannel):
             return
+        message = None
         try:
-            message = await channel.fetch_message(int(row[0]))
+            if row and row[0]:
+                try:
+                    candidate = await channel.fetch_message(int(row[0]))
+                    if candidate.author.id == self.bot.user.id:
+                        message = candidate
+                except discord.NotFound:
+                    pass
+            if message is None:
+                # Récupération de l'ancien panneau sans créer de doublon.
+                async for candidate in channel.history(limit=250):
+                    if candidate.author.id == self.bot.user.id and any(
+                        e.title == "💡 Proposer un Cercle HORIZONS" for e in candidate.embeds
+                    ):
+                        message = candidate
+                        break
+            if message is None:
+                log.warning("Panneau Cercle introuvable : aucune publication automatique.")
+                return
             proposal, _ = self.build_guides()
-            if not proposal.thumbnail.url:
-                proposal.set_thumbnail(url=self.bot.user.display_avatar.url)
-            await message.edit(embed=proposal, view=CircleProposalEntry(), allowed_mentions=discord.AllowedMentions.none())
+            await edit_official_panel(message, embed=proposal, view=CircleProposalEntry(), allowed_mentions=discord.AllowedMentions.none())
         except (discord.Forbidden, discord.HTTPException):
             log.exception("Actualisation du guide Cercle impossible")
 
@@ -192,7 +206,7 @@ class CircleGuides(commands.Cog):
 
         try:
             if message is not None:
-                await message.edit(embed=embed, view=CircleProposalEntry() if guide_key == "proposer_un_cercle" else None, allowed_mentions=discord.AllowedMentions.none())
+                await (edit_official_panel(message, embed=embed, view=CircleProposalEntry(), allowed_mentions=discord.AllowedMentions.none()) if guide_key == "proposer_un_cercle" else message.edit(embed=embed, view=None, allowed_mentions=discord.AllowedMentions.none()))
             elif isinstance(channel, discord.ForumChannel):
                 created = await channel.create_thread(
                     name=forum_post_name[:100],
@@ -204,8 +218,8 @@ class CircleGuides(commands.Cog):
                 thread = created.thread
                 message = created.message
             else:
-                message = await channel.send(
-                    embed=embed,
+                message = await (send_official_panel if guide_key == "proposer_un_cercle" else _plain_send)(
+                    channel, embed=embed,
                     view=CircleProposalEntry() if guide_key == "proposer_un_cercle" else None,
                     allowed_mentions=discord.AllowedMentions.none(),
                 )
@@ -260,3 +274,6 @@ class CircleGuides(commands.Cog):
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(CircleGuides(bot))
+
+async def _plain_send(channel, **kwargs):
+    return await channel.send(**kwargs)

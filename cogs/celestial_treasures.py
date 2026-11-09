@@ -1,5 +1,6 @@
 """Cartes à gratter, collection des 20 étoiles et constellations HORIZONS."""
 from __future__ import annotations
+from .embed_theme import send_official_panel, edit_official_panel
 
 import json
 import logging
@@ -392,11 +393,11 @@ class CelestialTreasures(commands.Cog):
                     try:
                         old_message = await channel.fetch_message(int(message_id))
                         if old_message.author.id == self.bot.user.id:
-                            await old_message.edit(embed=self.build_treasures_embed(), view=TreasurePanelView(self))
+                            await edit_official_panel(old_message, embed=self.build_treasures_embed(), view=TreasurePanelView(self))
                             continue
                     except (discord.NotFound, discord.Forbidden, discord.HTTPException, ValueError):
                         pass
-                message = await channel.send(embed=self.build_treasures_embed(), view=TreasurePanelView(self))
+                message = await send_official_panel(channel, embed=self.build_treasures_embed(), view=TreasurePanelView(self))
                 with db() as conn:
                     conn.execute("INSERT INTO bot_settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value", (f"ludic:{guild.id}:treasures_info_message_id", json.dumps(message.id)))
             except (discord.Forbidden, discord.HTTPException):

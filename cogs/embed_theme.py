@@ -70,3 +70,23 @@ def horizons_embed(*args: Any, **kwargs: Any) -> discord.Embed:
     # sérialiser la valeur sentinelle MISSING comme une URL invalide.
     embed.set_footer(text=footer_text)
     return embed
+
+
+# Panneaux permanents : le fichier officiel est joint au message lui-même.
+# Cela évite toute dépendance à un ancien dépôt Discord ou à l'avatar du bot.
+OFFICIAL_PANEL_LOGO_NAME = "horizons_officiel_or.png"
+
+def _panel_logo(embed: discord.Embed) -> discord.Embed:
+    embed.set_thumbnail(url=f"attachment://{OFFICIAL_PANEL_LOGO_NAME}")
+    return embed
+
+async def send_official_panel(channel, *, embed: discord.Embed, **kwargs):
+    """Publie un panneau avec son logo noir et or sans message technique séparé."""
+    return await channel.send(embed=_panel_logo(embed), file=discord.File(LOGO_PATH, filename=OFFICIAL_PANEL_LOGO_NAME), **kwargs)
+
+async def edit_official_panel(message: discord.Message, *, embed: discord.Embed, **kwargs):
+    """Modifie le panneau existant, en conservant la pièce jointe si elle existe."""
+    existing = [a for a in message.attachments if a.filename == OFFICIAL_PANEL_LOGO_NAME]
+    if existing:
+        return await message.edit(embed=_panel_logo(embed), **kwargs)
+    return await message.edit(embed=_panel_logo(embed), attachments=[*message.attachments, discord.File(LOGO_PATH, filename=OFFICIAL_PANEL_LOGO_NAME)], **kwargs)

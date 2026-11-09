@@ -1,5 +1,6 @@
 """Mini-jeux interactifs et progression XP Célestes, séparés des routines quotidiennes."""
 from __future__ import annotations
+from .embed_theme import send_official_panel, edit_official_panel
 import json, random, re, unicodedata
 from datetime import datetime
 from pathlib import Path
@@ -418,9 +419,9 @@ class HorizonsArcade(commands.Cog):
                 embed = self.build_arcade_embed()
                 embed.set_footer(text="HORIZONS • HORIZONS-ARCADE:PANNEAU")
                 if message is None:
-                    message = await channel.send(embed=embed, view=ArcadeLaunchView(), allowed_mentions=discord.AllowedMentions.none())
+                    message = await send_official_panel(channel, embed=embed, view=ArcadeLaunchView(), allowed_mentions=discord.AllowedMentions.none())
                 else:
-                    await message.edit(embed=embed, view=ArcadeLaunchView())
+                    await edit_official_panel(message, embed=embed, view=ArcadeLaunchView())
                 with db() as conn:
                     conn.execute(
                         "INSERT INTO bot_settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",

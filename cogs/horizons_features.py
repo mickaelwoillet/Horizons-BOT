@@ -1,5 +1,6 @@
 """Fonctionnalités communautaires HORIZONS : humeur privée, succès et affinités."""
 from __future__ import annotations
+from .embed_theme import send_official_panel, edit_official_panel
 from cogs.embed_theme import get_logo_url, horizons_embed
 
 import json
@@ -268,16 +269,16 @@ class HorizonsFeatures(commands.Cog):
                 return
 
         if message is not None:
-            needs_embed = not message.embeds or message.embeds[0].to_dict() != embed.to_dict()
+            needs_embed = (not message.embeds or not any(a.filename == "horizons_officiel_or.png" for a in message.attachments))
             needs_buttons = view is not None and not message.components
             if needs_embed or needs_buttons:
                 try:
-                    await message.edit(embed=embed, view=view)
+                    await edit_official_panel(message, embed=embed, view=view)
                 except (discord.Forbidden, discord.HTTPException):
                     return
         else:
             try:
-                message = await channel.send(embed=embed, view=view,
+                message = await send_official_panel(channel, embed=embed, view=view,
                                              allowed_mentions=discord.AllowedMentions.none())
             except (discord.Forbidden, discord.HTTPException):
                 return
