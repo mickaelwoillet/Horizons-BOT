@@ -35,7 +35,7 @@ class CircleProposalModal(discord.ui.Modal, title="Proposer un Cercle HORIZONS")
 
     async def on_submit(self, interaction: discord.Interaction):
         if not interaction.guild or interaction.channel_id != CIRCLE_PROPOSALS_CHANNEL_ID:
-            await interaction.response.send_message("Utilise le panneau du salon Proposer un Cercle.", ephemeral=True)
+            await interaction.response.send_message("Utilise le bouton du panneau dans Cercles HORIZONS.", ephemeral=True)
             return
         guild = interaction.guild
         staff_channel = guild.get_channel(ADMIN_BOT_LOG_CHANNEL_ID)

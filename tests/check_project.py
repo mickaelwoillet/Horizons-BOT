@@ -263,8 +263,8 @@ def main() -> None:
         raise SystemExit("Le panneau d'information du salon Trésors du Ciel est absent.")
     if "build_arcade_embed" not in arcade_source or "refresh_arcade_info" not in arcade_source:
         raise SystemExit("Le panneau d'information du salon Arcade HORIZONS est absent.")
-    if 'SUGGESTION_CHANNEL_ID = env_int("SUGGESTION_CHANNEL_ID", 1566620913254932633)' not in config_source:
-        raise SystemExit("L’identifiant du salon suggestions ne correspond pas au nouvel export.")
+    if 'SUGGESTION_CHANNEL_ID = env_int("IDEAS_CHANNEL_ID", 1567300011165880451)' not in config_source:
+        raise SystemExit("Le regroupement Suggestions vers Boîte à idées est incorrect.")
 
     if errors:
         raise SystemExit("\n".join(errors))

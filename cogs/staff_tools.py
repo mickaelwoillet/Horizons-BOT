@@ -1,9 +1,7 @@
 """Signalements, alertes internes et messages anonymes facultatifs."""
 from __future__ import annotations
-from cogs.embed_theme import horizons_embed
+from cogs.embed_theme import horizons_embed, send_official_panel, edit_official_panel, wait_for_logo_ready
 from datetime import datetime, timezone
-from collections import defaultdict, deque
-import time
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -13,7 +11,13 @@ from .storage import db
 class StaffTools(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.anonymous_posts: dict[int, deque[float]] = defaultdict(deque)
+        # Compteurs persistants : survivent aux redémarrages et aux déploiements.
+        with db() as conn:
+            conn.execute("""CREATE TABLE IF NOT EXISTS anonymous_rate_limits (
+                guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
+                created_at INTEGER NOT NULL
+            )""")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_anonymous_rate ON anonymous_rate_limits(guild_id,user_id,created_at)")
 
     @app_commands.command(name="signaler", description="Transmettre discrètement un signalement à l'équipe.")
     @app_commands.describe(motif="Explique brièvement ce qui pose problème", salon="Salon concerné, si applicable", message_id="Identifiant du message concerné, si disponible")
@@ -55,13 +59,21 @@ class StaffTools(commands.Cog):
         if not isinstance(channel, discord.TextChannel) or not isinstance(staff_log, discord.TextChannel):
             await interaction.response.send_message("Publication indisponible : salon ou journal de modération inaccessible.", ephemeral=True)
             return
-        now = time.monotonic()
-        history = self.anonymous_posts[interaction.user.id]
-        while history and now - history[0] >= 600:
-            history.popleft()
-        if len(history) >= 2:
-            await interaction.response.send_message("Limite atteinte : deux messages par période de dix minutes.", ephemeral=True)
+        if staff_log.permissions_for(interaction.guild.default_role).view_channel:
+            await interaction.response.send_message("Publication indisponible : le journal de modération doit être privé.", ephemeral=True)
             return
+        now = int(datetime.now(timezone.utc).timestamp())
+        # Réserver une place atomiquement avant toute opération Discord.
+        with db() as conn:
+            conn.execute("DELETE FROM anonymous_rate_limits WHERE created_at <= ?", (now - 600,))
+            recent = conn.execute("SELECT COUNT(*) FROM anonymous_rate_limits WHERE guild_id=? AND user_id=?", (interaction.guild.id, interaction.user.id)).fetchone()[0]
+            if recent >= 2:
+                await interaction.response.send_message("Limite atteinte : deux messages par période de dix minutes.", ephemeral=True)
+                return
+            conn.execute("INSERT INTO anonymous_rate_limits(guild_id,user_id,created_at) VALUES(?,?,?)", (interaction.guild.id, interaction.user.id, now))
+        def release_reservation():
+            with db() as conn:
+                conn.execute("DELETE FROM anonymous_rate_limits WHERE rowid=(SELECT rowid FROM anonymous_rate_limits WHERE guild_id=? AND user_id=? AND created_at=? ORDER BY rowid DESC LIMIT 1)", (interaction.guild.id, interaction.user.id, now))
         await interaction.response.defer(ephemeral=True, thinking=True)
         audit = horizons_embed(title="🧾 Publication anonyme — journal confidentiel", description=message)
         audit.add_field(name="Auteur", value=f"{interaction.user} (`{interaction.user.id}`)", inline=False)
@@ -70,6 +82,7 @@ class StaffTools(commands.Cog):
         try:
             audit_message = await staff_log.send(embed=audit, allowed_mentions=discord.AllowedMentions.none())
         except (discord.Forbidden, discord.HTTPException):
+            release_reservation()
             await interaction.followup.send("Publication annulée : impossible de conserver le journal confidentiel.", ephemeral=True)
             return
         embed = horizons_embed(title="💌 Paroles libres", description=message)
@@ -77,9 +90,9 @@ class StaffTools(commands.Cog):
         try:
             published = await channel.send(embed=embed, allowed_mentions=discord.AllowedMentions.none())
         except (discord.Forbidden, discord.HTTPException):
+            release_reservation()
             await interaction.followup.send("Publication impossible ; le journal interne a conservé la tentative.", ephemeral=True)
             return
-        history.append(now)
         try:
             audit.add_field(name="Message publié", value=f"{published.jump_url} (`{published.id}`)", inline=False)
             await audit_message.edit(embed=audit)
@@ -131,16 +144,17 @@ class AnonymousPanelManager(commands.Cog):
         channel = self.bot.get_channel(ANONYMOUS_CHANNEL_ID)
         if not isinstance(channel, discord.TextChannel):
             return
+        await wait_for_logo_ready()
         try:
             # Le panneau est recherché, puis modifié ; jamais dupliqué volontairement.
             async for msg in channel.history(limit=150):
                 if msg.author.id != self.bot.user.id or not msg.embeds:
                     continue
                 if any("Paroles libres — écrire anonymement" in (e.title or "") for e in msg.embeds):
-                    await msg.edit(embed=self.panel_embed(), view=AnonymousPanel(cog))
+                    await edit_official_panel(msg, embed=self.panel_embed(), view=AnonymousPanel(cog))
                     self.done = True
                     return
-            await channel.send(embed=self.panel_embed(), view=AnonymousPanel(cog))
+            await send_official_panel(channel, embed=self.panel_embed(), view=AnonymousPanel(cog))
             self.done = True
         except (discord.Forbidden, discord.HTTPException):
             pass

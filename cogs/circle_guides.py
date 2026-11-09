@@ -18,10 +18,11 @@ GUIDE_KEY = "circles_horizons_v1"
 
 
 class CircleGuides(commands.Cog):
-    """Publie ou actualise les deux guides permanents des Cercles."""
+    """Maintient un seul panneau permanent dans Cercles HORIZONS."""
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self._guide_refreshed = False
 
     async def cog_load(self) -> None:
         with db() as conn:
@@ -43,41 +44,39 @@ class CircleGuides(commands.Cog):
     async def on_ready(self):
         if getattr(self, "_guide_refreshed", False):
             return
-        self._guide_refreshed = True
-        # Ne pas créer de nouveau panneau au démarrage : ne mettre à jour que
-        # celui déjà suivi dans la base, pour éviter tout doublon.
-        with db() as conn:
-            row = conn.execute(
-                "SELECT message_id FROM circle_guide_publications WHERE channel_id=? AND guide_key='proposer_un_cercle'",
-                (CIRCLE_PROPOSALS_CHANNEL_ID,),
-            ).fetchone()
-        channel = await self.resolve_channel(CIRCLE_PROPOSALS_CHANNEL_ID)
+        channel = await self.resolve_channel(CIRCLES_CHANNEL_ID)
         if not isinstance(channel, discord.TextChannel):
             return
-        message = None
+        self._guide_refreshed = True
         try:
+            with db() as conn:
+                row = conn.execute("SELECT message_id FROM circle_guide_publications WHERE guild_id=? AND channel_id=? AND guide_key=?", (channel.guild.id, CIRCLES_CHANNEL_ID, 'cercles_horizons')).fetchone()
+            message = None
             if row and row[0]:
                 try:
                     candidate = await channel.fetch_message(int(row[0]))
                     if candidate.author.id == self.bot.user.id:
                         message = candidate
-                except discord.NotFound:
+                except (discord.NotFound, discord.Forbidden, discord.HTTPException):
                     pass
             if message is None:
-                # Récupération de l'ancien panneau sans créer de doublon.
                 async for candidate in channel.history(limit=250):
-                    if candidate.author.id == self.bot.user.id and any(
-                        e.title == "💡 Proposer un Cercle HORIZONS" for e in candidate.embeds
-                    ):
+                    if candidate.author.id == self.bot.user.id and any('Cercles HORIZONS' in (e.title or '') for e in candidate.embeds):
                         message = candidate
                         break
-            if message is None:
-                log.warning("Panneau Cercle introuvable : aucune publication automatique.")
-                return
-            proposal, _ = self.build_guides()
-            await edit_official_panel(message, embed=proposal, view=CircleProposalEntry(), allowed_mentions=discord.AllowedMentions.none())
+            if message:
+                _, embed = self.build_guides()
+                await edit_official_panel(message, embed=embed, view=CircleProposalEntry(), allowed_mentions=discord.AllowedMentions.none())
+                with db() as conn:
+                    conn.execute("INSERT INTO circle_guide_publications (guild_id,channel_id,guide_key,message_id,published_at) VALUES (?,?,?,?,CURRENT_TIMESTAMP) ON CONFLICT(guild_id,channel_id,guide_key) DO UPDATE SET message_id=excluded.message_id,published_at=CURRENT_TIMESTAMP", (channel.guild.id, CIRCLES_CHANNEL_ID, "cercles_horizons", message.id))
+            else:
+                # Historique consulté avec succès : premier panneau dans le salon fusionné.
+                _, embed = self.build_guides()
+                message = await send_official_panel(channel, embed=embed, view=CircleProposalEntry(), allowed_mentions=discord.AllowedMentions.none())
+                with db() as conn:
+                    conn.execute("INSERT INTO circle_guide_publications (guild_id,channel_id,guide_key,message_id,published_at) VALUES (?,?,?,?,CURRENT_TIMESTAMP) ON CONFLICT(guild_id,channel_id,guide_key) DO UPDATE SET message_id=excluded.message_id,published_at=CURRENT_TIMESTAMP", (channel.guild.id, CIRCLES_CHANNEL_ID, "cercles_horizons", message.id))
         except (discord.Forbidden, discord.HTTPException):
-            log.exception("Actualisation du guide Cercle impossible")
+            log.exception("Impossible d'actualiser le panneau des Cercles")
 
     def build_guides(self) -> tuple[discord.Embed, discord.Embed]:
         proposal = horizons_embed(
@@ -153,8 +152,7 @@ class CircleGuides(commands.Cog):
         )
         circles.add_field(
             name="💡 Tu as une idée ?",
-            value=f"Propose ton propre Cercle dans <#{CIRCLE_PROPOSALS_CHANNEL_ID}>. "
-                  "L'équipe l'étudiera avant toute ouverture.",
+            value="Clique sur **Proposer un Cercle** sous ce panneau. L’équipe étudiera ton formulaire privé avant toute publication.",
             inline=False,
         )
         circles.set_footer(text="HORIZONS • Des centres d'intérêt différents, des liens en commun.")
@@ -206,21 +204,21 @@ class CircleGuides(commands.Cog):
 
         try:
             if message is not None:
-                await (edit_official_panel(message, embed=embed, view=CircleProposalEntry(), allowed_mentions=discord.AllowedMentions.none()) if guide_key == "proposer_un_cercle" else message.edit(embed=embed, view=None, allowed_mentions=discord.AllowedMentions.none()))
+                await (edit_official_panel(message, embed=embed, view=CircleProposalEntry(), allowed_mentions=discord.AllowedMentions.none()) if guide_key == "cercles_horizons" else message.edit(embed=embed, view=None, allowed_mentions=discord.AllowedMentions.none()))
             elif isinstance(channel, discord.ForumChannel):
                 created = await channel.create_thread(
                     name=forum_post_name[:100],
                     content="Guide permanent — merci de consulter cette présentation avant de participer.",
                     embeds=[embed],
-                    view=CircleProposalEntry() if guide_key == "proposer_un_cercle" else None,
+                    view=CircleProposalEntry() if guide_key == "cercles_horizons" else None,
                     allowed_mentions=discord.AllowedMentions.none(),
                 )
                 thread = created.thread
                 message = created.message
             else:
-                message = await (send_official_panel if guide_key == "proposer_un_cercle" else _plain_send)(
+                message = await (send_official_panel if guide_key == "cercles_horizons" else send_official_panel)(
                     channel, embed=embed,
-                    view=CircleProposalEntry() if guide_key == "proposer_un_cercle" else None,
+                    view=CircleProposalEntry() if guide_key == "cercles_horizons" else None,
                     allowed_mentions=discord.AllowedMentions.none(),
                 )
         except (discord.Forbidden, discord.HTTPException) as exc:
@@ -244,7 +242,7 @@ class CircleGuides(commands.Cog):
 
     @app_commands.command(
         name="publier_guides_cercles",
-        description="Publier ou actualiser les deux guides permanents des Cercles HORIZONS.",
+        description="Actualiser le panneau unique des Cercles HORIZONS.",
     )
     @app_commands.guild_only()
     @app_commands.checks.has_permissions(administrator=True)
@@ -257,17 +255,13 @@ class CircleGuides(commands.Cog):
             return
 
         await interaction.response.defer(ephemeral=True, thinking=True)
-        proposal, circles = self.build_guides()
-        results = await self.publish_or_update(
-            interaction.guild, CIRCLE_PROPOSALS_CHANNEL_ID,
-            "proposer_un_cercle", proposal, "📌 Fonctionnement — Proposer un Cercle",
-        )
+        _, circles = self.build_guides()
         results2 = await self.publish_or_update(
             interaction.guild, CIRCLES_CHANNEL_ID,
             "cercles_horizons", circles, "📌 Fonctionnement des Cercles HORIZONS",
         )
         await interaction.followup.send(
-            "Guides des Cercles HORIZONS :\n" + results + "\n" + results2,
+            "Guide unique des Cercles HORIZONS :\n" + results2,
             ephemeral=True,
         )
 

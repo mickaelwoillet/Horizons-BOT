@@ -73,7 +73,7 @@ Accès selon le rôle et les permissions Discord. Les commandes de modération n
 - `/horizons_dashboard` — Consulter les statistiques collectives HORIZONS (staff).
 - `/idee_statut` — Mettre à jour le statut d'une idée (staff).
 - `/note_membre` — Ajouter une note interne de modération à un membre.
-- `/publier_guides_cercles` — Publier ou actualiser les deux guides permanents des Cercles HORIZONS.
+- `/publier_guides_cercles` — Actualiser le panneau unique des Cercles HORIZONS.
 - `/publier_roles` — Publier les panneaux de choix des rôles HORIZONS dans ce salon.
 - `/purger` — Supprimer un nombre de messages dans le salon actuel.
 - `/quiz_arreter` — Arrêter le quiz culturel en cours.
@@ -197,3 +197,17 @@ Le catalogue visible via `/aide` et `/aidestaff` est généré à partir de l'ar
 ## V7 — Harmonisation finale des salons
 
 Les six salons concernés par l'harmonisation des noms sont documentés dans `HARMONISATION_FINALE_V7.md`. Les nouveaux panneaux explicatifs d'activités et de défis ne nécessitent **aucune nouvelle commande slash**. `/aide` et `/aidestaff` conservent leur inventaire des commandes existantes.
+
+
+## Panneaux interactifs (mise à jour audit du 09/11/2026)
+
+Les salons **Paroles libres**, **Connexions du Ciel**, **Proposer un Cercle**, **Missions HORIZONS**, **Arcade HORIZONS**, **Trésors du Ciel**, **Météo des émotions**, **Boîte à idées** et **Éclats de reconnaissance** disposent de panneaux à boutons. Les commandes slash historiques restent disponibles pour compatibilité ; `/aide` et `/aidestaff` génèrent leurs listes depuis les commandes réellement chargées via `cogs/command_catalog.py`. Le salon **Confession** a été supprimé ; seul **Paroles libres** est conservé.
+
+## Accès par boutons — salons fusionnés (V7.2)
+
+- `💡・boite-a-idees` : proposer une idée et consulter ses idées ; `/idee`, `/mes_idees` restent des commandes de compatibilité.
+- `🌐・cercles-horizons` : proposer un Cercle via formulaire, puis validation privée du staff et publication dans ce même salon. `/publier_guides_cercles` actualise le panneau.
+- `🤝・activites-ensemble` : panneau interactif des activités ; `/chercher` reste accessible. Les initiatives sont désormais dirigées vers ce salon, sans publication automatique dans l'ancien.
+- `💌・paroles-libres` : bouton d'écriture anonyme ; `/message_anonyme` reste accessible. Journal staff obligatoire et limite de deux publications sur dix minutes, persistante en SQLite.
+
+Les commandes historiques ne sont pas supprimées tant que les boutons n'ont pas été vérifiés sur Discord. Les noms et permissions effectifs sont à contrôler après migration.

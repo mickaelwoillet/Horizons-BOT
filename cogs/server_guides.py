@@ -39,7 +39,7 @@ CATEGORY = {
     "mon_parcours": "🌱 Progression", "actualiser_rangs": "🌱 Progression",
     "evenement_creer": "🎉 Événements et concours", "evenements": "🎉 Événements et concours",
     "evenement_fermer": "🎉 Événements et concours", "concours_creer": "🎉 Événements et concours",
-    "concours_annuler": "🎉 Événements et concours", "proposer": "💡 Suggestions",
+    "concours_annuler": "🎉 Événements et concours", "proposer": "💡 Boîte à idées",
     "signaler": "🛡️ Aide et modération", "alerte_equipe": "🛡️ Aide et modération",
     "message_anonyme": "🛡️ Aide et modération", "ticket_ouvrir": "🎫 Tickets",
     "ticket_fermer": "🎫 Tickets", "avertir": "🛡️ Modération (équipe)",
