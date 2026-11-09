@@ -4,7 +4,7 @@ Ce fichier est mis à jour à partir des commandes `app_commands` des extensions
 Il décrit les commandes présentes dans le code, **sans garantir leur synchronisation effective sur Discord** (elle dépend du démarrage, de la configuration et du chargement des extensions).
 `/aide` affiche les commandes membres actuellement chargées ; `/aidestaff` est réservé à l’équipe et affiche les commandes staff.
 
-## Commandes membres (59)
+## Commandes membres (catalogue extrait du code)
 
 - `/affinites activer` — Autoriser les suggestions d'affinités amicales.
 - `/affinites desactiver` — Retirer ton profil des suggestions d'affinités.
@@ -49,7 +49,7 @@ Il décrit les commandes présentes dans le code, **sans garantir leur synchroni
 - `/valider_mission` — Valider une mission accomplie dans ton Passeport HORIZONS.
 - `/xpjeux` — Consulter ta progression et tes XP Célestes.
 
-## Commandes staff (34)
+## Commandes staff (catalogue extrait du code)
 
 Accès selon le rôle et les permissions Discord. Les commandes de modération nécessitent une **prise de service active**.
 
@@ -97,9 +97,9 @@ Accès selon le rôle et les permissions Discord. Les commandes de modération n
 - `/jeux` : menu Arcade (Morpion, Puissance 4, Memory, Code secret, Petit Bac, Bataille navale), avec modes solo, duel et collectif selon le jeu.
 - Les panneaux, boutons et sélecteurs Discord complètent les commandes slash.
 
-## Modules présents mais non chargés
+## Vérification des modules
 
-- `cogs.smart_welcome` contient `/premiers_pas` et `/accueil_bilan`, mais ne figure pas dans `EXTENSIONS` : ces commandes ne sont pas chargées.
+- `cogs.smart_welcome` figure bien dans `EXTENSIONS` de `bot.py` ; `/premiers_pas` et `/accueil_bilan` sont donc prévus au chargement. Leur présence effective sur Discord dépend de la réussite du démarrage et de la synchronisation.
 
 ## Publications et tâches
 
@@ -132,3 +132,68 @@ La commande `/tester_publications` et son module ont été supprimés.
 - `/dashboard` : bouton « Actualiser le bilan » en service.
 - Animation collective du vendredi : bouton « Je participe » ; participation privée enregistrée en SQLite.
 - Les propositions d’activités et défis quotidiens sont accessibles depuis le panneau « Que faire aujourd’hui ? », sans nouvelle commande slash.
+
+
+## V7 — Activités accessibles sans commande slash
+
+Dans le panneau permanent **🌅 Que faire aujourd’hui sur HORIZONS ?** :
+- **Petits Bonheurs** : déposer ou remplacer un souvenir positif une fois par semaine. Contenu privé, non publié automatiquement.
+- **Mystère du jour** : répondre en privé à une énigme tournante, une réussite maximum par jour.
+- Les autres entrées du panneau (discuter, jouer, explorer, rencontrer, proposer, défi, événements, pause) restent disponibles.
+
+Ces fonctions ne créent aucune nouvelle commande slash. `/aide` et `/aidestaff`
+continuent de générer leurs listes à partir des commandes réellement chargées.
+
+
+## V7 — Options du panneau (sans commande slash)
+
+- **Rendez-vous surprise** : idée quotidienne privée pour proposer une activité.
+- **Mon bocal** : lecture privée du petit bonheur de la semaine.
+- **Petits Bonheurs** : dépôt ou remplacement volontaire de son message hebdomadaire.
+- **Mystère du jour** : énigme à réponse privée.
+
+## V7 — Étape 3 : interactions sans commande
+
+- Panneau « Que faire aujourd’hui ? » → « Mes affinités » : choix privé de 1 à 3 centres d’intérêt, effacement possible.
+- Aucune nouvelle commande slash. Les commandes `/aide` et `/aidestaff` restent inchangées.
+
+## Activités accessibles par panneau (sans commande slash) — V7 étape 4
+
+- **Constellation collective hebdomadaire** : progression de 5 étoiles à partir des participations au défi du jour, remise à zéro chaque lundi. Aucun classement individuel, aucune notification automatique.
+- **Mystère du jour** : affiche le nombre total de résolutions du jour, sans publier les réponses ni l'identité des participants.
+- **Mes affinités** : choix privé dans le panneau « Que faire aujourd'hui ? ». Attention : les commandes `/affinites` préexistantes ont un fonctionnement distinct ; une harmonisation est à prévoir après test, sans supprimer leurs données.
+
+Ces fonctionnalités n'ajoutent aucune commande : `/aide` et `/aidestaff` ne changent pas.
+
+
+## V7 — Les Liens du Ciel (étape 5)
+Le menu « Mes affinités » du panneau renvoie aux commandes déjà existantes `/affinites activer`, `/affinites trouver` et `/affinites desactiver`. Aucune nouvelle commande. Le mur de solidarité conserve `/remercier`.
+
+
+## Les Connexions du Ciel — panneau interactif V7
+
+Le salon d'affinités existant (`AFFINITY_CHANNEL_ID`) affiche un embed permanent avec
+**Activer mon profil**, **Trouver mes affinités**, **Mes centres d'intérêt** et
+**Désactiver mon profil**. Les actions réutilisent les données et le moteur de
+compatibilité de `/affinites` (au moins deux rôles compatibles, cinq suggestions
+maximum), sans créer un second profil. Les réponses sont privées.
+
+Les anciennes commandes `/affinites activer`, `/affinites trouver`,
+`/affinites desactiver` restent disponibles pour compatibilité et figurent
+dans `/aide` car elles sont encore enregistrées. Aucune commande staff ajoutée :
+`/aidestaff` reste généré à partir des commandes réellement chargées.
+
+## Panneaux permanents V7
+
+- **Les Connexions du Ciel** : quatre boutons (activer, trouver, centres d'intérêt, désactiver) ; les commandes `/affinites` restent accessibles pour compatibilité.
+- **Que faire aujourd'hui ?** : activités, défi quotidien, bocal, mystère, surprise et accès aux affinités.
+- Les guides et panneaux utilisent les salons existants ; aucun salon supplémentaire n'est nécessaire.
+- Les panneaux sont des interfaces Discord, **pas des commandes slash**.
+
+## Contrôle documentaire
+
+Le catalogue visible via `/aide` et `/aidestaff` est généré à partir de l'arbre des commandes effectivement chargé. Ce fichier reste un inventaire statique à comparer avec cet arbre après chaque mise à jour.
+
+## V7 — Harmonisation finale des salons
+
+Les six salons concernés par l'harmonisation des noms sont documentés dans `HARMONISATION_FINALE_V7.md`. Les nouveaux panneaux explicatifs d'activités et de défis ne nécessitent **aucune nouvelle commande slash**. `/aide` et `/aidestaff` conservent leur inventaire des commandes existantes.

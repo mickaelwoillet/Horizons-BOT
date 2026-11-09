@@ -56,6 +56,49 @@ def load_affinity_roles() -> dict[str, set[int]]:
     }
 
 
+class AffinityPanel(discord.ui.View):
+    """Panneau permanent, actions privées, compatible avec les profils existants."""
+    def __init__(self):
+        super().__init__(timeout=None)
+
+    async def _run(self, interaction: discord.Interaction, action: str):
+        cog = interaction.client.get_cog("HorizonsFeatures")
+        if cog is None:
+            await interaction.response.send_message("Le service d'affinités est indisponible.", ephemeral=True)
+            return
+        if interaction.guild_id != GUILD_ID or not isinstance(interaction.user, discord.Member):
+            await interaction.response.send_message("Cette fonction est réservée aux membres d'HORIZONS.", ephemeral=True)
+            return
+        if action == "enable":
+            await cog.affinites_activer.callback(cog, interaction)
+        elif action == "find":
+            await cog.affinites_chercher.callback(cog, interaction)
+        elif action == "disable":
+            await cog.affinites_desactiver.callback(cog, interaction)
+        else:
+            await cog.affinity_interests(interaction)
+
+    @discord.ui.button(label="Activer mon profil", emoji="💜", style=discord.ButtonStyle.success,
+                       custom_id="horizons:affinity:enable:v1", row=0)
+    async def enable(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self._run(interaction, "enable")
+
+    @discord.ui.button(label="Trouver mes affinités", emoji="🧩", style=discord.ButtonStyle.primary,
+                       custom_id="horizons:affinity:find:v1", row=0)
+    async def find(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self._run(interaction, "find")
+
+    @discord.ui.button(label="Mes centres d'intérêt", emoji="🎭", style=discord.ButtonStyle.secondary,
+                       custom_id="horizons:affinity:interests:v1", row=1)
+    async def interests(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self._run(interaction, "interests")
+
+    @discord.ui.button(label="Désactiver mon profil", emoji="🔒", style=discord.ButtonStyle.danger,
+                       custom_id="horizons:affinity:disable:v1", row=1)
+    async def disable(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self._run(interaction, "disable")
+
+
 class HorizonsFeatures(commands.Cog):
     affinites = app_commands.Group(name="affinites", description="Gérer tes affinités amicales HORIZONS")
 
@@ -63,13 +106,16 @@ class HorizonsFeatures(commands.Cog):
         self.bot = bot
         self._panels_checked = False
 
+    async def cog_load(self):
+        self.bot.add_view(AffinityPanel())
+
     @commands.Cog.listener()
     async def on_ready(self):
         if self._panels_checked:
             return
         self._panels_checked = True
         await self.ensure_explanation(MOOD_CHANNEL_ID, "mood_explanation_message", self.mood_embed())
-        await self.ensure_explanation(AFFINITY_CHANNEL_ID, "affinity_explanation_message", self.affinity_embed())
+        await self.ensure_explanation(AFFINITY_CHANNEL_ID, "affinity_explanation_message", self.affinity_embed(), view=AffinityPanel())
 
     @staticmethod
     def mood_embed() -> discord.Embed:
@@ -95,26 +141,48 @@ class HorizonsFeatures(commands.Cog):
     @staticmethod
     def affinity_embed() -> discord.Embed:
         embed = horizons_embed(
-            title="🌍 Les affinités HORIZONS",
+            title="🧩 Les Connexions du Ciel · Intérêts communs",
             description=(
-                "**Et si tu découvrais des personnes qui partagent tes passions ?**\n\n"
-                "1. Active volontairement ton profil avec `/affinites activer`.\n"
-                "2. Complète tes rôles de langues, jeux et centres d'intérêt.\n"
-                "3. Lance `/affinites trouver` pour découvrir des membres également volontaires.\n"
-                "4. Désactive à tout moment avec `/affinites desactiver`.\n\n"
-                "Les suggestions reposent uniquement sur les passions, langues, jeux, disponibilités "
-                "et préférences de communication sélectionnés. Les rôles d'âge, de genre, de pronoms, "
+                "**Envie de rencontrer des personnes qui partagent tes passions ?**\n\n"
+                "💜 **Activer mon profil** : participer volontairement aux suggestions.\n"
+                "🧩 **Trouver mes affinités** : découvrir en privé jusqu'à cinq membres "
+                "volontaires ayant au moins deux rôles d'intérêt communs.\n"
+                "🎭 **Mes centres d'intérêt** : consulter tes catégories et accéder au panneau "
+                "des rôles pour les compléter.\n"
+                "🔒 **Désactiver mon profil** : te retirer immédiatement des suggestions.\n\n"
+                "**Compatibilité :** intérêts, jeux, musique, langues, disponibilité et "
+                "préférences de communication. Les rôles d'âge, de genre, de pronoms, "
                 "d'orientation, de culture et de localisation ne sont jamais utilisés.\n\n"
-                "Les résultats sont privés (visibles uniquement par toi). Aucun DM n'est envoyé "
-                "automatiquement : chacun reste libre de prendre contact dans le respect des préférences "
-                "et des limites de l'autre."
+                "Tout est facultatif. Les résultats sont privés ; aucun MP ni contact "
+                "automatique n'est envoyé. Une affinité n'est pas une obligation de discuter."
             ),
             color=discord.Color.from_rgb(105, 125, 220),
         )
-        embed.set_footer(text="HORIZONS • Les affinités sont des suggestions, jamais une obligation")
+        embed.set_footer(text="HORIZONS • Panneau permanent • Tes choix restent sous ton contrôle")
         return embed
 
-    async def ensure_explanation(self, channel_id: int, setting_key: str, embed: discord.Embed):
+    async def affinity_interests(self, interaction: discord.Interaction):
+        try:
+            categories = load_affinity_roles()
+        except (OSError, ValueError, TypeError):
+            await interaction.response.send_message("Le catalogue des rôles est indisponible.", ephemeral=True)
+            return
+        role_ids = {role.id for role in interaction.user.roles}
+        summary = []
+        for category, ids in categories.items():
+            selected = [role.name for role in interaction.user.roles if role.id in ids]
+            if selected:
+                summary.append(f"**{category} :** " + ", ".join(discord.utils.escape_markdown(x) for x in selected[:12]))
+        embed = horizons_embed(
+            title="🎭 Mes centres d'intérêt",
+            description=("\n".join(summary) if summary else "Tu n'as pas encore choisi de rôles d'intérêt.")
+            + "\n\nPour modifier tes choix, utilise le panneau **🎭・choix-des-rôles** déjà présent sur le serveur.",
+            color=discord.Color.blurple(),
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+
+    async def ensure_explanation(self, channel_id: int, setting_key: str, embed: discord.Embed, view: discord.ui.View | None = None):
+        """Un seul panneau par salon, même après perte de son identifiant SQLite."""
         if not channel_id:
             return
         with db() as conn:
@@ -123,22 +191,48 @@ class HorizonsFeatures(commands.Cog):
         if channel is None:
             try:
                 channel = await self.bot.fetch_channel(channel_id)
-            except discord.HTTPException:
+            except (discord.NotFound, discord.Forbidden, discord.HTTPException):
                 return
         if not isinstance(channel, discord.TextChannel):
             return
+
+        message = None
         if row:
             try:
-                await channel.fetch_message(int(row["value"]))
+                message = await channel.fetch_message(int(row["value"]))
+                if message.author.id != self.bot.user.id:
+                    message = None
+            except (ValueError, TypeError, discord.NotFound):
+                message = None
+            except (discord.Forbidden, discord.HTTPException):
                 return
-            except discord.NotFound:
-                pass
-            except discord.HTTPException:
+
+        # Si la base a été restaurée, retrouver le panneau existant avant de publier.
+        if message is None:
+            try:
+                async for candidate in channel.history(limit=100):
+                    if candidate.author.id != self.bot.user.id:
+                        continue
+                    if any(e.title == embed.title for e in candidate.embeds):
+                        message = candidate
+                        break
+            except (discord.Forbidden, discord.HTTPException):
                 return
-        try:
-            message = await channel.send(embed=embed)
-        except discord.HTTPException:
-            return
+
+        if message is not None:
+            needs_embed = not message.embeds or message.embeds[0].to_dict() != embed.to_dict()
+            needs_buttons = view is not None and not message.components
+            if needs_embed or needs_buttons:
+                try:
+                    await message.edit(embed=embed, view=view)
+                except (discord.Forbidden, discord.HTTPException):
+                    return
+        else:
+            try:
+                message = await channel.send(embed=embed, view=view,
+                                             allowed_mentions=discord.AllowedMentions.none())
+            except (discord.Forbidden, discord.HTTPException):
+                return
         with db() as conn:
             conn.execute(
                 "INSERT INTO bot_settings(key,value) VALUES(?,?) "

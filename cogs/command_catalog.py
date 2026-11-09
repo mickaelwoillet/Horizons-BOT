@@ -128,11 +128,11 @@ def build_catalog_embeds(bot, *, audience: str = "all", updated: str = "") -> li
     if audience == "members":
         entries = [e for e in entries if not e["staff"]]
         title = "✦ HORIZONS — Commandes des membres"
-        intro = "Répertoire des commandes membres actuellement chargées. Les paramètres entre < > sont obligatoires ; ceux entre [ ] sont facultatifs."
+        intro = "Répertoire des commandes membres actuellement chargées. Les paramètres entre < > sont obligatoires ; ceux entre [ ] sont facultatifs. Les activités du carrefour HORIZONS (dont Petits Bonheurs et Mystère du jour) sont accessibles par menu, sans commande."
     elif audience == "staff":
         entries = [e for e in entries if e["staff"]]
         title = "✦ HORIZONS — Commandes de l'équipe"
-        intro = "Répertoire des commandes staff actuellement chargées. L'accès reste contrôlé par le bot et les permissions Discord ; certaines fonctions exigent une prise de service."
+        intro = "Répertoire des commandes staff actuellement chargées. L'accès reste contrôlé par le bot et les permissions Discord ; certaines fonctions exigent une prise de service. Le carrefour communautaire et ses activités ne nécessitent pas de commande slash supplémentaire."
     else:
         title = "✦ HORIZONS — Catalogue des commandes"
         intro = "Répertoire complet des commandes actuellement chargées. < > = obligatoire ; [ ] = facultatif."

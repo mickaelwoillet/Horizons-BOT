@@ -45,9 +45,14 @@ class TodayChoice(discord.ui.Select):
                 discord.SelectOption(label="Jouer", value="games", emoji="🎮", description="Retrouver l'Arcade"),
                 discord.SelectOption(label="Explorer", value="treasures", emoji="🌌", description="Découvrir les Trésors du Ciel"),
                 discord.SelectOption(label="Rencontrer", value="meet", emoji="🤝", description="Voir les propositions existantes"),
+                discord.SelectOption(label="Mes affinités", value="affinities", emoji="🧩", description="Accéder aux affinités existantes"),
                 discord.SelectOption(label="Proposer une activité", value="propose", emoji="✨", description="Créer une invitation sans commande"),
                 discord.SelectOption(label="Défi du jour", value="daily_challenge", emoji="🌱", description="Un petit geste collectif, sans compétition"),
                 discord.SelectOption(label="Participer", value="events", emoji="📅", description="Voir les événements"),
+                discord.SelectOption(label="Petits Bonheurs", value="bonheurs", emoji="💙", description="Déposer un petit moment positif"),
+                discord.SelectOption(label="Mystère du jour", value="mystere", emoji="🔎", description="Résoudre une mini-énigme"),
+                discord.SelectOption(label="Rendez-vous surprise", value="surprise", emoji="🎲", description="Une idée courte à partager"),
+                discord.SelectOption(label="Mon bocal", value="mon_bocal", emoji="🫙", description="Relire mon bonheur de la semaine"),
                 discord.SelectOption(label="Faire une pause", value="wellbeing", emoji="🌻", description="Prendre un moment pour soi"),
             ],
         )
@@ -60,6 +65,22 @@ class TodayChoice(discord.ui.Select):
             await interaction.response.send_message("Commence par accepter la charte pour accéder aux activités.", ephemeral=True)
             return
         choice = self.values[0]
+        if choice in {"bonheurs", "mystere", "mon_bocal", "surprise", "affinities"}:
+            cog = interaction.client.get_cog("TodayHub")
+            if cog is None:
+                await interaction.response.send_message("Cette activité est momentanément indisponible.", ephemeral=True)
+                return
+            if choice == "bonheurs":
+                await interaction.response.send_modal(HappinessModal())
+            elif choice == "mon_bocal":
+                await cog.show_happiness(interaction)
+            elif choice == "surprise":
+                await cog.show_surprise(interaction)
+            elif choice == "affinities":
+                await cog.show_affinities(interaction)
+            else:
+                await cog.show_mystery(interaction)
+            return
         if choice == "daily_challenge":
             cog = interaction.client.get_cog("TodayHub")
             if cog is None:
@@ -202,6 +223,53 @@ class ChallengeView(discord.ui.View):
         await cog.join_daily_challenge(interaction)
 
 
+# Petits bonheurs : privé par défaut, sans publication automatique de confidences.
+class HappinessModal(discord.ui.Modal, title="Le Bocal des Petits Bonheurs"):
+    souvenir = discord.ui.TextInput(
+        label="Un petit bonheur à conserver", max_length=400,
+        placeholder="Une bonne nouvelle, un sourire, une petite victoire…",
+        style=discord.TextStyle.paragraph,
+    )
+
+    async def on_submit(self, interaction: discord.Interaction):
+        cog = interaction.client.get_cog("TodayHub")
+        if cog is None:
+            await interaction.response.send_message("Le Bocal est indisponible.", ephemeral=True)
+            return
+        await cog.save_happiness(interaction, str(self.souvenir.value))
+
+
+MYSTERIES = (
+    ("Je peux être brisé sans être touché. Qui suis-je ?", ("promesse", "une promesse")),
+    ("Plus je sèche, plus je deviens mouillé. Qui suis-je ?", ("serviette", "une serviette")),
+    ("Je grandis lorsque l'on me retire quelque chose. Qui suis-je ?", ("trou", "un trou")),
+    ("Je fais le tour du monde en restant dans un coin. Qui suis-je ?", ("timbre", "un timbre")),
+    ("Je possède des clés, mais aucune serrure. Qui suis-je ?", ("piano", "un piano")),
+    ("Je peux remplir une pièce sans prendre de place. Qui suis-je ?", ("lumiere", "la lumiere", "lumière", "la lumière")),
+    ("Je suis à toi, mais les autres m'utilisent plus que toi. Qui suis-je ?", ("nom", "ton nom", "mon nom")),
+)
+
+
+class MysteryModal(discord.ui.Modal, title="Le Mystère d'HORIZONS"):
+    reponse = discord.ui.TextInput(label="Ta réponse", max_length=100)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        cog = interaction.client.get_cog("TodayHub")
+        if cog is None:
+            await interaction.response.send_message("Le Mystère est indisponible.", ephemeral=True)
+            return
+        await cog.answer_mystery(interaction, str(self.reponse.value))
+
+
+class MysteryView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=180)
+
+    @discord.ui.button(label="Répondre", emoji="🔎", style=discord.ButtonStyle.primary)
+    async def answer(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_modal(MysteryModal())
+
+
 class TodayView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
@@ -222,6 +290,19 @@ class TodayHub(commands.Cog):
                 joined_at TEXT NOT NULL,
                 PRIMARY KEY (guild_id, day, user_id)
             )""")
+        with db() as conn:
+            conn.execute("""CREATE TABLE IF NOT EXISTS horizons_happiness (
+                guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
+                week_key TEXT NOT NULL, content TEXT NOT NULL, created_at TEXT NOT NULL,
+                PRIMARY KEY (guild_id, user_id, week_key)
+            )""")
+            conn.execute("""CREATE TABLE IF NOT EXISTS horizons_mystery_solves (
+                guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
+                day TEXT NOT NULL, solved_at TEXT NOT NULL,
+                PRIMARY KEY (guild_id, user_id, day)
+            )""")
+        # La table historique horizons_affinities n'est pas supprimée :
+        # une éventuelle migration devra être validée séparément.
         self.bot.add_view(TodayView())
         self.maintenance.start()
 
@@ -234,6 +315,22 @@ class TodayHub(commands.Cog):
     def challenge_description(self):
         return CHALLENGES[datetime.now(LOCAL_TIMEZONE).weekday()]
 
+    def weekly_cooperation(self, guild_id: int) -> tuple[int, int]:
+        """Progression commune basée sur les participations existantes, sans nouvelle collecte.
+
+        Une participation quotidienne est comptée une seule fois par membre et par jour.
+        Le palier reste indicatif : aucune récompense individuelle ni classement.
+        """
+        today = datetime.now(LOCAL_TIMEZONE).date()
+        monday = today - timedelta(days=today.weekday())
+        with db() as conn:
+            total = conn.execute(
+                "SELECT COUNT(*) FROM today_challenge_participation "
+                "WHERE guild_id=? AND day>=? AND day<=?",
+                (guild_id, monday.isoformat(), today.isoformat()),
+            ).fetchone()[0]
+        return total, 5
+
     def challenge_count(self, guild_id: int, day: str) -> int:
         with db() as conn:
             return conn.execute(
@@ -244,9 +341,13 @@ class TodayHub(commands.Cog):
     async def show_daily_challenge(self, interaction: discord.Interaction):
         day = self.challenge_day()
         count = self.challenge_count(interaction.guild.id, day)
+        weekly, goal = self.weekly_cooperation(interaction.guild.id)
+        progress = "⭐" * min(weekly, goal) + "☆" * max(0, goal - weekly)
         await interaction.response.send_message(
             f"🌱 **Défi du jour**\n{self.challenge_description()}\n\n"
             f"**{count} participation(s)** aujourd'hui. "
+            f"\n🌌 **Constellation collective de la semaine :** {progress} "
+            f"({weekly}/{goal} contributions)\n"
             "Participe à ton rythme, puis utilise le bouton si tu le souhaites. "
             "Aucune preuve ni publication n'est demandée.",
             view=ChallengeView(), ephemeral=True,
@@ -268,8 +369,130 @@ class TodayHub(commands.Cog):
             )
             added = cur.rowcount > 0
         count = self.challenge_count(interaction.guild.id, day)
+        weekly, goal = self.weekly_cooperation(interaction.guild.id)
         msg = ("Merci d'avoir participé ! 💙" if added else "Ta participation est déjà enregistrée aujourd'hui 💙")
-        await interaction.response.send_message(f"{msg} **{count} participation(s)** au total.", ephemeral=True)
+        await interaction.response.send_message(
+            f"{msg} **{count} participation(s)** aujourd'hui. "
+            f"🌌 Constellation collective : **{min(weekly, goal)}/{goal}** étoiles "
+            "(objectif commun, sans classement).", ephemeral=True,
+        )
+
+    def _eligible(self, interaction: discord.Interaction) -> bool:
+        return (isinstance(interaction.user, discord.Member) and interaction.guild is not None
+                and (not MEMBER_ROLE_ID or interaction.user.guild_permissions.administrator
+                     or any(r.id == MEMBER_ROLE_ID for r in interaction.user.roles)))
+
+    async def save_happiness(self, interaction: discord.Interaction, content: str):
+        if not self._eligible(interaction):
+            await interaction.response.send_message("Accepte d'abord la charte pour participer.", ephemeral=True)
+            return
+        content = content.strip()
+        if not content:
+            await interaction.response.send_message("Écris d'abord un petit bonheur.", ephemeral=True)
+            return
+        week = datetime.now(LOCAL_TIMEZONE).strftime("%G-W%V")
+        with db() as conn:
+            conn.execute(
+                "INSERT INTO horizons_happiness(guild_id,user_id,week_key,content,created_at) "
+                "VALUES(?,?,?,?,?) ON CONFLICT(guild_id,user_id,week_key) "
+                "DO UPDATE SET content=excluded.content,created_at=excluded.created_at",
+                (interaction.guild.id, interaction.user.id, week, content,
+                 datetime.now(LOCAL_TIMEZONE).isoformat()),
+            )
+        await interaction.response.send_message(
+            "💙 Ton petit bonheur est conservé pour cette semaine. "
+            "Tu peux le remplacer en revenant ici. Il ne sera **pas publié automatiquement**.",
+            ephemeral=True,
+        )
+
+    async def show_affinities(self, interaction: discord.Interaction):
+        if not self._eligible(interaction):
+            await interaction.response.send_message("Accepte d'abord la charte.", ephemeral=True)
+            return
+        from cogs.horizons_features import AffinityPanel, HorizonsFeatures
+        await interaction.response.send_message(
+            embed=HorizonsFeatures.affinity_embed(), view=AffinityPanel(), ephemeral=True,
+        )
+
+    async def show_happiness(self, interaction: discord.Interaction):
+        """Lecture privée, sans republication de confidence."""
+        if not self._eligible(interaction):
+            await interaction.response.send_message("Accepte d'abord la charte.", ephemeral=True)
+            return
+        week = datetime.now(LOCAL_TIMEZONE).strftime("%G-W%V")
+        with db() as conn:
+            row = conn.execute(
+                "SELECT content FROM horizons_happiness WHERE guild_id=? AND user_id=? AND week_key=?",
+                (interaction.guild.id, interaction.user.id, week),
+            ).fetchone()
+        content = row["content"] if row else None
+        await interaction.response.send_message(
+            ("🫙 **Ton petit bonheur de la semaine**\n" + discord.utils.escape_mentions(content))
+            if content else "🫙 Tu n'as pas encore déposé de petit bonheur cette semaine.",
+            ephemeral=True, allowed_mentions=discord.AllowedMentions.none(),
+        )
+
+    async def show_surprise(self, interaction: discord.Interaction):
+        """Une suggestion quotidienne stable, sans nouvelle publication."""
+        if not self._eligible(interaction):
+            await interaction.response.send_message("Accepte d'abord la charte.", ephemeral=True)
+            return
+        ideas = (
+            "🎲 Propose un mini-défi de dessin en trois minutes.",
+            "🎬 Partage une recommandation de film sans révéler la fin.",
+            "💬 Pose une question légère à la communauté.",
+            "🎮 Invite quelqu'un à découvrir un jeu de l'Arcade.",
+            "🎵 Échangez chacun une chanson qui donne le sourire.",
+            "🌌 Découvrez ensemble une constellation des Trésors du Ciel.",
+            "🤝 Propose une activité ouverte à tous, sans obligation.",
+        )
+        idea = ideas[datetime.now(LOCAL_TIMEZONE).date().toordinal() % len(ideas)]
+        await interaction.response.send_message(
+            "**🎲 Le rendez-vous surprise d'aujourd'hui**\n" + idea
+            + "\n\nPour inviter d'autres membres, utilise **Proposer une activité** "
+            "dans le panneau. Aucun message n'est envoyé automatiquement.",
+            ephemeral=True,
+        )
+
+    async def show_mystery(self, interaction: discord.Interaction):
+        index = datetime.now(LOCAL_TIMEZONE).date().toordinal() % len(MYSTERIES)
+        question, _ = MYSTERIES[index]
+        await interaction.response.send_message(
+            f"🔎 **Le Mystère du jour**\n{question}\n\n"
+            "Ta réponse reste privée. Une seule réussite est enregistrée par jour.",
+            view=MysteryView(), ephemeral=True,
+        )
+
+    async def answer_mystery(self, interaction: discord.Interaction, answer: str):
+        if not self._eligible(interaction):
+            await interaction.response.send_message("Accepte d'abord la charte pour participer.", ephemeral=True)
+            return
+        import unicodedata
+        def normalize(value):
+            return "".join(c for c in unicodedata.normalize("NFKD", value.casefold().strip())
+                           if not unicodedata.combining(c))
+        day = self.challenge_day()
+        _, accepted = MYSTERIES[datetime.now(LOCAL_TIMEZONE).date().toordinal() % len(MYSTERIES)]
+        if normalize(answer) not in {normalize(a) for a in accepted}:
+            await interaction.response.send_message("Pas encore ! Tu peux réessayer 💙", ephemeral=True)
+            return
+        with db() as conn:
+            cursor = conn.execute(
+                "INSERT OR IGNORE INTO horizons_mystery_solves(guild_id,user_id,day,solved_at) VALUES(?,?,?,?)",
+                (interaction.guild.id, interaction.user.id, day,
+                 datetime.now(LOCAL_TIMEZONE).isoformat()),
+            )
+        with db() as conn:
+            solved_count = conn.execute(
+                "SELECT COUNT(*) FROM horizons_mystery_solves WHERE guild_id=? AND day=?",
+                (interaction.guild.id, day),
+            ).fetchone()[0]
+        message = "🌟 Bravo, mystère résolu !" if cursor.rowcount else "Tu avais déjà résolu ce mystère aujourd'hui 💙"
+        await interaction.response.send_message(
+            f"{message}\n🔎 **{solved_count} membre(s)** ont résolu le mystère aujourd'hui. "
+            "Les réponses et identités restent privées.",
+            ephemeral=True,
+        )
 
     def setting(self, key: str) -> int | None:
         with db() as conn:
@@ -363,7 +586,8 @@ class TodayHub(commands.Cog):
                 "Bienvenue dans ton carrefour communautaire !\n\n"
                 "Choisis une activité dans le menu ci-dessous : discuter, jouer, "
                 "explorer les Trésors du Ciel, rencontrer des membres, participer "
-                "à un événement, relever un défi collectif ou prendre une pause.\n\n"
+                "à un événement, relever un défi collectif, déposer un petit bonheur, "
+                "résoudre un mystère, découvrir une surprise ou prendre une pause.\n\n"
                 f"**Idée du jour :** {idea}\n\n"
                 "💙 **Tu avances à ton rythme.** Aucun choix n'est obligatoire. "
                 "Le menu t'indiquera où aller, sans encombrer le salon."

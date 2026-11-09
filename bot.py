@@ -101,6 +101,7 @@ EXTENSIONS: Final[tuple[str, ...]] = (
     "cogs.onboarding",
     "cogs.smart_welcome",
     "cogs.today_hub",
+    "cogs.salon_harmony",
     "cogs.continuity",
     "cogs.moderation",
     "cogs.logging_tools",

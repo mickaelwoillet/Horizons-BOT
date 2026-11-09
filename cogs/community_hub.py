@@ -137,7 +137,7 @@ class CommunityHub(commands.Cog):
 
     @staticmethod
     def solidarity_explanation():
-        e = horizons_embed(title="✦ Le mur de la solidarité", description=(
+        e = horizons_embed(title="💜 Les Éclats de Reconnaissance · Mur de la solidarité", description=(
             "**Un merci peut illuminer la journée de quelqu'un.**\n\n"
             "Utilise `/remercier` pour mettre en valeur un membre qui t'a aidé, écouté, encouragé ou simplement fait sourire.\n\n"
             "Choisis un motif et ajoute quelques mots sincères. Ton message sera publié ici avec ton nom : "
