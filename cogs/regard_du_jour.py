@@ -416,6 +416,22 @@ class RegardDuJour(commands.Cog):
                 logger.warning('Regard %s : aucune actualité validée ; publication vide annulée.', day)
                 return 'Aucune actualité vérifiée : publication reportée. Consulte /regard_diagnostic.'
             music=await self.select_music(day) if AUTO_MODE else None
+            if old:
+                # Un sujet supprimé sur Discord reste parfois référencé dans SQLite.
+                # Ne réinitialiser que les données de publication du jour, jamais les articles.
+                thread=forum.get_thread(old['thread_id']) or self.bot.get_channel(old['thread_id'])
+                if thread is None:
+                    try:
+                        thread=await self.bot.fetch_channel(old['thread_id'])
+                    except discord.NotFound:
+                        thread=None
+                if thread is None or not isinstance(thread,discord.Thread) or thread.parent_id != forum.id:
+                    logger.warning('Regard %s : sujet %s supprimé ou hors du forum ; récupération.',day,old['thread_id'])
+                    with connect() as db:
+                        db.execute('DELETE FROM regard_posts WHERE day=?',(day,))
+                        db.execute('DELETE FROM regard_thread_parts WHERE day=?',(day,))
+                        db.execute('DELETE FROM regard_state WHERE key=?',('index:'+day,))
+                    old=None
             if not old:
                 # Après un crash entre la création Discord et l'enregistrement SQLite,
                 # récupérer le sujet existant au lieu d'en ouvrir un deuxième.
@@ -643,6 +659,15 @@ class RegardDuJour(commands.Cog):
                 except (aiohttp.ClientError,asyncio.TimeoutError) as exc:logger.warning('Nouvelle collecte impossible : %s',exc)
             try:
                 with connect() as db: parts=db.execute('SELECT COUNT(*) FROM regard_thread_parts WHERE day=?',(day,)).fetchone()[0]
+                if posted and now.minute == 0:
+                    # Vérification périodique : un sujet peut avoir été supprimé après publication.
+                    try:
+                        existing=self.bot.get_channel(posted['thread_id'])
+                        if existing is None:existing=await self.bot.fetch_channel(posted['thread_id'])
+                        if not isinstance(existing,discord.Thread) or existing.parent_id != FORUM_ID:
+                            parts=0
+                    except discord.NotFound:
+                        parts=0
                 if not posted or parts<3:
                     result=await self.publish(day)
                     if result.startswith('Publié'):await self.notify_staff(result)
