@@ -211,3 +211,53 @@ Les salons **Paroles libres**, **Connexions du Ciel**, **Proposer un Cercle**, *
 - `💌・paroles-libres` : bouton d'écriture anonyme ; `/message_anonyme` reste accessible. Journal staff obligatoire et limite de deux publications sur dix minutes, persistante en SQLite.
 
 Les commandes historiques ne sont pas supprimées tant que les boutons n'ont pas été vérifiés sur Discord. Les noms et permissions effectifs sont à contrôler après migration.
+
+## V8.0 — Centre personnel
+
+- `/centre` : ouvre un tableau de bord éphémère personnalisé (pseudo Discord, accueil selon l’heure locale, première visite ou retour après absence).
+- Menu privé : Carte du Ciel, Lettres du Futur, Passerelles, Coffre, Capsules et activités. Les fonctionnalités non encore développées sont annoncées explicitement, sans progression fictive.
+- Les anciennes commandes restent disponibles ; aucune nouvelle catégorie ni aucun nouveau salon n’est nécessaire.
+
+### V8 — Suivi de présence
+- `/evenement_presence numero membre` : l’organisateur ou le staff confirme une présence réelle après le début de l’événement. Nécessite une inscription « Je participe » ; confirmation unique persistante, sans attribution automatique d’étoile.
+
+## 🌌 Découvrir le Centre HORIZONS (V8)
+
+Le point d’entrée recommandé pour tous les membres est **`/centre`**. Il ouvre un tableau de bord personnel et privé, avec accueil par pseudo, Carte du Ciel et navigation vers les activités. Le Centre est présenté dans le message de bienvenue, le guide des premiers pas, le panneau de présentation, le panneau « Notre esprit » et `/aide`. Les commandes existantes restent utilisables.
+
+### V8.2 — Lettres du Futur (Centre)
+Dans `/centre` → **Mes Lettres du Futur**, le membre peut écrire une lettre à retrouver dans 7, 30 ou 90 jours, consulter les lettres arrivées à échéance et supprimer ses lettres. Trois lettres non ouvertes maximum ; aucun envoi automatique en MP à ce stade.
+
+### V8.3 — Coffre des Horizons
+`/centre` → « Mon Coffre des Horizons » affiche en privé le statut de la carte quotidienne, les cartes offertes, les 20 étoiles des Trésors du Ciel, les constellations, la poussière, les fragments et les souvenirs. Aucun tirage n’est réalisé depuis le Centre : pour gratter, utiliser le panneau existant de `🌌・trésors-du-ciel` ou `/gratter` dans ce salon. La Carte du Ciel V8 (étoiles de participation) reste distincte des 20 étoiles des Trésors.
+
+Dans `/centre` → **Mes Capsules du Temps**, chaque membre peut créer une capsule privée à 30, 90 ou 180 jours, la consulter à échéance ou la supprimer. Les capsules collectives restent à développer.
+
+
+### V8.4 — Capsules collectives
+- `/centre` → Capsules du Temps : répondre volontairement à la question du mois, si ouverte.
+- `/capsule_retirer numero` : retirer définitivement sa contribution, même après validation.
+- `/capsule_reveler mois` : consulter en privé les contributions approuvées d'un mois (AAAA-MM), uniquement 90 jours après la question.
+- Staff (permission Gérer le serveur) : `/capsule_question question`, `/capsule_attente`, `/capsule_moderer numero decision`.
+- Aucune publication automatique dans un salon ; consentement explicite, modération préalable et contrôle de l'échéance.
+
+### V8.5 — Passerelles du Ciel (première étape)
+Dans `/centre` → **Mes Passerelles**, le membre peut choisir librement de 1 à 5 centres d'intérêt parmi huit thèmes. Le bot affiche uniquement un **nombre anonyme** d'autres membres volontaires partageant chaque thème. Aucune identité, aucun profil individuel et aucun message privé ne sont exposés. Le bouton « Quitter les Passerelles » efface les préférences et révoque le consentement. Le rapprochement réciproque entre deux personnes n'est **pas encore implémenté** ; il fera l'objet d'une étape distincte avec double accord.
+
+### HORIZONS V8.5 — Passerelles du Ciel
+Depuis `/centre` → « Mes Passerelles », le membre peut sélectionner jusqu'à cinq centres d'intérêt, proposer une invitation anonyme à un autre profil volontaire, répondre aux invitations reçues, annuler une invitation en attente ou quitter le dispositif. Les identités ne sont révélées qu'après acceptation ; aucun message privé automatique n'est envoyé. Les demandes et préférences sont supprimées lors du retrait. Les invitations sont consultées depuis `/centre` (pas de notification proactive).
+
+
+### HORIZONS V8.6 — Mes activités et Main Tendue
+
+- `/centre` → « Mes activités » présente les inscriptions récentes, leur état et le nombre de présences confirmées.
+- `/evenement_presence` : l'organisateur ou le staff confirme une présence après le début de l'événement ; une première confirmation attribue l'étoile « Main Tendue » (une seule fois).
+- Le simple clic « Je participe » n'attribue aucune étoile. Les annonces `/chercher` restent distinctes des événements organisés.
+
+
+### HORIZONS V8.6 — Suivi personnel enrichi
+
+- `/centre` → « Ma vie HORIZONS » : Cercles proposés ou suivis, statuts des idées, étapes de parcours et statistiques de l'Arcade.
+- `/centre` → « Mes Passerelles » : suggestions de Cercles et d'événements selon les intérêts déclarés, sans révéler d'autres membres.
+- `/centre` → « Ma météo privée » : historique facultatif des sept derniers jours, activation et effacement volontaire. L'effacement supprime aussi les entrées météo existantes du membre sur le serveur.
+- Aucune nouvelle commande ni aucun nouveau salon.

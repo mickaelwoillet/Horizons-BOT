@@ -126,6 +126,7 @@ async def ensure_horizons_logo_asset(bot: commands.Bot) -> None:
 # ajoutées progressivement sans empêcher le démarrage du bot.
 EXTENSIONS: Final[tuple[str, ...]] = (
     "cogs.general",
+    "cogs.centre_horizons",
     "cogs.onboarding",
     "cogs.smart_welcome",
     "cogs.today_hub",

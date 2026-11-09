@@ -18,6 +18,10 @@ from config import (
     LOCAL_TIMEZONE,
 )
 from .storage import db
+from .sky_map import grant as grant_sky_star
+import logging
+
+log = logging.getLogger(__name__)
 
 
 # Les missions tournent chaque semaine. Elles sont volontairement variées :
@@ -81,7 +85,7 @@ class InterestView(discord.ui.View):
         self.cog = cog
         self.request_id = request_id
         button = discord.ui.Button(
-            label="Ça m'intéresse",
+            label="Je suis intéressé·e",
             emoji="🙋",
             style=discord.ButtonStyle.success,
             custom_id=f"horizons:interest:{request_id}",
@@ -89,6 +93,27 @@ class InterestView(discord.ui.View):
         )
         button.callback = self.on_interest
         self.add_item(button)
+        if not disabled:
+            cancel = discord.ui.Button(
+                label="Retirer mon intérêt", emoji="↩️",
+                style=discord.ButtonStyle.secondary,
+                custom_id=f"horizons:interest:withdraw:{request_id}",
+            )
+            cancel.callback = self.on_withdraw
+            self.add_item(cancel)
+            close = discord.ui.Button(
+                label="Clore mon annonce", emoji="🔒",
+                style=discord.ButtonStyle.danger,
+                custom_id=f"horizons:interest:close:{request_id}",
+            )
+            close.callback = self.on_close
+            self.add_item(close)
+
+    async def on_withdraw(self, interaction: discord.Interaction):
+        await self.cog.handle_withdraw_interest(interaction, self.request_id)
+
+    async def on_close(self, interaction: discord.Interaction):
+        await self.cog.handle_close_request(interaction, self.request_id)
 
     async def on_interest(self, interaction: discord.Interaction):
         await self.cog.handle_interest(interaction, self.request_id)
@@ -278,6 +303,13 @@ class Experiences(commands.Cog):
         message = f"Mission {numero.value} validée ! Ta progression est maintenant de **{count}/3**. 🌱"
         if count == 3:
             message += "\n🎉 **Passeport complété pour cette semaine !** Bravo pour ta participation."
+            # Les missions reposent sur une déclaration de bonne foi. L'étoile
+            # n'est attribuée qu'une fois, après trois validations distinctes.
+            try:
+                if grant_sky_star(interaction.guild_id, interaction.user.id, "origins.mission"):
+                    message += "\n✦ **Carte du Ciel : étoile Aventurier débloquée !**"
+            except Exception:
+                log.exception("Échec de l'attribution de l'étoile Aventurier (guild=%s, member=%s)", interaction.guild_id, interaction.user.id)
         await interaction.response.send_message(message, ephemeral=True)
         features = self.bot.get_cog("HorizonsFeatures")
         if features and isinstance(interaction.user, discord.Member) and interaction.guild:
@@ -323,7 +355,7 @@ class Experiences(commands.Cog):
 
         if not isinstance(channel, (discord.TextChannel, discord.ForumChannel)):
             await interaction.response.send_message(
-                "Le salon #cherche-quelquun doit être un salon textuel ou un Forum.",
+                "Le salon des activités doit être un salon textuel ou un Forum.",
                 ephemeral=True,
             )
             return
@@ -350,7 +382,7 @@ class Experiences(commands.Cog):
         )
         embed.add_field(name="Proposé par", value=interaction.user.mention, inline=True)
         embed.add_field(name="Expire", value=f"Dans {duree_heures} h", inline=True)
-        embed.set_footer(text=f"HORIZONS • Annonce n°{request_id} • Clique sur « Ça m'intéresse » pour te manifester.")
+        embed.set_footer(text=f"HORIZONS • Annonce n°{request_id} • Intérêt libre, révocable à tout moment.")
 
         view = InterestView(self, request_id)
         try:
@@ -373,7 +405,7 @@ class Experiences(commands.Cog):
             with db() as conn:
                 conn.execute("UPDATE activity_requests SET status='failed' WHERE id=?", (request_id,))
             await interaction.response.send_message(
-                "Je n'ai pas les permissions nécessaires pour publier dans #cherche-quelquun.",
+                "Je n'ai pas les permissions nécessaires pour publier dans le salon des activités.",
                 ephemeral=True,
             )
             return
@@ -443,6 +475,55 @@ class Experiences(commands.Cog):
         else:
             notice = "Ton intérêt est enregistré."
         await interaction.response.send_message(notice, ephemeral=True)
+
+    async def handle_withdraw_interest(self, interaction: discord.Interaction, request_id: int):
+        """Révocation explicite, sans récompense ni participation présumée."""
+        if interaction.guild_id is None:
+            await interaction.response.send_message("Action réservée au serveur.", ephemeral=True)
+            return
+        with db() as conn:
+            row = conn.execute(
+                "SELECT status FROM activity_requests WHERE id=? AND guild_id=?",
+                (request_id, interaction.guild_id),
+            ).fetchone()
+            if row is None or row["status"] != "open":
+                await interaction.response.send_message("Cette annonce n'est plus active.", ephemeral=True)
+                return
+            removed = conn.execute(
+                "DELETE FROM activity_request_interests WHERE request_id=? AND user_id=?",
+                (request_id, interaction.user.id),
+            ).rowcount
+        await interaction.response.send_message(
+            "Ton intérêt a été retiré. 💙" if removed else "Tu n'avais pas manifesté d'intérêt pour cette annonce.",
+            ephemeral=True,
+        )
+
+    async def handle_close_request(self, interaction: discord.Interaction, request_id: int):
+        """Seul l'auteur peut fermer son annonce; la clôture persiste en SQLite."""
+        if interaction.guild_id is None:
+            await interaction.response.send_message("Action réservée au serveur.", ephemeral=True)
+            return
+        with db() as conn:
+            row = conn.execute(
+                "SELECT user_id,status FROM activity_requests WHERE id=? AND guild_id=?",
+                (request_id, interaction.guild_id),
+            ).fetchone()
+            if row is None:
+                await interaction.response.send_message("Annonce introuvable.", ephemeral=True)
+                return
+            if int(row["user_id"]) != interaction.user.id:
+                await interaction.response.send_message("Seul l'auteur peut clore cette annonce.", ephemeral=True)
+                return
+            if row["status"] != "open":
+                await interaction.response.send_message("Cette annonce est déjà clôturée.", ephemeral=True)
+                return
+            conn.execute("UPDATE activity_requests SET status='closed' WHERE id=? AND status='open'", (request_id,))
+        try:
+            if interaction.message:
+                await interaction.message.edit(view=InterestView(self, request_id, disabled=True))
+        except (discord.Forbidden, discord.HTTPException):
+            pass
+        await interaction.response.send_message("Ton annonce est clôturée. Merci ! 🌌", ephemeral=True)
 
     # ------------------------------------------------------------------
     # 3. Défis collectifs

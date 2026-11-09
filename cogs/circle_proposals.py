@@ -68,6 +68,44 @@ class CircleProposalModal(discord.ui.Modal, title="Proposer un Cercle HORIZONS")
         await interaction.followup.send(f"Ta proposition #{pid} a été transmise à l'équipe. Tu recevras une réponse après examen. 💙", ephemeral=True)
 
 
+class CircleInterestView(discord.ui.View):
+    """Inscription volontaire, persistante, sans attribution prématurée d'étoile."""
+    def __init__(self, pid: int):
+        super().__init__(timeout=None)
+        self.pid = pid
+        button = discord.ui.Button(label="Je suis intéressé·e", emoji="🌟",
+                                   style=discord.ButtonStyle.secondary,
+                                   custom_id=f"horizons:circles:interest:{pid}")
+        button.callback = self.toggle_interest
+        self.add_item(button)
+
+    async def toggle_interest(self, interaction: discord.Interaction):
+        if not interaction.guild_id:
+            await interaction.response.send_message("Cette action est réservée au serveur.", ephemeral=True)
+            return
+        with db() as conn:
+            circle = conn.execute(
+                "SELECT id FROM circle_proposals WHERE id=? AND guild_id=? AND status='approved'",
+                (self.pid, interaction.guild_id)).fetchone()
+            if not circle:
+                await interaction.response.send_message("Ce Cercle n'est plus disponible.", ephemeral=True)
+                return
+            existing = conn.execute(
+                "SELECT 1 FROM circle_interests WHERE circle_id=? AND user_id=?",
+                (self.pid, interaction.user.id)).fetchone()
+            if existing:
+                conn.execute("DELETE FROM circle_interests WHERE circle_id=? AND user_id=?",
+                             (self.pid, interaction.user.id))
+                response = "Ton intérêt pour ce Cercle a été retiré."
+            else:
+                conn.execute("INSERT OR IGNORE INTO circle_interests(circle_id,user_id) VALUES(?,?)",
+                             (self.pid, interaction.user.id))
+                response = "Ton intérêt est enregistré ! Cela ne vaut pas inscription à une activité. 🌟"
+            count = conn.execute("SELECT COUNT(*) FROM circle_interests WHERE circle_id=?",
+                                 (self.pid,)).fetchone()[0]
+        await interaction.response.send_message(f"{response}\n**{count}** personne(s) intéressée(s).", ephemeral=True)
+
+
 class CircleProposalEntry(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
@@ -114,7 +152,7 @@ async def decide_circle(interaction: discord.Interaction, pid: int, action: str,
                 description=f"**Thème :** {row['theme']}\n**Objectif :** {row['goal']}\n**Activités proposées :** {row['activities']}\n**Rythme :** {row['rhythm']}\n\n**À l'origine du Cercle :** <@{row['user_id']}>")
             if not e.thumbnail.url:
                 e.set_thumbnail(url=interaction.client.user.display_avatar.url)
-            published = await dest.send(embed=e, allowed_mentions=discord.AllowedMentions.none())
+            published = await dest.send(embed=e, view=CircleInterestView(pid), allowed_mentions=discord.AllowedMentions.none())
         except (discord.Forbidden,discord.HTTPException):
             with db() as conn:
                 conn.execute("UPDATE circle_proposals SET status='pending' WHERE id=? AND status='publishing'",(pid,))
@@ -177,8 +215,17 @@ class CircleProposals(commands.Cog):
                 rhythm TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'pending',
                 staff_message_id INTEGER, published_message_id INTEGER, reviewer_id INTEGER,
                 decision_note TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)''')
+            conn.execute("""CREATE TABLE IF NOT EXISTS circle_interests (
+                circle_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY(circle_id,user_id),
+                FOREIGN KEY(circle_id) REFERENCES circle_proposals(id) ON DELETE CASCADE
+            )""")
             rows=conn.execute("SELECT id,staff_message_id FROM circle_proposals WHERE status='pending' AND staff_message_id IS NOT NULL").fetchall()
+            approved=conn.execute("SELECT id,published_message_id FROM circle_proposals WHERE status='approved' AND published_message_id IS NOT NULL").fetchall()
         self.bot.add_view(CircleProposalEntry())
+        for circle in approved:
+            self.bot.add_view(CircleInterestView(circle['id']), message_id=circle['published_message_id'])
         for row in rows:
             self.bot.add_view(CircleStaffView(row['id']),message_id=row['staff_message_id'])
 

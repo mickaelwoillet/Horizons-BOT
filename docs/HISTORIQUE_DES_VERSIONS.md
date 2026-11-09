@@ -248,3 +248,7 @@ Aucune animation automatique n'est déclenchée selon le nombre de membres conne
 
 Les contrôles de syntaxe sont réussis. Aucune connexion Discord ni essai réel d'interaction n'a été effectué. Le module dépend du chargement de `cogs.experiences` et de la configuration du salon de recherche.
 
+
+### V8 — Découvrabilité du Centre (travail cumulatif)
+- Mise en avant de `/centre` dans cinq points d’entrée existants, sans nouveau salon ni publication automatique supplémentaire.
+- Textes des embeds d’accueil, premiers pas, présentation, Notre esprit et catalogue des commandes actualisés.

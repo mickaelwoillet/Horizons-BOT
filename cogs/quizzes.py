@@ -3,6 +3,7 @@ from __future__ import annotations
 from cogs.embed_theme import horizons_embed
 
 import asyncio
+import logging
 import json
 import random
 import re
@@ -13,6 +14,9 @@ from discord import app_commands
 from discord.ext import commands
 
 from config import DATA_DIR, STAFF_ROLE_ID, QUIZ_CHANNEL_ID
+from .sky_map import grant as grant_sky_star
+
+log = logging.getLogger(__name__)
 
 
 def normalize(value: str) -> str:
@@ -178,6 +182,13 @@ class Quizzes(commands.Cog):
         if normalize(answer) == normalize(session["answer"]):
             session["winner"] = interaction.user.id
             session["scores"][interaction.user.id] = session["scores"].get(interaction.user.id, 0) + 1
+            # Récompense uniquement une réponse correcte vérifiée par le quiz.
+            # Un échec SQLite ne doit jamais empêcher la fin de la manche.
+            try:
+                if grant_sky_star(guild_id, interaction.user.id, "origins.quiz"):
+                    log.info("Étoile Esprit Curieux attribuée au membre %s", interaction.user.id)
+            except Exception:
+                log.exception("Échec de l'attribution de l'étoile quiz au membre %s", interaction.user.id)
             await interaction.response.send_message(
                 "🎉 Bonne réponse ! Tu remportes cette manche et marques un point !",
                 ephemeral=True,

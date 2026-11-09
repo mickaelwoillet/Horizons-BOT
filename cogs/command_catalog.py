@@ -50,7 +50,7 @@ STAFF_PERMISSIONS = {
 }
 CATEGORIES = (
     ("🙌 Accueil et découverte", {"premiers_pas"}),
-    ("⚙️ Informations et profils", {"ping", "aide", "aidestaff", "profil", "serveur", "presentation"}),
+    ("⚙️ Informations et profils", {"centre", "ping", "aide", "aidestaff", "profil", "serveur", "presentation"}),
     ("💬 Communauté et entraide", {"question_du_jour", "compliment", "idee", "mes_idees", "idee_statut", "remercier", "proposer"}),
     ("🧭 Missions et expériences", {"mon_passeport", "valider_mission", "chercher", "defi_collectif", "rejoindre_defi", "creer_defi", "parcours", "parcours_badges", "mon_parcours", "actualiser_rangs"}),
     ("🎉 Événements et jeux", {"evenement_creer", "evenements", "evenement_fermer", "creer", "annuler", "reroll", "quiz_lancer", "quiz_arreter", "blague", "devinette"}),
@@ -135,7 +135,7 @@ def build_catalog_embeds(bot, *, audience: str = "all", updated: str = "") -> li
         intro = "Répertoire des commandes staff actuellement chargées. L'accès reste contrôlé par le bot et les permissions Discord ; certaines fonctions exigent une prise de service. Le carrefour communautaire et ses activités ne nécessitent pas de commande slash supplémentaire."
     else:
         title = "✦ HORIZONS — Catalogue des commandes"
-        intro = "Répertoire complet des commandes actuellement chargées. < > = obligatoire ; [ ] = facultatif."
+        intro = "🌌 **Pour commencer : `/centre`** ouvre ton espace personnel et privé, avec accueil personnalisé, Carte du Ciel et accès aux activités.\n\nRépertoire complet des commandes actuellement chargées. < > = obligatoire ; [ ] = facultatif."
     grouped: dict[str, list[dict]] = {}
     for entry in entries:
         grouped.setdefault(entry["category"], []).append(entry)

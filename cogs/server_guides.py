@@ -286,7 +286,7 @@ class ServerGuides(commands.Cog):
         intro = horizons_embed(
             title="✦ Présente-toi à la communauté",
             description=(
-                "Bienvenue sur HORIZONS ! Si tu en as envie, ce salon est l'occasion de nous dire quelques mots sur toi. "
+                "Bienvenue sur HORIZONS ! Pour découvrir ton espace personnel, ouvre **`/centre`** : un accueil à ton nom, ta Carte du Ciel et les activités t’y attendent, en privé.\n\nSi tu en as envie, ce salon est l'occasion de nous dire quelques mots sur toi. "
                 "Pas besoin d'écrire un roman : une présentation simple et sincère suffit.\n\n"
                 "Tu peux nous partager :\n"
                 "• le prénom ou pseudo que tu souhaites qu'on utilise ;\n"
@@ -344,6 +344,7 @@ class ServerGuides(commands.Cog):
                 "Chacun apporte un petit morceau de son monde. Et c'est en réunissant tous ces morceaux que nous construisons le nôtre.\n\n"
                 "✦ Peu importe d'où tu viens, qui tu es ou le chemin que tu as parcouru…\n\n"
                 "**Il y a une place pour toi à l'horizon.**\n\n"
+                "🌌 **Ton point de départ : `/centre`** — ton espace privé, personnalisé, pour explorer HORIZONS et suivre tes découvertes.\n\n"
                 "Bienvenue chez HORIZONS. ✦"
             ),
             color=discord.Color.gold(),

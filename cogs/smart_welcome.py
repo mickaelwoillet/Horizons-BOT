@@ -148,7 +148,7 @@ def build_first_steps_embed() -> discord.Embed:
     )
     embed.add_field(
         name="🌅 3. Explore à ton rythme",
-        value="Le parcours HORIZONS propose cinq chemins facultatifs : curiosité, confiance, solidarité, créativité et découverte. Consulte **/aide** si besoin.",
+        value="Commence par **`/centre`** : ton espace privé t’accueille par ton pseudo, affiche ta Carte du Ciel et te guide vers les activités. Le parcours HORIZONS reste facultatif. Pour les autres commandes, consulte **`/aide`**.",
         inline=False,
     )
     embed.add_field(
@@ -207,7 +207,7 @@ class SmartWelcome(commands.Cog):
                 "**Pour commencer, voici trois petits pas :**\n"
                 "📜 **1. Découvrir la charte** : lis-la puis utilise le bouton d'acceptation dans le salon dédié.\n"
                 "🧭 **2. Après la charte** : tu pourras personnaliser ton expérience dans le choix des rôles.\n"
-                "💬 **3. Explorer** : découvre les salons, les expériences et les animations à ton rythme.\n\n"
+                "🌌 **3. Ouvrir ton Centre** : tape **`/centre`** pour retrouver ton espace personnel, ta Carte du Ciel et les activités.\n\n"
                 "Tu peux simplement observer au début. La présentation est facultative : ici, chacun avance à son rythme. Bienvenue chez toi ! ✨"
             ),
             color=discord.Color.gold(),

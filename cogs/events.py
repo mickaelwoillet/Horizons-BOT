@@ -7,6 +7,10 @@ from discord import app_commands
 from discord.ext import commands, tasks
 from config import LOCAL_TIMEZONE, STAFF_ROLE_ID, ANIMATOR_ROLE_ID, AGENDA_CHANNEL_ID
 from .storage import db
+from .sky_map import grant as grant_sky_star
+import logging
+
+log = logging.getLogger(__name__)
 
 class EventRSVPView(discord.ui.View):
     def __init__(self, event_id: int):
@@ -110,6 +114,65 @@ class Events(commands.Cog):
                 await msg.edit(view=None)
             except discord.HTTPException: pass
         await interaction.response.send_message(f"Les inscriptions à l'événement **#{numero}** sont fermées.", ephemeral=True)
+
+    @app_commands.command(name="evenement_presence", description="Confirmer la présence réelle à un événement terminé.")
+    @app_commands.describe(numero="Numéro de l'événement", membre="Membre réellement présent")
+    async def evenement_presence(self, interaction: discord.Interaction, numero: app_commands.Range[int, 1, 999999], membre: discord.Member):
+        if interaction.guild_id is None:
+            await interaction.response.send_message("Cette commande est réservée au serveur.", ephemeral=True)
+            return
+        with db() as conn:
+            event = conn.execute(
+                "SELECT creator_id,starts_at,title FROM events WHERE id=? AND guild_id=?",
+                (numero, interaction.guild_id),
+            ).fetchone()
+            if not event:
+                await interaction.response.send_message("Événement introuvable.", ephemeral=True)
+                return
+            is_staff = isinstance(interaction.user, discord.Member) and (
+                interaction.user.guild_permissions.administrator
+                or (STAFF_ROLE_ID and any(r.id == STAFF_ROLE_ID for r in interaction.user.roles))
+            )
+            if event["creator_id"] != interaction.user.id and not is_staff:
+                await interaction.response.send_message("Seul l'organisateur ou le staff peut confirmer une présence.", ephemeral=True)
+                return
+            try:
+                starts_at = datetime.fromisoformat(event["starts_at"])
+                if starts_at.tzinfo is None:
+                    starts_at = starts_at.replace(tzinfo=LOCAL_TIMEZONE)
+            except (TypeError, ValueError):
+                await interaction.response.send_message("Date de l'événement invalide.", ephemeral=True)
+                return
+            if starts_at > datetime.now(timezone.utc):
+                await interaction.response.send_message("La présence ne peut être confirmée avant le début de l'événement.", ephemeral=True)
+                return
+            rsvp = conn.execute(
+                "SELECT response FROM event_rsvps WHERE event_id=? AND user_id=?",
+                (numero, membre.id),
+            ).fetchone()
+            if not rsvp or rsvp["response"] != "yes":
+                await interaction.response.send_message("Ce membre n'est pas inscrit comme participant à cet événement.", ephemeral=True)
+                return
+            inserted = conn.execute(
+                "INSERT OR IGNORE INTO event_attendance(event_id,user_id,confirmed_by,confirmed_at) VALUES(?,?,?,?)",
+                (numero, membre.id, interaction.user.id, discord.utils.utcnow().isoformat()),
+            ).rowcount
+        if not inserted:
+            await interaction.response.send_message("Cette présence a déjà été confirmée.", ephemeral=True)
+            return
+        # Une présence confirmée (et non une inscription) débloque Main Tendue.
+        # Le journal métier est conservé même si l'attribution de l'étoile échoue.
+        new_star = False
+        try:
+            new_star = grant_sky_star(interaction.guild_id, membre.id, "origins.activity")
+        except Exception:
+            log.exception("Échec de l'attribution Main Tendue pour %s", membre.id)
+        message = f"Présence de {membre.display_name} confirmée pour **{event['title']}**."
+        if new_star:
+            message += " ✦ L'étoile **Main Tendue** vient d'être débloquée dans sa Carte du Ciel !"
+        await interaction.response.send_message(
+            message, ephemeral=True, allowed_mentions=discord.AllowedMentions.none(),
+        )
 
     @tasks.loop(minutes=5)
     async def event_reminders(self):

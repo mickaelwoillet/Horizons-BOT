@@ -1,5 +1,8 @@
 """Boîte à idées, mur de la solidarité et tableau de bord staff HORIZONS."""
 from __future__ import annotations
+import logging as _sky_logging
+from .sky_map import grant as grant_sky_star
+_sky_log = _sky_logging.getLogger(__name__)
 from cogs.embed_theme import get_logo_url, horizons_embed, wait_for_logo_ready
 
 from datetime import datetime, timezone
@@ -238,6 +241,11 @@ class CommunityHub(commands.Cog):
         features = self.bot.get_cog("HorizonsFeatures")
         if features and isinstance(interaction.user, discord.Member) and interaction.guild:
             await features.check_achievements(interaction.guild, interaction.user)
+        # Déblocage après publication effective et sauvegarde de l'idée.
+        try:
+            grant_sky_star(interaction.guild_id, interaction.user.id, "origins.idea")
+        except Exception:
+            _sky_log.exception("Carte du Ciel : impossible de créditer l'idée %s", idea_id)
         await interaction.response.send_message("Merci ! Ton idée a été déposée anonymement. 💡", ephemeral=True)
 
     @app_commands.command(name="mes_idees", description="Consulter tes propositions envoyées à la boîte à idées.")
@@ -322,6 +330,11 @@ class CommunityHub(commands.Cog):
             if isinstance(interaction.user, discord.Member):
                 await features.check_achievements(interaction.guild, interaction.user)
             await features.check_achievements(interaction.guild, membre)
+        # L'étoile récompense un remerciement effectivement publié, jamais un clic.
+        try:
+            grant_sky_star(interaction.guild_id or 0, interaction.user.id, "origins.recognition")
+        except Exception:
+            _sky_log.exception("Carte du Ciel : impossible de créditer le remerciement %s", posted.id)
         await interaction.response.send_message(f"Ton remerciement a été publié dans {channel.mention}. 💜", ephemeral=True)
 
     def dashboard_embed(self, guild: discord.Guild, section: str):

@@ -10,6 +10,69 @@ DB_PATH = DATA_DIR / "horizons.sqlite3"
 SCHEMA = """
 PRAGMA journal_mode=WAL;
 PRAGMA foreign_keys=ON;
+CREATE TABLE IF NOT EXISTS sky_unlocks (
+ guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
+ star_key TEXT NOT NULL, unlocked_at TEXT NOT NULL,
+ PRIMARY KEY(guild_id,user_id,star_key)
+);
+CREATE INDEX IF NOT EXISTS idx_sky_unlocks_member ON sky_unlocks(guild_id,user_id);
+CREATE TABLE IF NOT EXISTS future_letters (
+ id INTEGER PRIMARY KEY AUTOINCREMENT,
+ guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
+ content TEXT NOT NULL, created_at TEXT NOT NULL,
+ due_at TEXT NOT NULL, opened_at TEXT,
+ CHECK(length(content) BETWEEN 1 AND 1000)
+);
+CREATE INDEX IF NOT EXISTS idx_future_letters_owner ON future_letters(guild_id,user_id,due_at);
+CREATE TABLE IF NOT EXISTS time_capsules (
+ id INTEGER PRIMARY KEY AUTOINCREMENT,
+ guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
+ content TEXT NOT NULL, created_at TEXT NOT NULL,
+ due_at TEXT NOT NULL, opened_at TEXT,
+ CHECK(length(content) BETWEEN 1 AND 1000)
+);
+CREATE INDEX IF NOT EXISTS idx_time_capsules_owner ON time_capsules(guild_id,user_id,due_at);
+CREATE TABLE IF NOT EXISTS collective_capsule_questions (
+ id INTEGER PRIMARY KEY AUTOINCREMENT, guild_id INTEGER NOT NULL,
+ month_key TEXT NOT NULL, question TEXT NOT NULL, created_by INTEGER NOT NULL,
+ created_at TEXT NOT NULL, reveal_at TEXT NOT NULL,
+ UNIQUE(guild_id,month_key), CHECK(length(question) BETWEEN 1 AND 250)
+);
+CREATE TABLE IF NOT EXISTS collective_capsule_answers (
+ id INTEGER PRIMARY KEY AUTOINCREMENT, question_id INTEGER NOT NULL,
+ guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL, content TEXT NOT NULL,
+ status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','approved','rejected')),
+ created_at TEXT NOT NULL, reviewed_by INTEGER, reviewed_at TEXT,
+ UNIQUE(question_id,user_id),
+ FOREIGN KEY(question_id) REFERENCES collective_capsule_questions(id) ON DELETE CASCADE,
+ CHECK(length(content) BETWEEN 1 AND 700)
+);
+CREATE INDEX IF NOT EXISTS idx_collective_capsule_review ON collective_capsule_answers(guild_id,status,id);
+CREATE TABLE IF NOT EXISTS bridge_requests (
+ id INTEGER PRIMARY KEY AUTOINCREMENT,
+ guild_id INTEGER NOT NULL, requester_id INTEGER NOT NULL, recipient_id INTEGER NOT NULL,
+ status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','accepted','declined')),
+ created_at TEXT NOT NULL, decided_at TEXT,
+ CHECK(requester_id <> recipient_id)
+);
+CREATE INDEX IF NOT EXISTS idx_bridge_requests_recipient ON bridge_requests(guild_id,recipient_id,status);
+CREATE INDEX IF NOT EXISTS idx_bridge_requests_requester ON bridge_requests(guild_id,requester_id,status);
+CREATE TABLE IF NOT EXISTS bridge_profiles (
+ guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL, enabled INTEGER NOT NULL DEFAULT 1,
+ updated_at TEXT NOT NULL, PRIMARY KEY(guild_id,user_id)
+);
+CREATE TABLE IF NOT EXISTS bridge_interests (
+ guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL, interest TEXT NOT NULL,
+ PRIMARY KEY(guild_id,user_id,interest),
+ FOREIGN KEY(guild_id,user_id) REFERENCES bridge_profiles(guild_id,user_id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_bridge_interests ON bridge_interests(guild_id,interest);
+CREATE TABLE IF NOT EXISTS centre_visits (
+ guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
+ visits INTEGER NOT NULL DEFAULT 1,
+ first_visit_at TEXT NOT NULL, last_visit_at TEXT NOT NULL,
+ PRIMARY KEY(guild_id,user_id)
+);
 CREATE TABLE IF NOT EXISTS warnings (
  id INTEGER PRIMARY KEY AUTOINCREMENT, guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
  moderator_id INTEGER NOT NULL, reason TEXT NOT NULL, created_at TEXT NOT NULL, active INTEGER NOT NULL DEFAULT 1
@@ -129,6 +192,12 @@ CREATE TABLE IF NOT EXISTS solidarity_thanks (
 );
 CREATE INDEX IF NOT EXISTS idx_community_ideas_status ON community_ideas(guild_id,status,created_at);
 CREATE INDEX IF NOT EXISTS idx_solidarity_target ON solidarity_thanks(guild_id,target_id,created_at);
+CREATE TABLE IF NOT EXISTS event_attendance (
+ event_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
+ confirmed_by INTEGER NOT NULL, confirmed_at TEXT NOT NULL,
+ PRIMARY KEY(event_id,user_id),
+ FOREIGN KEY(event_id) REFERENCES events(id) ON DELETE CASCADE
+);
 CREATE TABLE IF NOT EXISTS event_reminders (
  event_id INTEGER NOT NULL, user_id INTEGER NOT NULL, reminder_type TEXT NOT NULL,
  sent_at TEXT NOT NULL,
