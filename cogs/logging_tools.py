@@ -37,17 +37,8 @@ class LoggingTools(commands.Cog):
             except discord.Forbidden:
                 await self.send_log(member.guild, "⚠️ Rôle de bienvenue non attribué",
                     f"Impossible d'attribuer {newcomer_role.mention} à {member.mention}. Vérifier la hiérarchie des rôles et la permission Gérer les rôles.", discord.Color.red())
-        channel = member.guild.get_channel(WELCOME_CHANNEL_ID) if WELCOME_CHANNEL_ID else None
-        if channel:
-            embed = horizons_embed(
-                title="🌅 Bienvenue dans HORIZONS !",
-                description=(f"Bienvenue {member.mention} ! 💜\n\n"
-                    "Nous sommes heureux de t'accueillir. Tu disposes du rôle **🌱 Nouveau membre**.\n\n"
-                    "📜 Passe dans le salon <#1566562055811633353>, lis la charte puis clique sur **J'accepte le règlement** pour obtenir le rôle **Membre** et accéder au reste de la communauté.\n\n"
-                    "Prends le temps de découvrir les salons et avance à ton rythme. Ici, chacun a sa place !"),
-                color=discord.Color.blurple())
-            embed.set_author(name=f'Membre : {member.display_name}', icon_url=member.display_avatar.url)
-            await channel.send(embed=embed)
+        # Le message public interactif est géré exclusivement par smart_welcome.
+        # Conserver ici uniquement le journal d’arrivée et le rôle temporaire.
 
     @commands.Cog.listener()
     async def on_member_remove(self, member: discord.Member):

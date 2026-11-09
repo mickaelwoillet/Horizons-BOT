@@ -12,6 +12,7 @@ from discord.ext import commands, tasks
 from config import (
     DATA_DIR, WELCOME_CHANNEL_ID, CHARTER_CHANNEL_ID, INTRO_CHANNEL_ID,
     DAILY_QUESTION_CHANNEL_ID, NEW_MEMBER_ROLE_ID, MEMBER_ROLE_ID, GUILD_ID,
+    STAFF_ROLE_ID, ADMIN_ROLE_ID, MOD_ROLE_ID,
 )
 from cogs.embed_theme import horizons_embed, wait_for_logo_ready
 from cogs.storage import db
@@ -277,10 +278,10 @@ class SmartWelcome(commands.Cog):
         has_role = any(role.id == MEMBER_ROLE_ID for role in after.roles)
         if had_role or not has_role:
             return
-        should_send_guide = False
+        if GUILD_ID and after.guild.id != GUILD_ID:
+            return
         now = utc_now().isoformat()
         with db() as conn:
-            # Couvre aussi un membre dont l'événement d'arrivée n'aurait pas été enregistré.
             conn.execute("""
                 INSERT OR IGNORE INTO onboarding_progress(guild_id, user_id, joined_at, charter_accepted)
                 VALUES (?, ?, ?, 1)
@@ -293,19 +294,28 @@ class SmartWelcome(commands.Cog):
             conn.execute("""
                 UPDATE onboarding_progress
                 SET charter_accepted=1,
-                    completed_at=CASE WHEN intro_posted=1 THEN ? ELSE completed_at END,
-                    charter_welcome_sent=CASE WHEN charter_welcome_sent=0 THEN 1 ELSE charter_welcome_sent END
+                    completed_at=CASE WHEN intro_posted=1 THEN ? ELSE completed_at END
                 WHERE guild_id=? AND user_id=?
             """, (now, after.guild.id, after.id))
 
-        if should_send_guide:
-            try:
-                await send_charter_welcome(after)
-                logger.info("Bienvenue illustrée envoyée après validation de la charte (%s).", after.id)
-            except discord.Forbidden:
-                logger.info("Guide de découverte non envoyé (DM fermés) pour %s ; /premiers_pas reste disponible.", after.id)
-            except discord.HTTPException:
-                logger.warning("Échec de l'envoi du guide de découverte pour %s.", after.id)
+        if not should_send_guide:
+            logger.info("Guide déjà envoyé à %s : aucun doublon.", after.id)
+            return
+        try:
+            await send_charter_welcome(after)
+        except discord.Forbidden:
+            logger.warning("MP de bienvenue refusé par Discord pour %s (MP fermés ou bloqués).", after.id)
+        except discord.HTTPException:
+            logger.exception("Échec Discord lors de l'envoi du MP illustré à %s.", after.id)
+        except Exception:
+            logger.exception("Erreur inattendue lors de l'envoi du MP illustré à %s.", after.id)
+        else:
+            with db() as conn:
+                conn.execute("""
+                    UPDATE onboarding_progress SET charter_welcome_sent=1
+                    WHERE guild_id=? AND user_id=?
+                """, (after.guild.id, after.id))
+            logger.info("Bienvenue illustrée envoyée avec succès après validation de la charte (%s).", after.id)
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -424,6 +434,79 @@ class SmartWelcome(commands.Cog):
             view=DiscoveryLinksView(interaction.guild),
             ephemeral=True,
         )
+
+    @staticmethod
+    def _authorized_staff(interaction: discord.Interaction) -> bool:
+        """Contrôle réel côté bot (les permissions Discord seules sont modifiables)."""
+        member = interaction.user
+        if not isinstance(member, discord.Member) or interaction.guild is None:
+            return False
+        if GUILD_ID and interaction.guild.id != GUILD_ID:
+            return False
+        return bool(
+            member.guild_permissions.administrator
+            or member.guild_permissions.manage_guild
+            or any(role.id in {STAFF_ROLE_ID, ADMIN_ROLE_ID, MOD_ROLE_ID} for role in member.roles)
+        )
+
+    @staticmethod
+    async def _manual_welcome(interaction: discord.Interaction, target: discord.Member, *, test: bool) -> None:
+        """Envoie le vrai guide sans modifier l'historique d'accueil ni les rôles."""
+        if not SmartWelcome._authorized_staff(interaction):
+            await interaction.response.send_message("⛔ Cette commande est réservée à l'équipe HORIZONS.", ephemeral=True)
+            return
+        if target.bot:
+            await interaction.response.send_message("⛔ Le guide ne peut pas être envoyé à un bot.", ephemeral=True)
+            return
+        if not test and MEMBER_ROLE_ID and not any(role.id == MEMBER_ROLE_ID for role in target.roles):
+            await interaction.response.send_message(
+                "📜 Ce membre n'a pas encore le rôle Membre. Attends sa validation de la charte.",
+                ephemeral=True,
+            )
+            return
+        # Accusé de réception avant l'envoi : une interaction Discord expire rapidement.
+        await interaction.response.defer(ephemeral=True, thinking=True)
+        try:
+            await send_charter_welcome(target)
+        except discord.Forbidden:
+            logger.warning("Guide manuel refusé par Discord : membre=%s, staff=%s", target.id, interaction.user.id)
+            await interaction.followup.send(
+                "❌ Discord a refusé le MP (messages privés fermés ou bot bloqué). Aucun statut modifié.",
+                ephemeral=True,
+            )
+        except discord.HTTPException as exc:
+            logger.warning("Erreur Discord du guide manuel : membre=%s, erreur=%s", target.id, exc)
+            await interaction.followup.send(
+                f"❌ Discord n'a pas pu envoyer le guide (code {getattr(exc, 'status', 'inconnu')}). Aucun statut modifié.",
+                ephemeral=True,
+            )
+        except Exception:
+            logger.exception("Erreur inattendue lors du guide manuel : membre=%s", target.id)
+            await interaction.followup.send("❌ Une erreur est survenue. Consulte la console ; aucun statut modifié.", ephemeral=True)
+        else:
+            logger.info("Guide %s envoyé manuellement : membre=%s, staff=%s", "test" if test else "renvoi", target.id, interaction.user.id)
+            await interaction.followup.send(
+                ("✅ MP de test envoyé avec les affiches. " if test else f"✅ Guide renvoyé à {target.mention}. ")
+                + "Aucun rôle ni historique d'accueil n'a été modifié.",
+                ephemeral=True,
+                allowed_mentions=discord.AllowedMentions.none(),
+            )
+
+    @app_commands.command(name="test_bienvenue_mp", description="Tester sur toi-même le MP illustré de bienvenue (staff).")
+    @app_commands.guild_only()
+    @app_commands.default_permissions(manage_guild=True)
+    async def test_bienvenue_mp(self, interaction: discord.Interaction):
+        if not isinstance(interaction.user, discord.Member):
+            await interaction.response.send_message("Commande disponible uniquement sur le serveur.", ephemeral=True)
+            return
+        await self._manual_welcome(interaction, interaction.user, test=True)
+
+    @app_commands.command(name="renvoyer_bienvenue", description="Renvoyer le guide illustré à un membre ayant validé la charte (staff).")
+    @app_commands.guild_only()
+    @app_commands.default_permissions(manage_guild=True)
+    @app_commands.describe(membre="Membre à qui renvoyer le guide")
+    async def renvoyer_bienvenue(self, interaction: discord.Interaction, membre: discord.Member):
+        await self._manual_welcome(interaction, membre, test=False)
 
     @app_commands.command(name="accueil_bilan", description="Consulter le suivi privé des nouveaux membres HORIZONS.")
     @app_commands.checks.has_permissions(manage_guild=True)

@@ -261,3 +261,11 @@ Depuis `/centre` → « Mes Passerelles », le membre peut sélectionner jusqu'�
 - `/centre` → « Mes Passerelles » : suggestions de Cercles et d'événements selon les intérêts déclarés, sans révéler d'autres membres.
 - `/centre` → « Ma météo privée » : historique facultatif des sept derniers jours, activation et effacement volontaire. L'effacement supprime aussi les entrées météo existantes du membre sur le serveur.
 - Aucune nouvelle commande ni aucun nouveau salon.
+
+
+## V8.7.5 — Vérification et renvoi du MP de bienvenue
+
+- `/test_bienvenue_mp` (staff) : envoie à l’auteur de la commande le vrai MP de bienvenue avec les trois affiches, même s’il a déjà accepté la charte. Ne modifie ni rôles ni historique SQLite.
+- `/renvoyer_bienvenue membre:@pseudo` (staff) : renvoie le même guide à un membre possédant le rôle Membre, sans modifier son suivi SQLite.
+- Les commandes sont restreintes au staff côté Python et au niveau Discord. Résultat visible uniquement par l’auteur (réponse éphémère). Les MP fermés sont signalés sans casser le bot.
+- L’envoi automatique après validation de la charte reste inchangé.
