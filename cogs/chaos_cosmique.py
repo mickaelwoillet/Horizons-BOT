@@ -97,6 +97,42 @@ def connect():
       entry TEXT NOT NULL)""")
     conn.execute("""CREATE TABLE IF NOT EXISTS cosmic_panels (
       guild_id INTEGER PRIMARY KEY, channel_id INTEGER NOT NULL, message_id INTEGER NOT NULL)""")
+    # V10.1 : progression optionnelle, sans migration destructive.
+    conn.execute("""CREATE TABLE IF NOT EXISTS cosmic_missions (
+      guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL, day TEXT NOT NULL,
+      mission TEXT NOT NULL, claimed_at TEXT,
+      PRIMARY KEY(guild_id,user_id,day))""")
+    conn.execute("""CREATE TABLE IF NOT EXISTS cosmic_bonds (
+      guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL, character TEXT NOT NULL,
+      affinity INTEGER NOT NULL DEFAULT 0, last_meeting TEXT NOT NULL DEFAULT '',
+      PRIMARY KEY(guild_id,user_id,character))""")
+    conn.execute("""CREATE TABLE IF NOT EXISTS cosmic_secrets (
+      guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL, secret TEXT NOT NULL,
+      discovered_at TEXT NOT NULL, PRIMARY KEY(guild_id,user_id,secret))""")
+    # V10.2 : progression collective et saison narrative, sans altérer les données existantes.
+    conn.execute("""CREATE TABLE IF NOT EXISTS cosmic_expeditions (
+      guild_id INTEGER NOT NULL, season INTEGER NOT NULL, contributions INTEGER NOT NULL DEFAULT 0,
+      completed_at TEXT, PRIMARY KEY(guild_id,season))""")
+    conn.execute("""CREATE TABLE IF NOT EXISTS cosmic_expedition_actions (
+      guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL, day TEXT NOT NULL,
+      season INTEGER NOT NULL, PRIMARY KEY(guild_id,user_id,day,season))""")
+    # V10.3 : choix narratifs personnels, persistants et sans réinitialisation des autres données.
+    conn.execute("""CREATE TABLE IF NOT EXISTS cosmic_paradox_choices (
+      guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL, day TEXT NOT NULL,
+      scene_key TEXT NOT NULL, choice INTEGER NOT NULL, result TEXT NOT NULL,
+      PRIMARY KEY(guild_id,user_id,day))""")
+    # V10.4 : intrigues croisées, choix uniques et conséquences persistantes.
+    conn.execute("""CREATE TABLE IF NOT EXISTS cosmic_crossroads (
+      guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL, day TEXT NOT NULL,
+      arc_key TEXT NOT NULL, choice INTEGER NOT NULL, outcome TEXT NOT NULL,
+      PRIMARY KEY(guild_id,user_id,day))""")
+    # V10.5 : échos narratifs différés, indépendants des anciennes tables.
+    conn.execute("""CREATE TABLE IF NOT EXISTS cosmic_echoes (
+      guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL, source_day TEXT NOT NULL,
+      due_day TEXT NOT NULL, arc_key TEXT NOT NULL, choice INTEGER NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending', result TEXT NOT NULL DEFAULT '',
+      PRIMARY KEY(guild_id,user_id,source_day))""")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_cosmic_echo_due ON cosmic_echoes(guild_id,status,due_day)")
     conn.commit()
     return conn
 
@@ -238,6 +274,587 @@ def creature_embed(c):
     e.set_footer(text=f"Expérience : {c['xp']} · Stade {c['stage']}/4")
     return e
 
+
+# V10 INFINITY : interactions persistantes, sans commande supplémentaire par action.
+NOX_LINES = {
+ 'parler': ['« J’ai demandé au Soleil son âge. Il m’a répondu : ça ne te regarde pas, petit astéroïde. »', '« Tu crois que les étoiles font des vœux quand elles voient passer des humains ? »', '« J’ai appris le mot diplomatie. Le canard me doit toujours un biscuit. »'],
+ 'nourrir': ['Nox engloutit une brioche stellaire. Une constellation demande la recette.', 'Nox goûte un biscuit lunaire et déclare officiellement la pause goûter universelle.', 'Nox mange une miette cosmique et en garde une pour demain.'],
+ 'jouer': ['Nox organise un cache-cache avec la gravité. La gravité triche.', 'Nox joue à saute-comète et atterrit dans une tasse de thé.', 'Nox gagne une partie d’échecs contre un caillou particulièrement mauvais joueur.'],
+ 'mediter': ['Nox médite en compagnie d’une comète qui ronfle.'],
+ 'repos': ['Nox se roule en boule et rêve d’un royaume gouverné par des coussins.', 'Nox s’endort. Ses ronflements réparent trois étoiles fatiguées.', 'Nox médite. Une chaise obtient l’illumination à sa place.'],
+ 'explorer': ['Nox trouve une cuillère qui se souvient du futur.', 'Nox découvre une chaussette quantique qui prétend être un ministre.', 'Nox revient avec un caillou qu’il appelle Directeur Général.'],
+}
+NOX_EFFECTS = {'parler':('affection',8), 'nourrir':('vitality',10), 'mediter':('stability',10), 'jouer':('curiosity',9), 'repos':('stability',10), 'explorer':('curiosity',7)}
+NOX_WISHES = ('un biscuit de météorite', 'une conversation sur les étoiles', 'une partie de cache-cache', 'une sieste sous une comète', 'une promenade dans le Jardin')
+COSMIC_CHARACTERS = (
+ ('🦆 Coin-Coin Ier', 'Le Canard Suprême réclame un ministère des flaques et des miettes.'),
+ ('📚 Madame Paradoxe', 'La bibliothécaire veut récupérer un livre qui ne sera écrit que demain.'),
+ ('🍞 Grille-Pain 3000', 'Le prophète du petit-déjeuner prédit une révolution des tartines.'),
+ ('🪼 Professeur Gloups', 'La méduse astronome cherche ses lunettes dans une autre dimension.'),
+ ('🧦 Ministre Chaussette', 'Un représentant du tiroir indépendant réclame un référendum.'),
+)
+
+def nox_wish(guild_id: int, day: str) -> str:
+    # Une envie stable pour toute la journée, sans dépendance à une API.
+    import hashlib
+    n=int.from_bytes(hashlib.sha256(f'{guild_id}:{day}:nox'.encode()).digest()[:4], 'big')
+    return NOX_WISHES[n % len(NOX_WISHES)]
+
+def care_nox(conn, guild_id: int, user_id: int, action: str, day: str):
+    if action not in NOX_EFFECTS:
+        return False, 'Action inconnue.'
+    c=creature(conn,guild_id)
+    cur=conn.execute('INSERT OR IGNORE INTO cosmic_actions(guild_id,user_id,action,day) VALUES(?,?,?,?)',
+                     (guild_id,user_id,'nox:'+action,day))
+    if not cur.rowcount:
+        return False, 'Nox a déjà partagé cette activité avec toi aujourd’hui. Essaie un autre bouton !'
+    field,amount=NOX_EFFECTS[action]
+    conn.execute(f'UPDATE cosmic_creature SET {field}=MIN(100,{field}+?), xp=xp+5, last_care=? WHERE guild_id=?',
+                 (amount,day,guild_id))
+    c=creature(conn,guild_id)
+    stage=min(4,1+c['xp']//100)
+    if stage>c['stage']:
+        conn.execute('UPDATE cosmic_creature SET stage=?,last_evolution=? WHERE guild_id=?',(stage,day,guild_id))
+        journal(conn,guild_id,f'Nox atteint le stade {stage} !')
+    # Texte déterministe par jour / utilisateur / action, surprise sans incohérence.
+    import hashlib
+    seed=hashlib.sha256(f'{guild_id}:{user_id}:{day}:{action}'.encode()).digest()[0]
+    line=NOX_LINES[action][seed%len(NOX_LINES[action])]
+    if stage>c['stage']:
+        line+=' 🌟 **Nox vient de se métamorphoser !**'
+    return True,line
+
+
+def map_text(conn,guild_id):
+    n=progress(conn,guild_id)
+    return '\n'.join(f'**{label}** — {desc}' if n>=required else f'🔒 Lieu secret · encore {required-n} anomalie(s)'
+       for label,desc,required in PLACES.values())
+
+
+def inventory_text(conn,guild_id,user_id):
+    rows=conn.execute('SELECT item,quantity FROM cosmic_inventory WHERE guild_id=? AND user_id=? AND quantity>0 ORDER BY item',
+                      (guild_id,user_id)).fetchall()
+    return '\n'.join(f'• {r["item"]} × {r["quantity"]}' for r in rows) if rows else 'Ton sac est vide. Pars explorer !'
+
+
+def visit_place(conn,guild_id,user_id,place,day):
+    if place not in PLACES: return 'Ce lieu n’existe pas.'
+    label,desc,needed=PLACES[place]
+    if progress(conn,guild_id)<needed:return f'🔒 {label} est encore inaccessible.'
+    cur=conn.execute('INSERT OR IGNORE INTO cosmic_actions VALUES(?,?,?,?)',
+                     (guild_id,user_id,'visiter:'+place,day))
+    if not cur.rowcount:return f'{label} — tu as déjà exploré ce lieu aujourd’hui.'
+    item=random.choice(ARTIFACTS)
+    conn.execute('INSERT INTO cosmic_inventory VALUES(?,?,?,1) ON CONFLICT(guild_id,user_id,item) DO UPDATE SET quantity=quantity+1',
+                 (guild_id,user_id,item))
+    return f'{label}\n{desc}\n✨ Tu découvres **{item}** !'
+
+
+# V10.1 — Les missions, affinités et archives cachées.
+# Les récompenses sont strictement cosmétiques et propres au Chaos Cosmique.
+MISSION_TYPES = (
+    ('parler', '💬 Confie un secret à Nox', 'Parle à Nox une fois aujourd’hui.'),
+    ('nourrir', '🍪 Le goûter des étoiles', 'Offre à Nox un biscuit imaginaire.'),
+    ('jouer', '🎲 Le championnat du n’importe quoi', 'Joue avec Nox.'),
+    ('repos', '🌙 Une pause dans l’infini', 'Aide Nox à se reposer.'),
+    ('explorer', '🧭 Mission comète', 'Pars explorer avec Nox.'),
+)
+
+def daily_mission(guild_id, user_id, day):
+    import hashlib
+    digest=hashlib.sha256(f'{guild_id}:{user_id}:{day}:mission:v1'.encode()).digest()
+    return MISSION_TYPES[int.from_bytes(digest[:4], 'big') % len(MISSION_TYPES)]
+
+def mission_status(conn, guild_id, user_id, day):
+    action, title, desc = daily_mission(guild_id,user_id,day)
+    completed = bool(conn.execute('SELECT 1 FROM cosmic_actions WHERE guild_id=? AND user_id=? AND action=? AND day=?',
+                                  (guild_id,user_id,'nox:'+action,day)).fetchone())
+    claimed = bool(conn.execute('SELECT 1 FROM cosmic_missions WHERE guild_id=? AND user_id=? AND day=? AND claimed_at IS NOT NULL',
+                                (guild_id,user_id,day)).fetchone())
+    return action,title,desc,completed,claimed
+
+def claim_mission(conn,guild_id,user_id,day):
+    action,title,desc,completed,claimed=mission_status(conn,guild_id,user_id,day)
+    if claimed: return '🏅 Tu as déjà reçu la récompense de cette mission.'
+    if not completed: return f'🧩 **{title}**\n{desc}\nReviens après avoir accompli cette action.'
+    conn.execute('INSERT OR IGNORE INTO cosmic_missions(guild_id,user_id,day,mission) VALUES(?,?,?,?)',
+                 (guild_id,user_id,day,action))
+    cur=conn.execute('UPDATE cosmic_missions SET claimed_at=? WHERE guild_id=? AND user_id=? AND day=? AND claimed_at IS NULL',
+                     (datetime.now(LOCAL_TIMEZONE).isoformat(),guild_id,user_id,day))
+    if not cur.rowcount: return '🏅 Cette mission a déjà été récompensée.'
+    item='éclat de destinée'
+    conn.execute('INSERT INTO cosmic_inventory VALUES(?,?,?,1) ON CONFLICT(guild_id,user_id,item) DO UPDATE SET quantity=quantity+1',
+                 (guild_id,user_id,item))
+    return f'🏆 **{title} accomplie !**\nTu gagnes un **{item}**. Il ne sert à rien de raisonnable… pour le moment.'
+
+def encounter_character(conn,guild_id,user_id,day):
+    import hashlib
+    seed=hashlib.sha256(f'{guild_id}:{user_id}:{day}:rencontre'.encode()).digest()[0]
+    name,story=COSMIC_CHARACTERS[seed%len(COSMIC_CHARACTERS)]
+    conn.execute('INSERT OR IGNORE INTO cosmic_bonds(guild_id,user_id,character) VALUES(?,?,?)', (guild_id,user_id,name))
+    cur=conn.execute('UPDATE cosmic_bonds SET affinity=MIN(10,affinity+1),last_meeting=? '
+                     'WHERE guild_id=? AND user_id=? AND character=? AND last_meeting!=?',
+                     (day,guild_id,user_id,name,day))
+    bond=conn.execute('SELECT affinity FROM cosmic_bonds WHERE guild_id=? AND user_id=? AND character=?',
+                      (guild_id,user_id,name)).fetchone()['affinity']
+    suffix='\n💫 Cette rencontre renforce votre complicité.' if cur.rowcount else '\n⏳ Vous vous êtes déjà rencontrés aujourd’hui.'
+    if bond>=3:
+        secret='le protocole des miettes'
+        stamp=datetime.now(LOCAL_TIMEZONE).isoformat()
+        unlocked=conn.execute('INSERT OR IGNORE INTO cosmic_secrets VALUES(?,?,?,?)',
+                              (guild_id,user_id,secret,stamp))
+        if unlocked.rowcount:
+            suffix+='\n🔐 **SECRET DÉCOUVERT :** Le protocole des miettes. Quelqu’un a dissimulé les clés du cosmos dans une boîte à biscuits.'
+    return f'🎭 **{name}**\n{story}\n💞 Affinité : **{bond}/10**'+suffix
+
+def archive_text(conn,guild_id,user_id):
+    rows=conn.execute('SELECT secret,discovered_at FROM cosmic_secrets WHERE guild_id=? AND user_id=? ORDER BY discovered_at',
+                      (guild_id,user_id)).fetchall()
+    return ('\n'.join('🔓 '+r['secret'].title() for r in rows) if rows else
+            '🔒 Aucun secret découvert pour le moment. Rencontrer régulièrement les habitants pourrait aider…')
+
+# V10.2 — saisons et expéditions accessibles par boutons, sans API externe.
+# Une saison dure 28 jours UTC-localisés à Paris; son numéro reste stable pour une date.
+SEASON_STORIES = (
+    ('🌠 Le Grand Réveil', 'L’Observatoire a reçu une lettre signée par une étoile qui n’existe pas. Nox veut répondre.'),
+    ('⏳ La Guerre des Horloges', 'Madame Paradoxe a perdu demain. Le Canard Suprême accuse officiellement mercredi.'),
+    ('🎪 Le Carnaval du Néant', 'Un cirque a débarqué avec des billets gratuits, mais personne ne sait où se trouve l’entrée.'),
+    ('🦆 Le Ministère des Miettes', 'Coin-Coin Ier exige un recensement de toutes les tartines interstellaires.'),
+)
+COSMIC_RUMORS = (
+    'Une porte ne s’ouvre qu’aux personnes qui savent saluer un caillou.',
+    'Le Grille-Pain 3000 a prédit une pluie de croissants sur l’Observatoire.',
+    'Une des étoiles serait en réalité un bouton de manchette perdu.',
+    'Le Professeur Gloups cache une carte dans une bulle de savon.',
+    'Nox affirme avoir entendu une comète demander son chemin.',
+    'Le Canard Suprême aurait engagé une armée de parapluies.',
+    'Madame Paradoxe emprunte parfois des livres à elle-même dans le futur.',
+)
+
+def cosmic_season(day):
+    from datetime import date
+    d=date.fromisoformat(day)
+    return (d-date(2026, 1, 1)).days // 28
+
+def season_overview(conn,guild_id,day):
+    season=cosmic_season(day)
+    title,story=SEASON_STORIES[season % len(SEASON_STORIES)]
+    row=conn.execute('SELECT contributions,completed_at FROM cosmic_expeditions WHERE guild_id=? AND season=?',
+                     (guild_id,season)).fetchone()
+    total=row['contributions'] if row else 0
+    return season,title,story,total, bool(row and row['completed_at'])
+
+def cosmic_rumor(guild_id,user_id,day):
+    import hashlib
+    seed=hashlib.sha256(f'{guild_id}:{user_id}:{day}:rumeur:v102'.encode()).digest()
+    return COSMIC_RUMORS[int.from_bytes(seed[:4],'big')%len(COSMIC_RUMORS)]
+
+def contribute_expedition(conn,guild_id,user_id,day):
+    season,title,story,total,done=season_overview(conn,guild_id,day)
+    if done:
+        return f'🏆 **{title}**\nL’expédition est terminée ! Reviens à la prochaine saison.'
+    cur=conn.execute('INSERT OR IGNORE INTO cosmic_expedition_actions VALUES(?,?,?,?)',
+                     (guild_id,user_id,day,season))
+    if not cur.rowcount:
+        return f'⏳ Tu as déjà aidé l’expédition aujourd’hui. Progression : **{total}/12**.'
+    conn.execute('INSERT OR IGNORE INTO cosmic_expeditions(guild_id,season) VALUES(?,?)',(guild_id,season))
+    conn.execute('UPDATE cosmic_expeditions SET contributions=MIN(12,contributions+1) WHERE guild_id=? AND season=?',
+                 (guild_id,season))
+    row=conn.execute('SELECT contributions FROM cosmic_expeditions WHERE guild_id=? AND season=?',(guild_id,season)).fetchone()
+    count=row['contributions']
+    if count>=12:
+        conn.execute('UPDATE cosmic_expeditions SET completed_at=? WHERE guild_id=? AND season=? AND completed_at IS NULL',
+                     (datetime.now(LOCAL_TIMEZONE).isoformat(),guild_id,season))
+        journal(conn,guild_id,f'🏆 Expédition collective achevée : {title}')
+        return f'🌟 **{title} — expédition accomplie !**\nLes 12 éclats ont été réunis. Une nouvelle page des Chroniques s’ouvre.'
+    return f'✨ Tu apportes un éclat à **{title}** !\nProgression collective : **{count}/12**. Même en solo, une contribution par jour suffit.'
+
+# V10.3 — Le Portail des Paradoxes : mini-aventures à embranchements.
+# Le tirage est déterministe par membre/jour ; un choix est sauvegardé une seule fois.
+PARADOX_SCENES = (
+    ('miettes', '🦆 Le Bureau des Miettes Disparues',
+     'Coin-Coin Ier accuse une comète d’avoir volé son petit déjeuner.',
+     ('Défendre la comète', 'Interroger le grille-pain', 'Proposer une médiation'),
+     ('La comète est acquittée. Elle t’offre un timbre stellaire.',
+      'Grille-Pain 3000 avoue avoir téléporté les tartines. Il te remet un reçu impossible.',
+      'Le tribunal signe la paix des croissants. Tu reçois un ruban diplomatique.')),
+    ('temps', '⏳ Le Mardi de Rechange',
+     'Madame Paradoxe a trouvé un mardi supplémentaire derrière une étagère.',
+     ('Le rendre au calendrier', 'Le garder en souvenir', 'Le donner à Nox'),
+     ('Le calendrier te remercie avec une aiguille de minuit.',
+      'Ton mardi miniature tient dans une poche. Tu trouves une minute pliée.',
+      'Nox le transforme en mercredi moelleux. Tu gagnes un fragment de demain.')),
+    ('gloups', '🪼 La Conférence des Bulles',
+     'Le Professeur Gloups organise une conférence scientifique sous l’eau, dans l’espace.',
+     ('Poser une question', 'Tester son invention', 'Inviter Nox à parler'),
+     ('La réponse tient dans une bulle savante. Tu la conserves précieusement.',
+      'La machine produit un soupir de nébuleuse. Tu emportes un boulon poétique.',
+      'Nox prononce un discours sur les biscuits. Tu gagnes une médaille de patience.')),
+    ('jardin', '🌱 La Révolte des Géraniums Stellaires',
+     'Les fleurs du jardin exigent de choisir elles-mêmes leur prénom.',
+     ('Organiser un vote', 'Écouter leurs souhaits', 'Faire appel au Canard'),
+     ('Le vote élit Gérard Premier. Une graine de démocratie t’est offerte.',
+      'Les fleurs choisissent toutes « Gérard ». Tu reçois une feuille enchantée.',
+      'Le Canard proclame la République des Pots. Tu obtiens un sceau de terre.')),
+)
+
+def paradox_scene(guild_id,user_id,day):
+    import hashlib
+    digest=hashlib.sha256(f'{guild_id}:{user_id}:{day}:paradoxe:v103'.encode()).digest()
+    return PARADOX_SCENES[int.from_bytes(digest[:4],'big')%len(PARADOX_SCENES)]
+
+def paradox_status(conn,guild_id,user_id,day):
+    scene=paradox_scene(guild_id,user_id,day)
+    row=conn.execute('SELECT choice,result FROM cosmic_paradox_choices WHERE guild_id=? AND user_id=? AND day=?',
+                     (guild_id,user_id,day)).fetchone()
+    return scene,row
+
+def choose_paradox(conn,guild_id,user_id,day,choice):
+    if choice not in (0,1,2): return 'Ce choix est inconnu.'
+    scene,row=paradox_status(conn,guild_id,user_id,day)
+    if row: return '📖 Ton histoire du jour est déjà écrite : '+row['result']
+    result=scene[4][choice]
+    cur=conn.execute('INSERT OR IGNORE INTO cosmic_paradox_choices VALUES(?,?,?,?,?,?)',
+                     (guild_id,user_id,day,scene[0],choice,result))
+    if not cur.rowcount:
+        row=conn.execute('SELECT result FROM cosmic_paradox_choices WHERE guild_id=? AND user_id=? AND day=?',
+                         (guild_id,user_id,day)).fetchone()
+        return '📖 Ton histoire est déjà écrite : '+row['result']
+    # Une découverte personnelle, non destructive, limitée à une par jour.
+    artifact=('timbre du paradoxe','souvenir temporel','bulle d’impossible')[choice]
+    conn.execute('INSERT INTO cosmic_inventory VALUES(?,?,?,1) ON CONFLICT(guild_id,user_id,item) DO UPDATE SET quantity=quantity+1',
+                 (guild_id,user_id,artifact))
+    return f'✨ **{result}**\n🎒 Objet obtenu : **{artifact}**.\nReviens demain pour une nouvelle histoire !'
+
+# V10.4 — Intrigues croisées : scènes déterministes, sans appel à une API externe.
+CROSSROADS = (
+    ('miettes', '🦆 Le scandale des miettes disparues',
+     'Coin-Coin Ier accuse Grille-Pain 3000 de détourner les réserves de biscuits stellaires. Nox affirme avoir vu une tartine fuir à cheval.',
+     ('Inspecter le grille-pain', 'Défendre le canard', 'Demander à Nox de négocier'),
+     (('Le grille-pain avoue avoir fondé une banque de croûtons. Madame Paradoxe exige un audit rétroactif.', -3, 5, 5, 'Grille-Pain 3000'),
+      ('Coin-Coin Ier est nommé ministre des miettes, mais doit désormais déclarer chaque biscotte.', 5, 3, 2, 'Coin-Coin Ier'),
+      ('Nox organise une paix autour du goûter. Les tartines obtiennent le droit de vote.', -5, 5, 9, 'Nox'))),
+    ('livre', '📚 Le livre qui a avalé demain',
+     'Madame Paradoxe a prêté un livre au Professeur Gloups. Depuis, Nox reçoit des lettres de son futur lui.',
+     ('Rendre le livre', 'Étudier les lettres', 'Faire lire Nox'),
+     (('Le livre revient avec 48 heures de retard avant son départ. La bibliothèque applaudit.', -3, 4, 7, 'Madame Paradoxe'),
+      ('Gloups découvre une équation écrite en confiture. Elle fonctionne uniquement les jeudis.', 4, 8, 3, 'Professeur Gloups'),
+      ('Nox apprend le mot « ploufologie ». Il réclame immédiatement un diplôme.', 6, 7, 5, 'Nox'))),
+    ('couronne', '👑 La couronne des trois catastrophes',
+     'Le Canard Suprême veut faire couronner Nox par un grille-pain, pendant que Madame Paradoxe annonce que la cérémonie a déjà eu lieu demain.',
+     ('Organiser un vote', 'Annuler la cérémonie', 'Couronner une chaussette'),
+     (('Les habitants votent pour une république de peluches. Le canard demande un recomptage.', -2, 5, 8, 'Coin-Coin Ier'),
+      ('Madame Paradoxe annule la cérémonie avant son annonce. Personne ne sait qui doit rembourser le gâteau.', -5, 4, 7, 'Madame Paradoxe'),
+      ('Une chaussette devient souveraine. Nox est nommé ministre des câlins.', 9, 6, 4, 'Nox'))),
+    ('etoile', '✨ L’étoile qui voulait démissionner',
+     'Le Professeur Gloups découvre qu’une étoile souhaite devenir veilleuse. Grille-Pain 3000 propose de la recruter pour cuire du pain.',
+     ('Respecter son choix', 'Créer une école d’étoiles', 'Lui présenter Nox'),
+     (('L’étoile éclaire désormais une bibliothèque miniature. Gloups pleure de joie.', -4, 3, 9, 'Professeur Gloups'),
+      ('La première école de reconversion stellaire ouvre dans une tasse de thé.', -2, 7, 7, 'Madame Paradoxe'),
+      ('Nox et l’étoile deviennent amis. Une nouvelle constellation dessine un biscuit.', 2, 8, 8, 'Nox'))),
+)
+
+
+def crossroad_scene(guild_id, user_id, day):
+    import hashlib
+    digest = hashlib.sha256(f'{guild_id}:{user_id}:{day}:croisement:v104'.encode()).digest()
+    return CROSSROADS[int.from_bytes(digest[:4], 'big') % len(CROSSROADS)]
+
+
+def crossroad_status(conn, guild_id, user_id, day):
+    scene = crossroad_scene(guild_id, user_id, day)
+    row = conn.execute('SELECT * FROM cosmic_crossroads WHERE guild_id=? AND user_id=? AND day=?',
+                       (guild_id, user_id, day)).fetchone()
+    return scene, row
+
+
+def choose_crossroad(conn, guild_id, user_id, day, choice):
+    if choice not in (0, 1, 2):
+        raise ValueError('Choix invalide')
+    scene, previous = crossroad_status(conn, guild_id, user_id, day)
+    if previous:
+        return previous['outcome'], False
+    outcome, dc, de, dh, character = scene[4][choice]
+    # SQLite sérialise l'écriture et empêche de créditer deux fois un même choix.
+    inserted = conn.execute('INSERT OR IGNORE INTO cosmic_crossroads VALUES(?,?,?,?,?,?)',
+                            (guild_id, user_id, day, scene[0], choice, outcome)).rowcount
+    if not inserted:
+        row = conn.execute('SELECT outcome FROM cosmic_crossroads WHERE guild_id=? AND user_id=? AND day=?',
+                           (guild_id, user_id, day)).fetchone()
+        return row['outcome'], False
+    ensure_world(conn, guild_id)
+    conn.execute('UPDATE cosmic_world SET chaos=MAX(0,MIN(100,chaos+?)), energy=MAX(0,MIN(100,energy+?)), harmony=MAX(0,MIN(100,harmony+?)) WHERE guild_id=?',
+                 (dc, de, dh, guild_id))
+    conn.execute('INSERT OR IGNORE INTO cosmic_bonds(guild_id,user_id,character) VALUES(?,?,?)',
+                 (guild_id,user_id,character))
+    conn.execute('UPDATE cosmic_bonds SET affinity=MIN(10,affinity+1) WHERE guild_id=? AND user_id=? AND character=?',
+                 (guild_id,user_id,character))
+    conn.execute('INSERT INTO cosmic_journal(guild_id,at,entry) VALUES(?,?,?)',
+                 (guild_id,datetime.now(LOCAL_TIMEZONE).isoformat(),f'Intrigue croisée : {scene[1]} — {outcome}'))
+    # La conséquence se manifestera deux jours plus tard, une seule fois.
+    due = (datetime.fromisoformat(day).date() + timedelta(days=2)).isoformat()
+    conn.execute('INSERT OR IGNORE INTO cosmic_echoes(guild_id,user_id,source_day,due_day,arc_key,choice) VALUES(?,?,?,?,?,?)',
+                 (guild_id,user_id,day,due,scene[0],choice))
+    return outcome, True
+
+
+ECHO_TWISTS = (
+    'Une lettre scellée arrive à l’Observatoire. Elle porte ton nom et la signature d’un canard qui nie tout.',
+    'Nox retrouve une petite boîte oubliée : elle contient une promesse et trois miettes stellaires.',
+    'Madame Paradoxe affirme que ton choix a créé un nouveau souvenir dans les archives.',
+    'Grille-Pain 3000 publie une prophétie à ton sujet. Elle est écrite sur une biscotte.',
+    'Le Professeur Gloups t’envoie un certificat de diplomatie cosmique, signé à l’envers.',
+)
+
+
+def resolve_due_echoes(conn, guild_id, today):
+    """Résout les retours arrivés à échéance, sans doublon même après redémarrage."""
+    import hashlib
+    rows = conn.execute('SELECT * FROM cosmic_echoes WHERE guild_id=? AND status=? AND due_day<=? ORDER BY due_day,source_day',
+                        (guild_id,'pending',today)).fetchall()
+    results = []
+    for row in rows:
+        seed = f'{row["guild_id"]}:{row["user_id"]}:{row["source_day"]}:{row["arc_key"]}:{row["choice"]}'
+        index = int.from_bytes(hashlib.sha256(seed.encode()).digest()[:4], 'big') % len(ECHO_TWISTS)
+        text = ECHO_TWISTS[index]
+        updated = conn.execute('UPDATE cosmic_echoes SET status=?,result=? WHERE guild_id=? AND user_id=? AND source_day=? AND status=?',
+                               ('ready',text,guild_id,row['user_id'],row['source_day'],'pending')).rowcount
+        if updated:
+            conn.execute('INSERT INTO cosmic_journal(guild_id,at,entry) VALUES(?,?,?)',
+                         (guild_id,datetime.now(LOCAL_TIMEZONE).isoformat(),f'Écho différé de {row["arc_key"]} : {text}'))
+            results.append((row['user_id'],text))
+    return results
+
+
+def echo_inbox(conn, guild_id, user_id, today):
+    resolve_due_echoes(conn,guild_id,today)
+    ready = conn.execute('SELECT source_day,result FROM cosmic_echoes WHERE guild_id=? AND user_id=? AND status=? ORDER BY due_day DESC LIMIT 5',
+                         (guild_id,user_id,'ready')).fetchall()
+    waiting = conn.execute('SELECT due_day FROM cosmic_echoes WHERE guild_id=? AND user_id=? AND status=? ORDER BY due_day LIMIT 1',
+                           (guild_id,user_id,'pending')).fetchone()
+    lines = [f'✨ **Écho du {r["source_day"]}** — {r["result"]}' for r in ready]
+    if waiting:
+        lines.append(f'⏳ Une conséquence se prépare pour le {waiting["due_day"]}.')
+    return '\n\n'.join(lines) if lines else 'Aucun écho pour le moment. Les choix des intrigues peuvent revenir te surprendre deux jours plus tard.'
+
+
+class CosmicCrossroadSelect(discord.ui.Select):
+    def __init__(self, scene):
+        super().__init__(placeholder='Choisis la suite de cette histoire…', min_values=1, max_values=1,
+                         options=[discord.SelectOption(label=label, value=str(index)) for index,label in enumerate(scene[3])])
+
+    async def callback(self, interaction):
+        if not interaction.guild:
+            return await interaction.response.send_message('Disponible uniquement sur un serveur.', ephemeral=True)
+        day=datetime.now(LOCAL_TIMEZONE).date().isoformat()
+        with connect() as conn:
+            result, changed=choose_crossroad(conn,interaction.guild.id,interaction.user.id,day,int(self.values[0]))
+        await interaction.response.send_message(('✨ **Ton choix change le cosmos !**\n' if changed else '📖 **Déjà résolu aujourd’hui.**\n')+result,ephemeral=True)
+
+
+class CosmicCrossroadView(discord.ui.View):
+    def __init__(self,scene):
+        super().__init__(timeout=300)
+        self.add_item(CosmicCrossroadSelect(scene))
+
+
+async def show_crossroad(interaction):
+    if not interaction.guild:
+        return await interaction.response.send_message('Disponible uniquement sur un serveur.',ephemeral=True)
+    day=datetime.now(LOCAL_TIMEZONE).date().isoformat()
+    with connect() as conn:
+        scene,row=crossroad_status(conn,interaction.guild.id,interaction.user.id,day)
+    if row:
+        return await interaction.response.send_message(f'📖 **{scene[1]}**\n{row["outcome"]}\nUne nouvelle intrigue t’attendra demain.',ephemeral=True)
+    await interaction.response.send_message(f'🎭 **{scene[1]}**\n{scene[2]}\n\n**À toi de décider !**',view=CosmicCrossroadView(scene),ephemeral=True)
+
+
+class CosmicParadoxView(discord.ui.View):
+    def __init__(self,scene):
+        super().__init__(timeout=180)
+        self.add_item(CosmicParadoxSelect(scene))
+
+class CosmicParadoxSelect(discord.ui.Select):
+    def __init__(self,scene):
+        super().__init__(placeholder='🔮 Choisir le destin de cette histoire', min_values=1,max_values=1,
+                         options=[discord.SelectOption(label=label[:100],value=str(n)) for n,label in enumerate(scene[3],1)])
+    async def callback(self,interaction):
+        day=datetime.now(LOCAL_TIMEZONE).date().isoformat()
+        with connect() as conn:
+            scene,row=paradox_status(conn,interaction.guild.id,interaction.user.id,day)
+            # Le menu est personnel et éphémère ; la base refuse les doubles choix.
+            result=choose_paradox(conn,interaction.guild.id,interaction.user.id,day,int(self.values[0])-1)
+        await interaction.response.send_message(result,ephemeral=True)
+
+async def show_paradox(interaction):
+    day=datetime.now(LOCAL_TIMEZONE).date().isoformat()
+    with connect() as conn:
+        scene,row=paradox_status(conn,interaction.guild.id,interaction.user.id,day)
+    if row:
+        return await interaction.response.send_message(f'🔮 **{scene[1]}**\n📖 {row["result"]}\nReviens demain pour un nouveau paradoxe.',ephemeral=True)
+    choices='\n'.join(f'**{idx}.** {name}' for idx,name in enumerate(scene[3],1))
+    await interaction.response.send_message(f'🔮 **{scene[1]}**\n{scene[2]}\n\n{choices}\n\n*Une décision par jour, sans retour en arrière.*',view=CosmicParadoxView(scene),ephemeral=True)
+
+class CosmicExpeditionView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=180)
+    @discord.ui.button(label='Apporter un éclat',emoji='✨',style=discord.ButtonStyle.success)
+    async def contribute(self,i,b):
+        day=datetime.now(LOCAL_TIMEZONE).date().isoformat()
+        with connect() as conn:
+            message=contribute_expedition(conn,i.guild.id,i.user.id,day)
+        await i.response.send_message(message,ephemeral=True)
+
+class NoxPanel(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+
+    async def action(self,interaction,action):
+        if not interaction.guild:
+            return await interaction.response.send_message('Disponible sur le serveur uniquement.',ephemeral=True)
+        with connect() as conn:
+            ok,message=care_nox(conn,interaction.guild.id,interaction.user.id,action,datetime.now(LOCAL_TIMEZONE).date().isoformat())
+            c=creature(conn,interaction.guild.id)
+        await interaction.response.send_message(('👾 ' if ok else '⏳ ')+message,embed=creature_embed(c) if ok else None,ephemeral=True)
+
+    @discord.ui.button(label='Nourrir',emoji='🍪',style=discord.ButtonStyle.success,custom_id='cosmic:v10:nox:feed',row=0)
+    async def feed(self,i,b): await self.action(i,'nourrir')
+    @discord.ui.button(label='Lui parler',emoji='💬',style=discord.ButtonStyle.primary,custom_id='cosmic:v10:nox:talk',row=0)
+    async def talk(self,i,b): await self.action(i,'parler')
+    @discord.ui.button(label='Jouer',emoji='🎲',style=discord.ButtonStyle.secondary,custom_id='cosmic:v10:nox:play',row=0)
+    async def play(self,i,b): await self.action(i,'jouer')
+    @discord.ui.button(label='Se reposer',emoji='🌙',style=discord.ButtonStyle.secondary,custom_id='cosmic:v10:nox:rest',row=0)
+    async def rest(self,i,b): await self.action(i,'repos')
+    @discord.ui.button(label='Explorer avec Nox',emoji='🧭',style=discord.ButtonStyle.primary,custom_id='cosmic:v10:nox:explore',row=1)
+    async def explore(self,i,b): await self.action(i,'explorer')
+    @discord.ui.button(label='Carte du monde',emoji='🗺️',style=discord.ButtonStyle.secondary,custom_id='cosmic:v10:nox:map',row=1)
+    async def map(self,i,b):
+        with connect() as conn:
+            ensure_world(conn,i.guild.id)
+            text=map_text(conn,i.guild.id)
+        await i.response.send_message('🗺️ **Le monde à découvrir**\n'+text,view=CosmicExplore(),ephemeral=True)
+    @discord.ui.button(label='Échos du destin',emoji='✉️',style=discord.ButtonStyle.secondary,custom_id='cosmic:v105:nox:echoes',row=1)
+    async def echoes(self,i,b):
+        day=datetime.now(LOCAL_TIMEZONE).date().isoformat()
+        with connect() as conn:
+            msg=echo_inbox(conn,i.guild.id,i.user.id,day)
+        await i.response.send_message('✉️ **Les échos de tes décisions**\n'+msg,ephemeral=True)
+
+    @discord.ui.button(label='Mon sac',emoji='🎒',style=discord.ButtonStyle.secondary,custom_id='cosmic:v10:nox:bag',row=1)
+    async def bag(self,i,b):
+        with connect() as conn: text=inventory_text(conn,i.guild.id,i.user.id)
+        await i.response.send_message('🎒 **Tes trésors**\n'+text,ephemeral=True)
+    @discord.ui.button(label='Chroniques',emoji='📜',style=discord.ButtonStyle.secondary,custom_id='cosmic:v10:nox:chronicles',row=2)
+    async def chronicles(self,i,b):
+        with connect() as conn:
+            unlocks(conn,i.guild.id)
+            rows=conn.execute('SELECT chapter FROM cosmic_chapters WHERE guild_id=? ORDER BY chapter',(i.guild.id,)).fetchall()
+        text='\n\n'.join(f'**{CHAPTERS[r["chapter"]][0]}** — {CHAPTERS[r["chapter"]][1]}' for r in rows)
+        await i.response.send_message('📜 **Chroniques**\n'+(text or 'Les pages sont encore vierges.'),ephemeral=True)
+    @discord.ui.button(label='Rencontre surprise',emoji='🎭',style=discord.ButtonStyle.secondary,custom_id='cosmic:v10:nox:encounter',row=2)
+    async def encounter(self,i,b):
+        day=datetime.now(LOCAL_TIMEZONE).date().isoformat()
+        with connect() as conn:
+            msg=encounter_character(conn,i.guild.id,i.user.id,day)
+        await i.response.send_message(msg,ephemeral=True)
+
+
+    @discord.ui.button(label='Intrigue des habitants',emoji='🎭',style=discord.ButtonStyle.primary,custom_id='cosmic:v104:nox:crossroad',row=2)
+    async def crossroad(self,i,b):
+        await show_crossroad(i)
+
+    @discord.ui.button(label='Mission du jour',emoji='🏅',style=discord.ButtonStyle.success,custom_id='cosmic:v101:nox:mission',row=3)
+    async def mission(self,i,b):
+        day=datetime.now(LOCAL_TIMEZONE).date().isoformat()
+        with connect() as conn:
+            action,title,desc,done,claimed=mission_status(conn,i.guild.id,i.user.id,day)
+        status='🏆 Récompense récupérée' if claimed else '✅ Prête à être récupérée' if done else '⏳ À accomplir'
+        await i.response.send_message(f'🏅 **{title}**\n{desc}\n**{status}**',view=CosmicMissionClaim(),ephemeral=True)
+
+    @discord.ui.button(label='Mes secrets',emoji='🔐',style=discord.ButtonStyle.secondary,custom_id='cosmic:v101:nox:secrets',row=3)
+    async def secrets(self,i,b):
+        with connect() as conn: msg=archive_text(conn,i.guild.id,i.user.id)
+        await i.response.send_message('📖 **Les Archives de l’Impossible**\n'+msg,ephemeral=True)
+
+    @discord.ui.button(label='Mes rencontres',emoji='💞',style=discord.ButtonStyle.secondary,custom_id='cosmic:v101:nox:bonds',row=3)
+    async def bonds(self,i,b):
+        with connect() as conn:
+            rows=conn.execute('SELECT character,affinity FROM cosmic_bonds WHERE guild_id=? AND user_id=? ORDER BY affinity DESC,character',
+                              (i.guild.id,i.user.id)).fetchall()
+        msg='\n'.join(f'• {r["character"]} — {r["affinity"]}/10' for r in rows) or 'Tu n’as encore rencontré personne.'
+        await i.response.send_message('💞 **Tes rencontres cosmiques**\n'+msg,ephemeral=True)
+
+    @discord.ui.button(label='Saison actuelle',emoji='🌠',style=discord.ButtonStyle.primary,custom_id='cosmic:v102:nox:season',row=4)
+    async def season(self,i,b):
+        day=datetime.now(LOCAL_TIMEZONE).date().isoformat()
+        with connect() as conn:
+            season,title,story,total,done=season_overview(conn,i.guild.id,day)
+        await i.response.send_message(f'🌌 **{title}**\n{story}\n\n✨ Expédition : **{total}/12**'+(' — terminée !' if done else ''),view=CosmicExpeditionView(),ephemeral=True)
+
+    @discord.ui.button(label='Portail des paradoxes',emoji='🔮',style=discord.ButtonStyle.secondary,custom_id='cosmic:v102:nox:rumor',row=4)
+    async def rumor(self,i,b):
+        await show_paradox(i)
+
+    @discord.ui.button(label='Expédition',emoji='🚀',style=discord.ButtonStyle.success,custom_id='cosmic:v102:nox:expedition',row=4)
+    async def expedition(self,i,b):
+        day=datetime.now(LOCAL_TIMEZONE).date().isoformat()
+        with connect() as conn:
+            season,title,story,total,done=season_overview(conn,i.guild.id,day)
+        await i.response.send_message(f'🚀 **Expédition : {title}**\nRéunissez **12 éclats** pour terminer la quête.\nProgression : **{total}/12**'+(' 🏆' if done else ''),view=CosmicExpeditionView(),ephemeral=True)
+
+class CosmicMissionClaim(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=180)
+
+    @discord.ui.button(label='Récupérer ma récompense',emoji='🎁',style=discord.ButtonStyle.success)
+    async def claim(self,i,b):
+        day=datetime.now(LOCAL_TIMEZONE).date().isoformat()
+        with connect() as conn:
+            msg=claim_mission(conn,i.guild.id,i.user.id,day)
+        await i.response.send_message(msg,ephemeral=True)
+
+
+class CosmicExplore(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=180)
+        self.add_item(CosmicPlaceSelect())
+
+class CosmicPlaceSelect(discord.ui.Select):
+    def __init__(self):
+        super().__init__(placeholder='🗺️ Choisir un lieu à visiter',min_values=1,max_values=1,
+                         options=[discord.SelectOption(label=v[0][:100],value=k) for k,v in PLACES.items()])
+    async def callback(self,i):
+        with connect() as conn:
+            ensure_world(conn,i.guild.id)
+            msg=visit_place(conn,i.guild.id,i.user.id,self.values[0],datetime.now(LOCAL_TIMEZONE).date().isoformat())
+        await i.response.send_message(msg,ephemeral=True)
+
+class CosmicStoryButtons(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+    @discord.ui.button(label='Rencontrer Nox',emoji='👾',style=discord.ButtonStyle.primary,custom_id='cosmic:v10:story:nox')
+    async def nox(self,i,b):
+        with connect() as conn: c=creature(conn,i.guild.id)
+        await i.response.send_message(embed=creature_embed(c),view=NoxPanel(),ephemeral=True)
+    @discord.ui.button(label='Explorer le monde',emoji='🗺️',style=discord.ButtonStyle.secondary,custom_id='cosmic:v10:story:world')
+    async def world(self,i,b):
+        with connect() as conn: text=map_text(conn,i.guild.id)
+        await i.response.send_message('🗺️ **La carte cosmique**\n'+text,view=CosmicExplore(),ephemeral=True)
+    @discord.ui.button(label='Mission du jour',emoji='🏅',style=discord.ButtonStyle.success,custom_id='cosmic:v101:story:mission')
+    async def mission(self,i,b):
+        day=datetime.now(LOCAL_TIMEZONE).date().isoformat()
+        with connect() as conn:
+            action,title,desc,done,claimed=mission_status(conn,i.guild.id,i.user.id,day)
+        await i.response.send_message(f'🏅 **{title}**\n{desc}\n'+('🏆 Déjà récompensée' if claimed else '✅ Accomplie' if done else '⏳ À accomplir'),view=CosmicMissionClaim(),ephemeral=True)
+    @discord.ui.button(label='État du cosmos',emoji='🔭',style=discord.ButtonStyle.secondary,custom_id='cosmic:v10:story:status')
+    async def status(self,i,b):
+        with connect() as conn: w=ensure_world(conn,i.guild.id)
+        await i.response.send_message(embed=world_embed(w),ephemeral=True)
+
+    @discord.ui.button(label='Portail secret',emoji='🔮',style=discord.ButtonStyle.secondary,custom_id='cosmic:v103:story:paradox')
+    async def paradox(self,i,b):
+        await show_paradox(i)
+
 class ChaosCosmique(commands.Cog):
     cosmos = app_commands.Group(name='cosmos', description='🌌 Explorer le monde de Chaos Cosmique')
 
@@ -245,6 +862,8 @@ class ChaosCosmique(commands.Cog):
         self.bot = bot
         self._lock = asyncio.Lock()
         self.bot.add_view(CosmicChoices())
+        self.bot.add_view(NoxPanel())
+        self.bot.add_view(CosmicStoryButtons())
         self.cosmic_clock.start()
 
     def cog_unload(self):
@@ -309,6 +928,7 @@ class ChaosCosmique(commands.Cog):
                         continue
                     before=world["last_tick"]
                     tick_world(conn, guild.id, datetime.now(LOCAL_TIMEZONE).date().isoformat())
+                    resolve_due_echoes(conn,guild.id,datetime.now(LOCAL_TIMEZONE).date().isoformat())
                 if before != datetime.now(LOCAL_TIMEZONE).date().isoformat():
                     await self.refresh_panel(guild)
                 # Maximum une publication automatique par jour, après 18 h Paris.
@@ -425,7 +1045,10 @@ class ChaosCosmique(commands.Cog):
             if message.author.id == self.bot.user.id and message.embeds and any(
                 marker in (embed.footer.text or '') for embed in message.embeds
             ):
-                return False
+                old_message=message
+                break
+        else:
+            old_message=None
         embed=discord.Embed(
             title='🌌 La légende du Chaos Cosmique',
             description=(
@@ -444,21 +1067,37 @@ class ChaosCosmique(commands.Cog):
                 'Le tribunal cosmique examine toujours sa demande.\n\n'
                 'Des **anomalies** surgissent désormais : portes qui parlent, jardins d’étoiles, '
                 'trains sans rails… Chaque choix peut transformer le monde et enrichir ses chroniques.\n\n'
-                '✨ **Et maintenant, l’histoire attend ses nouveaux personnages : vous.**'
+                'Puis vinrent **Madame Paradoxe**, bibliothécaire des livres à venir, '
+                '**Grille-Pain 3000**, prophète du petit-déjeuner, et **Professeur Gloups**, '
+                'méduse astrophysicienne. Nox a désormais des envies, des habitudes et un humour imprévisible.\n\n'
+                '✨ **Et maintenant, l’histoire attend ses nouveaux personnages : vous.**\n'
+                'Appuie sur les boutons ci-dessous ou tape **`/nox`** pour commencer. '
+                'Les missions quotidiennes, les amitiés improbables et les archives secrètes t’attendent !'
             ),
             colour=discord.Colour.from_rgb(88, 90, 240),
         )
-        embed.add_field(name='👾 Prendre soin de Nox',value='`/cosmos nox` · `/cosmos soigner`',inline=False)
-        embed.add_field(name='🗺️ Partir à l’aventure',value='`/cosmos carte` · `/cosmos visiter` · `/cosmos sac`',inline=False)
-        embed.add_field(name='📜 Percer les secrets',value='`/cosmos chroniques` · `/cosmos observatoire` · `/cosmos journal`',inline=False)
+        embed.add_field(name='👾 Nox a besoin de toi',value='Nourris-le, parle-lui, joue avec lui et découvre ses envies avec **`/nox`** ou le bouton ci-dessous.',inline=False)
+        embed.add_field(name='🗺️ Partir à l’aventure',value='Les boutons ouvrent la carte, les lieux et ton sac cosmique.',inline=False)
+        embed.add_field(name='📜 Percer les secrets',value='Découvre les chroniques, les personnages improbables et les anomalies dans le serveur.',inline=False)
         embed.set_footer(text=marker)
         art=Path(__file__).resolve().parent.parent/'data'/'chaos_cosmique'/'histoire_chaos_cosmique.png'
+        if old_message is not None:
+            # Mise à jour sur place : les réactions restent et aucun doublon n'apparaît.
+            if art.is_file():
+                embed.set_image(url='attachment://histoire_chaos_cosmique.png')
+                await old_message.edit(embed=embed,view=CosmicStoryButtons(),
+                    attachments=[discord.File(art,filename='histoire_chaos_cosmique.png')])
+            else:
+                if old_message.attachments:
+                    embed.set_image(url=old_message.attachments[0].url)
+                await old_message.edit(embed=embed,view=CosmicStoryButtons())
+            return False
         if art.is_file():
             embed.set_image(url='attachment://histoire_chaos_cosmique.png')
-            await channel.send(embed=embed,file=discord.File(art,filename='histoire_chaos_cosmique.png'),
+            await channel.send(embed=embed,view=CosmicStoryButtons(),file=discord.File(art,filename='histoire_chaos_cosmique.png'),
                                allowed_mentions=discord.AllowedMentions.none())
         else:
-            await channel.send(embed=embed,allowed_mentions=discord.AllowedMentions.none())
+            await channel.send(embed=embed,view=CosmicStoryButtons(),allowed_mentions=discord.AllowedMentions.none())
         return True
 
     @cosmos.command(name='histoire', description='Staff : publier ou restaurer l’histoire officielle')
@@ -471,7 +1110,7 @@ class ChaosCosmique(commands.Cog):
         if channel is None:
             return await interaction.followup.send('Utilise d’abord `/cosmos installer` pour créer le salon.',ephemeral=True)
         created=await self.publish_story(channel)
-        await interaction.followup.send('📖 Histoire publiée.' if created else '📖 Histoire déjà présente : aucun doublon créé.',ephemeral=True)
+        await interaction.followup.send('📖 Histoire publiée.' if created else '📖 Histoire actualisée avec ses boutons, sans doublon.',ephemeral=True)
 
     async def refresh_panel(self, guild, channel=None):
         with connect() as conn:
@@ -502,40 +1141,30 @@ class ChaosCosmique(commands.Cog):
         with connect() as conn:
             conn.execute('INSERT OR REPLACE INTO cosmic_panels VALUES(?,?,?)',(guild.id,channel.id,message.id))
 
+    @app_commands.command(name='nox', description='👾 Tableau de bord interactif de Nox et du Chaos Cosmique')
+    @app_commands.guild_only()
+    async def nox_dashboard(self, interaction: discord.Interaction):
+        with connect() as conn:
+            c=creature(conn,interaction.guild.id)
+        embed=creature_embed(c)
+        embed.add_field(name='🌠 Son envie du jour',value=nox_wish(interaction.guild.id,datetime.now(LOCAL_TIMEZONE).date().isoformat()),inline=False)
+        embed.add_field(name='🎮 Comment jouer ?',value='Utilise les boutons ci-dessous. Chaque soin est possible une fois par jour et par membre.',inline=False)
+        await interaction.response.send_message(embed=embed,view=NoxPanel(),ephemeral=True)
+
     @cosmos.command(name='nox', description='Rencontrer Nox, la créature de l’Observatoire')
     @app_commands.guild_only()
     async def nox(self, interaction: discord.Interaction):
         with connect() as conn:
             c=creature(conn,interaction.guild.id)
-        await interaction.response.send_message(embed=creature_embed(c),ephemeral=True)
+        await interaction.response.send_message(embed=creature_embed(c),view=NoxPanel(),ephemeral=True)
 
     @cosmos.command(name='soigner', description='Prendre soin de Nox (une fois par jour et par action)')
     @app_commands.guild_only()
     @app_commands.choices(action=[app_commands.Choice(name='💙 Lui parler',value='parler'),app_commands.Choice(name='✨ Explorer avec lui',value='explorer'),app_commands.Choice(name='🍪 Lui offrir un biscuit imaginaire',value='nourrir'),app_commands.Choice(name='🧘 Méditer ensemble',value='mediter')])
     async def soigner(self, interaction: discord.Interaction, action: app_commands.Choice[str]):
-        day=datetime.now(LOCAL_TIMEZONE).date().isoformat()
-        effects={'parler':('affection',9,'Nox raconte une histoire que même les étoiles trouvent exagérée.'),
-                 'explorer':('curiosity',9,'Nox découvre un caillou. Il le nomme Directeur Général.'),
-                 'nourrir':('vitality',9,'Nox dévore un biscuit imaginaire. Les miettes sont bien réelles.'),
-                 'mediter':('stability',9,'Nox médite. Une chaise atteint l’illumination à sa place.')}
         with connect() as conn:
-            conn.execute('BEGIN IMMEDIATE')
-            c=creature(conn,interaction.guild.id)
-            if conn.execute('SELECT 1 FROM cosmic_actions WHERE guild_id=? AND user_id=? AND action=? AND day=?',
-              (interaction.guild.id,interaction.user.id,action.value,day)).fetchone():
-                return await interaction.response.send_message('👾 Nox a déjà profité de cette activité avec toi aujourd’hui. Essaie une autre action !',ephemeral=True)
-            conn.execute('INSERT INTO cosmic_actions VALUES(?,?,?,?)',(interaction.guild.id,interaction.user.id,action.value,day))
-            field,delta,story=effects[action.value]
-            conn.execute(f'UPDATE cosmic_creature SET {field}=MIN(100,{field}+?),xp=xp+5,last_care=? WHERE guild_id=?',
-              (delta,day,interaction.guild.id))
-            c=creature(conn,interaction.guild.id)
-            stage=min(4,1+c['xp']//100)
-            if stage>c['stage']:
-                conn.execute('UPDATE cosmic_creature SET stage=?,last_evolution=? WHERE guild_id=?',
-                  (stage,day,interaction.guild.id))
-                story+=f' 🌟 **Métamorphose ! Nox atteint le stade {stage}.**'
-                journal(conn,interaction.guild.id,f'Nox atteint le stade {stage}.')
-        await interaction.response.send_message('👾 '+story,ephemeral=True)
+            ok,message=care_nox(conn,interaction.guild.id,interaction.user.id,action.value,datetime.now(LOCAL_TIMEZONE).date().isoformat())
+        await interaction.response.send_message(('👾 ' if ok else '⏳ ')+message,ephemeral=True)
 
     @cosmos.command(name='carte', description='Afficher les zones découvertes du monde')
     @app_commands.guild_only()

@@ -1,0 +1,327 @@
+[
+  {
+    "id": "nox_faim",
+    "file": "nox_faim.png",
+    "title": "👾 NOX A FAIM !",
+    "text": "L’Observatoire a reçu 47 plaintes de l’estomac de Nox. Quelqu’un possède un biscuit ?",
+    "kind": "nox",
+    "moods": [
+      "fatigue"
+    ]
+  },
+  {
+    "id": "canard_attaque",
+    "file": "canard_attaque.png",
+    "title": "🦆 ALERTE : CANARD ARMÉ !",
+    "text": "Sa Majesté Coin-Coin Ier a réquisitionné une cuisse de poulet. Le grille-pain demande l’asile politique.",
+    "kind": "canard",
+    "moods": [
+      "panique"
+    ]
+  },
+  {
+    "id": "nox_cookies",
+    "file": "nox_cookies.gif",
+    "title": "🍪 NOX A TROUVÉ LES COOKIES !",
+    "text": "Le trésor de biscuits cosmiques est en danger imminent. Les miettes témoignent.",
+    "kind": "nox",
+    "moods": [
+      "calin"
+    ]
+  },
+  {
+    "id": "nox_faim_pancarte",
+    "file": "nox_faim_pancarte.png",
+    "title": "🍪 NOX DÉCLARE LA FAMINE COSMIQUE",
+    "text": "Nox exige un comité de crise, trois biscuits et un câlin. Dans cet ordre.",
+    "kind": "nox",
+    "moods": [
+      "fatigue",
+      "calin"
+    ]
+  },
+  {
+    "id": "course_du_canard",
+    "file": "course_du_canard.png",
+    "title": "🦆 POURSUITE ROYALE À L’OBSERVATOIRE",
+    "text": "Le Canard Suprême brandit une cuisse de poulet. Nox a été vu fuyant avec les dernières miettes.",
+    "kind": "canard",
+    "moods": [
+      "panique",
+      "normal"
+    ]
+  },
+  {
+    "id": "grille_pain_apocalypse",
+    "file": "grille_pain_apocalypse.png",
+    "title": "🍞 GRILLE-PAIN 3000 ANNONCE LA FIN DU MONDE",
+    "text": "Une tartine a brûlé. Grille-Pain 3000 déclenche le protocole APOCALYPSE. Nox réclame un avocat et du beurre.",
+    "kind": "grille_pain",
+    "moods": [
+      "panique",
+      "normal"
+    ]
+  },
+  {
+    "id": "nox_dort_reunion",
+    "file": "nox_dort_reunion.png",
+    "title": "💤 NOX S’ENDORT EN PLEIN CONSEIL DE CRISE",
+    "text": "Le Canard Suprême exige une enquête. Nox ronfle sur les documents classifiés. Le professeur Gloups est bouleversé.",
+    "kind": "nox",
+    "moods": [
+      "fatigue",
+      "calin"
+    ]
+  },
+  {
+    "id": "grille_pain_alerte",
+    "file": "grille_pain_alerte.png",
+    "title": "🚨 ALERTE : UNE TARTINE MENACE LE COSMOS",
+    "text": "Grille-Pain 3000 vient de lancer une alerte rouge. Cause officielle : une tartine beaucoup trop croustillante.",
+    "kind": "grille_pain",
+    "moods": [
+      "panique",
+      "normal"
+    ]
+  },
+  {
+    "id": "nox_conseil_panique",
+    "file": "nox_conseil_panique.png",
+    "title": "💤 NOX DORT PENDANT LA FIN DU MONDE",
+    "text": "Le conseil de crise est en panique générale. Nox ronfle au milieu des dossiers classés TOP BISCUIT.",
+    "kind": "nox",
+    "moods": [
+      "fatigue",
+      "calin"
+    ]
+  },
+  {
+    "id": "madame_paradoxe",
+    "file": "madame_paradoxe.png",
+    "title": "⏳ MADAME PARADOXE A VOLÉ UN MARDI",
+    "text": "Le calendrier compte maintenant huit jours. Personne ne sait où ranger le mardi supplémentaire.",
+    "kind": "paradoxe",
+    "moods": [
+      "normal",
+      "panique"
+    ]
+  },
+  {
+    "id": "gloups_experience",
+    "file": "gloups_experience.png",
+    "title": "🧪 GLOUPS A MIS UNE GALAXIE EN BOUTEILLE",
+    "text": "Le professeur Gloups assure que son expérience est totalement sans danger. Le flacon vient de demander un avocat.",
+    "kind": "gloups",
+    "moods": [
+      "normal",
+      "panique"
+    ]
+  },
+  {
+    "id": "paradoxe_mardi_25",
+    "file": "paradoxe_mardi_25.png",
+    "title": "⏳ LE MARDI 2,5 EXISTE DÉSORMAIS",
+    "text": "Madame Paradoxe a inversé la semaine. Le mardi 2,5 est apparu entre deux goûters. Nox exige une troisième pause biscuits.",
+    "kind": "paradoxe",
+    "moods": [
+      "normal",
+      "panique"
+    ]
+  },
+  {
+    "id": "gloups_experience_547",
+    "file": "gloups_experience_547.png",
+    "title": "🧪 EXPÉRIENCE 547 : PRESQUE SANS DANGER",
+    "text": "Gloups a créé une galaxie de poche. La notice indique « presque stable ». Coin-Coin veut immédiatement la taxer.",
+    "kind": "gloups",
+    "moods": [
+      "normal",
+      "panique"
+    ]
+  },
+  {
+    "id": "paradoxe_horloges_folles",
+    "file": "paradoxe_horloges_folles.png",
+    "title": "⏳ LES HORLOGES FONT GRÈVE",
+    "text": "Madame Paradoxe a demandé aux horloges de travailler une heure de plus. Elles exigent désormais des congés payés dans le futur.",
+    "kind": "paradoxe",
+    "moods": [
+      "normal",
+      "panique"
+    ]
+  },
+  {
+    "id": "gloups_fiole_rebelle",
+    "file": "gloups_fiole_rebelle.png",
+    "title": "🧪 LA FIOLE DE GLOUPS VEUT DÉMISSIONNER",
+    "text": "La galaxie miniature du professeur Gloups refuse de tourner sans contrat. Coin-Coin propose de la payer en miettes.",
+    "kind": "gloups",
+    "moods": [
+      "normal",
+      "panique"
+    ]
+  },
+  {
+    "id": "nox_etoile",
+    "file": "nox_etoile.gif",
+    "title": "🌟 NOX A ADOPTÉ UNE ÉTOILE !",
+    "text": "Nox a trouvé une petite étoile qui clignote. Il l’a serrée dans ses pattes et refuse de la rendre au ciel. Le Canard Suprême prépare déjà une taxe sur les câlins stellaires.",
+    "kind": "nox",
+    "moods": [
+      "normal",
+      "calin"
+    ]
+  },
+  {
+    "id": "canard_matraque_anime",
+    "file": "canard_matraque_anime.gif",
+    "title": "🦆 COIN-COIN BRANDIT LA MATRAQUE GASTRONOMIQUE !",
+    "text": "Sa Majesté Coin-Coin Ier patrouille dans les couloirs avec une cuisse de poulet. Le ministère des Miettes nie tout lien avec cette opération.",
+    "kind": "canard",
+    "moods": [
+      "panique",
+      "normal"
+    ]
+  },
+  {
+    "id": "grille_pain_panique_anime",
+    "file": "grille_pain_panique_anime.gif",
+    "title": "🍞 GRILLE-PAIN 3000 DÉCLENCHE L’ALARME !",
+    "text": "Une tartine a brûlé. Grille-Pain 3000 a lancé le protocole de fin du monde. Nox demande simplement du chocolat.",
+    "kind": "grille_pain",
+    "moods": [
+      "panique",
+      "normal"
+    ]
+  },
+  {
+    "id": "nox_faim_anime",
+    "file": "nox_faim_anime.gif",
+    "title": "🍪 NOX DÉCLARE UNE URGENCE GASTRONOMIQUE !",
+    "text": "Nox a fait disparaître le dernier biscuit. Son estomac réclame une commission d’enquête et une livraison immédiate de cookies.",
+    "kind": "nox",
+    "moods": [
+      "fatigue",
+      "calin"
+    ]
+  },
+  {
+    "id": "nox_jeu_ballon",
+    "file": "nox_jeu_ballon.png",
+    "title": "🎲 NOX DÉFIE LA GRAVITÉ !",
+    "text": "Nox a trouvé un ballon cosmique qui refuse de retomber. Le Canard Suprême exige un permis de rebond.",
+    "kind": "nox",
+    "moods": [
+      "normal",
+      "calin"
+    ]
+  },
+  {
+    "id": "gloups_planete_fugueuse",
+    "file": "gloups_planete_fugueuse.png",
+    "title": "🪐 LA PLANÈTE A PRIS LA FUITE !",
+    "text": "Le professeur Gloups a perdu une planète miniature. Elle réclame désormais des congés payés et un hamac orbital.",
+    "kind": "gloups",
+    "moods": [
+      "normal",
+      "panique"
+    ]
+  },
+  {
+    "id": "coincoin_conference_miettes",
+    "file": "coincoin_conference_miettes.png",
+    "title": "🦆 CONFÉRENCE DE PRESSE DES MIETTES !",
+    "text": "Coin-Coin jure ne pas avoir volé les biscuits. Les miettes sur sa cape refusent de témoigner.",
+    "kind": "canard",
+    "moods": [
+      "panique",
+      "normal"
+    ]
+  },
+  {
+    "id": "paradoxe_ascenseur_temporel",
+    "file": "paradoxe_ascenseur_temporel.png",
+    "title": "⏳ L’ASCENSEUR ARRIVE HIER !",
+    "text": "Madame Paradoxe a inventé un ascenseur temporel. Il dessert uniquement hier, demain et la pause déjeuner.",
+    "kind": "paradoxe",
+    "moods": [
+      "normal"
+    ]
+  },
+  {
+    "id": "nox_sommeil_conseil",
+    "file": "nox_sommeil_conseil.png",
+    "title": "💤 NOX S’ENDORT EN PLEIN CONSEIL !",
+    "text": "Nox ronfle pendant une réunion de crise. Ses ronflements sont désormais classés comme phénomène astronomique.",
+    "kind": "nox",
+    "moods": [
+      "fatigue",
+      "normal"
+    ]
+  },
+  {
+    "id": "gloups_pluie_bulles",
+    "file": "gloups_pluie_bulles.png",
+    "title": "🫧 IL PLEUT DES BULLES DE SCIENCE !",
+    "text": "Gloups a inversé la gravité des bulles. Chaque bulle contient une petite météo différente.",
+    "kind": "gloups",
+    "moods": [
+      "normal"
+    ]
+  },
+  {
+    "id": "nox_biscuits_orbite",
+    "file": "nox_biscuits_orbite.png",
+    "title": "🍪 LA PLANÈTE BISCUIT",
+    "text": "Nox découvre une planète entièrement faite de biscuits. Le Conseil vote immédiatement une loi contre le grignotage orbital.",
+    "kind": "nox",
+    "moods": [
+      "normal",
+      "calin"
+    ]
+  },
+  {
+    "id": "coincoin_couronne_rebelle",
+    "file": "coincoin_couronne_rebelle.png",
+    "title": "👑 LA COURONNE FAIT GRÈVE",
+    "text": "La couronne de Coin-Coin refuse de rester sur sa tête et réclame une augmentation de diamants.",
+    "kind": "canard",
+    "moods": [
+      "normal",
+      "panique"
+    ]
+  },
+  {
+    "id": "paradoxe_reveil_infini",
+    "file": "paradoxe_reveil_infini.png",
+    "title": "⏰ LE RÉVEIL SONNE DEMAIN",
+    "text": "Madame Paradoxe a inventé un réveil qui sonne avant même qu’on se couche. Les habitants exigent huit heures de sommeil rétroactives.",
+    "kind": "paradoxe",
+    "moods": [
+      "normal",
+      "fatigue"
+    ]
+  },
+  {
+    "id": "grille_pain_tartine_maire",
+    "file": "grille_pain_tartine_maire.png",
+    "title": "🍞 UNE TARTINE ÉLUE MAIRE",
+    "text": "Grille-Pain 3000 présente une tartine aux élections. Elle promet du beurre gratuit et une politique croustillante.",
+    "kind": "grille_pain",
+    "moods": [
+      "normal",
+      "panique"
+    ]
+  },
+  {
+    "id": "exploration_portail_chaussettes",
+    "file": "exploration_portail_chaussettes.png",
+    "title": "🧦 LE PORTAIL DES CHAUSSETTES",
+    "text": "Une expédition découvre le portail où disparaissent toutes les chaussettes de l’univers. Nox reconnaît immédiatement sa collection.",
+    "kind": "exploration",
+    "moods": [
+      "normal",
+      "calin"
+    ]
+  }
+]

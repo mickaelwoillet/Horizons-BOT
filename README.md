@@ -91,3 +91,159 @@ L'extension `cogs.chaos_cosmique` fournit désormais l'installation d'une catég
 
 ### V9.6 — Histoire du Chaos Cosmique
 Après déploiement, lancer `/cosmos installer` (staff) pour harmoniser la catégorie existante, ajouter le salon de lecture seule `histoire-du-chaos` et y publier une présentation illustrée. La commande est conçue pour réutiliser les salons déjà créés. `/cosmos histoire` restaure le message officiel s'il a été supprimé. Conserver le fichier image dans `data/chaos_cosmique/` : il fait partie du dépôt, contrairement aux bases SQLite de production.
+
+### V10 INFINITY — tableau de bord Nox et histoire interactive
+
+Nouveau point d'entrée membre : **`/nox`**. Les boutons interactifs de soin, discussion, jeu, repos, exploration, carte, sac, chroniques et rencontre remplacent le besoin de mémoriser plusieurs commandes. La publication existante du salon « histoire du chaos » est mise à jour par `/cosmos installer`, avec une nouvelle illustration dans `data/chaos_cosmique/histoire_chaos_cosmique.png` et trois boutons persistants. La base SQLite existante est préservée et aucune migration destructive n'est nécessaire.
+
+Les nouveaux dialogues et rencontres sont des scénarios locaux déterministes, pas un modèle conversationnel IA. Les événements existants, les salons, la progression, l'inventaire et les commandes de compatibilité sont conservés.
+
+### V10.1 — INFINITY, progression des missions (version intermédiaire)
+Cette livraison est une étape de développement vers la version finale, **pas encore la version finale INFINITY**.
+- Le tableau `/nox` propose désormais **Mission du jour**, **Mes secrets** et **Mes rencontres**.
+- Une mission personnelle est choisie de manière stable chaque jour. L'action correspondante sur Nox valide l'objectif, puis un bouton permet de récupérer une récompense cosmétique **une seule fois**.
+- Les rencontres renforcent une affinité individuelle une fois par jour; des secrets peuvent se débloquer.
+- Le salon Histoire du Chaos ajoute un bouton **Mission du jour**, en conservant les boutons déjà installés.
+- Trois tables SQLite sont créées automatiquement au démarrage (`cosmic_missions`, `cosmic_bonds`, `cosmic_secrets`) sans supprimer les anciennes.
+- L'illustration actuelle du salon Histoire n'est pas encore mise à jour pour ces nouvelles interactions : la refonte visuelle finale est prévue avant installation publique.
+
+**État des tests :** tests statiques et compilation Python seulement. Pas de validation Discord en direct dans l'environnement de développement.
+
+## V10.2 — Les saisons et expéditions (version de développement)
+
+Le tableau `/nox` comporte désormais **Saison actuelle**, **Rumeur du jour** et **Expédition**. Une saison narrative dure 28 jours, propose un récit cyclique et une expédition collective de 12 contributions. Chaque membre peut apporter un éclat par jour ; la quête reste réalisable en solo. Les rumeurs sont déterministes par membre et par jour et ne promettent pas toutes un secret réel. Les tables SQLite sont créées sans effacer les précédentes.
+
+La V10.2 est un jalon de développement, pas la livraison finale : saisons approfondies, intrigue à embranchements, graphismes du salon Histoire et tests réels Discord restent à poursuivre. Ne pas déployer si l'objectif est d'attendre la version finale.
+
+### V10.3 — Portail des Paradoxes (développement)
+Le bouton « Portail des paradoxes » du tableau `/nox` propose une mini-aventure personnelle quotidienne avec trois choix. La décision et sa conséquence sont enregistrées dans `cosmic_paradox_choices`, sans écraser les autres données. Le salon Histoire propose un bouton « Portail secret » après actualisation par `/cosmos installer`. Les récompenses sont des objets fictifs. L'ancien identifiant de bouton « Rumeur du jour » est conservé pour la compatibilité, mais son comportement ouvre désormais le portail. Les anciennes rumeurs restent dans le code pour une évolution ultérieure.
+
+### V10.4 — Les Conspirations de l'Impossible (version de développement)
+Quatre intrigues croisées à choix multiples, accessibles via le bouton « Intrigue des habitants » de `/nox`. Chaque choix est sauvegardé dans `cosmic_crossroads` (création automatique et non destructive), modifie les jauges du monde, les relations et le journal. Les interactions sont privées et limitées à un choix par jour et par membre. Validation sur un vrai serveur Discord requise avant déploiement de production.
+
+### V10.5 — Les Échos du Destin (version de développement)
+
+Les choix des intrigues croisées enregistrent désormais une conséquence différée dans `cosmic_echoes`.
+Elle devient visible deux jours plus tard via le bouton **✉️ Échos du destin** du tableau `/nox`.
+La résolution est idempotente, persistante après redémarrage et ne publie pas de message supplémentaire dans les salons.
+Les anciennes intrigues déjà terminées avant V10.5 ne sont pas rétroactivement programmées.
+
+**Vérification locale :** trois nouveaux tests SQLite réussis ; 20 tests de la suite Cosmos ont réussi, trois tests d'importation restent bloqués par l'absence de `discord.py` dans l'environnement de test. Aucun test réel Discord n'a été réalisé. Ne pas déployer avant validation finale.
+
+
+## NOX TV — V10.6 (préversion)
+Module optionnel `cogs/nox_tv.py`, banque de 2 PNG + 1 GIF et catalogue JSON. `/noxtv configurer salon:#salon`, `/noxtv activer actif:True`, `/noxtv tester`. Test manuel sans effet sur la programmation ; publication automatique rare, max une par jour et uniquement 12h-21h heure de Paris. Aucun deuxième bot nécessaire.
+
+### V10.7 — NOX TV contextuel
+- Priorité (80 %) aux scènes correspondant aux seuils de vitalité, affection et stabilité de Nox, si disponibles.
+- Lecture seule de la base Chaos Cosmique, sans migration.
+- `/noxtv statut` : salon, activation, humeur et dernière publication.
+- Visuels actuels : 3 fichiers (2 images, 1 GIF) ; la galerie de 30 reste à produire.
+
+### V10.8 — NOX TV interactif (préversion)
+Les publications NOX TV possèdent trois boutons persistants : défendre Nox, soutenir Coin-Coin ou fuir. Un vote par membre et par publication, modifiable, stocké dans `data/nox_tv.sqlite3`. Les résultats sont visibles en réponse privée au clic ; le staff peut les consulter avec `/noxtv votes message_id:<ID>`. Les votes n'altèrent pas les statistiques de Chaos Cosmique. La configuration reste opt-in et les tests manuels ne consomment pas le quota quotidien. Cette version n'a pas été validée en conditions réelles sur Discord.
+
+### V10.9 — NOX TV : verdicts et images
+Deux nouvelles illustrations originales ; clôture automatique des votes le lendemain, résultat annoncé dans le salon, persistance SQLite et protection contre les doubles verdicts. Aucun changement des stats de Chaos Cosmique.
+
+
+### V10.10 — NOX TV : verdicts narratifs
+- 15 conclusions propres aux 5 scènes actuellement intégrées, selon le vote majoritaire.
+- Votes manuels enregistrés séparément et clôturés le lendemain.
+- Un vote sans participation donne désormais lieu à une conclusion neutre.
+- Contrôle de validité des messages avant acceptation des votes.
+- NOX TV reste désactivé par défaut ; version de développement non validée sur Discord.
+
+
+### V10.11 — Scènes visuelles supplémentaires
+Deux images originales ajoutées : `grille_pain_apocalypse.png` et `nox_dort_reunion.png`, avec six verdicts narratifs. Le catalogue atteint 7 médias (6 PNG, 1 GIF). Les publications restent opt-in.
+
+## V10.12 — Galerie et verdicts
+Deux nouvelles scènes illustrées (alerte tartine, conseil de crise), neuf médias disponibles, 27 conclusions spécifiques. Correction du canal de réponse des publications de test via migration SQLite non destructive.
+
+### V10.13 — Routage des salons NOX TV
+Les publications visuelles utilisent `kind` dans `data/nox_tv/catalogue.json` pour choisir le salon : Nox → NOX, canard/grille-pain/paradoxe → Anomalies, Gloups → Observatoire, exploration → Exploration, chronique → Chroniques. Les verdicts sont publiés dans Chroniques avec un lien vers la scène originale. Les identifiants sont personnalisables dans `.env` (voir `.env.example`). Le système reste opt-in et conserve les publications précédentes grâce à une migration SQLite additive (`noxtv_posts.channel_id`).
+
+### V10.14 — NOX TV : contrôle qualité et catalogue
+`/noxtv catalogue` affiche les identifiants des médias et leurs salons. `/noxtv tester scene:<identifiant>` permet de tester une scène précise sans consommer le quota automatique. Les réservations de publication sont libérées si le salon est absent ou incompatible, pour éviter de bloquer la journée. Publication automatique toujours désactivée par défaut.
+
+
+### V10.15 — Paradoxe & Gloups
+Deux scènes illustrées supplémentaires (11 médias au total), avec verdicts spécifiques. Les égalités de votes ne favorisent plus automatiquement le premier bouton : un verdict neutre est rendu. Publication automatique toujours désactivée par défaut.
+
+### V10.16 — Diagnostic et sécurité des salons
+Ajout de `/noxtv diagnostic` (permissions voir/écrire/embed/fichiers et vérification des salons). Un canal appartenant à un autre serveur ne peut pas recevoir une publication.
+
+## V10.17 — Scènes et protections NOX TV
+
+- Deux scènes supplémentaires : Mardi 2,5 (Madame Paradoxe) et Expérience 547 (professeur Gloups).
+- Deux nouvelles images et six conclusions narratives.
+- Les deux dernières scènes publiées sont évitées, y compris les publications manuelles (sauf sélection explicite).
+- Contrôle des permissions du bot avant tout envoi ; réservation libérée si le salon ne permet pas les pièces jointes.
+- Publications automatiques toujours désactivées par défaut ; tester sur Discord avant activation.
+
+### V10.18 — Deux scènes supplémentaires NOX TV
+Deux nouveaux médias (Paradoxe : grève des horloges ; Gloups : fiole rebelle) et six verdicts narratifs. Catalogue : 15 médias. Version de développement, publication automatique toujours désactivée par défaut.
+
+
+### V10.19 — NOX TV : étoile animée
+Nouveau GIF `nox_etoile.gif` dans le salon Nox, trois verdicts dédiés. Le catalogue comporte 16 médias (14 PNG, 2 GIF). Publication automatique désactivée par défaut.
+
+
+### V10.20 — Outils de préparation de NOX TV
+- `/noxtv apercu scene:<identifiant>` : prévisualisation **éphémère** d'une image ou d'un GIF sans message public, vote ni modification du calendrier.
+- `/noxtv diagnostic` indique aussi l'état d'activation et le nombre de médias présents.
+- `/noxtv tester` vérifie désormais la présence du serveur avant d'essayer de publier.
+- Les 16 médias précédents sont conservés, aucune base SQLite existante n'est supprimée.
+
+
+### V10.21 — Renforcement de sécurité NOX TV
+- Vérification du fichier média et blocage des chemins hors du dossier `data/nox_tv` avant publication.
+- Contrôle de l'appartenance au serveur et des permissions du salon Chroniques avant un verdict.
+- Échec de lecture d'image traité sans bloquer les publications futures.
+- Publication automatique toujours désactivée par défaut ; tests Discord nécessaires.
+
+
+### V10.22 — Correctifs NOX TV
+- Aperçu privé : correction du traitement des médias manquants (plus de variables non définies), réponse Discord explicite.
+- Chroniques : pas de repli vers un autre salon lorsque la destination des verdicts est invalide.
+- Aucune migration destructive, aucun nouveau média annoncé.
+
+
+## V10.23 — Fiabilisation du catalogue multimédia
+Les médias sont désormais validés avant publication ou aperçu (chemin autorisé, format, taille maximale de 8 Mio, champs requis, identifiant unique). Un catalogue JSON illisible ne fait plus planter la sélection : aucune publication n’est envoyée. La galerie reste à 16 médias.
+
+### V10.24 — Rotation indépendante des tests
+Les publications manuelles `/noxtv tester` n'influencent plus la sélection des deux dernières scènes automatiques. Les tests restent traçables pour leurs votes et leurs verdicts, mais n'affectent pas la rotation de production. Identifiants de scène limités à 80 caractères. Publication automatique toujours désactivée par défaut.
+
+### NOX TV V10.25 — Audit de la galerie
+`/noxtv audit` (staff) : vérifie le catalogue complet, les fichiers réellement accessibles, les GIF, les salons de destination et les trois verdicts de chaque scène, sans publier ni modifier SQLite.
+
+### NOX TV V10.26 — Simulation sans publication
+`/noxtv simulation` (staff) propose une scène en fonction de l’humeur de Nox, des deux dernières publications automatiques et du salon prévu. Aucun message public, vote, changement SQLite ou réservation de calendrier. Le tirage réel peut différer.
+
+### V10.27 — Première animation originale du Canard Suprême
+GIF `canard_matraque_anime.gif` : Coin-Coin agite sa cuisse de poulet dans l’Observatoire. Scène `canard_matraque_anime` destinée au salon Anomalies, trois verdicts dédiés. Aucun changement de commande ou de base de données.
+
+### V10.28 — Panique du grille-pain
+Nouveau GIF original `grille_pain_panique_anime.gif`, 10 images, routage Anomalies, trois verdicts propres. NOX TV reste désactivé par défaut.
+
+
+## V10.29 - Animation Grille-Pain 3000
+Animation GIF refaite : Nox, Coin-Coin et Grille-Pain 3000 dans une vraie scene de catastrophe. Le catalogue et les identifiants restent inchanges. Version de developpement, a tester sur Discord.
+
+
+### V10.31 — Animations distinctes
+Le GIF Coin-Coin a été remplacé par une scène de poursuite originale. Nouveau GIF Nox affamé, catalogue de 19 scènes. Animations à vérifier en conditions Discord.
+
+### V10.32 — Bilan NOX TV
+`/noxtv bilan` affiche en privé les publications automatiques, tests, votes actuels, membres votants et verdicts, sans modifier la base.
+
+### V10.33 — Compatibilité des tests GIF
+Correction du test historique de Coin-Coin : contrôle de la résolution minimale et du format 16:9 plutôt que de dimensions fixes devenues obsolètes après remplacement de son animation. Aucun changement aux données ou aux horaires de publication.
+
+### V10.35 — Quatre scènes illustrées supplémentaires
+Ajout de quatre PNG originaux : conférence de Coin-Coin, ascenseur temporel, sieste de Nox et pluie de bulles de Gloups. 25 médias au catalogue.
+
+### V10.36 — Galerie 30/30
+Cinq nouvelles scènes originales : planète biscuit, couronne rebelle, réveil temporel, tartine candidate et portail des chaussettes. Les tests Discord réels restent nécessaires.

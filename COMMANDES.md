@@ -324,3 +324,113 @@ Une anomalie automatique est proposée après 18 h (Paris), au maximum une fois 
 - `/cosmos histoire` : republie l'histoire uniquement si le message officiel est absent (commande staff).
 - Le salon `📖・𝓱𝓲𝓼𝓽𝓸𝓲𝓻𝓮-𝓭𝓾-𝓬𝓱𝓪𝓸𝓼` autorise les réactions mais interdit les messages et fils aux membres ordinaires.
 - Image : `data/chaos_cosmique/histoire_chaos_cosmique.png`.
+
+## 🌌 V10 INFINITY — accès membres par boutons
+
+**Commande recommandée : `/nox`** (commande racine, sans préfixe `cosmos`).
+Elle affiche le tableau de bord privé de Nox : Nourrir, Lui parler, Jouer, Se reposer, Explorer avec Nox, Carte du monde, Mon sac, Chroniques, Rencontre surprise.
+Chaque soin est limité à une fois par jour et par membre ; le monde et la créature sont partagés à l'échelle du serveur.
+
+**Salon histoire** : relancer `/cosmos installer` (staff) pour actualiser l'embed, l'image et installer les trois boutons permanents « Rencontrer Nox », « Explorer le monde », « État du cosmos ». L'ancienne publication est éditée sur place afin de conserver les réactions.
+
+Les commandes `/cosmos nox`, `/cosmos soigner`, `/cosmos carte`, `/cosmos visiter`, `/cosmos sac`, `/cosmos chroniques`, etc., sont conservées pour compatibilité, mais ne sont plus nécessaires pour le parcours courant.
+
+**Administration** : `/cosmos activer actif:True` pour éveiller le monde ; `/cosmos diagnostic` pour le vérifier ; `/cosmos declencher` pour une anomalie (limite quotidienne existante).
+
+**Limites de cette version** : rencontres narratives quotidiennes, sans API IA ni dialogue libre ; le système de saisons complexes et les quêtes collectives annoncées comme idées futures ne sont pas encore des fonctions actives. Ne pas annoncer ces fonctions comme disponibles.
+
+## V10.1 — Boutons supplémentaires, sans commandes supplémentaires
+Dans `/nox` : **Mission du jour**, **Mes secrets**, **Mes rencontres**. Le bouton de mission propose de récupérer une récompense après avoir réalisé l'action de Nox demandée. Dans l'embed **Histoire du Chaos**, bouton **Mission du jour**. Les missions et les affinités sont individuelles; la créature reste collective. Les anciens slash commands sont conservés pour compatibilité.
+
+### V10.2 — accès par boutons
+
+Aucune nouvelle commande slash. Ouvrir `/nox`, puis utiliser les boutons **Saison actuelle**, **Rumeur du jour** ou **Expédition**. Dans le panneau Expédition, cliquer sur **Apporter un éclat**. Une contribution par membre et par jour, objectif collectif de 12 ; jouable seul. Ces boutons affichent leurs réponses en privé pour éviter le spam.
+
+### V10.3 — Nouveaux boutons (aucune nouvelle commande)
+- `/nox` → **Portail des paradoxes** : histoire personnelle du jour, trois décisions possibles, une seule enregistrée par jour.
+- Salon Histoire → **Portail secret** : même expérience depuis l'accueil.
+- `/cosmos installer` : met à jour l'embed d'accueil avec le bouton supplémentaire (à vérifier sur Discord réel).
+
+## V10.4 — Intrigues croisées
+Dans `/nox`, bouton **🎭 Intrigue des habitants** : un scénario quotidien met en scène plusieurs habitants, avec trois décisions possibles. Les conséquences modifient les jauges du monde, une affinité et le journal ; chaque membre ne peut valider qu'un choix par jour. Aucune commande supplémentaire ni modification de salon n'est nécessaire.
+
+## V10.5 — Échos du destin
+
+Aucune nouvelle commande slash. Dans `/nox`, bouton **✉️ Échos du destin** : affiche les conséquences de tes choix deux jours plus tard et les échos encore en préparation. Les retours restent personnels et éphémères ; aucune notification automatique ni mention.
+
+
+### NOX TV (staff)
+`/noxtv configurer salon:#salon` · `/noxtv activer actif:True/False` · `/noxtv tester`
+
+- `/noxtv statut` — état de NOX TV et humeur de Nox (staff).
+
+- `/noxtv votes message_id:<ID>` (staff) : récapitulatif des choix exprimés sous une publication NOX TV. Les membres votent directement avec les trois boutons du message, sans commande.
+
+### V10.9 — NOX TV
+Les votes des publications se ferment le lendemain ; le bot annonce le résultat dans le salon NOX TV. Aucune commande supplémentaire.
+
+
+V10.10 : `/noxtv tester` crée désormais un scrutin de test traçable, clos le lendemain. Les verdicts changent selon la scène.
+
+V10.12 : les tests NOX TV publiés dans un salon distinct conservent désormais leur salon pour le verdict du lendemain.
+
+### NOX TV — V10.13
+- `/noxtv configurer` : configuration historique de repli, conservée pour compatibilité.
+- `/noxtv activer actif:true` : autorise les publications automatiques, qui sont réparties dans les salons indiqués par `COSMOS_CHANNEL_*`.
+- `/noxtv tester` : publication de test dans le salon correspondant au type de visuel.
+- Les verdicts sont envoyés dans `COSMOS_CHANNEL_CHRONIQUES` avec lien vers le message initial.
+
+### V10.14 — NOX TV : contrôle qualité et catalogue
+`/noxtv catalogue` affiche les identifiants des médias et leurs salons. `/noxtv tester scene:<identifiant>` permet de tester une scène précise sans consommer le quota automatique. Les réservations de publication sont libérées si le salon est absent ou incompatible, pour éviter de bloquer la journée. Publication automatique toujours désactivée par défaut.
+
+V10.15 : `/noxtv tester scene:madame_paradoxe` et `/noxtv tester scene:gloups_experience`.
+
+V10.16 : `/noxtv diagnostic` vérifie les salons et permissions NOX TV.
+
+### NOX TV V10.17
+`/noxtv catalogue` affiche les 13 médias disponibles ; `/noxtv tester scene:paradoxe_mardi_25` et `/noxtv tester scene:gloups_experience_547` permettent des tests ciblés.
+
+### V10.18 — Deux scènes supplémentaires NOX TV
+Deux nouveaux médias (Paradoxe : grève des horloges ; Gloups : fiole rebelle) et six verdicts narratifs. Catalogue : 15 médias. Version de développement, publication automatique toujours désactivée par défaut.
+
+
+### V10.19 — NOX TV : étoile animée
+Nouveau GIF `nox_etoile.gif` dans le salon Nox, trois verdicts dédiés. Le catalogue comporte 16 médias (14 PNG, 2 GIF). Publication automatique désactivée par défaut.
+
+- `/noxtv apercu scene:<identifiant>` : aperçu privé d'une scène, sans publication ni vote.
+
+
+### V10.22 — Correctifs NOX TV
+- Aperçu privé : correction du traitement des médias manquants (plus de variables non définies), réponse Discord explicite.
+- Chroniques : pas de repli vers un autre salon lorsque la destination des verdicts est invalide.
+- Aucune migration destructive, aucun nouveau média annoncé.
+
+
+## V10.23 — Fiabilisation du catalogue multimédia
+Les médias sont désormais validés avant publication ou aperçu (chemin autorisé, format, taille maximale de 8 Mio, champs requis, identifiant unique). Un catalogue JSON illisible ne fait plus planter la sélection : aucune publication n’est envoyée. La galerie reste à 16 médias.
+
+**V10.24 :** `/noxtv tester` ne modifie ni le calendrier ni l'historique de rotation automatique. Les publications de test peuvent toujours être votées et donner lieu à un verdict.
+
+### NOX TV V10.25 — Audit de la galerie
+`/noxtv audit` (staff) : vérifie le catalogue complet, les fichiers réellement accessibles, les GIF, les salons de destination et les trois verdicts de chaque scène, sans publier ni modifier SQLite.
+
+### NOX TV V10.26 — Simulation sans publication
+`/noxtv simulation` (staff) propose une scène en fonction de l’humeur de Nox, des deux dernières publications automatiques et du salon prévu. Aucun message public, vote, changement SQLite ou réservation de calendrier. Le tirage réel peut différer.
+
+### V10.27 — Première animation originale du Canard Suprême
+GIF `canard_matraque_anime.gif` : Coin-Coin agite sa cuisse de poulet dans l’Observatoire. Scène `canard_matraque_anime` destinée au salon Anomalies, trois verdicts dédiés. Aucun changement de commande ou de base de données.
+
+V10.28 : `/noxtv apercu scene:grille_pain_panique_anime` pour prévisualiser le nouveau GIF.
+
+
+V10.31 : `canard_matraque_anime` et `nox_faim_anime` disponibles via les commandes NOX TV de prévisualisation et de test.
+
+V10.32 : `/noxtv bilan` (staff) — statistiques privées en lecture seule.
+
+### V10.33
+Aucune nouvelle commande : correction des tests de validation de la galerie animée.
+
+### V10.35
+Quatre nouvelles scènes consultables via `/noxtv catalogue` et `/noxtv apercu`.
+
+V10.36 : `/noxtv catalogue`, `/noxtv apercu`, `/noxtv audit` couvrent les 30 scènes.

@@ -169,6 +169,7 @@ EXTENSIONS: Final[tuple[str, ...]] = (
     "cogs.horizons_arcade",
     "cogs.celestial_treasures",
     "cogs.chaos_cosmique",
+    "cogs.nox_tv",
 )
 
 # ---------------------------------------------------------------------------
