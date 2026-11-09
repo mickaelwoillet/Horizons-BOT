@@ -44,7 +44,7 @@ TRUSTED_EXTRA = frozenset(x.strip().lower() for x in os.getenv('REGARD_ADDITIONA
 AUTO_MODE = os.getenv('REGARD_AUTO_MODE', 'true').lower() in ('1','true','yes','oui')
 MUSIC_NEW_RELEASE_DAYS = max(1, min(90, int(os.getenv('REGARD_MUSIC_NEW_RELEASE_DAYS', '14'))))
 MUSIC_REPEAT_DAYS = max(7, int(os.getenv('REGARD_MUSIC_REPEAT_DAYS', '90')))
-MUSIC_AUTO_DISCOVERY = os.getenv('REGARD_MUSIC_AUTO_DISCOVERY', 'true').lower() in ('1','true','yes','oui')
+MUSIC_AUTO_DISCOVERY = os.getenv('REGARD_MUSIC_AUTO_DISCOVERY', 'false').lower() in ('1','true','yes','oui')
 WEEKLY_VOTE_ENABLED = os.getenv('REGARD_WEEKLY_VOTE_ENABLED', 'true').lower() in ('1','true','yes','oui')
 WEEKLY_VOTE_HOUR = max(0, min(23, int(os.getenv('REGARD_WEEKLY_VOTE_HOUR', '19'))))
 # Titres choisis pour leur message explicite; la plateforme de musique confirme les liens,
@@ -151,46 +151,61 @@ class RegardDuJour(commands.Cog):
         return forum if isinstance(forum, discord.ForumChannel) else None, archive if isinstance(archive, discord.TextChannel) else None
 
     async def collect(self, day):
-        """RSS : titres datés, attribution à une source connue, 72 h maximum.
+        """Collecte des flux RSS avec statistiques de rejet exploitables en console.
 
-        Nous ne déduisons jamais la date de l'événement ou la qualification pénale
-        à partir d'un titre. Toute source absente / non reconnue est écartée.
+        Une source et une date doivent être identifiables. Aucun article n'est
+        inventé ; les titres ne sont pas présentés comme des faits vérifiés.
         """
         inserted = 0
         today = datetime.fromisoformat(day).date()
-        timeout = aiohttp.ClientTimeout(total=14)
-        async with aiohttp.ClientSession(timeout=timeout, headers={'User-Agent':'HORIZONS/1.0 veille-associative'}) as session:
+        timeout = aiohttp.ClientTimeout(total=25)
+        stats = {'received': 0, 'bad_link': 0, 'untrusted': 0,
+                 'old': 0, 'irrelevant': 0, 'duplicates': 0, 'errors': 0}
+        async with aiohttp.ClientSession(timeout=timeout, headers={
+                'User-Agent': 'Mozilla/5.0 (compatible; HORIZONS/1.0; community news digest)'}) as session:
             for category, query in TOPICS:
-                url='https://news.google.com/rss/search?q='+quote(query+' when:3d')+'&hl=fr&gl=FR&ceid=FR:fr'
+                url = 'https://news.google.com/rss/search?q=' + quote(query + ' when:7d') + '&hl=fr&gl=FR&ceid=FR:fr'
+                category_count = 0
                 try:
                     async with session.get(url) as response:
                         response.raise_for_status()
-                        raw=await response.read()
-                    root=ET.fromstring(raw)
-                    count=0
-                    for item in root.findall('.//channel/item'):
-                        title=shorten(item.findtext('title') or '', 230)
-                        link=(item.findtext('link') or '').strip()
-                        source_node=item.find('source')
-                        source=(source_node.text or '').strip() if source_node is not None else ''
-                        source_url=(source_node.attrib.get('url','') if source_node is not None else '')
-                        published=news_date(item.findtext('pubDate') or '')
-                        excerpt=feed_excerpt(item.findtext('description') or '',title)
-                        if not title or len(title)<18 or not link.startswith('https://news.google.com/'):
-                            continue
-                        if not source or not trusted_source(source_url, TRUSTED_EXTRA): continue
-                        if not within_recent_days(published,today,max_days=3): continue
-                        if not relevant_headline(title, category): continue
+                        raw = await response.read()
+                    root = ET.fromstring(raw)
+                    entries = root.findall('.//channel/item')
+                    logger.info('Regard RSS %s : %d entrées reçues', category, len(entries))
+                    for item in entries:
+                        stats['received'] += 1
+                        title = shorten(item.findtext('title') or '', 230)
+                        link = (item.findtext('link') or '').strip()
+                        source_node = item.find('source')
+                        source = (source_node.text or '').strip() if source_node is not None else ''
+                        source_url = source_node.attrib.get('url', '') if source_node is not None else ''
+                        published = news_date(item.findtext('pubDate') or '')
+                        excerpt = feed_excerpt(item.findtext('description') or '', title)
+                        if len(title) < 18 or not link.startswith('https://news.google.com/'):
+                            stats['bad_link'] += 1; continue
+                        if not source or not trusted_source(source_url, TRUSTED_EXTRA):
+                            stats['untrusted'] += 1; continue
+                        if not within_recent_days(published, today, max_days=7):
+                            stats['old'] += 1; continue
+                        if not relevant_headline(title, category):
+                            stats['irrelevant'] += 1; continue
                         with connect() as db:
-                            cur=db.execute("""INSERT OR IGNORE INTO regard_items
-                              (day,title,url,category,status,created_at,source,source_url,published_at,summary)
-                              VALUES(?,?,?,?,?,?,?,?,?,?)""",
-                              (day,title,link,category,'pending',datetime.now(TZ).isoformat(),source,source_url,published.isoformat(),excerpt))
-                            inserted+=max(0,cur.rowcount)
-                        count+=1
-                        if count>=10: break
-                except (aiohttp.ClientError,asyncio.TimeoutError,ET.ParseError,ValueError) as exc:
-                    logger.warning('Veille RSS %s indisponible: %s',category,exc)
+                            cur = db.execute("""INSERT OR IGNORE INTO regard_items
+                                (day,title,url,category,status,created_at,source,source_url,published_at,summary)
+                                VALUES(?,?,?,?,?,?,?,?,?,?)""",
+                                (day,title,link,category,'pending',datetime.now(TZ).isoformat(),
+                                 source,source_url,published.isoformat(),excerpt))
+                            if cur.rowcount: inserted += 1; category_count += 1
+                            else: stats['duplicates'] += 1
+                        if category_count >= 12: break
+                except (aiohttp.ClientError, asyncio.TimeoutError, ET.ParseError, ValueError) as exc:
+                    stats['errors'] += 1
+                    logger.warning('Regard RSS %s : %s : %s', category, type(exc).__name__, exc)
+        logger.info('Regard collecte %s : nouveaux=%d, stats=%s', day, inserted, stats)
+        with connect() as db:
+            db.execute('INSERT OR REPLACE INTO regard_state(key,value) VALUES(?,?)',
+                       ('diagnostic:'+day, str({'new':inserted, **stats})))
         return inserted
 
     def auto_select(self, day):
@@ -313,8 +328,8 @@ class RegardDuJour(commands.Cog):
                         actual_title=str(song.get('trackName',''))
                         actual_artist=str(song.get('artistName',''))
                         link=str(song.get('trackViewUrl',''))
-                        if (title.casefold() in actual_title.casefold() and
-                            artist.split()[0].casefold() in actual_artist.casefold() and
+                        if (normalize(title) == normalize(actual_title) and
+                            normalize(artist.split()[0]) in normalize(actual_artist) and
                             link.startswith('https://') and
                             not self.music_recently_used(actual_title,actual_artist,day)):
                             with connect() as db:
@@ -373,7 +388,7 @@ class RegardDuJour(commands.Cog):
         """Sommaire cliquable vers chaque article : une seule édition du premier message."""
         with connect() as db:
             state=db.execute('SELECT 1 FROM regard_state WHERE key=?',('index:'+day,)).fetchone()
-            if state:return
+            # Le sommaire peut évoluer après une collecte de rattrapage.
             refs={r['part_key']:r['message_id'] for r in db.execute('SELECT part_key,message_id FROM regard_thread_parts WHERE day=?',(day,)).fetchall()}
         if any(f'article:{r["id"]}' not in refs for r in items):return
         links=[]
@@ -397,6 +412,9 @@ class RegardDuJour(commands.Cog):
             with connect() as db:
                 old=db.execute('SELECT thread_id FROM regard_posts WHERE day=?',(day,)).fetchone()
                 items=db.execute("SELECT * FROM regard_items WHERE day=? AND status='approved' AND category!='🎵 Musique' ORDER BY id LIMIT ?",(day,ARTICLE_MAX)).fetchall()
+            if not items and not old:
+                logger.warning('Regard %s : aucune actualité validée ; publication vide annulée.', day)
+                return 'Aucune actualité vérifiée : publication reportée. Consulte /regard_diagnostic.'
             music=await self.select_music(day) if AUTO_MODE else None
             if not old:
                 # Après un crash entre la création Discord et l'enregistrement SQLite,
@@ -617,8 +635,8 @@ class RegardDuJour(commands.Cog):
             with connect() as db:posted=db.execute('SELECT thread_id FROM regard_posts WHERE day=?',(day,)).fetchone()
             # Une collecte complète supplémentaire au maximum à 18h, en cas de panne RSS à 16h.
             with connect() as db: retried=db.execute('SELECT value FROM regard_state WHERE key=?',('retry:'+day,)).fetchone()
-            if AUTO_MODE and not posted and not retried:
-                with connect() as db:db.execute('INSERT OR IGNORE INTO regard_state(key,value) VALUES(?,?)',('retry:'+day,'attempted'))
+            if AUTO_MODE and not posted and (not retried or retried['value'] != now.strftime('%Y-%m-%dT%H')):
+                with connect() as db:db.execute('INSERT OR REPLACE INTO regard_state(key,value) VALUES(?,?)',('retry:'+day,now.strftime('%Y-%m-%dT%H')))
                 try:
                     await self.collect(day)
                     self.auto_select(day)
@@ -693,11 +711,35 @@ class RegardDuJour(commands.Cog):
                 (datetime.now(TZ).date().isoformat(),titre,lien,'🎵 Musique' if musique else 'Proposition staff','approved',datetime.now(TZ).isoformat(),interaction.user.id))
         await interaction.response.send_message('Ajout validé.' if cur.rowcount else 'Lien déjà présent.',ephemeral=True)
 
+    @app_commands.command(name='regard_diagnostic',description='Afficher le diagnostic de la collecte et la configuration (staff).')
+    async def diagnostic(self, interaction:discord.Interaction):
+        if not staff(interaction.user):
+            return await interaction.response.send_message('Réservé au staff.',ephemeral=True)
+        day=datetime.now(TZ).date().isoformat()
+        with connect() as db:
+            state=db.execute('SELECT value FROM regard_state WHERE key=?',('diagnostic:'+day,)).fetchone()
+            counts=db.execute('SELECT status,COUNT(*) AS n FROM regard_items WHERE day=? GROUP BY status',(day,)).fetchall()
+            post=db.execute('SELECT thread_id FROM regard_posts WHERE day=?',(day,)).fetchone()
+        forum,_=await self.channels()
+        lines=[f'📰 **Diagnostic Regard — {day}**',
+               f'Actif : **{ENABLED}** · Auto : **{AUTO_MODE}** · Heure : **{PUBLISH_HOUR}h** (Paris)',
+               f'Forum : **{"OK" if forum else "ABSENT"}** · Sujet créé : **{bool(post)}**',
+               'Articles : '+(', '.join(f'{r["status"]}={r["n"]}' for r in counts) or 'aucun'),
+               'Collecte : '+(state['value'][:1300] if state else 'aucun diagnostic enregistré')]
+        await interaction.response.send_message('\n'.join(lines)[:1950],ephemeral=True)
+
     @app_commands.command(name='regard_publier',description='Publier manuellement les contenus validés du jour (staff).')
     async def publier(self,interaction:discord.Interaction):
         if not staff(interaction.user): return await interaction.response.send_message('Réservé au staff.',ephemeral=True)
         await interaction.response.defer(ephemeral=True)
-        try: msg=await self.publish(datetime.now(TZ).date().isoformat())
+        try:
+            day=datetime.now(TZ).date().isoformat()
+            with connect() as db:
+                ready=db.execute("SELECT COUNT(*) FROM regard_items WHERE day=? AND status='approved' AND category!='🎵 Musique'",(day,)).fetchone()[0]
+            if not ready and AUTO_MODE:
+                await self.collect(day)
+                self.auto_select(day)
+            msg=await self.publish(day)
         except (RuntimeError,discord.HTTPException) as exc: msg=f'Échec : {exc}'
         await interaction.followup.send(msg,ephemeral=True)
 

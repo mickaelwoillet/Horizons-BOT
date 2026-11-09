@@ -86,7 +86,7 @@ def news_date(value: str):
 
 def within_recent_days(stamp, today, max_days: int = 3) -> bool:
     if stamp is None: return False
-    date = stamp.date()
+    date = stamp.astimezone(__import__('zoneinfo').ZoneInfo('Europe/Paris')).date()
     return today - timedelta(days=max_days) <= date <= today
 
 
