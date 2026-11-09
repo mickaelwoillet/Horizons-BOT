@@ -129,6 +129,7 @@ EXTENSIONS: Final[tuple[str, ...]] = (
     "cogs.centre_horizons",
     "cogs.onboarding",
     "cogs.smart_welcome",
+    "cogs.regard_du_jour",
     "cogs.today_hub",
     "cogs.salon_harmony",
     "cogs.visual_identity",

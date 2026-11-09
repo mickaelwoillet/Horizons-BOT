@@ -1,3 +1,7 @@
+## V8.8.4 — Le Regard du Jour : édition communautaire, sommaire, suivi, bilan hebdomadaire, XP et sécurité
+
+Voir `NOTES_V8_8_4_REGARD_DU_JOUR.md`.
+
 # HORIZONS — Historique des améliorations précédentes
 
 Ce document conserve les notes de versions antérieures, sans suppression de contenu.
