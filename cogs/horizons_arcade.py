@@ -6,7 +6,7 @@ from pathlib import Path
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
-from cogs.embed_theme import horizons_embed
+from cogs.embed_theme import get_logo_url, horizons_embed
 from cogs.storage import db
 from cogs.arcade_games import ArcadeMenuView
 from cogs.arcade_progress import ProgressView, record_game_result
@@ -162,7 +162,7 @@ class ReflexView(discord.ui.View):
         if elapsed is None:
             if interaction.guild_id:
                 record_game_result(interaction.guild_id, "reflexe", "solo", [interaction.user.id], status="loss")
-            await interaction.response.edit_message(content="Le signal n'était pas prêt. Relance le jeu depuis `/jeux`.", view=self); return
+            await interaction.response.edit_message(content="Le signal n'était pas prêt. Relance le jeu depuis **Jeux**.", view=self); return
         points = award_xp(interaction.guild_id, interaction.user.id, "reflexe", 5) if elapsed >= 0 and interaction.guild_id else 0
         if interaction.guild_id:
             record_game_result(interaction.guild_id, "reflexe", "solo", [interaction.user.id], winners=[interaction.user.id], status="completed")
@@ -311,10 +311,20 @@ class CollectiveGameView(discord.ui.View):
         await self.refresh_message()
 
 
+class ArcadeLaunchView(discord.ui.View):
+    def __init__(self): super().__init__(timeout=None)
+    @discord.ui.button(label="Jeux", emoji="🎮", style=discord.ButtonStyle.primary, custom_id="horizons:arcade:launch:v2")
+    async def launch(self, interaction: discord.Interaction, button: discord.ui.Button):
+        cog = interaction.client.get_cog("HorizonsArcade")
+        if cog: await cog.jeux.callback(cog, interaction)
+        else: await interaction.response.send_message("Arcade indisponible.", ephemeral=True)
+
+
 class HorizonsArcade(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.active_collective_sessions: dict[tuple[int, int], discord.ui.View] = {}
+        self.bot.add_view(ArcadeLaunchView())
         self.refresh_arcade_info.start()
 
     def release_collective_session(self, guild_id: int | None, channel_id: int | None):
@@ -332,11 +342,11 @@ class HorizonsArcade(commands.Cog):
         self.refresh_arcade_info.cancel()
 
     def build_arcade_embed(self) -> discord.Embed:
-        embed = horizons_embed(title="🎮 L'Arcade HORIZONS", description="Choisis un jeu avec `/jeux` et lance une partie grâce aux menus interactifs. Les blagues, devinettes et quiz quotidiens restent dans leurs salons habituels : ils ne font pas partie de cette progression.")
+        embed = horizons_embed(title="🎮 L'Arcade HORIZONS", description="Clique sur **Jeux** et lance une partie grâce aux menus interactifs. Les blagues, devinettes et quiz quotidiens restent dans leurs salons habituels : ils ne font pas partie de cette progression.")
         embed.add_field(name="🕹️ Jeux interactifs", value="⭕ **Morpion** — solo contre l'IA (3 niveaux) ou duel.\n🔴 **Puissance 4** — duel au tour par tour.\n🧠 **Memory** — retrouver les huit paires en solo.\n🔐 **Code secret** — déchiffrer une combinaison en solo.\n📝 **Petit Bac** — partie collective chronométrée et vote sur les réponses ambiguës.\n🚢 **Bataille navale** — duel avec grilles privées en messages directs.", inline=False)
-        embed.add_field(name="🎲 Mini-jeux rapides", value="Dé, pile ou face, nombre mystère, quiz, anagramme, énigme et réflexe sont accessibles depuis le sélecteur `/jeux`.", inline=False)
-        embed.add_field(name="🤝 Défis collectifs", value="Choisis **Défi collectif** dans `/jeux`, puis le mini-jeu à partager avec le salon.", inline=False)
-        embed.add_field(name="🌠 Soirées Arcade", value="Ouvre un salon d'attente depuis `/jeux`, rassemble jusqu'à douze membres et lance trois manches collectives chronométrées.", inline=False)
+        embed.add_field(name="🎲 Mini-jeux rapides", value="Dé, pile ou face, nombre mystère, quiz, anagramme, énigme et réflexe sont accessibles depuis le menu **Jeux**.", inline=False)
+        embed.add_field(name="🤝 Défis collectifs", value="Choisis **Défi collectif** dans **Jeux**, puis le mini-jeu à partager avec le salon.", inline=False)
+        embed.add_field(name="🌠 Soirées Arcade", value="Ouvre un salon d'attente depuis **Jeux**, rassemble jusqu'à douze membres et lance trois manches collectives chronométrées.", inline=False)
         embed.add_field(name="🌟 XP Célestes", value="Les parties et bonnes réponses rapportent des XP. Une récompense par mini-jeu et par jour, avec un plafond de **60 XP par jour** pour préserver l'équité.", inline=False)
         embed.set_footer(text="HORIZONS • Les routines quotidiennes restent indépendantes")
         return embed
@@ -408,9 +418,9 @@ class HorizonsArcade(commands.Cog):
                 embed = self.build_arcade_embed()
                 embed.set_footer(text="HORIZONS • HORIZONS-ARCADE:PANNEAU")
                 if message is None:
-                    message = await channel.send(embed=embed, allowed_mentions=discord.AllowedMentions.none())
+                    message = await channel.send(embed=embed, view=ArcadeLaunchView(), allowed_mentions=discord.AllowedMentions.none())
                 else:
-                    await message.edit(embed=embed)
+                    await message.edit(embed=embed, view=ArcadeLaunchView())
                 with db() as conn:
                     conn.execute(
                         "INSERT INTO bot_settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",

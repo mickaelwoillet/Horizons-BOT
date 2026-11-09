@@ -45,41 +45,116 @@ class StaffTools(commands.Cog):
         await channel.send(content=f"<@&{STAFF_ROLE_ID}>" if STAFF_ROLE_ID else None, embed=embed, allowed_mentions=discord.AllowedMentions(roles=True))
         await interaction.response.send_message("Alerte transmise à l'équipe.", ephemeral=True)
 
-    @app_commands.command(name="message_anonyme", description="Publier un message sans afficher ton identité (si le salon est configuré).")
-    async def message_anonyme(self, interaction: discord.Interaction, message: app_commands.Range[str,5,1500]):
-        channel = self.bot.get_channel(ANONYMOUS_CHANNEL_ID) if ANONYMOUS_CHANNEL_ID else None
-        if not channel:
-            await interaction.response.send_message("La publication anonyme n'est pas activée pour le moment.", ephemeral=True); return
+    async def publish_anonymous(self, interaction: discord.Interaction, message: str):
+        """Publication anonyme avec journal préalable obligatoire et anti-spam."""
+        if not interaction.guild or interaction.guild.id != GUILD_ID:
+            await interaction.response.send_message("Cette fonction est réservée à HORIZONS.", ephemeral=True)
+            return
+        channel = self.bot.get_channel(ANONYMOUS_CHANNEL_ID)
+        staff_log = self.bot.get_channel(ALERT_LOG_CHANNEL_ID)
+        if not isinstance(channel, discord.TextChannel) or not isinstance(staff_log, discord.TextChannel):
+            await interaction.response.send_message("Publication indisponible : salon ou journal de modération inaccessible.", ephemeral=True)
+            return
         now = time.monotonic()
         history = self.anonymous_posts[interaction.user.id]
         while history and now - history[0] >= 600:
             history.popleft()
         if len(history) >= 2:
-            retry_after = max(1, int(600 - (now - history[0])))
-            await interaction.response.send_message(
-                f"Tu as atteint la limite de publications anonymes. Réessaie dans {retry_after} seconde(s).",
-                ephemeral=True,
-            )
+            await interaction.response.send_message("Limite atteinte : deux messages par période de dix minutes.", ephemeral=True)
+            return
+        await interaction.response.defer(ephemeral=True, thinking=True)
+        audit = horizons_embed(title="🧾 Publication anonyme — journal confidentiel", description=message)
+        audit.add_field(name="Auteur", value=f"{interaction.user} (`{interaction.user.id}`)", inline=False)
+        audit.add_field(name="Destination", value=channel.mention, inline=True)
+        audit.add_field(name="Horodatage UTC", value=datetime.now(timezone.utc).isoformat(), inline=False)
+        try:
+            audit_message = await staff_log.send(embed=audit, allowed_mentions=discord.AllowedMentions.none())
+        except (discord.Forbidden, discord.HTTPException):
+            await interaction.followup.send("Publication annulée : impossible de conserver le journal confidentiel.", ephemeral=True)
+            return
+        embed = horizons_embed(title="💌 Paroles libres", description=message)
+        embed.set_footer(text="Message anonyme pour les membres • Auteur identifiable par la modération")
+        try:
+            published = await channel.send(embed=embed, allowed_mentions=discord.AllowedMentions.none())
+        except (discord.Forbidden, discord.HTTPException):
+            await interaction.followup.send("Publication impossible ; le journal interne a conservé la tentative.", ephemeral=True)
             return
         history.append(now)
-        embed = horizons_embed(title="💬 Un message de la communauté", description=message, color=discord.Color.teal())
-        embed.set_footer(text="Message transmis anonymement via HORIZONS")
-        await channel.send(embed=embed, allowed_mentions=discord.AllowedMentions.none())
-        # L'identité reste cachée aux membres, mais un journal réservé à l'équipe
-        # permet de traiter les abus et signalements éventuels.
-        staff_log = self.bot.get_channel(ALERT_LOG_CHANNEL_ID) if ALERT_LOG_CHANNEL_ID else None
-        if staff_log:
-            audit = horizons_embed(
-                title="🧾 Journal interne — publication anonyme",
-                description=message,
-                color=discord.Color.dark_teal(),
-            )
-            audit.add_field(name="Auteur (équipe uniquement)", value=f"{interaction.user} (`{interaction.user.id}`)")
-            audit.add_field(name="Salon de publication", value=channel.mention)
-            await staff_log.send(embed=audit, allowed_mentions=discord.AllowedMentions.none())
-        await interaction.response.send_message(
-            "Ton message a été transmis anonymement. Ton identité n'est pas affichée aux membres ; l'équipe conserve une trace interne pour prévenir les abus.",
-            ephemeral=True,
-        )
+        try:
+            audit.add_field(name="Message publié", value=f"{published.jump_url} (`{published.id}`)", inline=False)
+            await audit_message.edit(embed=audit)
+        except (discord.Forbidden, discord.HTTPException):
+            pass
+        await interaction.followup.send("Ton message a été publié sans afficher ton identité aux membres. 💌", ephemeral=True)
 
-async def setup(bot: commands.Bot): await bot.add_cog(StaffTools(bot))
+    @app_commands.command(name="message_anonyme", description="Publier anonymement dans Paroles libres.")
+    async def message_anonyme(self, interaction: discord.Interaction, message: app_commands.Range[str,5,1500]):
+        await self.publish_anonymous(interaction, message)
+
+
+class AnonymousModal(discord.ui.Modal, title="Écrire dans Paroles libres"):
+    message = discord.ui.TextInput(label="Ton message", style=discord.TextStyle.paragraph,
+                                   placeholder="Exprime-toi avec respect…", min_length=5, max_length=1500)
+
+    def __init__(self, cog: StaffTools):
+        super().__init__()
+        self.cog = cog
+
+    async def on_submit(self, interaction: discord.Interaction):
+        await self.cog.publish_anonymous(interaction, str(self.message.value))
+
+
+class AnonymousPanel(discord.ui.View):
+    def __init__(self, cog: StaffTools):
+        super().__init__(timeout=None)
+        self.cog = cog
+
+    @discord.ui.button(label="Écrire anonymement", emoji="💌", style=discord.ButtonStyle.primary,
+                       custom_id="horizons:anonymous:write:v1")
+    async def write(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_modal(AnonymousModal(self.cog))
+
+
+class AnonymousPanelManager(commands.Cog):
+    def __init__(self, bot: commands.Bot):
+        self.bot = bot
+        self.done = False
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        if self.done:
+            return
+        cog = self.bot.get_cog("StaffTools")
+        if cog is None:
+            return
+        self.bot.add_view(AnonymousPanel(cog))
+        channel = self.bot.get_channel(ANONYMOUS_CHANNEL_ID)
+        if not isinstance(channel, discord.TextChannel):
+            return
+        try:
+            # Le panneau est recherché, puis modifié ; jamais dupliqué volontairement.
+            async for msg in channel.history(limit=150):
+                if msg.author.id != self.bot.user.id or not msg.embeds:
+                    continue
+                if any("Paroles libres — écrire anonymement" in (e.title or "") for e in msg.embeds):
+                    await msg.edit(embed=self.panel_embed(), view=AnonymousPanel(cog))
+                    self.done = True
+                    return
+            await channel.send(embed=self.panel_embed(), view=AnonymousPanel(cog))
+            self.done = True
+        except (discord.Forbidden, discord.HTTPException):
+            pass
+
+    @staticmethod
+    def panel_embed():
+        return horizons_embed(title="💌 Paroles libres — écrire anonymement",
+            description="Un espace pour partager tes pensées sans afficher ton pseudo. "
+                        "Clique sur **Écrire anonymement** pour ouvrir le formulaire privé.\n\n"
+                        "**Confidentialité :** les membres ne voient pas ton identité, mais l'équipe "
+                        "de modération conserve un journal associant ton compte au message, "
+                        "afin de traiter les abus. Deux messages maximum toutes les dix minutes.\n\n"
+                        "Pas d'insultes, de harcèlement ni d'informations personnelles concernant autrui.")
+
+async def setup(bot: commands.Bot):
+    await bot.add_cog(StaffTools(bot))
+    await bot.add_cog(AnonymousPanelManager(bot))

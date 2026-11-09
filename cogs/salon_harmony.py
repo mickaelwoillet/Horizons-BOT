@@ -10,7 +10,7 @@ from config import (GUILD_ID, AFFINITY_CHANNEL_ID, MOOD_CHANNEL_ID,
                     IDEAS_CHANNEL_ID, SOLIDARITY_CHANNEL_ID,
                     FIND_PARTNER_CHANNEL_ID, COLLECTIVE_CHALLENGES_CHANNEL_ID)
 from .storage import db
-from .embed_theme import wait_for_logo_ready, horizons_embed
+from .embed_theme import wait_for_logo_ready, horizons_embed, GOLD, get_logo_url
 
 log = logging.getLogger(__name__)
 # Identifiants constants : aucun salon ni permission n'est recréé.
@@ -153,8 +153,13 @@ class SalonHarmony(commands.Cog):
         self._done = True
 
     async def ensure_panel(self, channel: discord.TextChannel, title: str, description: str):
-        embed = horizons_embed(title=title, description=description)
-        embed.set_footer(text='HORIZONS • Panneau interactif permanent')
+        # Charte officielle : or, logo en haut à droite et signature.
+        # L'avatar du bot sert de secours si le dépôt Discord du logo est indisponible.
+        embed = horizons_embed(title=title, description=description, color=GOLD)
+        logo = get_logo_url() or (self.bot.user.display_avatar.url if self.bot.user else None)
+        if logo:
+            embed.set_thumbnail(url=str(logo))
+        embed.set_footer(text='HORIZONS • Panneau interactif permanent • Nos différences nous rapprochent')
         view = ActivitySalonView() if channel.id == FIND_PARTNER_CHANNEL_ID else CollectiveSalonView()
         key = f'v7_harmony_panel_{channel.id}'
         with db() as conn:
@@ -166,13 +171,17 @@ class SalonHarmony(commands.Cog):
                 if message.author.id != self.bot.user.id:
                     message = None
             except (ValueError, TypeError, discord.NotFound):
-                pass
+                message = None
             except (discord.Forbidden, discord.HTTPException):
                 return
         if message is None:
             try:
-                async for candidate in channel.history(limit=150):
-                    if candidate.author.id == self.bot.user.id and any(e.title == title for e in candidate.embeds):
+                async for candidate in channel.history(limit=250):
+                    if candidate.author.id == self.bot.user.id and any(
+                        e.title == title or (channel.id == COLLECTIVE_CHALLENGES_CHANNEL_ID
+                                             and e.title and 'Défis collectifs · Ensemble' in e.title)
+                        for e in candidate.embeds
+                    ):
                         message = candidate
                         break
             except (discord.Forbidden, discord.HTTPException):

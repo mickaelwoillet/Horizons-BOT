@@ -10,6 +10,7 @@ from discord.ext import commands
 from config import CIRCLE_PROPOSALS_CHANNEL_ID, CIRCLES_CHANNEL_ID
 from cogs.embed_theme import horizons_embed
 from .storage import db
+from .circle_proposals import CircleProposalEntry
 
 log = logging.getLogger(__name__)
 GUIDE_KEY = "circles_horizons_v1"
@@ -37,6 +38,33 @@ class CircleGuides(commands.Cog):
                 """
             )
 
+    @commands.Cog.listener()
+    async def on_ready(self):
+        if getattr(self, "_guide_refreshed", False):
+            return
+        self._guide_refreshed = True
+        # Ne pas créer de nouveau panneau au démarrage : ne mettre à jour que
+        # celui déjà suivi dans la base, pour éviter tout doublon.
+        with db() as conn:
+            row = conn.execute(
+                "SELECT message_id FROM circle_guide_publications WHERE channel_id=? AND guide_key='proposer_un_cercle'",
+                (CIRCLE_PROPOSALS_CHANNEL_ID,),
+            ).fetchone()
+        if not row or not row[0]:
+            log.info("Guide Cercle non suivi : commande /publier_guides_cercles nécessaire une fois")
+            return
+        channel = await self.resolve_channel(CIRCLE_PROPOSALS_CHANNEL_ID)
+        if not isinstance(channel, discord.TextChannel):
+            return
+        try:
+            message = await channel.fetch_message(int(row[0]))
+            proposal, _ = self.build_guides()
+            if not proposal.thumbnail.url:
+                proposal.set_thumbnail(url=self.bot.user.display_avatar.url)
+            await message.edit(embed=proposal, view=CircleProposalEntry(), allowed_mentions=discord.AllowedMentions.none())
+        except (discord.Forbidden, discord.HTTPException):
+            log.exception("Actualisation du guide Cercle impossible")
+
     def build_guides(self) -> tuple[discord.Embed, discord.Embed]:
         proposal = horizons_embed(
             title="💡 Proposer un Cercle HORIZONS",
@@ -48,16 +76,8 @@ class CircleGuides(commands.Cog):
             color=discord.Color.gold(),
         )
         proposal.add_field(
-            name="📝 Comment présenter ton idée ?",
-            value=(
-                "Publie un nouveau message dans ce salon en utilisant ce petit modèle :\n"
-                "• **Nom du Cercle :**\n"
-                "• **Thème :** (musique, cinéma, lecture, jeux, bien-être, culture…)\n"
-                "• **Objectif :** qu'aimerais-tu partager ou construire ?\n"
-                "• **Activités possibles :** discussions, découvertes, défis, rencontres…\n"
-                "• **Rythme envisagé :** ponctuel, hebdomadaire, libre…\n"
-                "• **Ton rôle :** souhaites-tu simplement proposer l'idée ou aider à l'animer ?"
-            ),
+            name="📝 Comment proposer ton idée ?",
+            value="Clique sur **Proposer un Cercle** ci-dessous. Un formulaire privé te permettra de présenter ton idée à l'équipe, sans publier de message dans ce salon.",
             inline=False,
         )
         proposal.add_field(
@@ -88,7 +108,7 @@ class CircleGuides(commands.Cog):
                 "d'une passion ou d'une envie de partager. Ils sont proposés par les membres "
                 "et ouverts après validation de l'équipe."
             ),
-            color=discord.Color.teal(),
+            color=discord.Color.gold(),
         )
         circles.add_field(
             name="🧭 Comment découvrir les Cercles ?",
@@ -172,12 +192,13 @@ class CircleGuides(commands.Cog):
 
         try:
             if message is not None:
-                await message.edit(embed=embed, allowed_mentions=discord.AllowedMentions.none())
+                await message.edit(embed=embed, view=CircleProposalEntry() if guide_key == "proposer_un_cercle" else None, allowed_mentions=discord.AllowedMentions.none())
             elif isinstance(channel, discord.ForumChannel):
                 created = await channel.create_thread(
                     name=forum_post_name[:100],
                     content="Guide permanent — merci de consulter cette présentation avant de participer.",
                     embeds=[embed],
+                    view=CircleProposalEntry() if guide_key == "proposer_un_cercle" else None,
                     allowed_mentions=discord.AllowedMentions.none(),
                 )
                 thread = created.thread
@@ -185,6 +206,7 @@ class CircleGuides(commands.Cog):
             else:
                 message = await channel.send(
                     embed=embed,
+                    view=CircleProposalEntry() if guide_key == "proposer_un_cercle" else None,
                     allowed_mentions=discord.AllowedMentions.none(),
                 )
         except (discord.Forbidden, discord.HTTPException) as exc:

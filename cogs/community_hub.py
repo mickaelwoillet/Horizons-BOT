@@ -1,6 +1,6 @@
 """Boîte à idées, mur de la solidarité et tableau de bord staff HORIZONS."""
 from __future__ import annotations
-from cogs.embed_theme import horizons_embed, wait_for_logo_ready
+from cogs.embed_theme import get_logo_url, horizons_embed, wait_for_logo_ready
 
 from datetime import datetime, timezone
 import discord
@@ -66,10 +66,67 @@ class DashboardView(discord.ui.View):
         await interaction.response.edit_message(embed=embed, view=self)
 
 
+class IdeaModal(discord.ui.Modal, title="Proposer une idée HORIZONS"):
+    proposition = discord.ui.TextInput(label="Ton idée", style=discord.TextStyle.paragraph, min_length=10, max_length=1500)
+    async def on_submit(self, interaction: discord.Interaction):
+        cog = interaction.client.get_cog("CommunityHub")
+        if cog: await cog.idee.callback(cog, interaction, str(self.proposition.value))
+        else: await interaction.response.send_message("Service indisponible.", ephemeral=True)
+
+
+class IdeaPanel(discord.ui.View):
+    def __init__(self): super().__init__(timeout=None)
+    @discord.ui.button(label="Proposer une idée", emoji="💡", style=discord.ButtonStyle.primary, custom_id="horizons:ideas:propose:v2")
+    async def propose(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_modal(IdeaModal())
+    @discord.ui.button(label="Mes idées", emoji="📋", style=discord.ButtonStyle.secondary, custom_id="horizons:ideas:mine:v2")
+    async def mine(self, interaction: discord.Interaction, button: discord.ui.Button):
+        cog = interaction.client.get_cog("CommunityHub")
+        if cog: await cog.mes_idees.callback(cog, interaction)
+        else: await interaction.response.send_message("Service indisponible.", ephemeral=True)
+
+
+class ThanksModal(discord.ui.Modal, title="Un éclat de reconnaissance"):
+    def __init__(self, member: discord.Member):
+        super().__init__(); self.member = member
+    motif = discord.ui.TextInput(label="Motif", placeholder="Écoute, entraide, gentillesse...", min_length=3, max_length=60)
+    message = discord.ui.TextInput(label="Ton message", style=discord.TextStyle.paragraph, min_length=5, max_length=700)
+    async def on_submit(self, interaction: discord.Interaction):
+        cog = interaction.client.get_cog("CommunityHub")
+        if cog:
+            reason = app_commands.Choice(name=str(self.motif.value), value=str(self.motif.value))
+            await cog.remercier.callback(cog, interaction, self.member, reason, str(self.message.value))
+        else: await interaction.response.send_message("Service indisponible.", ephemeral=True)
+
+
+class ThanksSelect(discord.ui.UserSelect):
+    def __init__(self): super().__init__(placeholder="Choisir la personne à remercier", min_values=1, max_values=1)
+    async def callback(self, interaction: discord.Interaction):
+        member = self.values[0]
+        if not isinstance(member, discord.Member) and interaction.guild:
+            member = interaction.guild.get_member(member.id)
+        if not isinstance(member, discord.Member):
+            await interaction.response.send_message("Membre introuvable.", ephemeral=True); return
+        await interaction.response.send_modal(ThanksModal(member))
+
+
+class ThanksSelectView(discord.ui.View):
+    def __init__(self): super().__init__(timeout=180); self.add_item(ThanksSelect())
+
+
+class ThanksPanel(discord.ui.View):
+    def __init__(self): super().__init__(timeout=None)
+    @discord.ui.button(label="Remercier quelqu'un", emoji="💜", style=discord.ButtonStyle.primary, custom_id="horizons:thanks:propose:v2")
+    async def propose(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_message("Qui souhaites-tu remercier ?", view=ThanksSelectView(), ephemeral=True)
+
+
 class CommunityHub(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self._explanations_checked = False
+        self.bot.add_view(IdeaPanel())
+        self.bot.add_view(ThanksPanel())
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -77,14 +134,14 @@ class CommunityHub(commands.Cog):
         if self._explanations_checked:
             return
         self._explanations_checked = True
-        await self.ensure_explanation(IDEAS_CHANNEL_ID, "ideas_explanation_message", self.ideas_explanation())
-        await self.ensure_explanation(SOLIDARITY_CHANNEL_ID, "solidarity_explanation_message", self.solidarity_explanation())
+        await self.ensure_explanation(IDEAS_CHANNEL_ID, "ideas_explanation_message", self.ideas_explanation(), view=IdeaPanel())
+        await self.ensure_explanation(SOLIDARITY_CHANNEL_ID, "solidarity_explanation_message", self.solidarity_explanation(), view=ThanksPanel())
         with db() as conn:
             ids = [row[0] for row in conn.execute("SELECT id FROM community_ideas WHERE status IN ('received','review','accepted') AND message_id IS NOT NULL")]
         for idea_id in ids:
             self.bot.add_view(IdeaVoteView(idea_id))
 
-    async def ensure_explanation(self, channel_id: int, key: str, embed: discord.Embed):
+    async def ensure_explanation(self, channel_id: int, key: str, embed: discord.Embed, view: discord.ui.View | None = None):
         channel = self.bot.get_channel(channel_id)
         if channel is None:
             try: channel = await self.bot.fetch_channel(channel_id)
@@ -99,21 +156,21 @@ class CommunityHub(commands.Cog):
                     thread = await self.bot.fetch_channel(int(row["value"]))
                     if isinstance(thread, discord.Thread):
                         starter = await thread.fetch_message(thread.id)
-                        await starter.edit(embed=embed)
+                        await starter.edit(embed=embed, view=view)
                         return
                 else:
                     message = await channel.fetch_message(int(row["value"]))
-                    await message.edit(embed=embed)
+                    await message.edit(embed=embed, view=view)
                     return
             except (discord.NotFound, discord.HTTPException):
                 pass
         try:
             if isinstance(channel, discord.ForumChannel):
                 title = "✦ Fonctionnement de la boîte à idées" if key.startswith("ideas") else "✦ Fonctionnement du mur de la solidarité"
-                created = await channel.create_thread(name=title, embeds=[embed])
+                created = await channel.create_thread(name=title, embeds=[embed], view=view)
                 stored_id = created.thread.id
             else:
-                message = await channel.send(embed=embed)
+                message = await channel.send(embed=embed, view=view)
                 stored_id = message.id
         except discord.HTTPException:
             return
@@ -124,11 +181,11 @@ class CommunityHub(commands.Cog):
     def ideas_explanation():
         e = horizons_embed(title="✦ La boîte à idées HORIZONS", description=(
             "**Une idée, une envie d'amélioration ? Elle a sa place ici !**\n\n"
-            "Utilise `/idee` pour proposer une amélioration, une activité ou une nouvelle fonctionnalité. "
+            "Clique sur **Proposer une idée** pour proposer une amélioration, une activité ou une nouvelle fonctionnalité. "
             "Ta proposition sera publiée sans afficher ton nom aux membres.\n\n"
             "👍 Les membres peuvent voter pour les idées qu'ils trouvent utiles.\n"
             "🔎 L'équipe peut indiquer si une idée est en réflexion, acceptée, réalisée ou non retenue.\n\n"
-            "Tu peux retrouver tes propositions avec `/mes_idees`.\n\n"
+            "Tu peux retrouver tes propositions avec **Mes idées**.\n\n"
             "**Quelques règles :** reste respectueux, explique ton idée clairement et ne publie aucune donnée personnelle. "
             "L'anonymat est public : l'équipe conserve une trace interne de l'auteur pour prévenir les abus."
         ), color=discord.Color.gold())
@@ -139,7 +196,7 @@ class CommunityHub(commands.Cog):
     def solidarity_explanation():
         e = horizons_embed(title="💜 Les Éclats de Reconnaissance · Mur de la solidarité", description=(
             "**Un merci peut illuminer la journée de quelqu'un.**\n\n"
-            "Utilise `/remercier` pour mettre en valeur un membre qui t'a aidé, écouté, encouragé ou simplement fait sourire.\n\n"
+            "Clique sur **Remercier quelqu’un** pour mettre en valeur un membre qui t'a aidé, écouté, encouragé ou simplement fait sourire.\n\n"
             "Choisis un motif et ajoute quelques mots sincères. Ton message sera publié ici avec ton nom : "
             "la reconnaissance est publique et positive.\n\n"
             "🤝 Écoute et soutien\n🌟 Gentillesse et bienveillance\n🧩 Entraide et disponibilité\n😊 Bonne humeur et encouragements\n\n"

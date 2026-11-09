@@ -230,7 +230,7 @@ class ServerGuides(commands.Cog):
             ), color=purple,
         )
         confession.add_field(name="🌱 À retenir", value="Tu peux parler à ton rythme, demander une écoute ou simplement lire. Le respect de chacun passe avant tout.", inline=False)
-        result.append((CONFESSION_CHANNEL_ID, "confession", confession))
+        # Ancien salon confession : conservé en lecture/historique, plus de panneau récurrent.
 
         partner = horizons_embed(
             title="✦ Cherche quelqu'un pour partager une activité",
@@ -281,7 +281,7 @@ class ServerGuides(commands.Cog):
                 "N'utilise pas cette fonction pour viser, harceler ou exposer quelqu'un."
             ), color=teal,
         )
-        result.append((ANONYMOUS_CHANNEL_ID, "message_anonyme", anonymous))
+        # Panneau permanent géré par AnonymousPanelManager.
 
         intro = horizons_embed(
             title="✦ Présente-toi à la communauté",

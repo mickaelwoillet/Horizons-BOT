@@ -1,6 +1,6 @@
 """Fonctionnalités communautaires HORIZONS : humeur privée, succès et affinités."""
 from __future__ import annotations
-from cogs.embed_theme import horizons_embed
+from cogs.embed_theme import get_logo_url, horizons_embed
 
 import json
 from datetime import datetime, timedelta, timezone
@@ -99,6 +99,51 @@ class AffinityPanel(discord.ui.View):
         await self._run(interaction, "disable")
 
 
+class MoodChoice(discord.ui.Select):
+    def __init__(self):
+        super().__init__(placeholder="Choisir ma météo", min_values=1, max_values=1,
+                         options=[discord.SelectOption(label=c.name, value=c.value) for c in MOODS],
+                         custom_id="horizons:mood:choose:v2")
+
+    async def callback(self, interaction: discord.Interaction):
+        cog = interaction.client.get_cog("HorizonsFeatures")
+        if cog is None:
+            await interaction.response.send_message("Service indisponible.", ephemeral=True); return
+        choice = next((c for c in MOODS if c.value == self.values[0]), None)
+        if choice is None:
+            await interaction.response.send_message("Choix invalide.", ephemeral=True); return
+        await cog.humeur.callback(cog, interaction, choice)
+
+
+class MoodSelectView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=180)
+        self.add_item(MoodChoice())
+
+
+class MoodPanel(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+
+    @discord.ui.button(label="Ma météo", emoji="💗", style=discord.ButtonStyle.primary, custom_id="horizons:mood:panel:choose:v2")
+    async def mood(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_message("Choisis ton humeur du jour, en privé :", view=MoodSelectView(), ephemeral=True)
+
+    @discord.ui.button(label="Voir ma météo", emoji="🌤️", style=discord.ButtonStyle.secondary, custom_id="horizons:mood:panel:today:v2")
+    async def today(self, interaction: discord.Interaction, button: discord.ui.Button):
+        cog = interaction.client.get_cog("HorizonsFeatures")
+        if cog: await cog.ma_meteo.callback(cog, interaction)
+        else: await interaction.response.send_message("Service indisponible.", ephemeral=True)
+
+    @discord.ui.button(label="Écrire au staff", emoji="✉️", style=discord.ButtonStyle.secondary, custom_id="horizons:mood:panel:staff:v2")
+    async def staff(self, interaction: discord.Interaction, button: discord.ui.Button):
+        cog = interaction.client.get_cog("Tickets")
+        if cog is None:
+            await interaction.response.send_message("Messagerie staff indisponible.", ephemeral=True); return
+        from .tickets import TicketOpenModal
+        await interaction.response.send_modal(TicketOpenModal(cog))
+
+
 class HorizonsFeatures(commands.Cog):
     affinites = app_commands.Group(name="affinites", description="Gérer tes affinités amicales HORIZONS")
 
@@ -108,13 +153,14 @@ class HorizonsFeatures(commands.Cog):
 
     async def cog_load(self):
         self.bot.add_view(AffinityPanel())
+        self.bot.add_view(MoodPanel())
 
     @commands.Cog.listener()
     async def on_ready(self):
         if self._panels_checked:
             return
         self._panels_checked = True
-        await self.ensure_explanation(MOOD_CHANNEL_ID, "mood_explanation_message", self.mood_embed())
+        await self.ensure_explanation(MOOD_CHANNEL_ID, "mood_explanation_message", self.mood_embed(), view=MoodPanel())
         await self.ensure_explanation(AFFINITY_CHANNEL_ID, "affinity_explanation_message", self.affinity_embed(), view=AffinityPanel())
 
     @staticmethod
@@ -124,18 +170,20 @@ class HorizonsFeatures(commands.Cog):
             description=(
                 "**Comment te sens-tu aujourd'hui ?**\n\n"
                 "Chaque journée est différente. Prends quelques secondes pour indiquer ton humeur "
-                "du moment avec la commande `/humeur`.\n\n"
+                "du moment avec le bouton **Ma météo**.\n\n"
                 "😊 Je vais bien • 😁 Heureux(se) • 😐 Ça va, sans plus\n"
                 "😔 Pas très bien • 😣 Stressé(e) • 💤 Fatigué(e)\n"
                 "🤝 J'aimerais parler à quelqu'un\n\n"
                 "**Ta réponse est privée :** elle n'est pas publiée dans ce salon et les autres membres "
-                "ne peuvent pas consulter ton historique. Tu peux consulter ton humeur du jour avec `/ma_meteo`. "
-                "Cette réponse n'envoie pas d'alerte au staff. Pour contacter l'équipe en privé, utilise `/ticket_ouvrir`.\n\n"
+                "ne peuvent pas consulter ton historique. Tu peux consulter ton humeur du jour avec **Voir ma météo**. "
+                "Cette réponse n'envoie pas d'alerte au staff. Pour contacter l'équipe en privé, utilise **Écrire au staff**.\n\n"
                 "La participation est entièrement facultative. En cas de danger immédiat, contacte les services d'urgence."
             ),
             color=discord.Color.from_rgb(226, 91, 137),
         )
         embed.set_footer(text="HORIZONS • Un espace sans jugement")
+        if not embed.thumbnail.url and (self_logo := get_logo_url()):
+            embed.set_thumbnail(url=self_logo)
         return embed
 
     @staticmethod
