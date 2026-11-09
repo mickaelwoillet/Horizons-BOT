@@ -210,7 +210,7 @@ class SalonHarmony(commands.Cog):
                 if old.id == message.id or old.author.id != self.bot.user.id:
                     continue
                 if any(e.title in legacy_titles.get(channel.id, set()) for e in old.embeds):
-                    await old.delete(reason="Migration HORIZONS : panneau statique remplacé par panneau interactif")
+                    await old.delete()  # discord.py : Message/PartialMessage.delete ne prend pas reason
                     log.info("Ancien panneau statique supprimé : %s dans %s", old.id, channel.id)
         except (discord.Forbidden, discord.HTTPException):
             log.warning("Migration : ancien panneau non supprimé dans %s (permissions/historique)", channel.id)
