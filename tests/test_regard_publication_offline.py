@@ -15,7 +15,7 @@ ROOT=Path(__file__).resolve().parents[1]
 FILE=ROOT/'cogs'/'regard_du_jour.py'
 
 class FakeThread:
-    def __init__(self,id,name):self.id=id;self.name=name;self.owner_id=42;self.mention=f'<#{id}>';self.archived=False;self.parent_id=77;self.messages=[]
+    def __init__(self,id,name):self.id=id;self.name=name;self.owner_id=42;self.mention=f'<#{id}>';self.archived=False;self.messages=[]
     async def send(self,content,**kw):
         result=types.SimpleNamespace(id=1000+len(self.messages));self.messages.append((content,kw));return result
     async def edit(self,**kw):self.archived=kw.get('archived',self.archived)
@@ -26,7 +26,7 @@ class FakeThread:
         return Starter()
 
 class FakeForum:
-    def __init__(self):self.id=77;self.threads=[];self.creations=0
+    def __init__(self):self.threads=[];self.creations=0
     async def create_thread(self,**kw):
         self.creations+=1
         thread=FakeThread(100+self.creations,kw['name'])
@@ -44,7 +44,7 @@ class PublishTest(unittest.TestCase):
         fake_util=types.ModuleType('discord.utils');fake_util.escape_markdown=lambda x:x
         fake_discord=types.ModuleType('discord');fake_discord.utils=fake_util;fake_discord.Thread=FakeThread
         fake_discord.AllowedMentions=types.SimpleNamespace(none=lambda:None)
-        fake_discord.HTTPException=Exception;fake_discord.Forbidden=Exception;fake_discord.NotFound=LookupError
+        fake_discord.HTTPException=Exception;fake_discord.Forbidden=Exception
         old_mod=sys.modules.get('discord');old_utils=sys.modules.get('discord.utils')
         sys.modules['discord']=fake_discord;sys.modules['discord.utils']=fake_util
         try:
@@ -60,7 +60,7 @@ class PublishTest(unittest.TestCase):
                      'support_resources':editorial.support_resources,'shorten':lambda x,n=180:x[:n],'logger':types.SimpleNamespace(warning=lambda *a:None)}
                 tree=ast.fix_missing_locations(ast.Module(body=[conn,ast.ClassDef(name='RegardTest',bases=[],keywords=[],body=funcs,decorator_list=[])],type_ignores=[]))
                 exec(compile(tree,str(FILE),'exec'),ctx)
-                forum=FakeForum();bot=types.SimpleNamespace(user=types.SimpleNamespace(id=42),get_channel=forum.get_thread,fetch_channel=lambda id:None)
+                forum=FakeForum();bot=types.SimpleNamespace(user=types.SimpleNamespace(id=42),get_channel=forum.get_thread)
                 subject=ctx['RegardTest']();subject.lock=asyncio.Lock();subject.bot=bot
                 async def channels():return forum,None
                 async def song(day):return {'title':'Titre validé','artist':'Artiste','url':'https://music.apple.com/','description':'Morceau vérifié'}
@@ -78,17 +78,6 @@ class PublishTest(unittest.TestCase):
                 self.assertEqual(len(forum.threads[0].messages),5)
                 with ctx['connect']() as db:
                     self.assertEqual(db.execute('SELECT COUNT(*) FROM regard_thread_parts').fetchone()[0],5)
-                # L'ancien sujet est supprimé par un administrateur sur Discord.
-                forum.threads.clear()
-                async def missing_channel(id):raise LookupError('Unknown Channel')
-                bot.fetch_channel=missing_channel
-                result3=asyncio.run(subject.publish(day))
-                self.assertEqual(forum.creations,2)
-                self.assertIn('<#102>',result3)
-                self.assertEqual(len(forum.threads[0].messages),5)
-                with ctx['connect']() as db:
-                    self.assertEqual(db.execute('SELECT thread_id FROM regard_posts WHERE day=?',(day,)).fetchone()[0],102)
-                    self.assertEqual(db.execute('SELECT COUNT(*) FROM regard_thread_parts WHERE day=?',(day,)).fetchone()[0],5)
         finally:
             if old_mod is None:sys.modules.pop('discord',None)
             else:sys.modules['discord']=old_mod

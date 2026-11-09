@@ -14,7 +14,7 @@ from contextlib import contextmanager
 from urllib.parse import urlsplit
 from cogs.horizons_arcade import award_xp, total_xp
 from cogs.regard_editorial import (trusted_source, relevant_headline, news_date, within_recent_days,
-    same_story, followup_story, news_score, article_card, support_resources, normalize, meaningful_tokens, feed_excerpt)
+    same_story, editorial_duplicate, followup_story, news_score, article_card, support_resources, normalize, meaningful_tokens, feed_excerpt)
 from zoneinfo import ZoneInfo
 
 import aiohttp
@@ -221,7 +221,7 @@ class RegardDuJour(commands.Cog):
             for r in rows:
                 title=r['title']
                 if not relevant_headline(title,r['category']): continue
-                if any(same_story(title,p) for p in chosen_titles+prev_titles): continue
+                if any(editorial_duplicate(title,p) for p in chosen_titles+prev_titles): continue
                 score=news_score(title,r['category'],r['published_at'] or '')
                 if score<1: continue
                 candidates.append((score,r))
@@ -230,11 +230,11 @@ class RegardDuJour(commands.Cog):
             for _,r in candidates:
                 if len(selected)+len(approved)>=ARTICLE_MAX: break
                 if r['category'] in categories: continue
-                if any(same_story(r['title'],chosen) for chosen in chosen_titles):continue
+                if any(editorial_duplicate(r['title'],chosen) for chosen in chosen_titles):continue
                 selected.append(r); chosen_titles.append(r['title']);categories.add(r['category'])
             for _,r in candidates:
                 if len(selected)+len(approved)>=ARTICLE_MAX:break
-                if r in selected or any(same_story(r['title'],chosen) for chosen in chosen_titles):continue
+                if r in selected or any(editorial_duplicate(r['title'],chosen) for chosen in chosen_titles):continue
                 selected.append(r);chosen_titles.append(r['title'])
             for r in selected:
                 db.execute("UPDATE regard_items SET status='approved' WHERE id=? AND status='pending'",(r['id'],))
@@ -366,7 +366,7 @@ class RegardDuJour(commands.Cog):
             done={r['part_key'] for r in db.execute('SELECT part_key FROM regard_thread_parts WHERE day=?',(day,)).fetchall()}
         parts=[]
         for i,item in enumerate(items,1):
-            parts.append((f'article:{item["id"]}',f'**{i:02d} · L’essentiel**\n'+article_card(item,self.followup_link(item,day))))
+            parts.append((f'article:{item["id"]}',f'**{i:02d} · À la une**\n'+article_card(item,self.followup_link(item,day))))
         positive=next((r for r in items if r['category']=='Solidarité'),None)
         if positive:
             parts.append(('lueur',f'☀️ **La Lueur du Jour**\nUne initiative positive repérée dans la sélection : **{discord.utils.escape_markdown(positive["title"]) }**\n{positive["url"]}'))
@@ -380,7 +380,7 @@ class RegardDuJour(commands.Cog):
         parts.append(('question','💬 **La question du jour**\nQuelle information t’a fait réfléchir ? Comment agir avec respect et solidarité ?\nRéponds directement à l’article qui t’intéresse pour garder le fil lisible.'))
         for key,content in parts:
             if key in done:continue
-            msg=await thread.send(content[:1950],allowed_mentions=discord.AllowedMentions.none())
+            msg=await thread.send(content[:1950],allowed_mentions=discord.AllowedMentions.none(),suppress_embeds=True)
             with connect() as db:
                 db.execute('INSERT OR IGNORE INTO regard_thread_parts(day,part_key,message_id) VALUES(?,?,?)',(day,key,msg.id))
 
@@ -416,22 +416,6 @@ class RegardDuJour(commands.Cog):
                 logger.warning('Regard %s : aucune actualité validée ; publication vide annulée.', day)
                 return 'Aucune actualité vérifiée : publication reportée. Consulte /regard_diagnostic.'
             music=await self.select_music(day) if AUTO_MODE else None
-            if old:
-                # Un sujet supprimé sur Discord reste parfois référencé dans SQLite.
-                # Ne réinitialiser que les données de publication du jour, jamais les articles.
-                thread=forum.get_thread(old['thread_id']) or self.bot.get_channel(old['thread_id'])
-                if thread is None:
-                    try:
-                        thread=await self.bot.fetch_channel(old['thread_id'])
-                    except discord.NotFound:
-                        thread=None
-                if thread is None or not isinstance(thread,discord.Thread) or thread.parent_id != forum.id:
-                    logger.warning('Regard %s : sujet %s supprimé ou hors du forum ; récupération.',day,old['thread_id'])
-                    with connect() as db:
-                        db.execute('DELETE FROM regard_posts WHERE day=?',(day,))
-                        db.execute('DELETE FROM regard_thread_parts WHERE day=?',(day,))
-                        db.execute('DELETE FROM regard_state WHERE key=?',('index:'+day,))
-                    old=None
             if not old:
                 # Après un crash entre la création Discord et l'enregistrement SQLite,
                 # récupérer le sujet existant au lieu d'en ouvrir un deuxième.
@@ -659,15 +643,6 @@ class RegardDuJour(commands.Cog):
                 except (aiohttp.ClientError,asyncio.TimeoutError) as exc:logger.warning('Nouvelle collecte impossible : %s',exc)
             try:
                 with connect() as db: parts=db.execute('SELECT COUNT(*) FROM regard_thread_parts WHERE day=?',(day,)).fetchone()[0]
-                if posted and now.minute == 0:
-                    # Vérification périodique : un sujet peut avoir été supprimé après publication.
-                    try:
-                        existing=self.bot.get_channel(posted['thread_id'])
-                        if existing is None:existing=await self.bot.fetch_channel(posted['thread_id'])
-                        if not isinstance(existing,discord.Thread) or existing.parent_id != FORUM_ID:
-                            parts=0
-                    except discord.NotFound:
-                        parts=0
                 if not posted or parts<3:
                     result=await self.publish(day)
                     if result.startswith('Publié'):await self.notify_staff(result)

@@ -119,6 +119,33 @@ def same_story(a: str, b: str, *, threshold: float = .78) -> bool:
     return len(intersection) >= 4 and len(intersection) / len(first | second) >= threshold
 
 
+# Identifiants de sujets/personnalités récurrents : une seule actualité par
+# protagoniste et par édition, même si les titres emploient des mots différents.
+# Les groupes sont explicites afin de ne pas confondre des sujets sur le seul
+# thème général (racisme, justice, discrimination...).
+EDITORIAL_SUBJECTS = {
+    'marine-le-pen': ('marine le pen', 'marine lepen'),
+    'eric-zemmour': ('eric zemmour', 'zemmour'),
+    'jordan-bardella': ('jordan bardella', 'bardella'),
+    'donald-trump': ('donald trump', 'trump'),
+}
+
+def editorial_subject(title: str) -> str:
+    text = ' '.join(normalize(title).split())
+    for subject, aliases in EDITORIAL_SUBJECTS.items():
+        if any(normalize(alias) in text for alias in aliases):
+            return subject
+    return ''
+
+def editorial_duplicate(a: str, b: str) -> bool:
+    """Regroupe les titres quasi identiques ou centrés sur le même protagoniste.
+
+    Un même thème général ne suffit pas à déclarer deux sujets identiques.
+    """
+    a_subject, b_subject = editorial_subject(a), editorial_subject(b)
+    return bool(a_subject and a_subject == b_subject) or same_story(a, b, threshold=.58)
+
+
 def followup_story(a: str, b: str) -> bool:
     """Lien uniquement en cas de ressemblance très forte; pas de rapprochement spéculatif."""
     first, second = meaningful_tokens(a), meaningful_tokens(b)
@@ -136,29 +163,24 @@ def news_score(title: str, category: str, published_at: str = '') -> int:
 
 
 def article_card(row, followup_url: str = '') -> str:
-    """Les 30 secondes ne prétendent pas résumer un texte non téléchargé."""
+    """Brève sourcée et lisible, sans simuler la lecture de l'article complet."""
     from discord.utils import escape_markdown
-    title = escape_markdown(str(row['title'])[:240])
-    category = escape_markdown(str(row['category'])[:70])
-    source = escape_markdown(str(row['source'] or 'Média identifié')[:75])
-    pub = (str(row['published_at'])[:10] if row['published_at'] else 'non précisée')
-    desc = [
-        f'📰 **{title}**',
-        f'**Thème :** {category} · **Source :** {source}',
-        f'**Comprendre en 30 secondes**',
-        f'• **De quoi parle la source ?** {title}',
-        f'• **Quand ?** Article publié le {pub}. La date des faits peut être différente.',
-        '• **Ce qui est établi :** seul le contenu de la source permet de connaître les faits et le stade de la procédure.',
-        f'🔗 Lire l’article : {row["url"]}',
-    ]
-    if row['summary']:
-        desc.insert(5,'• **Ce que précise le flux RSS :** '+escape_markdown(str(row['summary'])[:260]))
+    title = escape_markdown(str(row['title']).rsplit(' - ', 1)[0][:210])
+    category = escape_markdown(str(row['category'])[:55])
+    source = escape_markdown(str(row['source'] or 'Média identifié')[:65])
+    pub = str(row['published_at'])[:10] if row['published_at'] else ''
+    lines = [f'**{title}**', f'🗞️ {source}  ·  {category}' + (f'  ·  {pub}' if pub else '')]
+    summary = str(row['summary'] or '').strip()
+    if summary:
+        lines.append('\n' + escape_markdown(summary[:260]))
     if any(normalize(x) in normalize(row['title']) for x in SENSITIVE_WORDS):
-        desc.insert(1,'⚠️ **Sujet sensible :** l’article peut évoquer des violences ou des faits graves.')
+        lines.append('⚠️ Sujet sensible')
+    # Le lien court masque la longue URL Google News ; suppress_embeds=True
+    # est utilisé lors de l'envoi pour éviter les cartes d'aperçu répétitives.
+    lines.append(f'\n🔗 [Lire la source]({row["url"]})')
     if followup_url:
-        desc.append(f'🔄 **À suivre :** possible évolution d’un sujet déjà présenté : {followup_url}')
-    desc.append('💬 Pour réagir à **cet article**, utilise « Répondre » sur ce message.')
-    return '\n'.join(desc)[:1950]
+        lines.append(f'🔄 [Précédent sujet associé]({followup_url})')
+    return '\n'.join(lines)[:1900]
 
 
 def support_resources() -> str:

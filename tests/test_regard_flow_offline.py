@@ -55,7 +55,7 @@ class FlowSmoke(unittest.TestCase):
                 TZ=timezone.utc,logger=Mock(),TRUSTED_EXTRA=frozenset(),
                 trusted_source=editorial.trusted_source,news_date=editorial.news_date,
                 relevant_headline=editorial.relevant_headline,within_recent_days=editorial.within_recent_days,
-                same_story=editorial.same_story,news_score=editorial.news_score,feed_excerpt=editorial.feed_excerpt,
+                same_story=editorial.same_story,editorial_duplicate=editorial.editorial_duplicate,news_score=editorial.news_score,feed_excerpt=editorial.feed_excerpt,
                 timedelta=timedelta,ARTICLE_MAX=5)
             # Direct recompile limited methods; no discord dependency.
             exec(compile(ast.fix_missing_locations(ast.Module(body=[connect,ast.ClassDef(name='Regard',bases=[],keywords=[],body=funcs,decorator_list=[])],type_ignores=[])),str(FILE),'exec'),ctx)
