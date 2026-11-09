@@ -31,7 +31,7 @@ LOGS_CAT = int(os.getenv('REGARD_LOGS_CATEGORY_ID', '1566562045623799909'))
 FORUM_ID = int(os.getenv('REGARD_FORUM_CHANNEL_ID', '0') or '0')
 ARCHIVE_ID = int(os.getenv('REGARD_ARCHIVE_CHANNEL_ID', '0') or '0')
 STAFF_CHANNEL_ID = int(os.getenv('REGARD_STAFF_CHANNEL_ID', '1566562235793416242'))
-ENABLED = os.getenv('REGARD_ENABLED', 'false').lower() in ('1','true','yes','oui')
+ENABLED = os.getenv('REGARD_ENABLED', 'false').strip().lower() in ('1','true','yes','oui')
 XP_DAILY_LIMIT = max(3, min(30, int(os.getenv('REGARD_XP_DAILY_CAP', '15'))))
 XP_COOLDOWN_SECONDS = max(30, int(os.getenv('REGARD_XP_COOLDOWN_SECONDS', '90')))
 ARTICLE_MIN = max(1, min(5, int(os.getenv('REGARD_ARTICLES_MIN','3'))))
@@ -725,7 +725,9 @@ class RegardDuJour(commands.Cog):
                f'Actif : **{ENABLED}** · Auto : **{AUTO_MODE}** · Heure : **{PUBLISH_HOUR}h** (Paris)',
                f'Forum : **{"OK" if forum else "ABSENT"}** · Sujet créé : **{bool(post)}**',
                'Articles : '+(', '.join(f'{r["status"]}={r["n"]}' for r in counts) or 'aucun'),
-               'Collecte : '+(state['value'][:1300] if state else 'aucun diagnostic enregistré')]
+               'Collecte : '+(state['value'][:1100] if state else 'aucun diagnostic enregistré'),
+               'Configuration : '+('fichier .env présent' if (DATA_DIR.parent / '.env').is_file() else 'fichier .env absent (variables hébergeur utilisées)')+
+               ' · REGARD_ENABLED lu='+repr(os.getenv('REGARD_ENABLED', '<absent>'))]
         await interaction.response.send_message('\n'.join(lines)[:1950],ephemeral=True)
 
     @app_commands.command(name='regard_publier',description='Publier manuellement les contenus validés du jour (staff).')

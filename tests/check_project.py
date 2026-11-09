@@ -304,7 +304,9 @@ def main() -> None:
     if required_settings - present_settings:
         raise SystemExit(f"Paramètres manquants dans .env.example : {sorted(required_settings - present_settings)}")
     rank_line = next(line for line in env_example.splitlines() if line.startswith("RANK_ROLE_IDS="))
-    rank_mapping = json.loads(rank_line.split("=", 1)[1])
+    # Décoder la syntaxe .env (guillemets externes et échappement JSON).
+    from dotenv import dotenv_values
+    rank_mapping = json.loads(dotenv_values(ROOT / ".env.example")["RANK_ROLE_IDS"])
     expected_ranks = {
         "Nouveau regard", "Premier pas", "Voix familière", "Esprit ouvert",
         "Lien vivant", "Éclaireur", "Bâtisseur d'horizons",

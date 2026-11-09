@@ -8,7 +8,10 @@ from zoneinfo import ZoneInfo
 from dotenv import load_dotenv
 
 BASE_DIR: Final[Path] = Path(__file__).resolve().parent
-load_dotenv(BASE_DIR / ".env")
+# Le .env local doit primer sur les variables héritées du panneau d’hébergement.
+# Sans override, REGARD_ENABLED=false défini par l’hébergeur reste actif même
+# après avoir changé /app/.env en true.
+load_dotenv(BASE_DIR / ".env", override=True)
 
 
 def env_int(name: str, default: int | None = None) -> int | None:
