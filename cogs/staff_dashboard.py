@@ -511,24 +511,48 @@ class ShiftButton(discord.ui.Button):
 
     async def callback(self, interaction: discord.Interaction):
         if not isinstance(interaction.user, discord.Member) or not interaction.guild:
-            await interaction.response.send_message("Action disponible uniquement sur le serveur.", ephemeral=True); return
-        if not access_level(interaction.user):
-            await interaction.response.send_message("Accès réservé au staff autorisé.", ephemeral=True); return
+            await interaction.response.send_message("Action disponible uniquement sur le serveur.", ephemeral=True)
+            return
+        level = access_level(interaction.user)
+        if not level:
+            await interaction.response.send_message("Accès réservé au staff autorisé.", ephemeral=True)
+            return
+
+        # Accuser réception immédiatement : l'envoi du log Discord peut prendre
+        # plus de trois secondes et ne doit pas bloquer la mise à jour du panneau.
+        await interaction.response.defer()
         now = datetime.now(timezone.utc).isoformat()
+        changed = False
         with db() as conn:
             if self.start:
-                if is_on_service(interaction.guild_id, interaction.user.id):
-                    await interaction.response.send_message("Tu es déjà en service.", ephemeral=True); return
-                conn.execute("INSERT INTO staff_shifts(guild_id,user_id,started_at,note) VALUES(?,?,?,?)", (interaction.guild_id,interaction.user.id,now,"Prise de service depuis le dashboard"))
-                await self.cog.log_action(interaction.guild, f"🟢 {interaction.user.mention} a pris son service.")
+                if not conn.execute(
+                    "SELECT 1 FROM staff_shifts WHERE guild_id=? AND user_id=? AND ended_at IS NULL LIMIT 1",
+                    (interaction.guild_id, interaction.user.id),
+                ).fetchone():
+                    conn.execute(
+                        "INSERT INTO staff_shifts(guild_id,user_id,started_at,note) VALUES(?,?,?,?)",
+                        (interaction.guild_id, interaction.user.id, now, "Prise de service depuis le dashboard"),
+                    )
+                    changed = True
             else:
-                cur = conn.execute("UPDATE staff_shifts SET ended_at=? WHERE guild_id=? AND user_id=? AND ended_at IS NULL", (now,interaction.guild_id,interaction.user.id))
-                if not cur.rowcount:
-                    await interaction.response.send_message("Aucun service actif.", ephemeral=True); return
-                await self.cog.log_action(interaction.guild, f"🔴 {interaction.user.mention} a terminé son service.")
-        active = self.start
+                cur = conn.execute(
+                    "UPDATE staff_shifts SET ended_at=? WHERE guild_id=? AND user_id=? AND ended_at IS NULL",
+                    (now, interaction.guild_id, interaction.user.id),
+                )
+                changed = bool(cur.rowcount)
+
+        # La transaction est terminée avant les appels réseau Discord.
+        active = is_on_service(interaction.guild_id, interaction.user.id)
         embed = self.cog.dashboard_embed(interaction.user, active)
-        await interaction.response.edit_message(embed=embed, view=DashboardView(self.cog, interaction.user.id, active, access_level(interaction.user)))
+        view = DashboardView(self.cog, interaction.user.id, active, level)
+        await interaction.edit_original_response(embed=embed, view=view)
+
+        if changed:
+            await self.cog.log_action(
+                interaction.guild,
+                f"{'🟢' if active else '🔴'} {interaction.user.mention} "
+                f"a {'pris' if active else 'terminé'} son service.",
+            )
 
 
 class ModerationTargetSelect(discord.ui.UserSelect):

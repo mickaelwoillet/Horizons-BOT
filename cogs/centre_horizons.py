@@ -431,7 +431,7 @@ class MoodEraseConfirm(discord.ui.View):
 class SeasonActionSelect(discord.ui.Select):
     """Les actions de saison réunies dans le Centre, sans commande slash supplémentaire."""
     def __init__(self):
-        super().__init__(placeholder="🌅 Saison : choisir une action…", row=1, options=[
+        super().__init__(placeholder="🌅 Saison : choisir une action…", row=2, options=[
             discord.SelectOption(label="Découvrir la saison", value="saison", emoji="🌅"),
             discord.SelectOption(label="Rejoindre la saison", value="rejoindre_saison", emoji="🤝"),
             discord.SelectOption(label="Voir mes étapes", value="missions_saison", emoji="🧭"),
@@ -457,7 +457,7 @@ class SeasonActionSelect(discord.ui.Select):
 class ActivityFunSelect(discord.ui.Select):
     """Jeux rapides accessibles depuis /centre → Activités."""
     def __init__(self):
-        super().__init__(placeholder="🎲 Jeux rapides : choisir…", row=2, options=[
+        super().__init__(placeholder="🎲 Jeux rapides : choisir…", row=3, options=[
             discord.SelectOption(label="Une blague", value="blague", emoji="😄"),
             discord.SelectOption(label="Une devinette", value="devinette", emoji="🧩"),
         ])
@@ -474,7 +474,7 @@ class ActivityFunSelect(discord.ui.Select):
 class ProgressionSelect(discord.ui.Select):
     """Trois consultations de progression réunies dans /centre → Ma vie."""
     def __init__(self):
-        super().__init__(placeholder="🌱 Ma progression : consulter…", row=1, options=[
+        super().__init__(placeholder="🌱 Ma progression : consulter…", row=2, options=[
             discord.SelectOption(label="Mon rang honorifique", value="rang", emoji="🌱"),
             discord.SelectOption(label="Parcours des horizons", value="parcours", emoji="🧭"),
             discord.SelectOption(label="Mes badges du parcours", value="badges", emoji="🏅"),
