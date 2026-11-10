@@ -26,6 +26,12 @@ async def send_as_nox(channel: discord.TextChannel, *, content: str | None = Non
     avatar_file = DATA_DIR / "nox" / "avatar_url.txt"
     configured = avatar_file.read_text(encoding="utf-8").strip() if avatar_file.is_file() else ""
     avatar = avatar_url or (configured if configured.startswith("https://") else None) or (guild.me.display_avatar.url if guild.me else None)
-    return await hook.send(content=content, embed=embed, username=WEBHOOK_NAME,
-                           avatar_url=avatar, wait=True, view=view, file=file,
-                           allowed_mentions=allowed_mentions or discord.AllowedMentions.none())
+    # discord.py 2.5+ refuse explicitement view=None / file=None.
+    kwargs = dict(content=content, embed=embed, username=WEBHOOK_NAME,
+                  avatar_url=avatar, wait=True,
+                  allowed_mentions=allowed_mentions or discord.AllowedMentions.none())
+    if view is not None:
+        kwargs['view'] = view
+    if file is not None:
+        kwargs['file'] = file
+    return await hook.send(**kwargs)

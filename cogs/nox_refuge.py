@@ -32,6 +32,53 @@ NEEDS = {
 }
 
 REACTIONS_FILE = Path(DATA_DIR) / 'nox' / 'reactions_soins.json'
+IMAGE_DIR = Path(DATA_DIR) / 'nox_tv'
+# Images officielles du NOX bleu, par besoin et par niveau de jauge.
+# Priorité à la jauge la plus basse, avec un seuil d'alerte à 45 %.
+NEED_IMAGES = {
+    'faim': 'nox_faim.png',
+    'soif': 'nox_refuge_lanternes.png',  # scène neutre en attendant un visuel 'soif' dédié
+    'bonheur': 'nox_boudeur.png',
+    'energie': 'nox_sieste_lune.png',
+    'hygiene': 'nox_refuge_coussins.png',
+}
+CARE_IMAGES = {
+    'nourrir': 'nox_biscuits_orbite.png',
+    'boire': 'nox_refuge_lanternes.png',
+    'jouer': 'nox_jeu_ballon.png',
+    'calin': 'nox_refuge_coussins.png',
+    'bain': 'nox_refuge_lanternes.png',
+    'repos': 'nox_sieste_lune.png',
+}
+
+def choose_refuge_image(state, last_action=None):
+    """Choisit une scène cohérente avec les besoins, sans état aléatoire."""
+    stats = state['stats']
+    weakest = min(engine.STATS, key=lambda key: stats[key])
+    if stats[weakest] < 45:
+        # Une image du besoin urgent prévaut sur le soin effectué.
+        name = NEED_IMAGES[weakest]
+    elif last_action in CARE_IMAGES:
+        name = CARE_IMAGES[last_action]
+    elif min(stats.values()) < 70:
+        name = 'nox_refuge_coussins.png'
+    else:
+        name = 'nox_refuge_lanternes.png'
+    file_path = IMAGE_DIR / name
+    if file_path.is_file():
+        return file_path
+    fallback = IMAGE_DIR / 'nox_refuge_coussins.png'
+    return fallback if fallback.is_file() else None
+
+def refuge_embed_and_file(state, last_action=None):
+    """Associe l'image au message Discord (attachment://) sans URL externe."""
+    embed = make_embed(state)
+    path = choose_refuge_image(state, last_action)
+    if path is None:
+        return embed, None
+    embed.set_image(url=f'attachment://{path.name}')
+    return embed, discord.File(str(path), filename=path.name)
+
 
 def care_reply(action: str) -> str:
     """Choisit une réaction locale ; jamais de mention ni de publication supplémentaire."""
@@ -76,7 +123,7 @@ class CareButton(discord.ui.Button):
                 mins=max(1,(result['remaining_seconds']+59)//60)
                 await interaction.followup.send(f'🐾 NOX te remercie ! Tu pourras refaire ce soin dans {mins} min.',ephemeral=True)
                 return
-            await cog.refresh(interaction.guild.id)
+            await cog.refresh(interaction.guild.id, last_action=self.action)
             with engine.connect(DB) as con:
                 row = con.execute('SELECT count FROM nox_refuge_contributions WHERE guild_id=? AND user_id=? AND action=?',
                                   (interaction.guild.id, interaction.user.id, self.action)).fetchone()
@@ -108,7 +155,7 @@ class NoxRefuge(commands.Cog):
         self.bot.add_view(RefugeView())
     def cog_unload(self):
         self.refresh_loop.cancel()
-    async def refresh(self,guild_id):
+    async def refresh(self,guild_id, last_action=None):
         with engine.connect(DB) as con:
             s=engine.snapshot(con,guild_id)
         if not s['channel_id'] or not s['message_id']:return
@@ -118,7 +165,12 @@ class NoxRefuge(commands.Cog):
             except (discord.HTTPException,discord.Forbidden):return
         try:
             msg=await channel.fetch_message(s['message_id'])
-            await msg.edit(embed=make_embed(s),view=RefugeView(),allowed_mentions=discord.AllowedMentions.none())
+            embed, image = refuge_embed_and_file(s, last_action)
+            kwargs = dict(embed=embed, view=RefugeView(),
+                          allowed_mentions=discord.AllowedMentions.none())
+            if image is not None:
+                kwargs['attachments'] = [image]
+            await msg.edit(**kwargs)
         except (discord.HTTPException,discord.Forbidden):log.warning('Panneau Refuge introuvable ou non modifiable: %s',guild_id)
     @app_commands.command(name='noxrefuge',description='Installer ou retrouver le panneau du Refuge de NOX')
     @app_commands.guild_only()
@@ -139,12 +191,22 @@ class NoxRefuge(commands.Cog):
                 if previous['channel_id']==salon.id:
                     try:
                         msg=await salon.fetch_message(previous['message_id'])
-                        await msg.edit(embed=make_embed(previous),view=RefugeView())
+                        embed, image = refuge_embed_and_file(previous)
+                        kwargs = dict(embed=embed, view=RefugeView(),
+                                      allowed_mentions=discord.AllowedMentions.none())
+                        if image is not None:
+                            kwargs['attachments'] = [image]
+                        await msg.edit(**kwargs)
                         await interaction.followup.send(f'🐾 Panneau déjà installé : {msg.jump_url}',ephemeral=True);return
                     except discord.NotFound:pass
                 else:
                     await interaction.followup.send('Un Refuge est déjà configuré dans un autre salon. Contacte le responsable avant de le déplacer.',ephemeral=True);return
-            msg=await salon.send(embed=make_embed(previous),view=RefugeView(),allowed_mentions=discord.AllowedMentions.none())
+            embed, image = refuge_embed_and_file(previous)
+            kwargs = dict(embed=embed, view=RefugeView(),
+                          allowed_mentions=discord.AllowedMentions.none())
+            if image is not None:
+                kwargs['file'] = image
+            msg=await salon.send(**kwargs)
             with engine.connect(DB) as con:engine.set_panel(con,interaction.guild.id,salon.id,msg.id)
         await interaction.followup.send(f'🐾 Refuge installé : {msg.jump_url}\nÉpingle ce message pour le retrouver facilement.',ephemeral=True)
     @tasks.loop(minutes=15)
