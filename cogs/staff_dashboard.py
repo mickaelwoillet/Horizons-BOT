@@ -1215,8 +1215,8 @@ class DashboardSelect(discord.ui.Select):
             return
         embed = self.cog.section_embed(interaction.guild, self.values[0], member)
         view = DashboardView(self.cog, interaction.user.id, on_service=True, level=level)
-        section_select = next(item for item in view.children if isinstance(item, DashboardSelect))
-        section_select.options = [discord.SelectOption(label=SECTIONS[k][0], value=k) for k in available]
+        # La navigation active utilise SectionsGridView : DashboardView n'a
+        # pas de DashboardSelect. Ne pas rechercher un contrôle inexistant.
         await interaction.response.edit_message(embed=embed, view=view)
 
 

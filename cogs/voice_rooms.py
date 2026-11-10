@@ -9,7 +9,9 @@ class TemporaryVoiceRooms(commands.Cog):
         self.bot = bot
         self.temporary: set[int] = set()
 
-    async def cog_load(self):
+    @commands.Cog.listener()
+    async def on_ready(self):
+        # The guild cache can be empty during cog_load. Recover after gateway READY.
         if TEMP_VOICE_CATEGORY_ID:
             for guild in self.bot.guilds:
                 category = guild.get_channel(TEMP_VOICE_CATEGORY_ID)
@@ -23,17 +25,26 @@ class TemporaryVoiceRooms(commands.Cog):
             category = member.guild.get_channel(TEMP_VOICE_CATEGORY_ID)
             if not isinstance(category, discord.CategoryChannel): return
             safe = discord.utils.escape_markdown(member.display_name)[:24]
-            channel = await member.guild.create_voice_channel(f"horizons-temp-{safe}", category=category, reason="Création d'un salon vocal temporaire")
-            self.temporary.add(channel.id)
-            try: await member.move_to(channel, reason="Création du salon vocal personnel")
+            try:
+                channel = await member.guild.create_voice_channel(f"horizons-temp-{safe}", category=category, reason="Création d'un salon vocal temporaire")
+                self.temporary.add(channel.id)
+                try:
+                    await member.move_to(channel, reason="Création du salon vocal personnel")
+                except discord.HTTPException:
+                    try:
+                        await channel.delete(reason="Impossible de déplacer le membre")
+                    except discord.HTTPException:
+                        pass
+                    self.temporary.discard(channel.id)
             except discord.HTTPException:
-                await channel.delete(reason="Impossible de déplacer le membre")
-                self.temporary.discard(channel.id)
+                # Missing Manage Channels/Move Members should not crash the listener.
+                return
         # Le nom permet aussi de reconnaître les salons créés avant un redémarrage
         # du bot, lorsque l'ensemble en mémoire self.temporary est vide.
         if (
             before.channel
-            and (before.channel.id in self.temporary or before.channel.name.startswith("horizons-temp-"))
+            and before.channel.category_id == TEMP_VOICE_CATEGORY_ID
+            and before.channel.name.startswith("horizons-temp-")
             and len(before.channel.members) == 0
         ):
             cid = before.channel.id

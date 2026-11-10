@@ -1,6 +1,7 @@
 """Identité NOX via webhook Discord. Ne stocke aucun jeton de webhook."""
 from __future__ import annotations
 import logging
+from pathlib import Path
 import discord
 
 log = logging.getLogger(__name__)
@@ -21,15 +22,20 @@ async def send_as_nox(channel: discord.TextChannel, *, content: str | None = Non
     if hook is None:
         hook = await channel.create_webhook(name=WEBHOOK_NAME, reason="Identité de la mascotte HORIZONS")
     from config import DATA_DIR
-    from pathlib import Path
-    # Avatar public configurable, sans second bot et sans stockage de jeton webhook.
-    avatar_file = DATA_DIR / "nox" / "avatar_url.txt"
-    configured = avatar_file.read_text(encoding="utf-8").strip() if avatar_file.is_file() else ""
-    avatar = avatar_url or (configured if configured.startswith("https://") else None) or (guild.me.display_avatar.url if guild.me else None)
+    # The avatar is stored ON the NOX webhook, not on the Horizons bot.
+    # No public image URL or extra bot account is required.
+    portrait = Path(DATA_DIR) / 'nox_tv' / 'nox_avatar.png'
+    if portrait.is_file() and not getattr(hook, 'avatar', None):
+        try:
+            await hook.edit(avatar=portrait.read_bytes(), reason='Avatar officiel de NOX')
+        except discord.HTTPException:
+            log.warning('Avatar du webhook NOX non actualisé dans %s', channel.id)
+    avatar = avatar_url  # None keeps the webhook's own uploaded avatar.
     # discord.py 2.5+ refuse explicitement view=None / file=None.
-    kwargs = dict(content=content, embed=embed, username=WEBHOOK_NAME,
-                  avatar_url=avatar, wait=True,
+    kwargs = dict(content=content, embed=embed, username=WEBHOOK_NAME, wait=True,
                   allowed_mentions=allowed_mentions or discord.AllowedMentions.none())
+    if avatar is not None:
+        kwargs['avatar_url'] = avatar
     if view is not None:
         kwargs['view'] = view
     if file is not None:

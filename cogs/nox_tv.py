@@ -695,12 +695,13 @@ class NoxTV(commands.Cog):
         embed.set_image(url='attachment://'+item['file'])
         try:
             msg=await channel.send(embed=embed,file=discord.File(asset,filename=item['file']),view=NoxTVChoices(item['id']),allowed_mentions=discord.AllowedMentions.none())
-        except (discord.Forbidden,discord.HTTPException,OSError) as exc:
-            LOG.warning('NOX TV: échec publication %s: %s',guild.id,exc)
-            if not manual:
-                with connect() as db:
-                    db.execute('DELETE FROM noxtv_posts WHERE guild_id=? AND day=? AND message_id=0',(guild.id,day))
-            return 'Publication impossible : vérifie les permissions.'
+        except (discord.Forbidden, discord.HTTPException, OSError) as exc:
+            LOG.warning('NOX TV: résultat d’envoi incertain %s: %s', guild.id, exc)
+            # Le serveur Discord peut avoir accepté le message avant une erreur réseau.
+            # Conserver la réservation évite une seconde publication automatique.
+            # Une vérification manuelle est nécessaire avant toute nouvelle tentative.
+            return ('Envoi NOX TV non confirmé : vérifie le salon avant de réessayer. '
+                    'La réservation automatique est conservée pour éviter un doublon.')
         with connect() as db:
             if manual:
                 db.execute('INSERT OR IGNORE INTO noxtv_manual_posts(message_id,guild_id,visual_id,created_at,channel_id) VALUES(?,?,?,?,?)',(msg.id,guild.id,item['id'],now.isoformat(),channel.id))

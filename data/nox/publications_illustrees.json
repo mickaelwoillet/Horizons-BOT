@@ -232,5 +232,83 @@
     "image": "nox_boudeur.png",
     "texte": "😾 NOX boude : quelqu’un a dit que les cookies n’étaient pas un repas équilibré.",
     "theme": "insolite"
+  },
+  {
+    "id": "nox_bonne_nuit_40",
+    "image": "nox_bonne_nuit_couverture_40.png",
+    "texte": "🌙 Ma couverture a capturé quelques étoiles pour veiller sur vos rêves. Bonne nuit, la galaxie !",
+    "theme": "tendresse"
+  },
+  {
+    "id": "nox_agora_40",
+    "image": "nox_debat_agora_40.png",
+    "texte": "🎙️ J’ai ouvert l’Agora cosmique ! On peut avoir des avis différents et s’écouter quand même. Quel sujet mérite notre prochaine discussion ?",
+    "theme": "aventure"
+  },
+  {
+    "id": "nox_question_40",
+    "image": "nox_question_cosmique_40.png",
+    "texte": "❓ Question de NOX : si tu pouvais visiter une planète imaginaire, à quoi ressemblerait-elle ?",
+    "theme": "cosmos"
+  },
+  {
+    "id": "nox_jeu_40",
+    "image": "nox_jeu_orbe_40.png",
+    "texte": "🎮 J’ai lancé une balle de lumière à travers trois galaxies. Qui vient jouer avec moi ?",
+    "theme": "surprise"
+  },
+  {
+    "id": "nox_soif_40",
+    "image": "nox_soif_cosmique_40.png",
+    "texte": "💧 J’ai trouvé une fontaine de comètes fraîches ! Qui veut partager une pause cosmique ?",
+    "theme": "insolite"
+  },
+  {
+    "id": "nox_reconfort_41",
+    "image": "nox_reconfort_41.png",
+    "texte": "💙 Une présence, un sourire, un câlin : voilà comment on réchauffe toute une galaxie. Vous partagez un peu de douceur ?",
+    "theme": "tendresse"
+  },
+  {
+    "id": "nox_joie_41",
+    "image": "nox_joie_41.png",
+    "texte": "✨ J’ai tellement de joie à partager que mes pattes font des étincelles ! Qui vient célébrer une petite victoire avec moi ?",
+    "theme": "surprise"
+  },
+  {
+    "id": "nox_inquietude_41",
+    "image": "nox_inquietude_41.png",
+    "texte": "🌀 Un portail mystérieux s’est ouvert devant moi. Je suis un peu inquiet… mais très curieux. On enquête ensemble ?",
+    "theme": "aventure"
+  },
+  {
+    "id": "scene_petite_faim_42",
+    "image": "nox_scene_petite_faim_42.png",
+    "texte": "🍪 NOX accuse une météorite d’avoir mangé tous les biscuits. La météorite demande un avocat. Vous croyez qui ?",
+    "theme": "humour"
+  },
+  {
+    "id": "scene_mission_42",
+    "image": "nox_scene_mission_42.png",
+    "texte": "🧭 NOX a trouvé une carte stellaire menant à une planète inconnue. On suit les étoiles ou son instinct ?",
+    "theme": "aventure"
+  },
+  {
+    "id": "scene_anniversaire_42",
+    "image": "nox_scene_anniversaire_42.png",
+    "texte": "🎂 NOX a caché un gâteau dans une boîte cosmique. Surprise : il a oublié à qui il était destiné !",
+    "theme": "surprise"
+  },
+  {
+    "id": "scene_question_42",
+    "image": "nox_scene_question_42.png",
+    "texte": "❓ NOX se demande si les étoiles ont un jour de congé. Et si oui, qui éclaire le ciel pendant leur absence ?",
+    "theme": "insolite"
+  },
+  {
+    "id": "scene_bonne_nuit_42",
+    "image": "nox_scene_bonne_nuit_42.png",
+    "texte": "🌙 NOX s’est blotti sous sa couverture d’étoiles. Il vous souhaite une douce nuit et de beaux rêves.",
+    "theme": "tendresse"
   }
 ]

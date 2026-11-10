@@ -683,5 +683,367 @@
       "✨ Explorer",
       "🍪 Offrir un biscuit"
     ]
+  },
+  {
+    "id": "nox_cookie_festin_39",
+    "file": "nox_cookie_festin_39.png",
+    "title": "🍪 LE FESTIN COSMIQUE DE NOX",
+    "text": "NOX a découvert une constellation de cookies. Il promet de partager… après une dernière bouchée.",
+    "kind": "nox",
+    "moods": [
+      "calin",
+      "normal"
+    ],
+    "vote_labels": [
+      "🍪 Partager un biscuit",
+      "✨ Compter les miettes",
+      "🪐 Protéger les cookies"
+    ]
+  },
+  {
+    "id": "nox_portrait_etoile_39",
+    "file": "nox_portrait_etoile_39.png",
+    "title": "💙 NOX VOUS SOUHAITE LA BIENVENUE",
+    "text": "Un sourire, quelques étoiles et beaucoup de tendresse : NOX est heureux de vous retrouver.",
+    "kind": "nox",
+    "moods": [
+      "normal",
+      "calin"
+    ],
+    "vote_labels": [
+      "💙 Saluer NOX",
+      "🌟 Envoyer une étoile",
+      "🐾 Faire coucou"
+    ]
+  },
+  {
+    "id": "nox_bonne_nuit_40",
+    "file": "nox_bonne_nuit_couverture_40.png",
+    "title": "🌙 NOX VOUS SOUHAITE BONNE NUIT",
+    "text": "La galaxie se repose, et NOX aussi. Faites de beaux rêves !",
+    "kind": "nox",
+    "moods": [
+      "tendresse"
+    ],
+    "vote_labels": [
+      "🌙 Bonne nuit NOX",
+      "💜 Doux rêves",
+      "✨ Une étoile de plus"
+    ]
+  },
+  {
+    "id": "nox_debat_40",
+    "file": "nox_debat_agora_40.png",
+    "title": "🎙️ NOX OUVRE LE DÉBAT",
+    "text": "La parole circule dans l’Agora. On échange avec respect !",
+    "kind": "nox",
+    "moods": [
+      "curiosite"
+    ],
+    "vote_labels": [
+      "💬 Donner mon avis",
+      "👂 Écouter",
+      "💡 Proposer une idée"
+    ]
+  },
+  {
+    "id": "nox_question_40",
+    "file": "nox_question_cosmique_40.png",
+    "title": "❓ LA QUESTION COSMIQUE",
+    "text": "NOX a une question pour toute la galaxie.",
+    "kind": "nox",
+    "moods": [
+      "curiosite"
+    ],
+    "vote_labels": [
+      "💭 Réfléchir",
+      "🌟 Imaginer",
+      "🪐 Explorer"
+    ]
+  },
+  {
+    "id": "nox_jeu_40",
+    "file": "nox_jeu_orbe_40.png",
+    "title": "🎮 NOX VEUT JOUER",
+    "text": "Une balle de lumière traverse le ciel. Qui vient jouer ?",
+    "kind": "nox",
+    "moods": [
+      "joie"
+    ],
+    "vote_labels": [
+      "🎮 Jouer",
+      "✨ Encourager",
+      "🐾 Suivre NOX"
+    ]
+  },
+  {
+    "id": "nox_soif_40",
+    "file": "nox_soif_cosmique_40.png",
+    "title": "💧 NOX A SOIF",
+    "text": "Un peu d’eau cosmique, et NOX retrouve son énergie !",
+    "kind": "nox",
+    "moods": [
+      "besoin"
+    ],
+    "vote_labels": [
+      "💧 Lui donner à boire",
+      "🐾 Prendre soin",
+      "🌟 L’encourager"
+    ]
+  },
+  {
+    "id": "nox_tristesse_41",
+    "file": "nox_tristesse_41.png",
+    "title": "NOX A UN COUP DE BLUES",
+    "text": "Un peu de compagnie lui ferait du bien.",
+    "kind": "nox",
+    "moods": [
+      "besoin"
+    ],
+    "vote_labels": [
+      "💙 Lui envoyer du soutien",
+      "🐾 Aller au Refuge",
+      "✨ Lui offrir une étoile"
+    ]
+  },
+  {
+    "id": "nox_reconfort_41",
+    "file": "nox_reconfort_41.png",
+    "title": "NOX EST RÉCONFORTÉ",
+    "text": "Une présence bienveillante réchauffe sa galaxie.",
+    "kind": "nox",
+    "moods": [
+      "calin"
+    ],
+    "vote_labels": [
+      "💛 Lui faire un câlin",
+      "🌟 Sourire avec lui",
+      "🐾 Rester un moment"
+    ]
+  },
+  {
+    "id": "nox_joie_41",
+    "file": "nox_joie_41.png",
+    "title": "NOX DÉBORDE DE JOIE",
+    "text": "Ses petites pattes font des étincelles de bonheur !",
+    "kind": "nox",
+    "moods": [
+      "joie"
+    ],
+    "vote_labels": [
+      "🎉 Fêter avec lui",
+      "🎮 Jouer",
+      "💙 Partager sa joie"
+    ]
+  },
+  {
+    "id": "nox_fatigue_41",
+    "file": "nox_fatigue_41.png",
+    "title": "NOX A BESOIN DE REPOS",
+    "text": "Ses yeux se ferment : une petite pause cosmique s’impose.",
+    "kind": "nox",
+    "moods": [
+      "fatigue"
+    ],
+    "vote_labels": [
+      "💤 Le laisser dormir",
+      "💙 Lui souhaiter bon repos",
+      "🌙 Veiller sur lui"
+    ]
+  },
+  {
+    "id": "nox_inquietude_41",
+    "file": "nox_inquietude_41.png",
+    "title": "NOX EST INQUIET",
+    "text": "Un étrange portail s’est ouvert : explorons-le sans nous précipiter.",
+    "kind": "nox",
+    "moods": [
+      "curiosite"
+    ],
+    "vote_labels": [
+      "🔎 Observer",
+      "🤝 Rassurer NOX",
+      "🌀 Étudier le portail"
+    ]
+  },
+  {
+    "id": "nox_scene_bienvenue_42",
+    "file": "nox_scene_bienvenue_42.png",
+    "title": "🐾 NOX vous souhaite la bienvenue",
+    "text": "Une nouvelle étoile vient de rejoindre HORIZONS ! NOX distribue les sourires et garde les biscuits sous surveillance.",
+    "kind": "nox",
+    "moods": [
+      "joie"
+    ],
+    "vote_labels": [
+      "💙 J’aime",
+      "✨ Encore !",
+      "🐾 Avec NOX"
+    ]
+  },
+  {
+    "id": "nox_scene_petite_faim_42",
+    "file": "nox_scene_petite_faim_42.png",
+    "title": "🍪 La pause biscuits de NOX",
+    "text": "Une enquête officielle est ouverte : qui a fait disparaître les biscuits cosmiques ? NOX a des miettes sur les moustaches.",
+    "kind": "nox",
+    "moods": [
+      "gourmand"
+    ],
+    "vote_labels": [
+      "💙 J’aime",
+      "✨ Encore !",
+      "🐾 Avec NOX"
+    ]
+  },
+  {
+    "id": "nox_scene_boire_42",
+    "file": "nox_scene_boire_42.png",
+    "title": "💧 La fontaine stellaire",
+    "text": "NOX découvre une fontaine de comètes fraîches. Un verre pour lui, un pour la galaxie !",
+    "kind": "nox",
+    "moods": [
+      "calme"
+    ],
+    "vote_labels": [
+      "💙 J’aime",
+      "✨ Encore !",
+      "🐾 Avec NOX"
+    ]
+  },
+  {
+    "id": "nox_scene_jouer_42",
+    "file": "nox_scene_jouer_42.png",
+    "title": "🎮 La récréation cosmique",
+    "text": "NOX a lancé la balle la plus brillante de la galaxie. Qui osera jouer avec lui ?",
+    "kind": "nox",
+    "moods": [
+      "joie"
+    ],
+    "vote_labels": [
+      "💙 J’aime",
+      "✨ Encore !",
+      "🐾 Avec NOX"
+    ]
+  },
+  {
+    "id": "nox_scene_question_42",
+    "file": "nox_scene_question_42.png",
+    "title": "❓ La question du jour de NOX",
+    "text": "Si tu pouvais découvrir une seule planète imaginaire, à quoi ressemblerait-elle ?",
+    "kind": "nox",
+    "moods": [
+      "curieux"
+    ],
+    "vote_labels": [
+      "💙 J’aime",
+      "✨ Encore !",
+      "🐾 Avec NOX"
+    ]
+  },
+  {
+    "id": "nox_scene_agora_42",
+    "file": "nox_scene_agora_42.png",
+    "title": "🎙️ NOX ouvre le débat",
+    "text": "NOX prend le micro : quelle petite habitude rend notre communauté plus accueillante ?",
+    "kind": "nox",
+    "moods": [
+      "curieux"
+    ],
+    "vote_labels": [
+      "💙 J’aime",
+      "✨ Encore !",
+      "🐾 Avec NOX"
+    ]
+  },
+  {
+    "id": "nox_scene_mission_42",
+    "file": "nox_scene_mission_42.png",
+    "title": "🧭 Mission HORIZONS",
+    "text": "NOX part en mission : aujourd’hui, offre un mot gentil à une personne de la communauté.",
+    "kind": "nox",
+    "moods": [
+      "aventure"
+    ],
+    "vote_labels": [
+      "💙 J’aime",
+      "✨ Encore !",
+      "🐾 Avec NOX"
+    ]
+  },
+  {
+    "id": "nox_scene_anniversaire_42",
+    "file": "nox_scene_anniversaire_42.png",
+    "title": "🎂 Un anniversaire galactique",
+    "text": "NOX a préparé un gâteau stellaire ! À qui souhaite-t-on une très belle journée ?",
+    "kind": "nox",
+    "moods": [
+      "joie"
+    ],
+    "vote_labels": [
+      "💙 J’aime",
+      "✨ Encore !",
+      "🐾 Avec NOX"
+    ]
+  },
+  {
+    "id": "nox_scene_entraide_42",
+    "file": "nox_scene_entraide_42.png",
+    "title": "💛 Un peu de lumière pour toi",
+    "text": "NOX t’envoie un cœur lumineux. Tu peux demander de l’aide, ou simplement venir discuter.",
+    "kind": "nox",
+    "moods": [
+      "calin"
+    ],
+    "vote_labels": [
+      "💙 J’aime",
+      "✨ Encore !",
+      "🐾 Avec NOX"
+    ]
+  },
+  {
+    "id": "nox_scene_repos_42",
+    "file": "nox_scene_repos_42.png",
+    "title": "🌙 Une pause bien méritée",
+    "text": "Même les explorateurs de galaxies ont besoin de repos. NOX s’accorde un moment de douceur.",
+    "kind": "nox",
+    "moods": [
+      "calme"
+    ],
+    "vote_labels": [
+      "💙 J’aime",
+      "✨ Encore !",
+      "🐾 Avec NOX"
+    ]
+  },
+  {
+    "id": "nox_scene_coup_de_mou_42",
+    "file": "nox_scene_coup_de_mou_42.png",
+    "title": "🥺 NOX a besoin de douceur",
+    "text": "NOX se repose sous sa couverture. Un petit message réconfortant lui ferait plaisir.",
+    "kind": "nox",
+    "moods": [
+      "fatigue"
+    ],
+    "vote_labels": [
+      "💙 J’aime",
+      "✨ Encore !",
+      "🐾 Avec NOX"
+    ]
+  },
+  {
+    "id": "nox_scene_bonne_nuit_42",
+    "file": "nox_scene_bonne_nuit_42.png",
+    "title": "🌌 Bonne nuit, les étoiles",
+    "text": "NOX ferme les yeux et confie ses rêves à la lune. Passez une nuit paisible !",
+    "kind": "nox",
+    "moods": [
+      "calme"
+    ],
+    "vote_labels": [
+      "💙 J’aime",
+      "✨ Encore !",
+      "🐾 Avec NOX"
+    ]
   }
 ]

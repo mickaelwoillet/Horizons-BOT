@@ -675,15 +675,17 @@ class CentreHorizons(commands.Cog):
         if interaction.guild_id is None:
             await interaction.response.send_message("Le Centre est disponible uniquement sur HORIZONS.", ephemeral=True)
             return
+        # Acquitter avant les accès SQLite : Discord impose une réponse rapide.
+        await interaction.response.defer(ephemeral=True)
         try:
             visits, last_visit = visit(interaction.guild_id, interaction.user.id)
             from .sky_map import grant
             grant(interaction.guild_id, interaction.user.id, "origins.centre")
         except Exception:
             log.exception("Impossible d'ouvrir le Centre pour le membre %s", interaction.user.id)
-            await interaction.response.send_message("Le Centre est momentanément indisponible. Réessaie dans un instant.", ephemeral=True)
+            await interaction.followup.send("Le Centre est momentanément indisponible. Réessaie dans un instant.", ephemeral=True)
             return
-        await interaction.response.send_message(embed=home_embed(interaction.user, visits, last_visit, interaction.guild_id), view=CentreView(interaction.user.id, visits, last_visit), ephemeral=True)
+        await interaction.followup.send(embed=home_embed(interaction.user, visits, last_visit, interaction.guild_id), view=CentreView(interaction.user.id, visits, last_visit), ephemeral=True)
 
 
 async def setup(bot: commands.Bot):

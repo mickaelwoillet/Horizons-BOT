@@ -391,3 +391,17 @@ Les anciennes commandes `/noxpresence`, `/noxvie`, `/noxevenements`, `/noxsurpri
 - Les commandes `/noxquotidien`, `/noxdiagnostic`, `/noxplanning`, `/noxaventure`, `/noxmission`, `/noxmemoire`, `/noxtitres`, `/noxpresence`, `/noxvie`, `/noxevenements`, `/noxsurprise`, `/noxroles`, `/noxpublier` et `/me` mentionnées dans l'historique **ne sont plus des commandes slash à utiliser**.
 - `/dashboard` : tableau de bord staff ; `/centre` : centre membres ; `/aide` et `/aidestaff` : aides.
 - Pour NOX TV, privilégier `/nox` → NOX TV ; consulter `/aide` pour les autres commandes encore réellement enregistrées.
+
+
+V10.85.43 : le bouton « Faire parler NOX » du tableau `/nox` illustre les textes libres selon leur thème (portrait neutre sinon), sans nouvelle commande.
+
+## Audit V10.85.44
+Aucune nouvelle commande slash. NOX TV conserve sa réservation de publication quotidienne si l'envoi échoue de manière ambiguë, afin de limiter les doublons. Tests Discord à effectuer lors de la mise en production.
+
+
+### V10.85.45 — Audit tableaux de bord
+Aucune nouvelle commande. `/centre` acquitte les interactions avant les accès SQLite ; correction d’un ancien callback de navigation staff.
+
+
+## V10.85.46 — Candidate finale
+Aucune nouvelle commande. Recette et déploiement : `V10_85_46_RAPPORT_FINAL.md`.

@@ -37,18 +37,18 @@ IMAGE_DIR = Path(DATA_DIR) / 'nox_tv'
 # Priorité à la jauge la plus basse, avec un seuil d'alerte à 45 %.
 NEED_IMAGES = {
     'faim': 'nox_faim.png',
-    'soif': 'nox_refuge_lanternes.png',  # scène neutre en attendant un visuel 'soif' dédié
-    'bonheur': 'nox_boudeur.png',
-    'energie': 'nox_sieste_lune.png',
+    'soif': 'nox_soif_cosmique_40.png',
+    'bonheur': 'nox_tristesse_41.png',
+    'energie': 'nox_fatigue_41.png',
     'hygiene': 'nox_refuge_coussins.png',
 }
 CARE_IMAGES = {
     'nourrir': 'nox_biscuits_orbite.png',
-    'boire': 'nox_refuge_lanternes.png',
-    'jouer': 'nox_jeu_ballon.png',
-    'calin': 'nox_refuge_coussins.png',
+    'boire': 'nox_soif_cosmique_40.png',
+    'jouer': 'nox_jeu_orbe_40.png',
+    'calin': 'nox_reconfort_41.png',
     'bain': 'nox_refuge_lanternes.png',
-    'repos': 'nox_sieste_lune.png',
+    'repos': 'nox_bonne_nuit_couverture_40.png',
 }
 
 def choose_refuge_image(state, last_action=None):
