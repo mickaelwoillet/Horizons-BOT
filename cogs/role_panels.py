@@ -50,6 +50,7 @@ class RoleSelect(discord.ui.Select):
         if not isinstance(interaction.user, discord.Member) or interaction.guild is None:
             await interaction.response.send_message("Cette sélection est disponible sur le serveur HORIZONS.", ephemeral=True)
             return
+        await interaction.response.defer(ephemeral=True)
         all_ids = {rid for _, rid in self.role_options}
         selected_ids = {int(value) for value in self.values}
         # « Aucune notification » annule les autres choix de notification, et inversement.
@@ -62,7 +63,7 @@ class RoleSelect(discord.ui.Select):
         roles_by_id = {role.id: role for role in interaction.guild.roles}
         missing = [rid for rid in all_ids if rid not in roles_by_id]
         if missing:
-            await interaction.response.send_message(
+            await interaction.followup.send(
                 f"Certains rôles n'existent pas ou ne sont pas accessibles ({len(missing)}). Préviens l'équipe HORIZONS.",
                 ephemeral=True,
             )
@@ -75,10 +76,10 @@ class RoleSelect(discord.ui.Select):
             if to_add:
                 await interaction.user.add_roles(*to_add, reason=f"Choix du profil : {self.category}")
         except discord.Forbidden:
-            await interaction.response.send_message("Je n'ai pas la permission de gérer ces rôles. Vérifie que mon rôle est placé au-dessus des rôles HORIZONS.", ephemeral=True)
+            await interaction.followup.send("Je n'ai pas la permission de gérer ces rôles. Vérifie que mon rôle est placé au-dessus des rôles HORIZONS.", ephemeral=True)
             return
         except discord.HTTPException:
-            await interaction.response.send_message("Discord n'a pas accepté la modification. Réessaie.", ephemeral=True)
+            await interaction.followup.send("Discord n'a pas accepté la modification. Réessaie.", ephemeral=True)
             return
         # Le suivi d'accueil ne conserve aucun rôle ni choix personnel.
         # Il note seulement qu'un membre a personnalisé des préférences non sensibles.
@@ -95,7 +96,7 @@ class RoleSelect(discord.ui.Select):
                         "UPDATE onboarding_progress SET profile_customized=1 WHERE guild_id=? AND user_id=?",
                         (interaction.guild.id, interaction.user.id),
                     )
-        await interaction.response.send_message("Tes rôles ont été mis à jour. 💜", ephemeral=True)
+        await interaction.followup.send("Tes rôles ont été mis à jour. 💜", ephemeral=True)
 
 class RolePanelView(discord.ui.View):
     def __init__(self, category: str, options: list[tuple[str, int]]):
@@ -107,12 +108,13 @@ class RolePanels(commands.Cog):
         self.bot = bot
 
     async def cog_load(self):
-        with db() as conn:
-            rows = conn.execute("SELECT channel_id,message_id,category FROM role_panels").fetchall()
+        # Les custom_id sont uniques par catégorie : enregistrer les vues
+        # globalement permet aux anciens panneaux de fonctionner même si
+        # leurs identifiants de message ne figurent plus dans SQLite.
         catalog = load_catalog()
-        for row in rows:
-            if row["category"] in catalog:
-                self.bot.add_view(RolePanelView(row["category"], [(n,int(i)) for n,i in catalog[row["category"]]]), message_id=int(row["message_id"]))
+        for category, raw_options in catalog.items():
+            options = [(label, int(role_id)) for label, role_id in raw_options]
+            self.bot.add_view(RolePanelView(category, options))
 
     @app_commands.command(name="publier_roles", description="Publier les panneaux de choix des rôles HORIZONS dans ce salon.")
     async def publier_roles(self, interaction: discord.Interaction):
@@ -147,7 +149,6 @@ class RolePanels(commands.Cog):
                     "INSERT OR REPLACE INTO role_panels(channel_id,message_id,category) VALUES(?,?,?)",
                     (interaction.channel.id, message.id, category),
                 )
-            self.bot.add_view(RolePanelView(category, options), message_id=message.id)
             published += 1
         await interaction.followup.send(f"✅ **{published} panneaux** de rôles ont été publiés dans {interaction.channel.mention}.", ephemeral=True)
 

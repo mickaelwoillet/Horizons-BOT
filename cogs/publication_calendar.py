@@ -139,7 +139,7 @@ class PublicationCalendar(commands.Cog):
             embed.add_field(name="Thème", value=str(item["theme"]), inline=True)
         if item.get("categorie"):
             embed.add_field(name="Catégorie", value=str(item["categorie"]), inline=True)
-        embed.set_footer(text="HORIZONS • Rendez-vous quotidien")
+        embed.set_footer(text="HORIZONS • Rendez-vous programmé")
         if await _send_embed(self.bot, channel_id, embed):
             state = _load_state()
             state.setdefault("published_dates", {})[key] = today

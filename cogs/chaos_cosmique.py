@@ -1082,7 +1082,7 @@ class ChaosCosmique(commands.Cog):
                 '**Grille-Pain 3000**, prophète du petit-déjeuner, et **Professeur Gloups**, '
                 'méduse astrophysicienne. Nox a désormais des envies, des habitudes et un humour imprévisible.\n\n'
                 '✨ **Et maintenant, l’histoire attend ses nouveaux personnages : vous.**\n'
-                'Appuie sur les boutons ci-dessous ou tape **`/nox`** pour commencer. '
+                'Utilise les boutons ci-dessous ou ouvre **`/nox`** pour commencer. '
                 'Les missions quotidiennes, les amitiés improbables et les archives secrètes t’attendent !'
             ),
             colour=discord.Colour.from_rgb(88, 90, 240),

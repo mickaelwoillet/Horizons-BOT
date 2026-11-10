@@ -1,6 +1,6 @@
 """NOX TV — publications visuelles autonomes, opt-in et sans doublons."""
 from __future__ import annotations
-import json, random, sqlite3, logging, hashlib, os
+import json, random, sqlite3, logging, os
 from datetime import datetime, timedelta
 from pathlib import Path
 import discord
@@ -519,8 +519,7 @@ class NoxTV(commands.Cog):
                     return 'Visuel inconnu : consulte /noxtv catalogue.'
             else:
                 item=choose_visual(choices, [], nox_mood(guild.id))
-            if channel_override is None:
-                channel_id=channel_for_kind(item.get('kind', 'observatoire'))
+            # Respecter le salon configuré, sauf choix manuel explicite.
             if not channel_id:
                 return 'Salon de destination non configuré.'
             if not manual:
@@ -621,11 +620,17 @@ class NoxTV(commands.Cog):
         for guild in self.bot.guilds:
             try:
                 await self.close_ballots(guild,now)
-                if not 12 <= now.hour < 21: continue
-                seed=f"{guild.id}:{now.date().isoformat()}:noxtv".encode()
-                chance=int.from_bytes(hashlib.sha256(seed).digest()[:4],"big") / 2**32
-                if chance < 0.15:
-                    await self.publish(guild)
+                if not 12 <= now.hour < 21:
+                    continue
+                with connect() as db:
+                    setting = db.execute('SELECT enabled FROM noxtv_settings WHERE guild_id=?', (guild.id,)).fetchone()
+                    last = db.execute('SELECT MAX(day) AS last_day FROM noxtv_posts WHERE guild_id=? AND message_id>0', (guild.id,)).fetchone()
+                if not setting or not setting['enabled']:
+                    continue
+                last_day = datetime.fromisoformat(last['last_day']).date() if last and last['last_day'] else None
+                if last_day is None or (now.date() - last_day).days >= 2:
+                    result = await self.publish(guild)
+                    LOG.info('NOX TV: programmation automatique serveur %s : %s', guild.id, result)
             except Exception:
                 LOG.exception('NOX TV: erreur serveur %s',guild.id)
     @clock.before_loop
