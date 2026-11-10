@@ -1115,8 +1115,14 @@ class NoxCentralView(discord.ui.View):
             'tv': [('tv','Ouvrir NOX TV (staff)','🎬')],
             'administration': [('planning','Planning','📅'),('diagnostic','Diagnostic','🔎'),('config','Configurer le quotidien','⚙️'),('presence','Besoins de NOX','🏡'),('vie','Vie spontanée','💬'),('evenements','Événements','🎂'),('roles_install','Créer les rôles','🏅'),('roles_sync','Synchroniser rôles','🔄')],
         }
-        for action, label, emoji in actions[self.section]:
-            self.add_item(NoxCentralAction(action, label, emoji))
+        # Discord limite chaque ligne à cinq boutons (largeur totale 5).
+        # La ligne 0 est réservée au menu déroulant ; les actions sont
+        # réparties sur les lignes 1 à 4, y compris en Administration.
+        section_actions = actions[self.section]
+        if len(section_actions) > 20:
+            raise ValueError('Le panneau NOX ne peut afficher plus de 20 actions.')
+        for index, (action, label, emoji) in enumerate(section_actions):
+            self.add_item(NoxCentralAction(action, label, emoji, row=1 + index // 5))
 
 
 class CosmicMissionClaim(discord.ui.View):
