@@ -13,7 +13,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands, tasks
 
-from config import DATA_DIR, LOCAL_TIMEZONE
+from config import DATA_DIR, LOCAL_TIMEZONE, GUILD_ID
 from .embed_theme import horizons_embed
 
 log = logging.getLogger(__name__)
@@ -1155,10 +1155,13 @@ class CosmicPlaceSelect(discord.ui.Select):
 class CosmicStoryButtons(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
-    @discord.ui.button(label='Rencontrer Nox',emoji='👾',style=discord.ButtonStyle.primary,custom_id='cosmic:v10:story:nox')
-    async def nox(self,i,b):
-        with connect() as conn: c=creature(conn,i.guild.id)
-        await i.response.send_message(embed=creature_embed(c),view=NoxPanel(),ephemeral=True)
+    def __init__(self):
+        super().__init__(timeout=None)
+        # Bouton URL natif : redirige vers l'unique Refuge officiel de NOX.
+        self.add_item(discord.ui.Button(
+            label='Refuge de NOX', emoji='🐾', style=discord.ButtonStyle.link,
+            url=f'https://discord.com/channels/{GUILD_ID}/1569826968659300392', row=0,
+        ))
     @discord.ui.button(label='Explorer le monde',emoji='🗺️',style=discord.ButtonStyle.secondary,custom_id='cosmic:v10:story:world')
     async def world(self,i,b):
         with connect() as conn: text=map_text(conn,i.guild.id)
@@ -1383,8 +1386,8 @@ class ChaosCosmique(commands.Cog):
                 'les portes impossibles, les horloges syndiquées et les constellations fugueuses. '
                 'Mais un matin, une petite boule de lumière éternua dans une nébuleuse… '
                 'et **Nox** apparut. Personne ne sait s’il est né d’une étoile ou d’un biscuit oublié.\n\n'
-                'Depuis, Nox grandit avec les attentions des voyageurs. Il adore les découvertes, '
-                'les câlins et poser des questions auxquelles même les galaxies refusent de répondre.\n\n'
+                'Depuis, NOX accompagne les voyageurs dans leurs découvertes. Ses besoins et ses soins '
+                'se trouvent dans son Refuge officiel, où chacun peut lui apporter de l’attention.\n\n'
                 'Et comme si cela ne suffisait pas, **le Canard Suprême** a revendiqué la propriété '
                 'de l’univers. Son premier décret ? « Chaque météorite doit porter un petit chapeau. » '
                 'Le tribunal cosmique examine toujours sa demande.\n\n'
@@ -1394,13 +1397,13 @@ class ChaosCosmique(commands.Cog):
                 '**Grille-Pain 3000**, prophète du petit-déjeuner, et **Professeur Gloups**, '
                 'méduse astrophysicienne. Nox a désormais des envies, des habitudes et un humour imprévisible.\n\n'
                 '✨ **Et maintenant, l’histoire attend ses nouveaux personnages : vous.**\n'
-                'Utilise les boutons ci-dessous ou ouvre **`/nox`** pour commencer. '
+                'Explore les boutons ci-dessous, ou rejoins le **Refuge de NOX** pour prendre soin de lui. '
                 'Les missions quotidiennes, les amitiés improbables et les archives secrètes t’attendent !'
             ),
             colour=discord.Colour.from_rgb(88, 90, 240),
         )
-        embed.add_field(name='👾 Nox a besoin de toi',value='Nourris-le, parle-lui, joue avec lui et découvre ses envies avec **`/nox`** ou le bouton ci-dessous.',inline=False)
-        embed.add_field(name='🗺️ Partir à l’aventure',value='Les boutons ouvrent la carte, les lieux et ton sac cosmique.',inline=False)
+        embed.add_field(name='🐾 Le Refuge de NOX',value='Ses six besoins et ses soins se trouvent dans le **Refuge officiel**, accessible avec le bouton ci-dessous. Les anciennes jauges cosmiques ne sont plus utilisées pour les soins.',inline=False)
+        embed.add_field(name='🗺️ Partir à l’aventure',value='**Explorer le monde** ouvre la carte et ses lieux ; **Mission du jour** propose un objectif ; **État du cosmos** décrit le monde ; **Portail secret** révèle ses mystères.',inline=False)
         embed.add_field(name='📜 Percer les secrets',value='Découvre les chroniques, les personnages improbables et les anomalies dans le serveur.',inline=False)
         embed.set_footer(text=marker)
         art=Path(__file__).resolve().parent.parent/'data'/'chaos_cosmique'/'histoire_chaos_cosmique.png'
