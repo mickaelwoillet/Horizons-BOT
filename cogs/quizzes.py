@@ -268,11 +268,6 @@ class Quizzes(commands.Cog):
         except discord.HTTPException:
             await channel.send(embed=embed)
 
-    @app_commands.command(
-        name="quiz_lancer",
-        description="Lancer un quiz culturel à plusieurs manches (12 joueurs maximum).",
-    )
-    @app_commands.describe(manches="Nombre de manches, de 1 à 10")
     async def quiz_lancer(
         self,
         interaction: discord.Interaction,
@@ -331,7 +326,6 @@ class Quizzes(commands.Cog):
         message = await target.send(embed=self.make_embed(session), view=view)
         session["message_id"] = message.id
 
-    @app_commands.command(name="quiz_arreter", description="Arrêter le quiz culturel en cours.")
     async def quiz_arreter(self, interaction: discord.Interaction):
         member = interaction.user
         allowed = isinstance(member, discord.Member) and (

@@ -251,3 +251,6 @@ Cinq nouvelles scènes originales : planète biscuit, couronne rebelle, réveil 
 
 ### V10.37 — Correctif audit NOX TV
 Ajout des trois verdicts de `nox_faim_anime` (GIF de Nox affamé). Aucune modification des médias, salons, horaires ni paramètres. Relancer `/noxtv audit` après déploiement : résultat attendu 30/30, zéro anomalie.
+
+### V10.54 — NOX TV
+Cinq anciennes sous-commandes (`statut`, `diagnostic`, `audit`, `simulation`, `catalogue`) ont été migrées vers les boutons de `/noxtv panneau`.

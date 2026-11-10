@@ -20,7 +20,7 @@ class RiddleView(discord.ui.View):
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if self.owner_id is not None and interaction.user.id != self.owner_id:
-            await interaction.response.send_message("Cette devinette appartient à une autre personne. Lance `/devinette` pour jouer à ton tour !", ephemeral=True)
+            await interaction.response.send_message("Cette devinette appartient à une autre personne. Ouvre `/centre` → Activités pour jouer à ton tour !", ephemeral=True)
             return False
         return True
 
@@ -49,7 +49,6 @@ class Riddles(commands.Cog):
     def cog_unload(self):
         self.daily_riddle.cancel()
 
-    @app_commands.command(name="devinette", description="Jouer à une devinette HORIZONS.")
     async def devinette(self, interaction: discord.Interaction):
         item = pick_riddle()
         if not item:
@@ -57,7 +56,7 @@ class Riddles(commands.Cog):
             return
         embed = horizons_embed(title="🧩 La devinette HORIZONS", description=item["question"], color=discord.Color.teal())
         embed.set_footer(text="HORIZONS • À toi de jouer !")
-        await interaction.response.send_message(embed=embed, view=RiddleView(interaction.user.id, item["reponse"]))
+        await interaction.response.send_message(embed=embed, view=RiddleView(interaction.user.id, item["reponse"]), ephemeral=True)
 
     @tasks.loop(time=time(hour=17, minute=30, tzinfo=LOCAL_TIMEZONE))
     async def daily_riddle(self):

@@ -256,3 +256,9 @@ Les contrôles de syntaxe sont réussis. Aucune connexion Discord ni essai réel
 ### V8 — Découvrabilité du Centre (travail cumulatif)
 - Mise en avant de `/centre` dans cinq points d’entrée existants, sans nouveau salon ni publication automatique supplémentaire.
 - Textes des embeds d’accueil, premiers pas, présentation, Notre esprit et catalogue des commandes actualisés.
+
+## V10.46 — Contrôle des contenus dans les panneaux staff
+- Ajout du bouton **Contenus JSON** dans les panneaux Publications et Animations de `/dashboard`.
+- Vérification en lecture seule de l'existence, de la syntaxe JSON et des fichiers vides (y compris les catégories de blagues).
+- Aucun changement des commandes slash, des horaires de publication ou des données enregistrées.
+- Vérification syntaxique Python du module effectuée. Le contrôle global `tests/check_project.py` signale des noms de commandes slash dupliqués dans la base fournie : anomalie préexistante à investiguer avant déploiement.

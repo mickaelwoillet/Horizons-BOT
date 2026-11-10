@@ -10,7 +10,6 @@ from config import LOCAL_TIMEZONE, GUILD_ID
 class General(commands.Cog):
     def __init__(self, bot: commands.Bot): self.bot = bot
 
-    @app_commands.command(name="ping", description="Vérifier si le bot HORIZONS répond.")
     async def ping(self, interaction: discord.Interaction):
         ms = round(self.bot.latency * 1000)
         await interaction.response.send_message(f"🏓 Pong ! Latence : **{ms} ms**", ephemeral=True)

@@ -45,7 +45,11 @@ class MissionSteps(discord.ui.View):
                     await interaction.response.send_message('Fonction temporairement indisponible.', ephemeral=True)
                     return
                 choice = app_commands.Choice(name=f'Étape {number}', value=number)
-                await getattr(cog, command).callback(cog, interaction, **{parameter: choice})
+                method = getattr(cog, command)
+                if isinstance(method, app_commands.Command):
+                    await method.callback(cog, interaction, **{parameter: choice})
+                else:
+                    await method(interaction, **{parameter: choice})
             button.callback = callback
             self.add_item(button)
 
@@ -78,7 +82,7 @@ class MissionHubView(discord.ui.View):
     async def join(self, interaction: discord.Interaction, button: discord.ui.Button):
         cog = interaction.client.get_cog('Seasons')
         if cog:
-            await cog.rejoindre_saison.callback(cog, interaction)
+            await cog.rejoindre_saison(interaction)
         else:
             await interaction.response.send_message('Saison indisponible.', ephemeral=True)
 

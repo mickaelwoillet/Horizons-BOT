@@ -22,8 +22,9 @@ SECTIONS = {
     "passerelles": ("🌉 Mes Passerelles", "Choisis volontairement tes centres d’intérêt. Découvre des affinités anonymes, sans révéler les identités ni envoyer de messages privés."),
     "coffre": ("🎁 Mon Coffre des Horizons", "Retrouve tes cartes célestes, tes étoiles, tes constellations et tes souvenirs. Ton Coffre utilise les Trésors du Ciel existants : aucune collection concurrente."),
     "capsules": ("⏳ Mes Capsules du Temps", "Confie un souvenir à ton futur toi pour 30, 90 ou 180 jours. Une question collective mensuelle est proposée si le staff l’active. Participation volontaire et modérée."),
-    "activites": ("🧭 Mes activités", "Retrouve tes inscriptions, tes présences confirmées et les activités à venir, ainsi que /mon_passeport, /jeux et /mes_idees."),
+    "activites": ("🧭 Mes activités", "Retrouve tes inscriptions, tes présences confirmées et les activités à venir, ainsi que tes saisons, ton passeport, tes jeux et tes idées."),
     "suivi": ("🌠 Ma vie HORIZONS", "Tes Cercles, tes propositions, tes missions et tes jeux, réunis dans ton Centre personnel."),
+    "regard": ("📰 Le Regard du Jour", "Propose un article au staff et consulte tes points du Regard du Jour."),
     "meteo": ("💙 Ma météo privée", "Historique facultatif des sept derniers jours. Tu décides de son activation et tu peux supprimer tes données."),
 }
 
@@ -140,7 +141,7 @@ def section_embed(key: str, member: discord.abc.User, guild_id: int) -> discord.
         embed.add_field(name="💡 Tes idées", value="\n".join(info['ideas']) or "Aucune proposition pour le moment.", inline=False)
         embed.add_field(name="🧭 Ton passeport", value=info['missions'], inline=False)
         embed.add_field(name="🎮 Ton Arcade", value=info['arcade'], inline=False)
-        embed.add_field(name="Pour aller plus loin", value="Utilise `/mon_passeport`, `/jeux` et `/mes_idees` pour les actions détaillées.", inline=False)
+        embed.add_field(name="Pour aller plus loin", value="Utilise le menu « Ma progression » ci-dessous pour ton rang, ton parcours et tes badges. `/mon_passeport`, `/jeux` et `/mes_idees` restent disponibles.", inline=False)
     if key == "meteo":
         info = mood_summary(guild_id, member.id)
         if info['enabled']:
@@ -310,6 +311,20 @@ class CollectiveWithdrawSelect(discord.ui.Select):
         await interaction.response.send_message("Contribution retirée définitivement." if removed else "Contribution introuvable.",ephemeral=True)
 
 
+class CollectiveWithdrawButton(discord.ui.Button):
+    def __init__(self):
+        super().__init__(label="Retirer une contribution", emoji="🗑️", style=discord.ButtonStyle.secondary, row=1)
+
+    async def callback(self, interaction: discord.Interaction):
+        answers = collective_capsules.my_answers(interaction.guild_id, interaction.user.id)
+        if not answers:
+            await interaction.response.send_message("Tu n’as aucune contribution à retirer.", ephemeral=True)
+            return
+        view = discord.ui.View(timeout=180)
+        view.add_item(CollectiveWithdrawSelect(answers))
+        await interaction.response.send_message("Choisis la contribution à retirer définitivement :", view=view, ephemeral=True)
+
+
 class BridgeInterestsSelect(discord.ui.Select):
     def __init__(self, chosen):
         super().__init__(placeholder="Choisir mes centres d'intérêt (1 à 5)",min_values=1,max_values=5,row=2,
@@ -413,6 +428,98 @@ class MoodEraseConfirm(discord.ui.View):
         await interaction.response.edit_message(content="Suppression annulée.", view=None)
 
 
+class SeasonActionSelect(discord.ui.Select):
+    """Les actions de saison réunies dans le Centre, sans commande slash supplémentaire."""
+    def __init__(self):
+        super().__init__(placeholder="🌅 Saison : choisir une action…", row=1, options=[
+            discord.SelectOption(label="Découvrir la saison", value="saison", emoji="🌅"),
+            discord.SelectOption(label="Rejoindre la saison", value="rejoindre_saison", emoji="🤝"),
+            discord.SelectOption(label="Voir mes étapes", value="missions_saison", emoji="🧭"),
+            discord.SelectOption(label="Valider une étape", value="valider", emoji="✅"),
+            discord.SelectOption(label="Mes distinctions", value="mes_recompenses_saison", emoji="🏅"),
+        ])
+
+    async def callback(self, interaction: discord.Interaction):
+        cog = interaction.client.get_cog("Seasons")
+        if cog is None:
+            await interaction.response.send_message("Les saisons sont temporairement indisponibles.", ephemeral=True)
+            return
+        action = self.values[0]
+        if action == "valider":
+            from .mission_hub import MissionSteps
+            await interaction.response.send_message("Quelle étape as-tu accomplie ?", view=MissionSteps("Seasons", "valider_etape_saison", "etape"), ephemeral=True)
+        elif action == "saison":
+            await cog.saison.callback(cog, interaction)
+        else:
+            await getattr(cog, action)(interaction)
+
+
+class ActivityFunSelect(discord.ui.Select):
+    """Jeux rapides accessibles depuis /centre → Activités."""
+    def __init__(self):
+        super().__init__(placeholder="🎲 Jeux rapides : choisir…", row=2, options=[
+            discord.SelectOption(label="Une blague", value="blague", emoji="😄"),
+            discord.SelectOption(label="Une devinette", value="devinette", emoji="🧩"),
+        ])
+
+    async def callback(self, interaction: discord.Interaction):
+        name = "Jokes" if self.values[0] == "blague" else "Riddles"
+        cog = interaction.client.get_cog(name)
+        if cog is None:
+            await interaction.response.send_message("Cette activité est momentanément indisponible.", ephemeral=True)
+            return
+        await getattr(cog, self.values[0])(interaction)
+
+
+class ProgressionSelect(discord.ui.Select):
+    """Trois consultations de progression réunies dans /centre → Ma vie."""
+    def __init__(self):
+        super().__init__(placeholder="🌱 Ma progression : consulter…", row=1, options=[
+            discord.SelectOption(label="Mon rang honorifique", value="rang", emoji="🌱"),
+            discord.SelectOption(label="Parcours des horizons", value="parcours", emoji="🧭"),
+            discord.SelectOption(label="Mes badges du parcours", value="badges", emoji="🏅"),
+        ])
+
+    async def callback(self, interaction: discord.Interaction):
+        action = self.values[0]
+        cog_name = "CommunityRanks" if action == "rang" else "HorizonsPath"
+        method = {"rang": "mon_parcours", "parcours": "parcours", "badges": "parcours_badges"}[action]
+        cog = interaction.client.get_cog(cog_name)
+        if cog is None:
+            await interaction.response.send_message("Le suivi de progression est momentanément indisponible.", ephemeral=True)
+            return
+        handler = getattr(cog, method)
+        if isinstance(handler, app_commands.Command):
+            await handler.callback(cog, interaction)
+        else:
+            await handler(interaction)
+
+
+
+class RegardMemberModal(discord.ui.Modal, title="Proposer au Regard du Jour"):
+    titre = discord.ui.TextInput(label="Titre (12 à 170 caractères)", min_length=12, max_length=170)
+    lien = discord.ui.TextInput(label="Lien HTTPS", max_length=900)
+    async def on_submit(self, interaction):
+        cog = interaction.client.get_cog("RegardDuJour")
+        if cog is None:
+            return await interaction.response.send_message("Le Regard du Jour est indisponible.", ephemeral=True)
+        await type(cog).proposer.callback(cog, interaction, str(self.titre.value), str(self.lien.value), False)
+
+class RegardMemberButton(discord.ui.Button):
+    def __init__(self):
+        super().__init__(label="Proposer un article", emoji="📰", style=discord.ButtonStyle.primary, row=2)
+    async def callback(self, interaction):
+        await interaction.response.send_modal(RegardMemberModal())
+
+class RegardPointsButton(discord.ui.Button):
+    def __init__(self):
+        super().__init__(label="Mes points Regard", emoji="🌟", style=discord.ButtonStyle.secondary, row=2)
+    async def callback(self, interaction):
+        cog = interaction.client.get_cog("RegardDuJour")
+        if cog is None:
+            return await interaction.response.send_message("Le Regard du Jour est indisponible.", ephemeral=True)
+        await type(cog).points.callback(cog, interaction)
+
 class CentreView(discord.ui.View):
     def __init__(self, owner_id: int, visits: int, last_visit: str | None):
         super().__init__(timeout=600)
@@ -425,9 +532,20 @@ class CentreView(discord.ui.View):
 
     def update_section_controls(self, guild_id: int | None, user_id: int | None):
         for item in list(self.children):
-            if isinstance(item, (LetterDurationSelect, LetterManageSelect, CapsuleDurationSelect, CapsuleManageSelect, CollectiveCapsuleButton, CollectiveWithdrawSelect, BridgeInterestsSelect, BridgeLeaveButton, BridgeInviteButton, BridgeCancelButton, BridgeInboxSelect, MoodActivateButton, MoodEraseButton)):
+            if isinstance(item, (LetterDurationSelect, LetterManageSelect, CapsuleDurationSelect, CapsuleManageSelect, CollectiveCapsuleButton, CollectiveWithdrawButton, BridgeInterestsSelect, BridgeLeaveButton, BridgeInviteButton, BridgeCancelButton, BridgeInboxSelect, MoodActivateButton, MoodEraseButton, RegardMemberButton, RegardPointsButton, SeasonActionSelect, ActivityFunSelect, ProgressionSelect)):
                 self.remove_item(item)
         if guild_id is None:
+            return
+        if self.selected == "activites":
+            self.add_item(SeasonActionSelect())
+            self.add_item(ActivityFunSelect())
+            return
+        if self.selected == "suivi":
+            self.add_item(ProgressionSelect())
+            return
+        if self.selected == "regard":
+            self.add_item(RegardMemberButton())
+            self.add_item(RegardPointsButton())
             return
         if self.selected == "meteo":
             self.add_item(MoodActivateButton())
@@ -448,6 +566,8 @@ class CentreView(discord.ui.View):
             if collective_capsules.current_question(guild_id):
                 self.add_item(CollectiveCapsuleButton())
             answers = collective_capsules.my_answers(guild_id,user_id)
+            if answers:
+                self.add_item(CollectiveWithdrawButton())
             self.add_item(CapsuleDurationSelect())
             capsules = time_capsules.list_capsules(guild_id, user_id)
             ready = [r for r in capsules if r['due_at'] <= time_capsules.now_utc().isoformat()]
@@ -472,6 +592,26 @@ class CentreView(discord.ui.View):
             return False
         return True
 
+    # Accès directs pour les membres : aucune nouvelle commande slash.
+    async def open_shortcut(self, interaction: discord.Interaction, key: str):
+        self.selected = key
+        self.update_section_controls(interaction.guild_id, interaction.user.id)
+        await interaction.response.edit_message(
+            embed=section_embed(key, interaction.user, interaction.guild_id), view=self
+        )
+
+    @discord.ui.button(label="Activités", style=discord.ButtonStyle.primary, emoji="🧭", row=1)
+    async def activities_shortcut(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.open_shortcut(interaction, "activites")
+
+    @discord.ui.button(label="Ma vie", style=discord.ButtonStyle.primary, emoji="🌠", row=1)
+    async def journey_shortcut(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.open_shortcut(interaction, "suivi")
+
+    @discord.ui.button(label="Mon coffre", style=discord.ButtonStyle.primary, emoji="🎁", row=1)
+    async def treasures_shortcut(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.open_shortcut(interaction, "coffre")
+
     @discord.ui.button(label="Retour au Centre", style=discord.ButtonStyle.secondary, emoji="🏠", row=1)
     async def back(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.selected = None
@@ -489,15 +629,7 @@ class CentreHorizons(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @app_commands.command(name="capsule_retirer", description="Retirer une contribution collective que tu as écrite.")
-    @app_commands.guild_only()
-    async def capsule_retirer(self, interaction: discord.Interaction, numero: int):
-        removed = collective_capsules.withdraw(interaction.guild_id,interaction.user.id,numero)
-        await interaction.response.send_message("🗑️ Contribution supprimée définitivement." if removed else "Contribution introuvable ou ne t'appartenant pas.",ephemeral=True)
-
-    @app_commands.command(name="capsule_question", description="Staff : ouvrir la question collective du mois.")
-    @app_commands.guild_only()
-    @app_commands.default_permissions(manage_guild=True)
+    # Action migrée vers /dashboard → Capsules staff.
     async def capsule_question(self, interaction: discord.Interaction, question: str):
         if not interaction.user.guild_permissions.manage_guild:
             await interaction.response.send_message("Permission de gestion du serveur nécessaire.",ephemeral=True)
@@ -509,10 +641,7 @@ class CentreHorizons(commands.Cog):
             return
         await interaction.response.send_message("🌌 Question du mois activée dans /centre.",ephemeral=True)
 
-    @app_commands.command(name="capsule_moderer", description="Staff : valider ou refuser une contribution collective.")
-    @app_commands.guild_only()
-    @app_commands.default_permissions(manage_guild=True)
-    @app_commands.choices(decision=[app_commands.Choice(name="Approuver",value="approve"),app_commands.Choice(name="Refuser",value="reject")])
+    # Action migrée vers /dashboard → Capsules staff.
     async def capsule_moderer(self, interaction: discord.Interaction, numero: int, decision: str):
         if not interaction.user.guild_permissions.manage_guild:
             await interaction.response.send_message("Permission de gestion du serveur nécessaire.",ephemeral=True)
@@ -520,9 +649,7 @@ class CentreHorizons(commands.Cog):
         ok = collective_capsules.moderate(interaction.guild_id,interaction.user.id,numero,decision=="approve")
         await interaction.response.send_message("Décision enregistrée." if ok else "Contribution absente ou déjà traitée.",ephemeral=True)
 
-    @app_commands.command(name="capsule_attente", description="Staff : consulter les contributions collectives en attente.")
-    @app_commands.guild_only()
-    @app_commands.default_permissions(manage_guild=True)
+    # Action migrée vers /dashboard → Capsules staff.
     async def capsule_attente(self, interaction: discord.Interaction):
         if not interaction.user.guild_permissions.manage_guild:
             await interaction.response.send_message("Permission de gestion du serveur nécessaire.",ephemeral=True)

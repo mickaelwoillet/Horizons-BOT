@@ -418,8 +418,6 @@ class HorizonsDashboard(commands.Cog):
     def _selected_days(period: str) -> tuple[int, ...]:
         return (7, 30) if period == "compare" else (int(period),)
 
-    @app_commands.command(name="horizons_dashboard", description="Consulter les statistiques collectives HORIZONS (staff).")
-    @app_commands.guild_only()
     async def horizons_dashboard(self, interaction: discord.Interaction):
         if not isinstance(interaction.user, discord.Member) or not access_level(interaction.user):
             await interaction.response.send_message("Accès réservé au staff autorisé.", ephemeral=True)

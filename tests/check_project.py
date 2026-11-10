@@ -123,24 +123,37 @@ def main() -> None:
                 if missing_names:
                     raise SystemExit(f"Import(s) config.py manquant(s) dans {source_path.name} : {missing_names}")
 
+    # Les sous-commandes de groupes peuvent partager un nom :
+    # /regard diagnostic et /noxtv diagnostic sont distinctes.
     commands = []
     for path in py_files:
         tree = ast.parse(path.read_text(encoding="utf-8"))
         for node in ast.walk(tree):
-            if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == "command":
-                keywords = {item.arg: item.value for item in node.keywords}
+            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            for decorator in node.decorator_list:
+                if not (isinstance(decorator, ast.Call) and isinstance(decorator.func, ast.Attribute)
+                        and decorator.func.attr == "command"):
+                    continue
+                keywords = {item.arg: item.value for item in decorator.keywords}
                 name_node = keywords.get("name")
                 desc_node = keywords.get("description")
-                if isinstance(name_node, ast.Constant):
-                    name = name_node.value
-                    description = desc_node.value if isinstance(desc_node, ast.Constant) else ""
-                    if not re.fullmatch(r"[a-z0-9_-]{1,32}", name):
-                        raise SystemExit(f"Nom de commande invalide : {name}")
-                    if len(description) > 100:
-                        raise SystemExit(f"Description trop longue : {name}")
-                    commands.append(name)
+                if not isinstance(name_node, ast.Constant) or not isinstance(name_node.value, str):
+                    continue
+                name = name_node.value
+                description = desc_node.value if isinstance(desc_node, ast.Constant) else ""
+                if not re.fullmatch(r"[a-z0-9_-]{1,32}", name):
+                    raise SystemExit(f"Nom de commande invalide : {name}")
+                if isinstance(description, str) and len(description) > 100:
+                    raise SystemExit(f"Description trop longue : {name}")
+                receiver = decorator.func.value
+                group = receiver.id if isinstance(receiver, ast.Name) and receiver.id != "app_commands" else None
+                qualified = f"{group} {name}" if group else name
+                commands.append(qualified)
     if len(commands) != len(set(commands)):
-        raise SystemExit("Des noms de commandes slash sont dupliqués.")
+        from collections import Counter
+        duplicates = [name for name, count in Counter(commands).items() if count > 1]
+        raise SystemExit(f"Commandes slash réellement dupliquées : {duplicates}")
 
     # Progression communautaire : contributions, entraide, missions et parcours
     # doivent alimenter le même registre de succès, sans système de points/classement.
@@ -149,7 +162,7 @@ def main() -> None:
         "cogs/community_hub.py": ("check_achievements", "solidarity_thanks", "community_ideas"),
         "cogs/experiences.py": ("check_achievements", "passport_completions", "collective_challenge_members"),
         "cogs/horizons_path.py": ("check_achievements", "horizons_path_progress"),
-        "cogs/community_ranks.py": ("name=\"mon_parcours\"", "datetime.now(timezone.utc)", "activity_days"),
+        "cogs/community_ranks.py": ("async def mon_parcours", "datetime.now(timezone.utc)", "activity_days"),
     }
     for filename, markers in progression_sources.items():
         source = (ROOT / filename).read_text(encoding="utf-8")
@@ -162,7 +175,7 @@ def main() -> None:
         raise SystemExit("Le tableau de bord analytique HORIZONS est absent.")
     dashboard_source = dashboard_path.read_text(encoding="utf-8")
     for marker in (
-        'name="horizons_dashboard"', "access_level(interaction.user)",
+        'async def horizons_dashboard(self, interaction:', "access_level(interaction.user)",
         "horizons_dashboard_message_daily", "activity_days",
         "Aucune statistique individuelle", "ephemeral=True",
     ):

@@ -63,7 +63,6 @@ class CommunityRanks(commands.Cog):
     async def on_member_join(self, member: discord.Member):
         await self.apply_rank(member, 0)
 
-    @app_commands.command(name="mon_parcours", description="Consulter ton rang honorifique HORIZONS.")
     async def mon_parcours(self, interaction: discord.Interaction):
         if not isinstance(interaction.user, discord.Member): return
         with db() as conn:

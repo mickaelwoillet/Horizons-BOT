@@ -13,8 +13,13 @@ class CompleteCosmosTests(unittest.TestCase):
                 if len(n.elts)==5 and isinstance(n.elts[3],ast.Tuple):keys.append(n.elts[0].value)
         self.assertGreaterEqual(len(set(keys)),16)
     def test_commands(self):
-        for command in ['installer','nox','soigner','carte','visiter','sac','chroniques','journal','actualiser','diagnostic']:
+        for command in ['installer','soigner','carte','visiter','journal','actualiser','diagnostic']:
             self.assertIn(f"name='{command}'",SRC)
+    def test_migrated_buttons(self):
+        for label in ['Mon sac', 'Chroniques', 'Nourrir']:
+            self.assertIn(label, SRC)
+        for command in ['nox', 'sac', 'chroniques']:
+            self.assertNotIn(f"@cosmos.command(name='{command}'", SRC)
     def test_separate_database(self):self.assertIn("chaos_cosmique.sqlite3",SRC)
     def test_disabled_by_default(self):self.assertIn('paused INTEGER NOT NULL DEFAULT 1',SRC)
     def test_guild_permissions(self):self.assertIn('has_permissions(manage_guild=True)',SRC)

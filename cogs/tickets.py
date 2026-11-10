@@ -242,8 +242,6 @@ class Tickets(commands.Cog):
         self.bot.add_view(TicketView(ticket_id), message_id=message.id)
         await interaction.followup.send(f"Ton espace privé est prêt : {channel.mention}.", ephemeral=True)
 
-    @app_commands.command(name="ticket_ouvrir", description="Ouvrir un espace privé pour contacter l'équipe.")
-    @app_commands.describe(sujet="Le thème de ta demande", details="Explique ce dont tu as besoin")
     async def ticket_ouvrir(
         self, interaction: discord.Interaction,
         sujet: app_commands.Range[str, 3, 80],
@@ -251,7 +249,6 @@ class Tickets(commands.Cog):
     ):
         await self.create_ticket(interaction, sujet, details)
 
-    @app_commands.command(name="ticket_fermer", description="Fermer le ticket actuel.")
     async def ticket_fermer(self, interaction: discord.Interaction):
         if not isinstance(interaction.channel, discord.TextChannel):
             await interaction.response.send_message("Cette commande doit être utilisée dans un ticket.", ephemeral=True)

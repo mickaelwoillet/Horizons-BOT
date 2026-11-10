@@ -114,7 +114,7 @@ class Seasons(commands.Cog):
         if already:
             return
         missions = WEEKLY_MISSIONS.get(week, WEEKLY_MISSIONS[6])
-        description = f"**{season['title']} — semaine {week}/6**\n\n" + "\n".join(f"**Étape {i}.** {mission}" for i, mission in enumerate(missions, 1)) + "\n\nPour suivre ta progression : `/missions_saison`. Tu peux choisir les étapes qui te correspondent et avancer sans pression. 💜"
+        description = f"**{season['title']} — semaine {week}/6**\n\n" + "\n".join(f"**Étape {i}.** {mission}" for i, mission in enumerate(missions, 1)) + "\n\nPour suivre ta progression : `/centre` → Mes activités → Saison. Tu peux choisir les étapes qui te correspondent et avancer sans pression. 💜"
         sent = await self.publish(f"🧭 Les étapes de la semaine {week}", description, channel_ids=(MISSIONS_CHANNEL_ID,))
         if sent:
             with db() as conn:
@@ -137,7 +137,7 @@ class Seasons(commands.Cog):
             if not already:
                 conn.execute("INSERT INTO horizons_season_milestones(season_id,threshold,reached_at) VALUES(?,-1,?)", (season["id"], now_local().isoformat()))
         count, members = await self.progress(season["id"])
-        await self.publish(f"🏁 Clôture de la saison : {season['title']}", f"Notre aventure de six semaines se termine !\n\n**{count}/{COLLECTIVE_TARGET} étapes validées**\n**{members} membres participants**\n\nMerci d'avoir contribué, même par un seul petit pas. Les récompenses personnelles sont consultables avec `/mes_recompenses_saison`. La prochaine saison sera annoncée prochainement. 💜", color=discord.Color.gold())
+        await self.publish(f"🏁 Clôture de la saison : {season['title']}", f"Notre aventure de six semaines se termine !\n\n**{count}/{COLLECTIVE_TARGET} étapes validées**\n**{members} membres participants**\n\nMerci d'avoir contribué, même par un seul petit pas. Les récompenses personnelles sont consultables avec `/centre` → Mes activités → Saison. La prochaine saison sera annoncée prochainement. 💜", color=discord.Color.gold())
 
     @season_watch.before_loop
     async def before_season_watch(self):
@@ -156,12 +156,11 @@ class Seasons(commands.Cog):
         embed.add_field(name="Semaine", value=f"{min(week, 6)}/6", inline=True)
         embed.add_field(name="Fin prévue", value=discord.utils.format_dt(end, style="D"), inline=True)
         embed.add_field(name="Objectif collectif", value=f"**{count}/{COLLECTIVE_TARGET} étapes**\n**{members}/{UNIQUE_MEMBER_TARGET} membres**", inline=False)
-        embed.add_field(name="Pour participer", value="Utilise `/rejoindre_saison`, puis `/missions_saison` et `/valider_etape_saison`.", inline=False)
+        embed.add_field(name="Pour participer", value="Utilise `/centre` → Mes activités → Saison, puis `/centre` → Mes activités → Saison et `/centre` → Mes activités → Saison.", inline=False)
         embed.add_field(name="Récompenses collectives", value="🌱 15 étapes • 🌿 30 • 🌳 45 • ✨ 60 étapes", inline=False)
         embed.set_footer(text="Aucune connexion quotidienne obligatoire • Chaque contribution compte")
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
-    @app_commands.command(name="rejoindre_saison", description="Rejoindre volontairement l'aventure de la saison HORIZONS.")
     async def rejoindre_saison(self, interaction: discord.Interaction):
         season = self.active_season(interaction.guild_id or 0)
         if not season:
@@ -169,9 +168,8 @@ class Seasons(commands.Cog):
             return
         with db() as conn:
             conn.execute("INSERT OR IGNORE INTO horizons_season_participants(season_id,guild_id,user_id,joined_at) VALUES(?,?,?,?)", (season["id"], interaction.guild_id, interaction.user.id, now_local().isoformat()))
-        await interaction.response.send_message("Bienvenue dans cette aventure ! 💜 Tu peux avancer à ton rythme et consulter `/missions_saison` quand tu le souhaites.", ephemeral=True)
+        await interaction.response.send_message("Bienvenue dans cette aventure ! 💜 Tu peux avancer à ton rythme et consulter `/centre` → Mes activités → Saison quand tu le souhaites.", ephemeral=True)
 
-    @app_commands.command(name="missions_saison", description="Consulter les trois étapes facultatives de la semaine.")
     async def missions_saison(self, interaction: discord.Interaction):
         season = self.active_season(interaction.guild_id or 0)
         if not season:
@@ -189,8 +187,6 @@ class Seasons(commands.Cog):
         embed.set_footer(text="Validation sur l'honneur • Pas de classement • Pas de pression")
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
-    @app_commands.command(name="valider_etape_saison", description="Valider une étape de ta saison en cours.")
-    @app_commands.choices(etape=[app_commands.Choice(name="Étape 1", value=1), app_commands.Choice(name="Étape 2", value=2), app_commands.Choice(name="Étape 3", value=3)])
     async def valider_etape_saison(self, interaction: discord.Interaction, etape: app_commands.Choice[int]):
         season = self.active_season(interaction.guild_id or 0)
         if not season:
@@ -218,7 +214,6 @@ class Seasons(commands.Cog):
             msg += "\n🧭 Tu as débloqué ou conservé la distinction **Explorateur HORIZONS**."
         await interaction.response.send_message(msg, ephemeral=True)
 
-    @app_commands.command(name="mes_recompenses_saison", description="Consulter tes distinctions obtenues pendant les saisons.")
     async def mes_recompenses_saison(self, interaction: discord.Interaction):
         with db() as conn:
             rows = conn.execute("SELECT s.title,r.reward_key,r.unlocked_at FROM horizons_season_rewards r JOIN horizons_seasons s ON s.id=r.season_id WHERE r.guild_id=? AND r.user_id=? ORDER BY r.unlocked_at DESC LIMIT 20", (interaction.guild_id or 0, interaction.user.id)).fetchall()
@@ -244,7 +239,7 @@ class Seasons(commands.Cog):
             cur = conn.execute("INSERT INTO horizons_seasons(guild_id,title,description,starts_at,ends_at,status,created_by,created_at) VALUES(?,?,?,?,?,'active',?,?)", (interaction.guild_id, titre, description, start.isoformat(), end.isoformat(), interaction.user.id, start.isoformat()))
             season_id = cur.lastrowid
         await interaction.response.send_message(f"La saison **{titre}** est lancée. L'annonce de lancement est en cours de publication. 🌅", ephemeral=True)
-        await self.publish(f"🌅 Ouverture de la saison HORIZONS : {titre}", f"{description}\n\n**Durée :** 6 semaines, jusqu'au {end.strftime('%d/%m/%Y')}\n**Objectif collectif :** 60 étapes validées et 20 membres participants.\n\nPour prendre part à l'aventure : `/rejoindre_saison`, puis `/missions_saison`.\n\n**Les quatre caps collectifs :** 15, 30, 45 et 60 étapes. Chaque membre avance à son rythme.\n\nLa grande clôture sera annoncée à la fin de la saison. 💜", color=discord.Color.green())
+        await self.publish(f"🌅 Ouverture de la saison HORIZONS : {titre}", f"{description}\n\n**Durée :** 6 semaines, jusqu'au {end.strftime('%d/%m/%Y')}\n**Objectif collectif :** 60 étapes validées et 20 membres participants.\n\nPour prendre part à l'aventure : `/centre` → Mes activités → Saison, puis `/centre` → Mes activités → Saison.\n\n**Les quatre caps collectifs :** 15, 30, 45 et 60 étapes. Chaque membre avance à son rythme.\n\nLa grande clôture sera annoncée à la fin de la saison. 💜", color=discord.Color.green())
         await self.announce_week(self.active_season(interaction.guild_id or 0), 1)
 
     @app_commands.command(name="saison_clore", description="Clôturer immédiatement la saison en cours (équipe uniquement).")
@@ -260,7 +255,7 @@ class Seasons(commands.Cog):
             conn.execute("UPDATE horizons_seasons SET status='closed',closed_at=? WHERE id=?", (now_local().isoformat(), season["id"]))
         count, members = await self.progress(season["id"])
         await interaction.response.send_message(f"La saison **{season['title']}** est clôturée. Résultat : {count} étapes, {members} membres.", ephemeral=True)
-        await self.publish(f"🏁 Clôture de la saison : {season['title']}", f"Notre aventure se termine !\n\n**{count}/{COLLECTIVE_TARGET} étapes validées**\n**{members} membres participants**\n\nMerci d'avoir contribué, même par un seul petit pas. Consulte `/mes_recompenses_saison` pour retrouver tes distinctions. 💜", color=discord.Color.gold())
+        await self.publish(f"🏁 Clôture de la saison : {season['title']}", f"Notre aventure se termine !\n\n**{count}/{COLLECTIVE_TARGET} étapes validées**\n**{members} membres participants**\n\nMerci d'avoir contribué, même par un seul petit pas. Consulte `/centre` → Mes activités → Saison pour retrouver tes distinctions. 💜", color=discord.Color.gold())
 
 
 async def setup(bot: commands.Bot):

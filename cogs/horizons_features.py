@@ -71,11 +71,11 @@ class AffinityPanel(discord.ui.View):
             await interaction.response.send_message("Cette fonction est réservée aux membres d'HORIZONS.", ephemeral=True)
             return
         if action == "enable":
-            await cog.affinites_activer.callback(cog, interaction)
+            await cog.affinites_activer(interaction)
         elif action == "find":
-            await cog.affinites_chercher.callback(cog, interaction)
+            await cog.affinites_chercher(interaction)
         elif action == "disable":
-            await cog.affinites_desactiver.callback(cog, interaction)
+            await cog.affinites_desactiver(interaction)
         else:
             await cog.affinity_interests(interaction)
 
@@ -146,11 +146,17 @@ class MoodPanel(discord.ui.View):
 
 
 class HorizonsFeatures(commands.Cog):
-    affinites = app_commands.Group(name="affinites", description="Gérer tes affinités amicales HORIZONS")
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self._panels_checked = False
+
+    @app_commands.command(name="affinites", description="Ouvrir le panneau de mes affinités amicales")
+    async def affinites_panneau(self, interaction: discord.Interaction):
+        if interaction.guild_id != GUILD_ID or not isinstance(interaction.user, discord.Member):
+            await interaction.response.send_message("Cette fonction est réservée aux membres d’HORIZONS.", ephemeral=True)
+            return
+        await interaction.response.send_message(embed=self.affinity_embed(), view=AffinityPanel(), ephemeral=True)
 
     async def cog_load(self):
         self.bot.add_view(AffinityPanel())
@@ -410,7 +416,6 @@ class HorizonsFeatures(commands.Cog):
         embed.set_footer(text=f"{len(rows)}/{len(ACHIEVEMENTS)} succès débloqués")
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
-    @affinites.command(name="activer", description="Autoriser les suggestions d'affinités amicales.")
     async def affinites_activer(self, interaction: discord.Interaction):
         with db() as conn:
             conn.execute(
@@ -419,11 +424,10 @@ class HorizonsFeatures(commands.Cog):
             )
         await interaction.response.send_message(
             "Ton profil est maintenant volontaire pour les suggestions d'affinités. "
-            "Complète tes rôles de centres d'intérêt, langues et jeux, puis utilise `/affinites trouver`. 💜",
+            "Complète tes rôles de centres d'intérêt, langues et jeux, puis utilise le bouton « Trouver mes affinités » dans `/affinites`. 💜",
             ephemeral=True,
         )
 
-    @affinites.command(name="desactiver", description="Retirer ton profil des suggestions d'affinités.")
     async def affinites_desactiver(self, interaction: discord.Interaction):
         with db() as conn:
             conn.execute(
@@ -432,7 +436,6 @@ class HorizonsFeatures(commands.Cog):
             )
         await interaction.response.send_message("Ton profil a été retiré des suggestions d'affinités. 💜", ephemeral=True)
 
-    @affinites.command(name="trouver", description="Trouver des membres volontaires qui partagent tes centres d'intérêt.")
     async def affinites_chercher(self, interaction: discord.Interaction):
         if not isinstance(interaction.user, discord.Member) or not interaction.guild:
             await interaction.response.send_message("Commande disponible sur HORIZONS.", ephemeral=True)
@@ -447,7 +450,7 @@ class HorizonsFeatures(commands.Cog):
                 (interaction.guild_id, interaction.user.id),
             ).fetchall()
         if not opted:
-            await interaction.response.send_message("Active d'abord ton profil avec `/affinites activer`. Tu gardes le contrôle de ta participation.", ephemeral=True)
+            await interaction.response.send_message("Active d'abord ton profil depuis `/affinites`. Tu gardes le contrôle de ta participation.", ephemeral=True)
             return
         try:
             categories = load_affinity_roles()

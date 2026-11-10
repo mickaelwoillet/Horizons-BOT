@@ -23,9 +23,6 @@ LANGUAGES = [
 class Translation(commands.Cog):
     def __init__(self, bot: commands.Bot): self.bot = bot
 
-    @app_commands.command(name="traduire", description="Traduire un texte avec le service configuré par HORIZONS.")
-    @app_commands.describe(texte="Texte à traduire (il sera envoyé au service de traduction configuré)", langue="Langue de destination")
-    @app_commands.choices(langue=LANGUAGES)
     async def traduire(self, interaction: discord.Interaction, texte: app_commands.Range[str,1,1800], langue: app_commands.Choice[str]):
         if not TRANSLATE_API_URL:
             await interaction.response.send_message("La traduction n'est pas encore configurée par l'équipe HORIZONS.", ephemeral=True); return

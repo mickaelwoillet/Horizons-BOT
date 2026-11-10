@@ -1,3 +1,42 @@
+## V10.75 — NOX : carte du monde
+
+La commande slash `/cosmos carte` est remplacée par le bouton **Carte du monde** du panneau `/nox`. La carte conserve ses zones débloquées et le parcours d’exploration. Les commandes staff sensibles restent inchangées.
+
+## V10.74 — NOX TV : actions en boutons
+
+Dans le panneau **NOX TV** accessible depuis `/dashboard` ou NOX, les boutons **Votes**, **Activer** et **Désactiver** remplacent les anciennes commandes slash `/noxtv votes` et `/noxtv activer`. Le bouton Votes ouvre un formulaire pour l’identifiant du message. Les permissions de gestion du serveur sont vérifiées à chaque interaction. La configuration du salon et les tests de scènes restent accessibles par leurs commandes existantes.
+
+
+## Migration V10.71 — Event
+
+Les actions **Créer un événement**, **Annuler un concours** et **Nouveau tirage** sont accessibles par boutons dans `/dashboard` → **Event**. Les commandes slash `/evenement_creer`, `/giveaway annuler` et `/giveaway reroll` ont été retirées. La création de concours `/giveaway creer` reste disponible.
+
+## Migration V10.69 — Capsules staff
+
+Les anciennes commandes slash `/capsule_question`, `/capsule_attente` et `/capsule_moderer` ne sont plus enregistrées. Utiliser `/dashboard` → **Capsules staff** → **Question du mois**, **Contributions en attente** ou **Modérer une contribution**. Les droits « Gérer le serveur » et la prise de service sont requis. Les anciennes mentions ci-dessous sont historiques et ne constituent pas une liste des commandes disponibles.
+
+# V10.68 — Regroupements des panneaux (migration progressive)
+
+**Membres :** `/centre` → « Le Regard du Jour » permet de proposer un article (formulaire) et consulter ses points ; « Mes Capsules du Temps » reste l’espace personnel pour créer, ouvrir ou retirer ses capsules. Les commandes existantes restent disponibles pendant les vérifications.
+
+**Staff :** `/dashboard` → « Regardboard » (diagnostic, propositions, validations), « Event » (agenda, fermeture d’inscriptions, lancement et arrêt de quiz), « Capsules staff » (contributions en attente et question du mois), « NOX TV » (panneau existant). Les actions de création d’événements, de concours et les actions avancées non encore migrées restent en slash ; aucune fonctionnalité n’est annoncée comme migrée tant que son formulaire n’existe pas.
+
+**Aides :** `/aide` et `/aidestaff` sont générées à partir des commandes réellement chargées et indiquent désormais ces accès par panneaux. **Nombre de commandes inchangé : 96.** Les contrôles statiques ne remplacent pas les tests Discord.
+
+---
+
+## V10.64 — Nettoyage des commandes inutilisées
+
+Les commandes `/ping`, `/traduire`, `/renvoyer_bienvenue`, `/test_bienvenue_mp`, `/ticket_ouvrir` et `/ticket_fermer` ne sont plus enregistrées comme commandes slash. Les panneaux de tickets et leurs boutons d’ouverture/fermeture sont conservés. Le guide d’accueil automatique est conservé. La migration des groupes Affinités, Regard, Event et Capsules vers des boutons est planifiée, mais **pas encore réalisée** dans cette version.
+
+## V10.60 — Jeux rapides dans le Centre
+
+Les commandes `/blague` et `/devinette` ont été remplacées par **`/centre` → Activités → Jeux rapides**. Les publications quotidiennes et leurs horaires restent inchangés.
+
+## V10.54 — Migration effective vers les boutons NOX TV
+
+Les actions **Statut, Diagnostic, Audit, Simulation, Catalogue** ne sont plus des commandes slash : elles sont disponibles via `/noxtv panneau` (boutons privés, permission Gérer le serveur). Les mentions de ces commandes ci-dessous sont historiques et ne doivent plus être utilisées comme instructions actuelles. Les autres commandes NOX TV restent disponibles.
+
 # HORIZONS — Répertoire des commandes
 
 Ce fichier est mis à jour à partir des commandes `app_commands` des extensions déclarées dans `bot.py`.
@@ -6,46 +45,36 @@ Il décrit les commandes présentes dans le code, **sans garantir leur synchroni
 
 ## Commandes membres (catalogue extrait du code)
 
-- `/affinites activer` — Autoriser les suggestions d'affinités amicales.
-- `/affinites desactiver` — Retirer ton profil des suggestions d'affinités.
-- `/affinites trouver` — Trouver des membres volontaires qui partagent tes centres d'intérêt.
+- `/affinites` — Panneau à boutons : activer, trouver, centres d’intérêt et désactiver.
 - `/aide` — Consulter les commandes accessibles aux membres HORIZONS.
 - `/anniversaire_supprimer` — Supprimer ton anniversaire enregistré.
-- `/blague` — Découvrir une blague HORIZONS.
 - `/chercher` — Publier une annonce pour trouver quelqu'un avec qui faire une activité.
 - `/compliment` — Offrir un mot positif à quelqu'un de la communauté.
 - `/defi_collectif` — Voir le défi collectif en cours et sa progression.
-- `/devinette` — Jouer à une devinette HORIZONS.
-- `/evenement_fermer` — Fermer les inscriptions d'un événement.
+- Fermeture des inscriptions : `/dashboard` → Rubriques du staff → Animations → « Fermer les inscriptions ».
 - `/evenements` — Afficher les prochains événements HORIZONS.
 - `/humeur` — Enregistrer ton humeur du jour en privé.
 - `/idee` — Déposer anonymement une idée pour HORIZONS.
 - `/jeux` — Découvrir les mini-jeux interactifs HORIZONS.
 - `/ma_meteo` — Consulter ton humeur du jour en privé.
 - `/mes_idees` — Consulter tes propositions envoyées à la boîte à idées.
-- `/mes_recompenses_saison` — Consulter tes distinctions obtenues pendant les saisons.
+- `/centre` → Mes activités → Saison — Consulter tes distinctions obtenues pendant les saisons.
 - `/mes_succes` — Consulter tes succès HORIZONS débloqués.
 - `/message_anonyme` — Publier un message sans afficher ton identité (si le salon est configuré).
-- `/missions_saison` — Consulter les trois étapes facultatives de la semaine.
-- `/mon_parcours` — Consulter ton rang honorifique HORIZONS.
+- `/centre` → Mes activités → Saison — Consulter les trois étapes facultatives de la semaine.
 - `/mon_passeport` — Consulter tes missions et ta progression du Passeport HORIZONS.
 - `/parcours` — Découvrir et suivre ton Parcours des horizons.
-- `/parcours_badges` — Consulter les thèmes accomplis et tes badges HORIZONS.
-- `/ping` — Vérifier si le bot HORIZONS répond.
 - `/presentation` — Recevoir un rappel pour se présenter.
 - `/profil` — Afficher les informations publiques d'un membre.
 - `/proposer` — Transmettre une idée à l'équipe HORIZONS.
 - `/question_du_jour` — Afficher une question pour lancer la conversation.
 - `/rejoindre_defi` — Participer au défi collectif HORIZONS en cours.
-- `/rejoindre_saison` — Rejoindre volontairement l'aventure de la saison HORIZONS.
+- `/centre` → Mes activités → Saison — Rejoindre volontairement l'aventure de la saison HORIZONS.
 - `/remercier` — Remercier publiquement un membre sur le mur de la solidarité.
 - `/saison` — Découvrir la saison HORIZONS en cours et son objectif collectif.
 - `/serveur` — Afficher les informations du serveur.
 - `/signaler` — Transmettre discrètement un signalement à l'équipe.
-- `/ticket_fermer` — Fermer le ticket actuel.
-- `/ticket_ouvrir` — Ouvrir un espace privé pour contacter l'équipe.
-- `/traduire` — Traduire un texte avec le service configuré par HORIZONS.
-- `/valider_etape_saison` — Valider une étape de ta saison en cours.
+- `/centre` → Mes activités → Saison — Valider une étape de ta saison en cours.
 - `/valider_mission` — Valider une mission accomplie dans ton Passeport HORIZONS.
 - `/xpjeux` — Consulter ta progression et tes XP Célestes.
 
@@ -63,12 +92,9 @@ Accès selon le rôle et les permissions Discord. Les commandes de modération n
 - `/creer_defi` — Créer un nouveau défi collectif (équipe HORIZONS).
 - `/dashboard` — Ouvrir le centre de commandement HORIZONS (staff).
 - `/debannir` — Débannir un utilisateur à partir de son identifiant.
-- `/evenement_creer` — Créer un rendez-vous communautaire HORIZONS.
 - `/export_structure` — Exporter en privé les salons, rôles et permissions du serveur.
 - `/expulser` — Expulser un membre du serveur.
-- `/giveaway annuler` — Annuler un giveaway en cours.
 - `/giveaway creer` — Créer un giveaway avec une image facultative.
-- `/giveaway reroll` — Effectuer un nouveau tirage parmi les participants.
 - `/givegratte` — Offrir des cartes à gratter à un membre (administration).
 - `/horizons_dashboard` — Consulter les statistiques collectives HORIZONS (staff).
 - `/idee_statut` — Mettre à jour le statut d'une idée (staff).
@@ -84,16 +110,14 @@ Accès selon le rôle et les permissions Discord. Les commandes de modération n
 - `/service` — Déclarer le début ou la fin de ton service staff.
 - `/tache_creer` — Créer une tâche pour un membre du staff.
 - `/tache_statut` — Mettre à jour une tâche qui t'est attribuée (ou tâche staff si admin).
-- `/taches` — Consulter les tâches de l'équipe staff.
+- Consultation des tâches : `/dashboard` → « 📋 Tâches » → filtre interactif (ancienne commande `/equipe taches` retirée en V10.57).
 - `/timeout` — Mettre temporairement un membre en sourdine.
 - `/untimeout` — Retirer le timeout d'un membre.
 
 ## Accès mixtes et interfaces interactives
 
-- `/evenement_fermer` : fermeture par le créateur de l’événement ou l’équipe selon les contrôles du module.
-- `/ticket_fermer` : fermeture par le membre dans son ticket ou l’équipe habilitée.
+- Fermeture des inscriptions : bouton du dashboard staff (service actif requis ; droits contrôlés dans le module Événements).
 - `/affinites activer`, `/affinites desactiver`, `/affinites trouver` : sous-commandes membres.
-- `/giveaway creer`, `/giveaway annuler`, `/giveaway reroll` : sous-commandes staff.
 - `/jeux` : menu Arcade (Morpion, Puissance 4, Memory, Code secret, Petit Bac, Bataille navale), avec modes solo, duel et collectif selon le jeu.
 - Les panneaux, boutons et sélecteurs Discord complètent les commandes slash.
 
@@ -265,7 +289,6 @@ Depuis `/centre` → « Mes Passerelles », le membre peut sélectionner jusqu'�
 
 ## V8.7.5 — Vérification et renvoi du MP de bienvenue
 
-- `/test_bienvenue_mp` (staff) : envoie à l’auteur de la commande le vrai MP de bienvenue avec les trois affiches, même s’il a déjà accepté la charte. Ne modifie ni rôles ni historique SQLite.
 - `/renvoyer_bienvenue membre:@pseudo` (staff) : renvoie le même guide à un membre possédant le rôle Membre, sans modifier son suivi SQLite.
 - Les commandes sont restreintes au staff côté Python et au niveau Discord. Résultat visible uniquement par l’auteur (réponse éphémère). Les MP fermés sont signalés sans casser le bot.
 - L’envoi automatique après validation de la charte reste inchangé.
@@ -306,12 +329,9 @@ Une anomalie automatique est proposée après 18 h (Paris), au maximum une fois 
 
 **Pour tous les membres**
 - `/cosmos observatoire` : état du monde, privé.
-- `/cosmos nox` : personnalité, stade et besoins de Nox.
 - `/cosmos soigner action:` : parler, explorer, nourrir ou méditer avec Nox (chaque action une fois par personne et par jour).
 - `/cosmos carte` : zones connues et conditions de déblocage.
 - `/cosmos visiter lieu:` : fouiller une zone débloquée (une fois par lieu/personne/jour) et recevoir un objet.
-- `/cosmos sac` : inventaire individuel.
-- `/cosmos chroniques` : lire les chapitres narratifs débloqués.
 - `/cosmos journal` : huit dernières traces du monde.
 - `/cosmos explorer` : visite introductive de l'Observatoire.
 
@@ -333,7 +353,7 @@ Chaque soin est limité à une fois par jour et par membre ; le monde et la cré
 
 **Salon histoire** : relancer `/cosmos installer` (staff) pour actualiser l'embed, l'image et installer les trois boutons permanents « Rencontrer Nox », « Explorer le monde », « État du cosmos ». L'ancienne publication est éditée sur place afin de conserver les réactions.
 
-Les commandes `/cosmos nox`, `/cosmos soigner`, `/cosmos carte`, `/cosmos visiter`, `/cosmos sac`, `/cosmos chroniques`, etc., sont conservées pour compatibilité, mais ne sont plus nécessaires pour le parcours courant.
+V10.55 : `/cosmos nox`, `/cosmos sac` et `/cosmos chroniques` sont remplacées par `/nox` et ses boutons. Les autres commandes `/cosmos` restent disponibles.
 
 **Administration** : `/cosmos activer actif:True` pour éveiller le monde ; `/cosmos diagnostic` pour le vérifier ; `/cosmos declencher` pour une anomalie (limite quotidienne existante).
 
@@ -438,3 +458,48 @@ V10.36 : `/noxtv catalogue`, `/noxtv apercu`, `/noxtv audit` couvrent les 30 sc�
 
 ### V10.37 — Correctif audit NOX TV
 Ajout des trois verdicts de `nox_faim_anime` (GIF de Nox affamé). Aucune modification des médias, salons, horaires ni paramètres. Relancer `/noxtv audit` après déploiement : résultat attendu 30/30, zéro anomalie.
+
+
+## Migration V10.56
+- `/capsule_retirer` : remplace par le selecteur **Retirer une contribution collective** dans `/centre` > Capsules.
+- Les autres commandes restent disponibles en attendant leur migration et leurs tests.
+
+
+## Migration V10.58 — panneaux consolidés
+
+- `/dashboard` → **Statistiques collectives** : remplace l’ancien accès au tableau analytique HORIZONS (déjà intégré).
+- `/dashboard` → **NOX TV** → **Bilan** : remplace `/noxtv bilan`.
+- `/dashboard` → **NOX TV** : remplace `/noxtv panneau`.
+- `/dashboard` → **Prendre/Terminer mon service** : remplace `/equipe service`.
+- Les anciens libellés de commandes mentionnés plus haut sont historiques et ne doivent plus être présentés comme commandes disponibles.
+
+
+### V10.59 — Saisons depuis le Centre
+Les actions Rejoindre, Voir les étapes, Valider une étape et Mes distinctions sont disponibles dans `/centre` → Mes activités → Saison. Leurs anciennes commandes slash ont été retirées. `/saison` reste disponible.
+
+
+### Migration V10.61 — Progression personnelle
+- `/centre` → **Ma vie** → **Ma progression** : rang honorifique, Parcours des horizons et badges.
+- Les anciennes commandes `/mon_parcours` et `/parcours_badges` sont remplacées par ce menu. `/parcours` reste un raccourci.
+
+
+## V10.65 — Affinités
+Les anciennes sous-commandes `/affinites activer`, `/affinites desactiver` et `/affinites trouver` sont remplacées par `/affinites` et ses quatre boutons (activation, recherche, centres d’intérêt, désactivation). Le panneau permanent conserve les mêmes actions. `/chercher` reste disponible pour les annonces d’activité.
+
+### Migration V10.66 — Regardboard
+- `/regard diagnostic` et `/regard selection` sont remplacées par les boutons **Diagnostic** et **Articles à valider** de `/dashboard` → **Regardboard**.
+- Accès réservé au staff en service ; les autres commandes Regard restent disponibles en attendant leur migration avec des formulaires adaptés.
+
+
+### Migration V10.70 — Quiz culturel
+Les commandes slash `/quiz_lancer` et `/quiz_arreter` sont remplacées par les boutons **Lancer quiz** et **Arrêter quiz** dans `/dashboard` → **Event**. Les membres participent toujours depuis les boutons du message de quiz. Accès staff en service requis pour le tableau de bord.
+
+
+## Migration V10.72 — Regard du Jour
+- `/regard proposer` : remplacée par `/centre` → Regard du Jour → **Proposer un article**.
+- `/regard points` : remplacée par `/centre` → Regard du Jour → **Mes points Regard**.
+- Les autres commandes Regard non migrées restent disponibles.
+
+
+### Migration V10.73 — Regardboard
+Les commandes `/regard collecter` et `/regard ajouter` sont désormais accessibles dans `/dashboard` → Regardboard, via les boutons **Collecter les liens** et **Ajouter un article**. Les traitements et permissions sont conservés.

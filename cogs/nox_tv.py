@@ -7,6 +7,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands, tasks
 from config import DATA_DIR, LOCAL_TIMEZONE
+from .embed_theme import horizons_embed
 
 LOG = logging.getLogger(__name__)
 MEDIA = DATA_DIR / "nox_tv"
@@ -396,6 +397,87 @@ def audit_catalogue():
             report['missing_verdicts'].append(key)
     return report
 
+class NoxTVVotesModal(discord.ui.Modal, title='Résultats des votes NOX TV'):
+    message_id = discord.ui.TextInput(label='Identifiant du message', placeholder='Identifiant numérique Discord', max_length=25)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        if not interaction.guild or not interaction.user.guild_permissions.manage_guild:
+            await interaction.response.send_message('Accès réservé au staff autorisé.', ephemeral=True)
+            return
+        cog = interaction.client.get_cog('NoxTV')
+        if cog is None:
+            await interaction.response.send_message('NOX TV indisponible.', ephemeral=True)
+            return
+        await cog.votes(interaction, str(self.message_id.value).strip())
+
+class NoxTVDashboard(discord.ui.View):
+    """Private staff navigation; actions reuse the existing slash command handlers."""
+    def __init__(self):
+        super().__init__(timeout=900)
+
+    async def run(self, interaction: discord.Interaction, method: str):
+        if not interaction.guild or not interaction.user.guild_permissions.manage_guild:
+            await interaction.response.send_message('🛡️ Accès réservé aux responsables du serveur.', ephemeral=True)
+            return
+        cog = interaction.client.get_cog('NoxTV')
+        if cog is None:
+            await interaction.response.send_message('NOX TV est indisponible.', ephemeral=True)
+            return
+        await getattr(cog, method)(interaction)
+
+    @discord.ui.button(label='Statut', emoji='📺', style=discord.ButtonStyle.primary, row=0)
+    async def status_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.run(interaction, 'statut')
+
+    @discord.ui.button(label='Diagnostic', emoji='🔎', style=discord.ButtonStyle.secondary, row=0)
+    async def diagnostic_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.run(interaction, 'diagnostic')
+
+    @discord.ui.button(label='Audit', emoji='🧪', style=discord.ButtonStyle.secondary, row=0)
+    async def audit_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.run(interaction, 'audit')
+
+    @discord.ui.button(label='Simulation', emoji='🎲', style=discord.ButtonStyle.secondary, row=1)
+    async def simulation_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.run(interaction, 'simulation')
+
+    @discord.ui.button(label='Bilan', emoji='📊', style=discord.ButtonStyle.secondary, row=1)
+    async def bilan_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.run(interaction, 'bilan')
+
+    @discord.ui.button(label='Catalogue', emoji='🎞️', style=discord.ButtonStyle.secondary, row=1)
+    async def catalogue_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.run(interaction, 'voir_catalogue')
+
+    @discord.ui.button(label='Votes', emoji='🗳️', style=discord.ButtonStyle.secondary, row=2)
+    async def votes_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if not interaction.guild or not interaction.user.guild_permissions.manage_guild:
+            await interaction.response.send_message('Accès réservé au staff autorisé.', ephemeral=True)
+            return
+        await interaction.response.send_modal(NoxTVVotesModal())
+
+    @discord.ui.button(label='Activer', emoji='▶️', style=discord.ButtonStyle.success, row=2)
+    async def enable_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if not interaction.guild or not interaction.user.guild_permissions.manage_guild:
+            await interaction.response.send_message('Accès réservé au staff autorisé.', ephemeral=True)
+            return
+        cog = interaction.client.get_cog('NoxTV')
+        if cog is None:
+            await interaction.response.send_message('NOX TV indisponible.', ephemeral=True)
+            return
+        await cog.activer(interaction, True)
+
+    @discord.ui.button(label='Désactiver', emoji='⏸️', style=discord.ButtonStyle.danger, row=2)
+    async def disable_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if not interaction.guild or not interaction.user.guild_permissions.manage_guild:
+            await interaction.response.send_message('Accès réservé au staff autorisé.', ephemeral=True)
+            return
+        cog = interaction.client.get_cog('NoxTV')
+        if cog is None:
+            await interaction.response.send_message('NOX TV indisponible.', ephemeral=True)
+            return
+        await cog.activer(interaction, False)
+
 class NoxTV(commands.Cog):
     noxtv=app_commands.Group(name='noxtv', description='🎬 Publications visuelles de Nox (staff)')
     def __init__(self, bot):
@@ -468,7 +550,7 @@ class NoxTV(commands.Cog):
         if asset is None:
             self._release_reservation(guild.id, day, manual)
             return 'Média manquant ou chemin non autorisé.'
-        embed=discord.Embed(title=item['title'],description=item['text'],color=0x7764ff)
+        embed=horizons_embed(title=item['title'],description=item['text'],color=0x7764ff)
         embed.set_footer(text='NOX TV • Une catastrophe cosmique à la fois')
         embed.set_image(url='attachment://'+item['file'])
         try:
@@ -519,7 +601,7 @@ class NoxTV(commands.Cog):
             if not (perms and perms.view_channel and perms.send_messages and perms.embed_links):
                 LOG.warning('NOX TV: impossible de publier le verdict dans %s', destination_id)
                 continue
-            embed=discord.Embed(title='📜 NOX TV · Le verdict du cosmos',
+            embed=horizons_embed(title='📜 NOX TV · Le verdict du cosmos',
                 description=f'**{count} vote(s)** pour la scène **{visual_id}**.\n\n{verdict_for(visual_id, winner)}',color=0x7764ff)
             try:
                 # Un verdict publié dans Chroniques renvoie vers le message d'origine,
@@ -550,6 +632,13 @@ class NoxTV(commands.Cog):
     async def ready(self):
         await self.bot.wait_until_ready()
 
+    async def panneau(self, i: discord.Interaction):
+        embed = horizons_embed(title='🎬 NOX TV — Tableau de bord',
+            description='Contrôles privés : statut, diagnostic, audit, simulation, catalogue, votes et activation.\n'
+                        'Les publications manuelles et la configuration du salon restent disponibles via les commandes staff existantes.',
+            color=0x7764ff)
+        await i.response.send_message(embed=embed, view=NoxTVDashboard(), ephemeral=True)
+
     @noxtv.command(name='configurer',description='Choisir le salon des surprises visuelles')
     @app_commands.default_permissions(manage_guild=True)
     @app_commands.checks.has_permissions(manage_guild=True)
@@ -558,17 +647,11 @@ class NoxTV(commands.Cog):
             db.execute('INSERT INTO noxtv_settings(guild_id,channel_id,enabled) VALUES(?,?,0) ON CONFLICT(guild_id) DO UPDATE SET channel_id=excluded.channel_id',(i.guild_id,salon.id))
         await i.response.send_message(f'🎬 Salon NOX TV : {salon.mention}. Publication automatique désactivée tant que tu ne l’actives pas.',ephemeral=True)
 
-    @noxtv.command(name='activer',description='Activer ou arrêter les surprises automatiques')
-    @app_commands.default_permissions(manage_guild=True)
-    @app_commands.checks.has_permissions(manage_guild=True)
     async def activer(self,i:discord.Interaction,actif:bool):
         with connect() as db:
             cur=db.execute('UPDATE noxtv_settings SET enabled=? WHERE guild_id=?',(int(actif),i.guild_id))
         await i.response.send_message('🎬 NOX TV '+('activé !' if actif else 'désactivé.') if cur.rowcount else 'Configure d’abord le salon avec /noxtv configurer.',ephemeral=True)
 
-    @noxtv.command(name='statut',description='Voir la configuration, les visuels et l’humeur de Nox')
-    @app_commands.default_permissions(manage_guild=True)
-    @app_commands.checks.has_permissions(manage_guild=True)
     async def statut(self,i:discord.Interaction):
         with connect() as db:
             setting=db.execute('SELECT * FROM noxtv_settings WHERE guild_id=?',(i.guild_id,)).fetchone()
@@ -578,9 +661,6 @@ class NoxTV(commands.Cog):
         last_post=f"{last['day']} · {last['visual_id']}" if last else 'Aucune'
         await i.response.send_message(f"🎬 **NOX TV**\nÉtat : {status}\nSalon : {salon}\nVisuels disponibles : {len(catalogue())}\nHumeur détectée : {nox_mood(i.guild_id)}\nDernière publication : {last_post}",ephemeral=True)
 
-    @noxtv.command(name='diagnostic', description='Contrôler les salons et permissions de NOX TV')
-    @app_commands.default_permissions(manage_guild=True)
-    @app_commands.checks.has_permissions(manage_guild=True)
     async def diagnostic(self, i: discord.Interaction):
         await i.response.defer(ephemeral=True)
         if not i.guild:
@@ -606,9 +686,6 @@ class NoxTV(commands.Cog):
         lines.insert(0, f'Automatique : {"activé" if setting and setting["enabled"] else "désactivé"} · {len(files)} médias disponibles')
         await i.followup.send('🎬 **Diagnostic NOX TV**\n'+'\n'.join(lines),ephemeral=True)
 
-    @noxtv.command(name='audit', description='Auditer les médias, les routes et les verdicts avant lancement')
-    @app_commands.default_permissions(manage_guild=True)
-    @app_commands.checks.has_permissions(manage_guild=True)
     async def audit(self, i: discord.Interaction):
         report = audit_catalogue()
         route_lines = [f'• {name}: {count}' for name, count in sorted(report['routes'].items())]
@@ -622,9 +699,6 @@ class NoxTV(commands.Cog):
             lines.append(f'… et {len(problems) - 12} autres anomalies')
         await i.response.send_message('\n'.join(lines)[:1900], ephemeral=True)
 
-    @noxtv.command(name='simulation', description='Simuler une scène sans rien publier')
-    @app_commands.default_permissions(manage_guild=True)
-    @app_commands.checks.has_permissions(manage_guild=True)
     async def simulation(self, i: discord.Interaction):
         if not i.guild_id:
             await i.response.send_message('Commande réservée au serveur.', ephemeral=True)
@@ -655,9 +729,6 @@ class NoxTV(commands.Cog):
         ]
         await i.response.send_message('\n'.join(lines), ephemeral=True)
 
-    @noxtv.command(name='bilan', description='Bilan privé des scènes, votes et verdicts NOX TV')
-    @app_commands.default_permissions(manage_guild=True)
-    @app_commands.checks.has_permissions(manage_guild=True)
     async def bilan(self, i: discord.Interaction):
         if not i.guild_id:
             await i.response.send_message('Commande réservée au serveur.', ephemeral=True)
@@ -684,9 +755,6 @@ class NoxTV(commands.Cog):
             'ℹ️ Les votes représentent les choix actuels, pas l’historique des changements de vote.',
             ephemeral=True)
 
-    @noxtv.command(name='votes', description='Voir les résultats d’une publication NOX TV')
-    @app_commands.default_permissions(manage_guild=True)
-    @app_commands.checks.has_permissions(manage_guild=True)
     async def votes(self, i:discord.Interaction, message_id:str):
         if not message_id.isdigit():
             await i.response.send_message('Identifiant de message invalide.',ephemeral=True)
@@ -696,9 +764,6 @@ class NoxTV(commands.Cog):
         counts={r['choice']:r['total'] for r in rows}
         await i.response.send_message('🎬 **Votes NOX TV**\n'+'\n'.join(f'{CHOICES[n]} : {counts.get(n,0)}' for n in range(3)),ephemeral=True)
 
-    @noxtv.command(name='catalogue', description='Afficher les scènes disponibles et leur salon')
-    @app_commands.default_permissions(manage_guild=True)
-    @app_commands.checks.has_permissions(manage_guild=True)
     async def voir_catalogue(self, i:discord.Interaction):
         entries=catalogue()
         lines=[f"`{x['id']}` → <#{channel_for_kind(x.get('kind', 'observatoire'))}>" for x in entries]
@@ -717,7 +782,7 @@ class NoxTV(commands.Cog):
         if asset is None:
             await i.followup.send('Média manquant ou chemin non autorisé.', ephemeral=True)
             return
-        embed=discord.Embed(title=item['title'],description=item['text'],color=0x7764ff)
+        embed=horizons_embed(title=item['title'],description=item['text'],color=0x7764ff)
         embed.set_image(url='attachment://'+item['file'])
         embed.set_footer(text='Prévisualisation privée · aucune publication ni vote')
         try:

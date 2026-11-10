@@ -119,6 +119,7 @@ def shorten(s, n=180):
     return re.sub(r'\s+', ' ', s).strip()[:n]
 
 class RegardDuJour(commands.Cog):
+    regard = app_commands.Group(name="regard", description="Le Regard du Jour : articles, votes et bilans")
     def __init__(self, bot):
         self.bot = bot
         self.lock = asyncio.Lock()
@@ -529,7 +530,7 @@ class RegardDuJour(commands.Cog):
                         (week,pos,song['day'],song['title'],song['artist'],song['url']))
         return f'Vote ouvert : {result.thread.mention}'
 
-    @app_commands.command(name='regard_voter',description='Voter pour la Voix de la Semaine (un vote modifiable).')
+    @regard.command(name="voter",description='Voter pour la Voix de la Semaine (un vote modifiable).')
     @app_commands.describe(numero='Numéro de la chanson dans le sujet hebdomadaire')
     async def voter(self,interaction:discord.Interaction,numero:app_commands.Range[int,1,7]):
         if not ENABLED or not WEEKLY_VOTE_ENABLED or not interaction.guild or interaction.guild.id!=GUILD_ID:
@@ -553,7 +554,7 @@ class RegardDuJour(commands.Cog):
                 (chosen,interaction.user.id,numero,datetime.now(TZ).isoformat()))
         await interaction.response.send_message(f'💙 Vote enregistré pour **{songs[numero-1][0]}** ! Tu peux changer ton choix avant la clôture.',ephemeral=True)
 
-    @app_commands.command(name='regard_vote_test',description='Publier le vote musical de la semaine pour vérification (staff).')
+    @regard.command(name="vote_test",description='Publier le vote musical de la semaine pour vérification (staff).')
     async def vote_test(self,interaction:discord.Interaction):
         if not staff(interaction.user):
             await interaction.response.send_message('Commande réservée au staff.',ephemeral=True); return
@@ -676,7 +677,7 @@ class RegardDuJour(commands.Cog):
     async def before_scheduler(self):
         await self.bot.wait_until_ready()
 
-    @app_commands.command(name='regard_installer',description='Créer le forum public et le journal technique (administration).')
+    @regard.command(name="installer",description='Créer le forum public et le journal technique (administration).')
     @app_commands.checks.has_permissions(administrator=True)
     async def installer(self,interaction:discord.Interaction):
         await interaction.response.defer(ephemeral=True)
@@ -685,21 +686,25 @@ class RegardDuJour(commands.Cog):
             await interaction.followup.send(f'Forum : {forum.mention}\nJournal technique : {archive.mention}\nRenseigne leurs IDs dans `.env` pour fiabiliser les redémarrages. Active `REGARD_ENABLED=true` lorsque tu es prêt.',ephemeral=True)
         except (discord.HTTPException,RuntimeError) as exc: await interaction.followup.send(f'Installation impossible : {exc}',ephemeral=True)
 
-    @app_commands.command(name='regard_collecter',description='Rechercher les liens candidats pour la veille du jour (staff).')
+    # Migré vers /dashboard → Regardboard.
+
+    # @regard.command(name="collecter")
     async def collecter(self,interaction:discord.Interaction):
         if not staff(interaction.user): return await interaction.response.send_message('Réservé au staff.',ephemeral=True)
         await interaction.response.defer(ephemeral=True)
         count=await self.collect(datetime.now(TZ).date().isoformat())
         await interaction.followup.send(f'{count} nouveau(x) lien(s) ajouté(s) à la file de validation.',ephemeral=True)
 
-    @app_commands.command(name='regard_selection',description='Voir les articles en attente de validation (staff).')
+    # Migré vers /dashboard → Regardboard.
+    # @regard.command(name="selection",description='Voir les articles en attente de validation (staff).')
     async def selection(self,interaction:discord.Interaction):
         if not staff(interaction.user): return await interaction.response.send_message('Réservé au staff.',ephemeral=True)
         with connect() as db: rows=db.execute('SELECT id,title,category,status FROM regard_items WHERE day=? ORDER BY id DESC LIMIT 18',(datetime.now(TZ).date().isoformat(),)).fetchall()
         lines=[f"`#{r['id']}` [{r['status']}] {r['category']} — {shorten(r['title'],105)}" for r in rows]
         await interaction.response.send_message('\n'.join(lines)[:1950] if lines else 'Aucun article candidat. Utilise `/regard_collecter`.',ephemeral=True)
 
-    @app_commands.command(name='regard_valider',description='Approuver ou refuser un article candidat (staff).')
+    # Migré vers /dashboard → Regardboard.
+    # @regard.command(name="valider")
     @app_commands.describe(article_id='Numéro affiché dans /regard_selection',decision='Approuver ou refuser')
     @app_commands.choices(decision=[app_commands.Choice(name='Approuver',value='approved'),app_commands.Choice(name='Refuser',value='rejected')])
     async def valider(self,interaction:discord.Interaction,article_id:int,decision:app_commands.Choice[str]):
@@ -709,7 +714,9 @@ class RegardDuJour(commands.Cog):
             if row: db.execute('UPDATE regard_items SET status=?,reviewed_by=? WHERE id=?',(decision.value,interaction.user.id,article_id))
         await interaction.response.send_message(f"Article #{article_id} : {decision.name}." if row else 'Article introuvable.',ephemeral=True)
 
-    @app_commands.command(name='regard_ajouter',description='Proposer un article ou un morceau vérifié (staff).')
+    # Migré vers /dashboard → Regardboard.
+
+    # @regard.command(name="ajouter")
     async def ajouter(self,interaction:discord.Interaction,titre:str,lien:str,musique:bool=False):
         if not staff(interaction.user): return await interaction.response.send_message('Réservé au staff.',ephemeral=True)
         if not lien.startswith('https://') or len(titre)>200: return await interaction.response.send_message('Titre trop long ou lien HTTPS invalide.',ephemeral=True)
@@ -718,7 +725,8 @@ class RegardDuJour(commands.Cog):
                 (datetime.now(TZ).date().isoformat(),titre,lien,'🎵 Musique' if musique else 'Proposition staff','approved',datetime.now(TZ).isoformat(),interaction.user.id))
         await interaction.response.send_message('Ajout validé.' if cur.rowcount else 'Lien déjà présent.',ephemeral=True)
 
-    @app_commands.command(name='regard_diagnostic',description='Afficher le diagnostic de la collecte et la configuration (staff).')
+    # Migré vers /dashboard → Regardboard.
+    # @regard.command(name="diagnostic",description='Afficher le diagnostic de la collecte et la configuration (staff).')
     async def diagnostic(self, interaction:discord.Interaction):
         if not staff(interaction.user):
             return await interaction.response.send_message('Réservé au staff.',ephemeral=True)
@@ -737,7 +745,7 @@ class RegardDuJour(commands.Cog):
                ' · REGARD_ENABLED lu='+repr(os.getenv('REGARD_ENABLED', '<absent>'))]
         await interaction.response.send_message('\n'.join(lines)[:1950],ephemeral=True)
 
-    @app_commands.command(name='regard_publier',description='Publier manuellement les contenus validés du jour (staff).')
+    @regard.command(name="publier",description='Publier manuellement les contenus validés du jour (staff).')
     async def publier(self,interaction:discord.Interaction):
         if not staff(interaction.user): return await interaction.response.send_message('Réservé au staff.',ephemeral=True)
         await interaction.response.defer(ephemeral=True)
@@ -752,7 +760,7 @@ class RegardDuJour(commands.Cog):
         except (RuntimeError,discord.HTTPException) as exc: msg=f'Échec : {exc}'
         await interaction.followup.send(msg,ephemeral=True)
 
-    @app_commands.command(name='regard_regenerer',description='Reconstruire l’édition du jour après confirmation (staff).')
+    @regard.command(name="regenerer",description='Reconstruire l’édition du jour après confirmation (staff).')
     @app_commands.describe(confirmer='Mettre Oui pour remplacer le sujet existant après vérification')
     async def regenerer(self, interaction:discord.Interaction, confirmer:bool=False):
         if not staff(interaction.user):
@@ -844,7 +852,7 @@ class RegardDuJour(commands.Cog):
                     logger.warning('Nettoyage manuel nécessaire pour le sujet incomplet %s',new_thread_id)
             await interaction.followup.send(f'❌ Régénération interrompue : {type(exc).__name__}. Ancienne édition conservée.',ephemeral=True)
 
-    @app_commands.command(name='regard_retirer',description='Retirer un article public avec trace de modération (staff).')
+    @regard.command(name="retirer",description='Retirer un article public avec trace de modération (staff).')
     @app_commands.describe(article_id='Identifiant visible dans /regard_selection',motif='Raison courte du retrait')
     async def retirer(self,interaction:discord.Interaction,article_id:int,motif:str='Information à revérifier'):
         if not staff(interaction.user):return await interaction.response.send_message('Réservé au staff.',ephemeral=True)
@@ -868,7 +876,8 @@ class RegardDuJour(commands.Cog):
         await self.notify_staff(f'🛡️ Article #{article_id} retiré par {interaction.user.id} : {shorten(motif,180)}')
         await interaction.followup.send('✅ Article retiré et consigné.',ephemeral=True)
 
-    @app_commands.command(name='regard_proposer',description='Proposer un article ou une chanson au staff HORIZONS.')
+    # Action accessible depuis /centre → Regard du Jour.
+    # @regard.command(name="proposer",description='Proposer un article ou une chanson au staff HORIZONS.')
     @app_commands.describe(titre='Titre à vérifier',lien='Lien HTTPS vers la source',musique='S’agit-il d’une musique ?')
     async def proposer(self,interaction:discord.Interaction,titre:str,lien:str,musique:bool=False):
         if not interaction.guild or interaction.guild.id!=GUILD_ID or not isinstance(interaction.user,discord.Member):
@@ -887,16 +896,18 @@ class RegardDuJour(commands.Cog):
             cur=db.execute('INSERT OR IGNORE INTO regard_proposals(guild_id,user_id,url,kind,title,created_at) VALUES(?,?,?,?,?,?)',
                 (interaction.guild.id,interaction.user.id,lien,'musique' if musique else 'article',titre.strip(),datetime.now(TZ).isoformat()))
         if cur.rowcount:
-            await self.notify_staff(f'🧭 **Nouvelle proposition #{cur.lastrowid}** ({"musique" if musique else "article"}) : {discord.utils.escape_markdown(titre[:160])}\n{lien}\nValide avec `/regard_proposition_valider` après avoir consulté la source.')
+            await self.notify_staff(f'🧭 **Nouvelle proposition #{cur.lastrowid}** ({"musique" if musique else "article"}) : {discord.utils.escape_markdown(titre[:160])}\n{lien}\nTraite-la dans `/dashboard` → Regardboard après avoir consulté la source.')
         await interaction.response.send_message('💙 Proposition enregistrée pour vérification par le staff.' if cur.rowcount else 'Ce lien a déjà été proposé.',ephemeral=True)
 
-    @app_commands.command(name='regard_propositions',description='Voir les propositions de la communauté (staff).')
+    # Migré vers /dashboard → Regardboard.
+    # @regard.command(name="propositions")
     async def propositions(self,interaction:discord.Interaction):
         if not staff(interaction.user):return await interaction.response.send_message('Réservé au staff.',ephemeral=True)
         with connect() as db:rows=db.execute("SELECT id,kind,title FROM regard_proposals WHERE status='pending' ORDER BY id LIMIT 15").fetchall()
         await interaction.response.send_message('\n'.join(f'`#{r["id"]}` {r["kind"]} — {shorten(r["title"],95)}' for r in rows)[:1950] if rows else 'Aucune proposition en attente.',ephemeral=True)
 
-    @app_commands.command(name='regard_proposition_valider',description='Approuver ou refuser une proposition (staff).')
+    # Migré vers /dashboard → Regardboard.
+    # @regard.command(name="proposition_valider")
     @app_commands.choices(decision=[app_commands.Choice(name='Approuver',value='approved'),app_commands.Choice(name='Refuser',value='rejected')])
     async def proposition_valider(self,interaction:discord.Interaction,numero:int,decision:app_commands.Choice[str]):
         if not staff(interaction.user):return await interaction.response.send_message('Réservé au staff.',ephemeral=True)
@@ -912,7 +923,7 @@ class RegardDuJour(commands.Cog):
                     'approved',datetime.now(TZ).isoformat(),'Proposition vérifiée par le staff',proposal['url']))
         await interaction.response.send_message(f'Proposition #{numero} : {decision.name}. Les articles approuvés seront pris en compte dans la prochaine sélection ; les chansons proposées restent dans le registre staff.',ephemeral=True)
 
-    @app_commands.command(name='regard_bilan_test',description='Tester la publication du bilan hebdomadaire (staff).')
+    @regard.command(name="bilan_test",description='Tester la publication du bilan hebdomadaire (staff).')
     async def bilan_test(self,interaction:discord.Interaction):
         if not staff(interaction.user):return await interaction.response.send_message('Réservé au staff.',ephemeral=True)
         await interaction.response.defer(ephemeral=True)
@@ -920,7 +931,8 @@ class RegardDuJour(commands.Cog):
         except (discord.HTTPException,RuntimeError) as exc:result=f'Erreur : {exc}'
         await interaction.followup.send(result,ephemeral=True)
 
-    @app_commands.command(name='regard_points',description='Voir tes XP Célestes gagnés dans Le Regard du Jour.')
+    # Action accessible depuis /centre → Regard du Jour.
+    # @regard.command(name="points",description='Voir tes XP Célestes gagnés dans Le Regard du Jour.')
     async def points(self,interaction:discord.Interaction):
         if not interaction.guild_id:return await interaction.response.send_message('À utiliser sur le serveur.',ephemeral=True)
         with connect() as db:

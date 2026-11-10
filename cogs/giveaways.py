@@ -152,7 +152,6 @@ class Giveaways(commands.Cog):
         self.bot.add_view(GiveawayView(giveaway_id), message_id=message.id)
         await interaction.followup.send(f"✅ Giveaway **#{giveaway_id}** publié dans {channel.mention}.", ephemeral=True)
 
-    @giveaway.command(name="annuler", description="Annuler un giveaway en cours.")
     @app_commands.describe(numero="Numéro du giveaway")
     async def annuler(self, interaction: discord.Interaction, numero: app_commands.Range[int, 1, 999999]):
         if not staff_allowed(interaction.user):
@@ -174,7 +173,6 @@ class Giveaways(commands.Cog):
                 pass
         await interaction.response.send_message(f"Le giveaway **#{numero}** a été annulé.", ephemeral=True)
 
-    @giveaway.command(name="reroll", description="Effectuer un nouveau tirage parmi les participants.")
     @app_commands.describe(numero="Numéro du giveaway terminé")
     async def reroll(self, interaction: discord.Interaction, numero: app_commands.Range[int, 1, 999999]):
         if not staff_allowed(interaction.user):

@@ -49,8 +49,6 @@ class Events(commands.Cog):
         for row in rows:
             self.bot.add_view(EventRSVPView(row["id"]), message_id=row["message_id"])
 
-    @app_commands.command(name="evenement_creer", description="Créer un rendez-vous communautaire HORIZONS.")
-    @app_commands.describe(date_heure="Format JJ/MM/AAAA HH:MM, heure de Paris", salon="Salon de publication (Agenda par défaut)")
     async def evenement_creer(self, interaction: discord.Interaction, titre: app_commands.Range[str,3,100], date_heure: str, description: app_commands.Range[str,5,1800], lieu: str = "En ligne / à préciser", salon: discord.TextChannel | None = None):
         member = interaction.user
         allowed = isinstance(member, discord.Member) and (member.guild_permissions.administrator or (STAFF_ROLE_ID and any(r.id == STAFF_ROLE_ID for r in member.roles)) or (ANIMATOR_ROLE_ID and any(r.id == ANIMATOR_ROLE_ID for r in member.roles)))
@@ -98,7 +96,6 @@ class Events(commands.Cog):
             embed.add_field(name=f"#{row['id']} — {row['title']}", value=f"{date}\n{row['location']}\n{channel.mention if channel else 'Salon indisponible'}", inline=False)
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
-    @app_commands.command(name="evenement_fermer", description="Fermer les inscriptions d'un événement.")
     async def evenement_fermer(self, interaction: discord.Interaction, numero: app_commands.Range[int,1,999999]):
         with db() as conn:
             row = conn.execute("SELECT message_id,channel_id,creator_id FROM events WHERE id=? AND guild_id=? AND status='open'", (numero,interaction.guild_id)).fetchone()

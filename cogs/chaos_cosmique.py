@@ -14,6 +14,7 @@ from discord import app_commands
 from discord.ext import commands, tasks
 
 from config import DATA_DIR, LOCAL_TIMEZONE
+from .embed_theme import horizons_embed
 
 log = logging.getLogger(__name__)
 DB_PATH = DATA_DIR / 'chaos_cosmique.sqlite3'
@@ -158,7 +159,7 @@ def tick_world(conn, guild_id, day):
 
 
 def world_embed(world):
-    embed = discord.Embed(title='🌌 Observatoire — Chaos Cosmique', color=0x5876E8,
+    embed = horizons_embed(title='🌌 Observatoire — Chaos Cosmique', color=0x5876E8,
         description=('Un univers fictif qui évolue au rythme des découvertes.\n'
                      '🔭 **Lieu découvert :** L’Observatoire\n'
                      '👾 **Nox :** une présence curieuse rôde dans les couloirs…'))
@@ -170,7 +171,7 @@ def world_embed(world):
 
 
 def event_embed(event, resolved=None):
-    embed = discord.Embed(title=event[1], description=event[2], color=0x8860DA)
+    embed = horizons_embed(title=event[1], description=event[2], color=0x8860DA)
     if resolved is not None:
         ending = event[4][resolved]
         embed.add_field(name='📜 Conséquence', value=ending[0], inline=False)
@@ -267,7 +268,7 @@ def unlocks(conn, guild_id):
 
 def creature_embed(c):
     stage=('🌠 Étincelle', '👾 Explorateur', '🪐 Gardien', '🌌 Légende')[min(c['stage']-1,3)]
-    e=discord.Embed(title=f"👾 {c['name']} — {stage}", color=0x657CEB,
+    e=horizons_embed(title=f"👾 {c['name']} — {stage}", color=0x657CEB,
        description=f"Tempérament : **{c['temperament']}**\nUne créature imaginaire qui grandit sans jamais mourir ni punir l’absence.")
     for label,key in [('Curiosité','curiosity'),('Affection','affection'),('Vitalité','vitality'),('Stabilité','stability')]:
         e.add_field(name=label, value=f"{'▰'*(c[key]//10)}{'▱'*(10-c[key]//10)} {c[key]}/100", inline=False)
@@ -802,6 +803,16 @@ class NoxPanel(discord.ui.View):
             season,title,story,total,done=season_overview(conn,i.guild.id,day)
         await i.response.send_message(f'🚀 **Expédition : {title}**\nRéunissez **12 éclats** pour terminer la quête.\nProgression : **{total}/12**'+(' 🏆' if done else ''),view=CosmicExpeditionView(),ephemeral=True)
 
+    @discord.ui.button(label='NOX TV · Staff',emoji='🎬',style=discord.ButtonStyle.secondary,custom_id='cosmic:v1041:nox:noxtv',row=4)
+    async def noxtv_staff(self,i,b):
+        if not i.guild or not i.user.guild_permissions.manage_guild:
+            await i.response.send_message('🛡️ Ce panneau est réservé au staff.',ephemeral=True)
+            return
+        from .nox_tv import NoxTVDashboard
+        embed=horizons_embed(title='🎬 NOX TV — Tableau de bord',
+            description='Statut, diagnostic, audit, simulation et catalogue. Aucune publication automatique n’est déclenchée ici.',color=0x7764ff)
+        await i.response.send_message(embed=embed,view=NoxTVDashboard(),ephemeral=True)
+
 class CosmicMissionClaim(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=180)
@@ -1049,7 +1060,7 @@ class ChaosCosmique(commands.Cog):
                 break
         else:
             old_message=None
-        embed=discord.Embed(
+        embed=horizons_embed(
             title='🌌 La légende du Chaos Cosmique',
             description=(
                 '**Il était une fois… un univers qui avait oublié de lire son mode d’emploi.**\n\n'
@@ -1151,8 +1162,6 @@ class ChaosCosmique(commands.Cog):
         embed.add_field(name='🎮 Comment jouer ?',value='Utilise les boutons ci-dessous. Chaque soin est possible une fois par jour et par membre.',inline=False)
         await interaction.response.send_message(embed=embed,view=NoxPanel(),ephemeral=True)
 
-    @cosmos.command(name='nox', description='Rencontrer Nox, la créature de l’Observatoire')
-    @app_commands.guild_only()
     async def nox(self, interaction: discord.Interaction):
         with connect() as conn:
             c=creature(conn,interaction.guild.id)
@@ -1166,8 +1175,7 @@ class ChaosCosmique(commands.Cog):
             ok,message=care_nox(conn,interaction.guild.id,interaction.user.id,action.value,datetime.now(LOCAL_TIMEZONE).date().isoformat())
         await interaction.response.send_message(('👾 ' if ok else '⏳ ')+message,ephemeral=True)
 
-    @cosmos.command(name='carte', description='Afficher les zones découvertes du monde')
-    @app_commands.guild_only()
+    # Accessible depuis /nox → Carte du monde ; conservé comme méthode interne.
     async def carte(self, interaction: discord.Interaction):
         with connect() as conn:
             ensure_world(conn,interaction.guild.id)
@@ -1199,16 +1207,12 @@ class ChaosCosmique(commands.Cog):
                (interaction.guild.id,interaction.user.id,item))
         await interaction.response.send_message(f'{label}\n{description}\n✨ Tu trouves : **{item}** !',ephemeral=True)
 
-    @cosmos.command(name='sac', description='Consulter tes objets cosmiques')
-    @app_commands.guild_only()
     async def sac(self,interaction:discord.Interaction):
         with connect() as conn:
             rows=conn.execute('SELECT item,quantity FROM cosmic_inventory WHERE guild_id=? AND user_id=? AND quantity>0 ORDER BY item',
               (interaction.guild.id,interaction.user.id)).fetchall()
         await interaction.response.send_message('🎒 **Ton sac cosmique**\n'+('\n'.join(f'• {r["item"]} × {r["quantity"]}' for r in rows) if rows else 'Il est encore vide. Explore un lieu !'),ephemeral=True)
 
-    @cosmos.command(name='chroniques', description='Lire les fragments narratifs révélés')
-    @app_commands.guild_only()
     async def chroniques(self,interaction:discord.Interaction):
         with connect() as conn:
             ensure_world(conn,interaction.guild.id)

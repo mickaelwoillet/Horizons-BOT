@@ -46,21 +46,16 @@ class Jokes(commands.Cog):
     def cog_unload(self):
         self.daily_joke.cancel()
 
-    @app_commands.command(name="blague", description="Découvrir une blague HORIZONS.")
-    @app_commands.describe(categorie="Choisir une catégorie de blagues")
     async def blague(self, interaction: discord.Interaction, categorie: str | None = None):
+        """Action conservée pour le Centre, sans exposition slash."""
         cats = categories()
         if categorie and categorie not in cats:
-            await interaction.response.send_message("Cette catégorie n'existe pas. Utilise `/blague` sans catégorie pour une surprise.", ephemeral=True)
+            await interaction.response.send_message("Cette catégorie n'existe pas.", ephemeral=True)
             return
         cat, joke = pick_joke(categorie)
         embed = horizons_embed(title="😄 La blague du moment", description=joke, color=discord.Color.blurple())
         embed.set_footer(text=f"HORIZONS • {nice_category(cat)}")
-        await interaction.response.send_message(embed=embed, view=JokeView(interaction.user.id, categorie))
-
-    @blague.autocomplete("categorie")
-    async def category_autocomplete(self, interaction: discord.Interaction, current: str):
-        return [app_commands.Choice(name=nice_category(c), value=c) for c in categories() if current.lower() in c.lower()][:25]
+        await interaction.response.send_message(embed=embed, view=JokeView(interaction.user.id, categorie), ephemeral=True)
 
     @commands.Cog.listener()
     async def on_ready(self):

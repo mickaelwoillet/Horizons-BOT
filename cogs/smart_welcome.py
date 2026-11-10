@@ -492,19 +492,12 @@ class SmartWelcome(commands.Cog):
                 allowed_mentions=discord.AllowedMentions.none(),
             )
 
-    @app_commands.command(name="test_bienvenue_mp", description="Tester sur toi-même le MP illustré de bienvenue (staff).")
-    @app_commands.guild_only()
-    @app_commands.default_permissions(manage_guild=True)
     async def test_bienvenue_mp(self, interaction: discord.Interaction):
         if not isinstance(interaction.user, discord.Member):
             await interaction.response.send_message("Commande disponible uniquement sur le serveur.", ephemeral=True)
             return
         await self._manual_welcome(interaction, interaction.user, test=True)
 
-    @app_commands.command(name="renvoyer_bienvenue", description="Renvoyer le guide illustré à un membre ayant validé la charte (staff).")
-    @app_commands.guild_only()
-    @app_commands.default_permissions(manage_guild=True)
-    @app_commands.describe(membre="Membre à qui renvoyer le guide")
     async def renvoyer_bienvenue(self, interaction: discord.Interaction, membre: discord.Member):
         await self._manual_welcome(interaction, membre, test=False)
 

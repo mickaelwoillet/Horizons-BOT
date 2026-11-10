@@ -22,8 +22,8 @@ FOOTER_PREFIX = "HORIZONS-GUIDE:"
 STAFF_ONLY = {
     "annonce", "alerte_equipe", "actualiser_rangs", "avertir", "avertissements",
     "retirer_avertissement", "timeout", "untimeout", "expulser", "bannir",
-    "debannir", "purger", "note_membre", "evenement_creer", "evenement_fermer",
-    "concours_creer", "concours_annuler", "quiz_lancer", "quiz_arreter", "creer_defi",
+    "debannir", "purger", "note_membre", "evenement_fermer",
+    "concours_creer", "concours_annuler", "creer_defi",
     "dashboard", "tache_creer", "taches", "tache_statut", "service", "publier_guides_cercles",
 }
 CATEGORY = {
@@ -32,12 +32,11 @@ CATEGORY = {
     "anniversaire_supprimer": "🎂 Anniversaires",
     "question_du_jour": "💬 Vie communautaire", "compliment": "💬 Vie communautaire",
     "blague": "🎲 Jeux et détente", "devinette": "🎲 Jeux et détente",
-    "quiz_lancer": "🎲 Jeux et détente", "quiz_arreter": "🎲 Jeux et détente",
     "mon_passeport": "🧭 Expériences HORIZONS", "valider_mission": "🧭 Expériences HORIZONS",
     "chercher": "🧭 Expériences HORIZONS", "defi_collectif": "🧭 Expériences HORIZONS",
     "rejoindre_defi": "🧭 Expériences HORIZONS", "creer_defi": "🧭 Expériences HORIZONS",
     "mon_parcours": "🌱 Progression", "actualiser_rangs": "🌱 Progression",
-    "evenement_creer": "🎉 Événements et concours", "evenements": "🎉 Événements et concours",
+    "evenements": "🎉 Événements et concours",
     "evenement_fermer": "🎉 Événements et concours", "concours_creer": "🎉 Événements et concours",
     "concours_annuler": "🎉 Événements et concours", "proposer": "💡 Boîte à idées",
     "signaler": "🛡️ Aide et modération", "alerte_equipe": "🛡️ Aide et modération",

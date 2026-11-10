@@ -139,7 +139,6 @@ class HorizonsPath(commands.Cog):
         view = PathView(self, interaction.user.id, progress)
         await interaction.response.send_message(embed=overview_embed(progress), view=view, ephemeral=True)
 
-    @app_commands.command(name="parcours_badges", description="Consulter les thèmes accomplis et tes badges HORIZONS.")
     async def parcours_badges(self, interaction: discord.Interaction):
         if interaction.guild_id is None:
             await interaction.response.send_message("Cette fonctionnalité est disponible sur le serveur HORIZONS.", ephemeral=True)
