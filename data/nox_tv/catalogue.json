@@ -7,6 +7,11 @@
     "kind": "nox",
     "moods": [
       "fatigue"
+    ],
+    "vote_labels": [
+      "🍪 Offrir un biscuit",
+      "📜 Ouvrir une enquête",
+      "🔎 Suivre les miettes"
     ]
   },
   {
@@ -17,6 +22,11 @@
     "kind": "canard",
     "moods": [
       "panique"
+    ],
+    "vote_labels": [
+      "🛡️ Confisquer la cuisse",
+      "👑 Nommer le canard",
+      "🚪 Évacuer le palais"
     ]
   },
   {
@@ -27,6 +37,11 @@
     "kind": "nox",
     "moods": [
       "calin"
+    ],
+    "vote_labels": [
+      "🍪 Protéger les cookies",
+      "👑 Taxer les pépites",
+      "💨 Cacher les biscuits"
     ]
   },
   {
@@ -38,6 +53,11 @@
     "moods": [
       "fatigue",
       "calin"
+    ],
+    "vote_labels": [
+      "💙 Nourrir Nox",
+      "📜 Interdire la pancarte",
+      "🚀 Ouvrir un restaurant"
     ]
   },
   {
@@ -49,6 +69,11 @@
     "moods": [
       "panique",
       "normal"
+    ],
+    "vote_labels": [
+      "⚖️ Innocenter Nox",
+      "🏅 Couronner Coin-Coin",
+      "🌀 Traverser le portail"
     ]
   },
   {
@@ -60,6 +85,11 @@
     "moods": [
       "panique",
       "normal"
+    ],
+    "vote_labels": [
+      "🔌 Couper l’alarme",
+      "👑 Promouvoir le grille-pain",
+      "🏃 Évacuer la cuisine"
     ]
   },
   {
@@ -71,6 +101,11 @@
     "moods": [
       "fatigue",
       "calin"
+    ],
+    "vote_labels": [
+      "💤 Laisser Nox dormir",
+      "📣 Réveiller le conseil",
+      "🚪 Quitter la réunion"
     ]
   },
   {
@@ -82,6 +117,11 @@
     "moods": [
       "panique",
       "normal"
+    ],
+    "vote_labels": [
+      "🍞 Sauver la tartine",
+      "📜 Décréter le toast",
+      "🚨 Évacuer la cuisine"
     ]
   },
   {
@@ -93,6 +133,11 @@
     "moods": [
       "fatigue",
       "calin"
+    ],
+    "vote_labels": [
+      "🛏️ Offrir un oreiller",
+      "🦆 Réveiller Nox",
+      "🏃 Fuir le conseil"
     ]
   },
   {
@@ -104,6 +149,11 @@
     "moods": [
       "normal",
       "panique"
+    ],
+    "vote_labels": [
+      "⏳ Rendre le mardi",
+      "🦆 Renommer le mardi",
+      "📅 Se cacher mercredi"
     ]
   },
   {
@@ -115,6 +165,11 @@
     "moods": [
       "normal",
       "panique"
+    ],
+    "vote_labels": [
+      "🧪 Libérer la galaxie",
+      "👑 Breveter les étoiles",
+      "🏃 Fuir le labo"
     ]
   },
   {
@@ -126,6 +181,11 @@
     "moods": [
       "normal",
       "panique"
+    ],
+    "vote_labels": [
+      "🍪 Garder mardi 2,5",
+      "👑 Annexer ce jour",
+      "🏃 Fuir le calendrier"
     ]
   },
   {
@@ -137,6 +197,11 @@
     "moods": [
       "normal",
       "panique"
+    ],
+    "vote_labels": [
+      "🪐 Libérer la galaxie",
+      "💰 Taxer les éprouvettes",
+      "🏃 Quitter le labo"
     ]
   },
   {
@@ -148,6 +213,11 @@
     "moods": [
       "normal",
       "panique"
+    ],
+    "vote_labels": [
+      "⏰ Négocier les heures",
+      "📜 Décréter des congés",
+      "🌀 Avancer dans le futur"
     ]
   },
   {
@@ -159,6 +229,11 @@
     "moods": [
       "normal",
       "panique"
+    ],
+    "vote_labels": [
+      "🧪 Négocier avec la fiole",
+      "👑 Payer en miettes",
+      "🚪 Libérer la fiole"
     ]
   },
   {
@@ -170,6 +245,11 @@
     "moods": [
       "normal",
       "calin"
+    ],
+    "vote_labels": [
+      "🌟 Protéger l’étoile",
+      "👑 Taxer les câlins",
+      "🚀 Rendre l’étoile au ciel"
     ]
   },
   {
@@ -181,6 +261,11 @@
     "moods": [
       "panique",
       "normal"
+    ],
+    "vote_labels": [
+      "🛡️ Confisquer la cuisse",
+      "👑 Soutenir la patrouille",
+      "🏃 Fuir les couloirs"
     ]
   },
   {
@@ -192,6 +277,11 @@
     "moods": [
       "panique",
       "normal"
+    ],
+    "vote_labels": [
+      "🍫 Sauver la tartine",
+      "👑 Réquisitionner le four",
+      "🏃 Évacuer le petit-déj"
     ]
   },
   {
@@ -203,6 +293,11 @@
     "moods": [
       "fatigue",
       "calin"
+    ],
+    "vote_labels": [
+      "🍪 Livrer des cookies",
+      "👑 Réquisitionner les stocks",
+      "☄️ Poursuivre le cookie"
     ]
   },
   {
@@ -214,6 +309,11 @@
     "moods": [
       "normal",
       "calin"
+    ],
+    "vote_labels": [
+      "🏅 Organiser un tournoi",
+      "💰 Taxer les rebonds",
+      "🏃 Quitter le gymnase"
     ]
   },
   {
@@ -225,6 +325,11 @@
     "moods": [
       "normal",
       "panique"
+    ],
+    "vote_labels": [
+      "🪐 Retrouver la planète",
+      "👑 Annexer son orbite",
+      "🚀 La laisser voyager"
     ]
   },
   {
@@ -236,6 +341,11 @@
     "moods": [
       "panique",
       "normal"
+    ],
+    "vote_labels": [
+      "🔎 Montrer les preuves",
+      "👑 Interdire les photos",
+      "🏃 Poursuivre Coin-Coin"
     ]
   },
   {
@@ -246,6 +356,11 @@
     "kind": "paradoxe",
     "moods": [
       "normal"
+    ],
+    "vote_labels": [
+      "⏳ Retourner hier",
+      "💰 Payer le péage",
+      "🚪 Descendre ailleurs"
     ]
   },
   {
@@ -257,6 +372,11 @@
     "moods": [
       "fatigue",
       "normal"
+    ],
+    "vote_labels": [
+      "💤 Élire Nox roi des siestes",
+      "📜 Interdire les ronflements",
+      "🏃 Évacuer le conseil"
     ]
   },
   {
@@ -267,6 +387,11 @@
     "kind": "gloups",
     "moods": [
       "normal"
+    ],
+    "vote_labels": [
+      "🫧 Fêter les bulles",
+      "👑 Taxer les nuages",
+      "☂️ Sortir les parapluies"
     ]
   },
   {
@@ -278,6 +403,11 @@
     "moods": [
       "normal",
       "calin"
+    ],
+    "vote_labels": [
+      "🍪 Accueillir Nox",
+      "👑 Taxer les pépites",
+      "🚀 Dévorer la planète"
     ]
   },
   {
@@ -289,6 +419,11 @@
     "moods": [
       "normal",
       "panique"
+    ],
+    "vote_labels": [
+      "🤝 Négocier la paix",
+      "👑 Juger la couronne",
+      "🪐 Laisser partir la couronne"
     ]
   },
   {
@@ -300,6 +435,11 @@
     "moods": [
       "normal",
       "fatigue"
+    ],
+    "vote_labels": [
+      "😴 Offrir une sieste",
+      "⏰ Interdire les réveils",
+      "🌀 Envoyer le réveil ailleurs"
     ]
   },
   {
@@ -311,6 +451,11 @@
     "moods": [
       "normal",
       "panique"
+    ],
+    "vote_labels": [
+      "🍞 Organiser un débat",
+      "🗳️ Recompter les miettes",
+      "🚀 Ouvrir une boulangerie"
     ]
   },
   {
@@ -322,6 +467,11 @@
     "moods": [
       "normal",
       "calin"
+    ],
+    "vote_labels": [
+      "🧦 Retrouver les paires",
+      "👑 Taxer les chaussettes",
+      "🌀 Traverser le portail"
     ]
   }
 ]

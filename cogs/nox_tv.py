@@ -65,12 +65,32 @@ def connect():
         db.execute('ALTER TABLE noxtv_posts ADD COLUMN channel_id INTEGER NOT NULL DEFAULT 0')
     return db
 
-CHOICES = ("🛡️ Défendre Nox", "🦆 Soutenir le canard", "🏃 Fuir discrètement")
+CHOICES = ("🛡️ Défendre Nox", "🦆 Soutenir le canard", "🏃 Fuir discrètement")  # compatibilité anciennes scènes
+
+def scene_vote_labels(visual_id):
+    """Libellés issus du catalogue, index de vote stable (0, 1, 2)."""
+    item = next((x for x in catalogue() if x['id'] == visual_id), None)
+    values = item.get('vote_labels') if item else None
+    return tuple(values) if isinstance(values, list) and len(values) == 3 else CHOICES
+
+def labels_for_message(message_id, guild_id):
+    with connect() as db:
+        row = db.execute("""SELECT visual_id FROM noxtv_posts WHERE message_id=? AND guild_id=?
+                            UNION ALL SELECT visual_id FROM noxtv_manual_posts WHERE message_id=? AND guild_id=?
+                            LIMIT 1""", (message_id, guild_id, message_id, guild_id)).fetchone()
+    return scene_vote_labels(row['visual_id']) if row else CHOICES
+
 
 class NoxTVChoices(discord.ui.View):
     """Persistent vote controls; one mutable vote per member and publication."""
-    def __init__(self):
+    def __init__(self, visual_id=None):
         super().__init__(timeout=None)
+        if visual_id:
+            labels = scene_vote_labels(visual_id)
+            for button, label in zip(self.children, labels):
+                button.label = label
+                # Emojis sont intégrés au texte propre à chaque histoire.
+                button.emoji = None
 
     async def cast(self, interaction: discord.Interaction, choice: int):
         if not interaction.guild_id or not interaction.message:
@@ -89,9 +109,10 @@ class NoxTVChoices(discord.ui.View):
             db.execute("INSERT INTO noxtv_votes(message_id,user_id,guild_id,choice) VALUES(?,?,?,?) ON CONFLICT(message_id,user_id) DO UPDATE SET choice=excluded.choice", (interaction.message.id, interaction.user.id, interaction.guild_id, choice))
             rows = db.execute("SELECT choice, COUNT(*) AS total FROM noxtv_votes WHERE message_id=? GROUP BY choice", (interaction.message.id,)).fetchall()
         counts = {row['choice']: row['total'] for row in rows}
-        summary = " · ".join(f"{CHOICES[n]} : {counts.get(n, 0)}" for n in range(3))
+        labels = labels_for_message(interaction.message.id, interaction.guild_id)
+        summary = " · ".join(f"{labels[n]} : {counts.get(n, 0)}" for n in range(3))
         change = "Vote modifié" if previous else "Vote enregistré"
-        await interaction.response.send_message(f"✨ {change} ! **{CHOICES[choice]}**\n{summary}", ephemeral=True)
+        await interaction.response.send_message(f"✨ {change} ! **{labels[choice]}**\n{summary}", ephemeral=True)
 
     @discord.ui.button(label="Défendre Nox", emoji="🛡️", style=discord.ButtonStyle.primary, custom_id="noxtv:vote:0")
     async def defend(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -553,7 +574,7 @@ class NoxTV(commands.Cog):
         embed.set_footer(text='NOX TV • Une catastrophe cosmique à la fois')
         embed.set_image(url='attachment://'+item['file'])
         try:
-            msg=await channel.send(embed=embed,file=discord.File(asset,filename=item['file']),view=NoxTVChoices(),allowed_mentions=discord.AllowedMentions.none())
+            msg=await channel.send(embed=embed,file=discord.File(asset,filename=item['file']),view=NoxTVChoices(item['id']),allowed_mentions=discord.AllowedMentions.none())
         except (discord.Forbidden,discord.HTTPException,OSError) as exc:
             LOG.warning('NOX TV: échec publication %s: %s',guild.id,exc)
             if not manual:
@@ -767,7 +788,8 @@ class NoxTV(commands.Cog):
         with connect() as db:
             rows=db.execute('SELECT choice,COUNT(*) AS total FROM noxtv_votes WHERE guild_id=? AND message_id=? GROUP BY choice',(i.guild_id,int(message_id))).fetchall()
         counts={r['choice']:r['total'] for r in rows}
-        await i.response.send_message('🎬 **Votes NOX TV**\n'+'\n'.join(f'{CHOICES[n]} : {counts.get(n,0)}' for n in range(3)),ephemeral=True)
+        labels = labels_for_message(int(message_id), i.guild_id)
+        await i.response.send_message('🎬 **Votes NOX TV**\n'+'\n'.join(f'{labels[n]} : {counts.get(n,0)}' for n in range(3)),ephemeral=True)
 
     async def voir_catalogue(self, i:discord.Interaction):
         entries=catalogue()
