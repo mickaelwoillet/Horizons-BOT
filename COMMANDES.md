@@ -405,3 +405,11 @@ Aucune nouvelle commande. `/centre` acquitte les interactions avant les accès S
 
 ## V10.85.46 — Candidate finale
 Aucune nouvelle commande. Recette et déploiement : `V10_85_46_RAPPORT_FINAL.md`.
+
+
+### V10.85.50 — Audit cohérence NOX
+Aucune nouvelle commande. Restauration des boutons d’aventure liée au message Discord, validation des votes et robustesse des interventions spontanées.
+
+## V10.85.51 — Fiabilisation du programmateur NOX
+
+Aucune nouvelle commande. Les identifiants des sondages/défis et l'état des publications sont enregistrés dans une transaction unique. En cas d'échec d'envoi incertain, la réservation est conservée pour éviter les doublons. Voir `V10_85_51_RAPPORT.md`.

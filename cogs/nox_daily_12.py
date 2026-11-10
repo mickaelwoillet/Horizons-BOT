@@ -248,27 +248,34 @@ class NoxDaily12(commands.Cog):
                 LOG.exception('Erreur inattendue dans la publication NOX (guild=%s)', guild_id)
                 # Isolate this guild/slot so one failure does not stop the daily task.
                 continue
-            if slot == 5 and sent_message is not None:
+            # Persist delivery and interactive message IDs in a single transaction.
+            # A database failure after a successful webhook send is ambiguous: retain
+            # the pending reservation, never retry blindly and risk a duplicate.
+            try:
                 with engine.connect(DB) as con:
-                    con.execute('UPDATE nox_daily_challenges SET message_id=? WHERE guild_id=? AND local_day=? AND slot=?', (sent_message.id, guild_id, day, slot))
+                    if sent_message is not None and slot == 5:
+                        con.execute("""UPDATE nox_daily_challenges SET message_id=?
+                            WHERE guild_id=? AND local_day=? AND slot=?""",
+                            (sent_message.id, guild_id, day, slot))
+                    if sent_message is not None and slot in (1, 7):
+                        con.execute("""UPDATE nox_daily_polls SET message_id=?
+                            WHERE guild_id=? AND local_day=? AND slot=?""",
+                            (sent_message.id, guild_id, day, slot))
+                    con.execute("""UPDATE nox_daily_posts SET state='sent'
+                        WHERE guild_id=? AND local_day=? AND slot=?""",
+                        (guild_id, day, slot))
                     con.commit()
-            if slot in (1, 7) and sent_message is not None:
-                with engine.connect(DB) as con:
-                    con.execute('''UPDATE nox_daily_polls SET message_id=?
-                        WHERE guild_id=? AND local_day=? AND slot=?''',
-                        (sent_message.id, guild_id, day, slot))
-                    con.commit()
-            # Track only our own scheduled messages, never arbitrary conversations.
+            except Exception:
+                LOG.exception('NOX: envoi effectue mais enregistrement impossible (guild=%s, slot=%s)',
+                              guild_id, slot)
+                continue
+            # Optional reply tracking must not prevent marking a post as sent.
             try:
                 from .nox_interactions import record_post
                 if sent_message is not None:
                     record_post(guild_id, channel.id, sent_message.id, day)
             except Exception:
                 LOG.exception('Enregistrement de la publication NOX impossible')
-            with engine.connect(DB) as con:
-                con.execute('''UPDATE nox_daily_posts SET state='sent'
-                    WHERE guild_id=? AND local_day=? AND slot=?''', (guild_id, day, slot))
-                con.commit()
 
     @daily_loop.before_loop
     async def before_daily_loop(self):

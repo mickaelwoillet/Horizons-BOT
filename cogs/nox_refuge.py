@@ -8,6 +8,8 @@ import random
 import sqlite3
 import time
 from pathlib import Path
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import discord
 from discord import app_commands
@@ -42,6 +44,8 @@ NEED_IMAGES = {
     'energie': 'nox_fatigue_41.png',
     'hygiene': 'nox_refuge_coussins.png',
 }
+DECOR_IMAGE_NAMES = tuple(f'nox_refuge_evolutif_{level}.png' for level in range(5))
+
 CARE_IMAGES = {
     'nourrir': 'nox_biscuits_orbite.png',
     'boire': 'nox_soif_cosmique_40.png',
@@ -51,7 +55,7 @@ CARE_IMAGES = {
     'repos': 'nox_bonne_nuit_couverture_40.png',
 }
 
-def choose_refuge_image(state, last_action=None):
+def choose_refuge_image(state, last_action=None, decorations=0):
     """Choisit une scène cohérente avec les besoins, sans état aléatoire."""
     stats = state['stats']
     weakest = min(engine.STATS, key=lambda key: stats[key])
@@ -63,7 +67,7 @@ def choose_refuge_image(state, last_action=None):
     elif min(stats.values()) < 70:
         name = 'nox_refuge_coussins.png'
     else:
-        name = 'nox_refuge_lanternes.png'
+        name = DECOR_IMAGE_NAMES[max(0, min(4, int(decorations)))]
     file_path = IMAGE_DIR / name
     if file_path.is_file():
         return file_path
@@ -73,7 +77,12 @@ def choose_refuge_image(state, last_action=None):
 def refuge_embed_and_file(state, last_action=None):
     """Associe l'image au message Discord (attachment://) sans URL externe."""
     embed = make_embed(state)
-    path = choose_refuge_image(state, last_action)
+    try:
+        _, found = refuge_discoveries(state['guild_id'])
+        decorations = len(found)
+    except (sqlite3.Error, OSError):
+        decorations = 0
+    path = choose_refuge_image(state, last_action, decorations)
     if path is None:
         return embed, None
     embed.set_image(url=f'attachment://{path.name}')
@@ -91,6 +100,28 @@ def care_reply(action: str) -> str:
         log.warning('Réactions NOX indisponibles, réponse de secours utilisée')
     return '💛 NOX a apprécié ton attention ! Merci de prendre soin de lui.'
 
+def refuge_cycle(hour):
+    """Rythme parisien informatif : ne bloque jamais les soins."""
+    if 23 <= hour or hour < 7:
+        return '🌙 Nuit cosmique · NOX somnole, les soins restent possibles'
+    if hour < 10:
+        return '🌅 Réveil · NOX découvre la nouvelle journée'
+    if hour < 18:
+        return '☀️ Exploration · NOX est curieux et joueur'
+    return '✨ Soirée · NOX ralentit et retrouve son Refuge'
+
+
+def refuge_discoveries(guild_id):
+    """Décorations déverrouillées à partir des soins existants, sans XP ni nouvelle table."""
+    from .nox_memory import memory_summary
+    with engine.connect(DB) as con:
+        total = memory_summary(con, guild_id)['total_care']
+    unlocks = [(5, '🛏️ Coussin d’étoiles'), (20, '🪔 Lanterne cosmique'),
+               (50, '🧸 Peluche galactique'), (100, '🌌 Jardin de constellations')]
+    found = [label for threshold, label in unlocks if total >= threshold]
+    return total, found
+
+
 def make_embed(s):
     v=s['stats']; low=s['needs']; mood=s['mood']
     lines=[]
@@ -103,7 +134,17 @@ def make_embed(s):
         speech='Je surveille ma galaxie… et surtout vos biscuits ! ✨' if mood=='heureux' else 'Tout va bien, mais un câlin ne se refuse jamais ! 💛'
     e=discord.Embed(title='🐾 Le Refuge de NOX',description='\n'.join(lines)+'\n\n💬 **NOX :** « '+speech+' »',color=0xD6AD55)
     e.add_field(name='Humeur',value={'heureux':'🌟 Heureux','calme':'🙂 Tranquille','besoin':'🥺 A besoin de vous','fatigue':'😴 Fatigué'}.get(mood,mood))
-    e.set_footer(text='Un seul NOX pour toute la communauté · Soins avec délai de 30 min par action')
+    hour = datetime.now(ZoneInfo('Europe/Paris')).hour
+    e.add_field(name='🕰️ Cycle de vie', value=refuge_cycle(hour), inline=False)
+    # Les découvertes sont calculées à partir des contributions déjà enregistrées.
+    try:
+        total, found = refuge_discoveries(s['guild_id'])
+        e.add_field(name='🏡 Refuge évolutif',
+                    value=f'{total} soins collectifs · '+(', '.join(found) if found else 'Première décoration à 5 soins'),
+                    inline=False)
+    except (sqlite3.Error, OSError):
+        log.warning('Décorations NOX temporairement indisponibles', exc_info=True)
+    e.set_footer(text='Un seul NOX · Soins avec délai de 30 min par action · Découvertes collectives')
     return e
 
 class CareButton(discord.ui.Button):

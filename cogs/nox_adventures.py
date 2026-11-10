@@ -49,12 +49,12 @@ class NoxAdventures(commands.Cog):
     async def cog_load(self):
         with engine.connect(DB) as con:
             init_db(con)
-            rows = con.execute('SELECT id,scenario_id FROM nox_adventures WHERE closed_at IS NULL').fetchall()
+            rows = con.execute('SELECT id,scenario_id,message_id FROM nox_adventures WHERE closed_at IS NULL AND message_id IS NOT NULL').fetchall()
             con.commit()
-        for adventure_id, scenario_id in rows:
+        for adventure_id, scenario_id, message_id in rows:
             scenario = self.scenarios.get(scenario_id)
             if scenario:
-                self.bot.add_view(AdventureView(self, adventure_id, scenario))
+                self.bot.add_view(AdventureView(self, adventure_id, scenario), message_id=message_id)
 
     async def vote(self, interaction: discord.Interaction, adventure_id: int, choice: int):
         if not interaction.guild or interaction.user.bot:
@@ -62,8 +62,8 @@ class NoxAdventures(commands.Cog):
             return
         with engine.connect(DB) as con:
             init_db(con)
-            row = con.execute('SELECT guild_id,opened_at,closed_at,scenario_id FROM nox_adventures WHERE id=?', (adventure_id,)).fetchone()
-            if not row or row[0] != interaction.guild.id or row[2] is not None or time.time() - row[1] > DURATION:
+            row = con.execute('SELECT guild_id,opened_at,closed_at,scenario_id,message_id FROM nox_adventures WHERE id=?', (adventure_id,)).fetchone()
+            if not row or row[0] != interaction.guild.id or row[2] is not None or time.time() - row[1] > DURATION or not interaction.message or interaction.message.id != row[4]:
                 await interaction.response.send_message('Cette aventure est terminée. 🌙', ephemeral=True)
                 return
             scenario = self.scenarios.get(row[3])
@@ -77,6 +77,9 @@ class NoxAdventures(commands.Cog):
     async def noxaventure(self, interaction: discord.Interaction, action: app_commands.Choice[str], salon: discord.TextChannel | None = None):
         await interaction.response.defer(ephemeral=True)
         guild = interaction.guild
+        if guild is None:
+            await interaction.followup.send('Commande réservée à un serveur.', ephemeral=True)
+            return
         with engine.connect(DB) as con:
             init_db(con)
             current = active(con, guild.id)
@@ -93,24 +96,34 @@ class NoxAdventures(commands.Cog):
         if not isinstance(salon, discord.TextChannel) or salon.guild.id != guild.id:
             await interaction.followup.send('Choisis un salon texte de ce serveur.', ephemeral=True)
             return
-        perms = salon.permissions_for(guild.me)
-        if not (perms.view_channel and perms.send_messages and perms.manage_webhooks):
+        me = guild.me
+        perms = salon.permissions_for(me) if me else None
+        if not perms or not (perms.view_channel and perms.send_messages and perms.manage_webhooks):
             await interaction.followup.send('Permissions Voir le salon, Envoyer des messages et Gérer les webhooks nécessaires.', ephemeral=True)
             return
         scenario = random.choice(list(self.scenarios.values()))
         with engine.connect(DB) as con:
+            state = engine.snapshot(con, guild.id)
             init_db(con)
             cur = con.execute('INSERT INTO nox_adventures(guild_id,channel_id,scenario_id,opened_at) VALUES(?,?,?,?)', (guild.id, salon.id, scenario['id'], time.time()))
             adventure_id = cur.lastrowid
             con.commit()
         view = AdventureView(self, adventure_id, scenario)
+        # Ambiance liée aux jauges officielles ; aucune aventure n'est bloquée.
+        weakest = min(engine.STATS, key=lambda key: state['stats'][key])
+        if state['stats'][weakest] < 35:
+            preface = '🐾 Je suis un peu fatigué ou préoccupé, mais cette aventure me changera les idées !'
+        elif min(state['stats'].values()) >= 70:
+            preface = '✨ Je déborde d’énergie cosmique ! Partons explorer ensemble !'
+        else:
+            preface = '🌌 Une nouvelle aventure nous attend, à notre rythme !'
         try:
-            message = await send_as_nox(salon, content=scenario['intro'] + '\n\n🐾 **Choisissez la suite de mon aventure !** (30 minutes)', view=view, allowed_mentions=discord.AllowedMentions.none())
+            message = await send_as_nox(salon, content=preface + '\n\n' + scenario['intro'] + '\n\n🐾 **Choisissez la suite de mon aventure !** (30 minutes)', view=view, allowed_mentions=discord.AllowedMentions.none())
         except discord.HTTPException:
             with engine.connect(DB) as con:
                 con.execute('UPDATE nox_adventures SET closed_at=? WHERE id=?', (time.time(), adventure_id))
                 con.commit()
-            log.exception('Impossible de publier aventure NOX')
+            log.exception('Impossible de publier aventure NOX ; état clôturé pour éviter une aventure bloquée')
             await interaction.followup.send('Impossible de publier. Vérifie les permissions du salon.', ephemeral=True)
             return
         with engine.connect(DB) as con:

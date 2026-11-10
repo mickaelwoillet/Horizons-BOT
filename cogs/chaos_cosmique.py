@@ -205,7 +205,7 @@ class CosmicChoices(discord.ui.View):
             conn.execute('''UPDATE cosmic_world SET chaos=?, energy=?, harmony=?, active_event_id=0 WHERE guild_id=?''',
                          (clamp(world['chaos'] + outcome[1]), clamp(world['energy'] + outcome[2]),
                           clamp(world['harmony'] + outcome[3]), interaction.guild.id))
-            conn.execute('UPDATE cosmic_creature SET xp=xp+3, curiosity=MIN(100,curiosity+2) WHERE guild_id=?', (interaction.guild.id,))
+            # Progression historique NOX figée : seule la progression du monde continue.
             unlocks(conn, interaction.guild.id)
             journal(conn, interaction.guild.id, f'Anomalie {event[1]} résolue par {interaction.user.display_name}.')
         await interaction.response.edit_message(embed=event_embed(event, choice), view=None)
@@ -302,28 +302,8 @@ def nox_wish(guild_id: int, day: str) -> str:
     return NOX_WISHES[n % len(NOX_WISHES)]
 
 def care_nox(conn, guild_id: int, user_id: int, action: str, day: str):
-    if action not in NOX_EFFECTS:
-        return False, 'Action inconnue.'
-    c=creature(conn,guild_id)
-    cur=conn.execute('INSERT OR IGNORE INTO cosmic_actions(guild_id,user_id,action,day) VALUES(?,?,?,?)',
-                     (guild_id,user_id,'nox:'+action,day))
-    if not cur.rowcount:
-        return False, 'Nox a déjà partagé cette activité avec toi aujourd’hui. Essaie un autre bouton !'
-    field,amount=NOX_EFFECTS[action]
-    conn.execute(f'UPDATE cosmic_creature SET {field}=MIN(100,{field}+?), xp=xp+5, last_care=? WHERE guild_id=?',
-                 (amount,day,guild_id))
-    c=creature(conn,guild_id)
-    stage=min(4,1+c['xp']//100)
-    if stage>c['stage']:
-        conn.execute('UPDATE cosmic_creature SET stage=?,last_evolution=? WHERE guild_id=?',(stage,day,guild_id))
-        journal(conn,guild_id,f'Nox atteint le stade {stage} !')
-    # Texte déterministe par jour / utilisateur / action, surprise sans incohérence.
-    import hashlib
-    seed=hashlib.sha256(f'{guild_id}:{user_id}:{day}:{action}'.encode()).digest()[0]
-    line=NOX_LINES[action][seed%len(NOX_LINES[action])]
-    if stage>c['stage']:
-        line+=' 🌟 **Nox vient de se métamorphoser !**'
-    return True,line
+    """Compatibilité historique : ne plus écrire dans cosmic_creature."""
+    return False, 'Les soins ont été transférés au Refuge officiel de NOX.'
 
 
 def map_text(conn,guild_id):
@@ -706,6 +686,18 @@ class CosmicExpeditionView(discord.ui.View):
             message=contribute_expedition(conn,i.guild.id,i.user.id,day)
         await i.response.send_message(message,ephemeral=True)
 
+# Ancien panneau : conservé comme point d'entrée, jamais comme second animal.
+# Les custom_id historiques restent routés après redémarrage vers le Refuge.
+REFUGE_CHANNEL_ID = 1569826968659300392
+
+
+def official_refuge_embed(guild_id: int):
+    from .nox_refuge import DB, make_embed
+    from . import nox_refuge_engine as engine
+    with engine.connect(DB) as con:
+        return make_embed(engine.snapshot(con, guild_id))
+
+
 class NoxPanel(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
@@ -713,10 +705,10 @@ class NoxPanel(discord.ui.View):
     async def action(self,interaction,action):
         if not interaction.guild:
             return await interaction.response.send_message('Disponible sur le serveur uniquement.',ephemeral=True)
-        with connect() as conn:
-            ok,message=care_nox(conn,interaction.guild.id,interaction.user.id,action,datetime.now(LOCAL_TIMEZONE).date().isoformat())
-            c=creature(conn,interaction.guild.id)
-        await interaction.response.send_message(('👾 ' if ok else '⏳ ')+message,embed=creature_embed(c) if ok else None,ephemeral=True)
+        url=f'https://discord.com/channels/{interaction.guild.id}/{REFUGE_CHANNEL_ID}'
+        await interaction.response.send_message(
+            f'🐾 Les soins de NOX sont réunis dans son [Refuge officiel]({url}). '
+            'Utilise les boutons du Refuge pour modifier ses besoins.', ephemeral=True)
 
     @discord.ui.button(label='Nourrir',emoji='🍪',style=discord.ButtonStyle.success,custom_id='cosmic:v10:nox:feed',row=0)
     async def feed(self,i,b): await self.action(i,'nourrir')
@@ -1028,9 +1020,8 @@ class NoxCentralAction(discord.ui.Button):
         if staff and (not interaction.guild or not interaction.user.guild_permissions.administrator):
             return await interaction.response.send_message('🛡️ Réservé aux administrateurs.', ephemeral=True)
         if self.action == 'cosmos':
-            with connect() as con:
-                c = creature(con, interaction.guild.id)
-            await interaction.response.send_message(embed=creature_embed(c), view=NoxPanel(), ephemeral=True)
+            await interaction.response.send_message(embed=official_refuge_embed(interaction.guild.id),
+                                                    view=NoxPanel(), ephemeral=True)
         elif self.action == 'refuge':
             from .nox_refuge import RefugeView
             await interaction.response.send_message('🏡 **Refuge de NOX** — Prends soin de NOX avec les boutons ci-dessous.', view=RefugeView(), ephemeral=True)
@@ -1475,17 +1466,20 @@ class ChaosCosmique(commands.Cog):
             view=NoxCentralView(interaction.user.id), ephemeral=True)
 
     async def nox(self, interaction: discord.Interaction):
-        with connect() as conn:
-            c=creature(conn,interaction.guild.id)
-        await interaction.response.send_message(embed=creature_embed(c),view=NoxPanel(),ephemeral=True)
+        await interaction.response.send_message(embed=official_refuge_embed(interaction.guild.id),
+                                                view=NoxPanel(), ephemeral=True)
 
-    @cosmos.command(name='soigner', description='Prendre soin de Nox (une fois par jour et par action)')
+    @cosmos.command(name='soigner', description='Retrouver les soins du Refuge officiel de NOX')
     @app_commands.guild_only()
-    @app_commands.choices(action=[app_commands.Choice(name='💙 Lui parler',value='parler'),app_commands.Choice(name='✨ Explorer avec lui',value='explorer'),app_commands.Choice(name='🍪 Lui offrir un biscuit imaginaire',value='nourrir'),app_commands.Choice(name='🧘 Méditer ensemble',value='mediter')])
+    @app_commands.choices(action=[app_commands.Choice(name='💙 Lui parler',value='parler'),
+        app_commands.Choice(name='✨ Explorer avec lui',value='explorer'),
+        app_commands.Choice(name='🍪 Lui offrir un biscuit imaginaire',value='nourrir'),
+        app_commands.Choice(name='🧘 Méditer ensemble',value='mediter')])
     async def soigner(self, interaction: discord.Interaction, action: app_commands.Choice[str]):
-        with connect() as conn:
-            ok,message=care_nox(conn,interaction.guild.id,interaction.user.id,action.value,datetime.now(LOCAL_TIMEZONE).date().isoformat())
-        await interaction.response.send_message(('👾 ' if ok else '⏳ ')+message,ephemeral=True)
+        url=f'https://discord.com/channels/{interaction.guild.id}/{REFUGE_CHANNEL_ID}'
+        await interaction.response.send_message(
+            f'🐾 Les soins de NOX sont réunis dans son [Refuge officiel]({url}). '
+            'Utilise ses boutons pour faire évoluer les cinq jauges communes.', ephemeral=True)
 
     # Accessible depuis /nox → Carte du monde ; conservé comme méthode interne.
     async def carte(self, interaction: discord.Interaction):

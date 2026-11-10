@@ -90,13 +90,13 @@ class NoxLife(commands.Cog):
             channel = self.bot.get_channel(row['channel_id'])
             if not isinstance(channel, discord.TextChannel) or not dialogues:
                 continue
-            choices = [d for d in dialogues if d['id'] != row['last_dialogue']]
+            choices = [d for d in dialogues if d.get('id') != row['last_dialogue']]
             if not choices:
-                continue
+                choices = dialogues  # Un catalogue d'une seule réplique doit rester utilisable.
             item = random.choice(choices)
             try:
                 await send_as_nox(channel, content=item['texte'])
-            except discord.HTTPException:
+            except (discord.HTTPException, OSError, ValueError):
                 log.exception('NOX ne peut pas intervenir dans %s', row['channel_id'])
                 continue
             with engine.connect(DB) as con:
