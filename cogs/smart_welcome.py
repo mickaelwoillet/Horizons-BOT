@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import logging
+import json
+import hashlib
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
 
@@ -249,26 +251,21 @@ class SmartWelcome(commands.Cog):
             logger.warning("Salon de bienvenue introuvable ou non configuré.")
             return
 
-        embed = horizons_embed(
-            title="🌅 Bienvenue dans HORIZONS !",
-            description=(
-                f"Bienvenue {member.mention} ! 💜\n\n"
-                "Nous sommes heureux de t'accueillir. Tu peux prendre le temps de découvrir la communauté, "
-                "sans obligation de te présenter immédiatement.\n\n"
-                "**Pour commencer, voici trois petits pas :**\n"
-                "📜 **1. Découvrir la charte** : lis-la puis utilise le bouton d'acceptation dans le salon dédié.\n"
-                "🧭 **2. Après la charte** : tu pourras personnaliser ton expérience dans le choix des rôles.\n"
-                "🌌 **3. Ouvrir ton Centre** : tape **`/centre`** pour retrouver ton espace personnel, ta Carte du Ciel et les activités.\n\n"
-                "Tu peux simplement observer au début. La présentation est facultative : ici, chacun avance à son rythme. Bienvenue chez toi ! ✨"
-            ),
-            color=discord.Color.gold(),
-        )
-        embed.set_author(name=f"Membre : {member.display_name}", icon_url=member.display_avatar.url)
-        embed.set_footer(text=WELCOME_MARKER)
+        from .nox_identity import send_as_nox
+        choices = json.loads((DATA_DIR / "nox" / "accueils.json").read_text(encoding="utf-8"))
+        index = int.from_bytes(hashlib.sha256(f"{member.guild.id}:{member.id}".encode()).digest()[:4], "big") % len(choices)
+        content = choices[index]["texte"].replace("{mention}", member.mention)
         try:
-            await channel.send(embed=embed, view=WelcomeView(), allowed_mentions=discord.AllowedMentions(users=True))
+            # Les boutons de charte et découverte restent sur le message de NOX.
+            await send_as_nox(channel, content=content, view=WelcomeView(),
+                              allowed_mentions=discord.AllowedMentions(users=[member], roles=False, everyone=False))
         except discord.HTTPException:
-            logger.exception("Impossible d'envoyer l'accueil guidé pour %s.", member.id)
+            logger.exception("Webhook NOX indisponible : accueil via bot pour %s", member.id)
+            try:
+                await channel.send(content=content, view=WelcomeView(),
+                                   allowed_mentions=discord.AllowedMentions(users=[member], roles=False, everyone=False))
+            except discord.HTTPException:
+                logger.exception("Impossible d'envoyer l'accueil pour %s", member.id)
 
     @commands.Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member):

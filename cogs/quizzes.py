@@ -267,6 +267,10 @@ class Quizzes(commands.Cog):
             await channel.send(embed=embed)
         except discord.HTTPException:
             await channel.send(embed=embed)
+        # Le classement reste publié par le bot ; NOX peut le commenter (option admin).
+        from .nox_events import quiz as nox_quiz
+        winner = ordered[0][0] if scores else None
+        await nox_quiz(channel, str(session["message_id"]), winner)
 
     async def quiz_lancer(
         self,

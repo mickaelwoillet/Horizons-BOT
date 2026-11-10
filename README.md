@@ -254,3 +254,6 @@ Ajout des trois verdicts de `nox_faim_anime` (GIF de Nox affamé). Aucune modifi
 
 ### V10.54 — NOX TV
 Cinq anciennes sous-commandes (`statut`, `diagnostic`, `audit`, `simulation`, `catalogue`) ont été migrées vers les boutons de `/noxtv panneau`.
+
+### V10.85.10 — Surprises collectives NOX
+`/noxsurprise` (administrateur) : choisir parmi 4 thèmes (absurdité, question, mini-défi, douceur) et un salon. NOX publie via webhook ; pas de publication automatique. 32 répliques dans `data/nox/surprises_collectives.json`.

@@ -219,7 +219,8 @@ CREATE TABLE IF NOT EXISTS staff_task_history (
 );
 CREATE TABLE IF NOT EXISTS staff_shifts (
  id INTEGER PRIMARY KEY AUTOINCREMENT, guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
- started_at TEXT NOT NULL, ended_at TEXT, note TEXT NOT NULL DEFAULT ''
+ started_at TEXT NOT NULL, ended_at TEXT, note TEXT NOT NULL DEFAULT '',
+ last_activity_at TEXT, end_reason TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_staff_shifts_active ON staff_shifts(guild_id,ended_at);
 CREATE TABLE IF NOT EXISTS horizons_path_progress (
@@ -382,6 +383,13 @@ def init_db() -> None:
     try:
         conn.executescript(SCHEMA)
         # Migrations non destructives pour les bases créées par une version antérieure.
+        shift_columns = {row[1] for row in conn.execute("PRAGMA table_info(staff_shifts)").fetchall()}
+        if "last_activity_at" not in shift_columns:
+            conn.execute("ALTER TABLE staff_shifts ADD COLUMN last_activity_at TEXT")
+        if "end_reason" not in shift_columns:
+            conn.execute("ALTER TABLE staff_shifts ADD COLUMN end_reason TEXT")
+        # Migration : pour les services en cours, prendre le début comme dernier signal connu.
+        conn.execute("UPDATE staff_shifts SET last_activity_at=started_at WHERE last_activity_at IS NULL AND ended_at IS NULL")
         birthday_columns = {row[1] for row in conn.execute("PRAGMA table_info(birthdays)").fetchall()}
         if "birth_year" not in birthday_columns:
             conn.execute("ALTER TABLE birthdays ADD COLUMN birth_year INTEGER")

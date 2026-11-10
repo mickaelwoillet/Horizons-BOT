@@ -170,6 +170,23 @@ EXTENSIONS: Final[tuple[str, ...]] = (
     "cogs.celestial_treasures",
     "cogs.chaos_cosmique",
     "cogs.nox_tv",
+    "cogs.nox_publications",
+    "cogs.nox_refuge",
+    "cogs.nox_presence",
+    "cogs.nox_life",
+    "cogs.nox_events",
+    "cogs.nox_surprises",
+    "cogs.nox_adventures",
+    "cogs.nox_memory_commands",
+    "cogs.nox_honors_commands",
+    "cogs.nox_honors_roles",
+    "cogs.nox_cosmic_missions",
+    "cogs.nox_daily_polls",
+    "cogs.nox_daily_challenges",
+    "cogs.nox_daily_12",
+    "cogs.nox_diagnostics",
+    "cogs.nox_planning",
+    "cogs.nox_interactions",
 )
 
 # ---------------------------------------------------------------------------

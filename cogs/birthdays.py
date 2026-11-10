@@ -78,7 +78,9 @@ class Birthdays(commands.Cog):
             try:
                 age = today.year - int(row["birth_year"]) if row["birth_year"] is not None else None
                 age_text = f" qui fête ses **{age} ans**" if age is not None and age >= 0 else ""
-                await channel.send(f"🎉 Aujourd'hui, nous souhaitons un très joyeux anniversaire à {member.mention}{age_text} ! Que cette journée soit belle ! 🎂")
+                from .nox_events import birthday as nox_birthday
+                if not await nox_birthday(channel, member, age_text):
+                    await channel.send(f"🎉 Aujourd'hui, nous souhaitons un très joyeux anniversaire à {member.mention}{age_text} ! Que cette journée soit belle ! 🎂")
             except discord.HTTPException: continue
             with db() as conn:
                 conn.execute("INSERT OR IGNORE INTO birthday_posts(guild_id,year,user_id) VALUES(?,?,?)", (channel.guild.id,today.year,uid))

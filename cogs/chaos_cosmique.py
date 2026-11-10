@@ -813,6 +813,312 @@ class NoxPanel(discord.ui.View):
             description='Statut, diagnostic, audit, simulation et catalogue. Aucune publication automatique n’est déclenchée ici.',color=0x7764ff)
         await i.response.send_message(embed=embed,view=NoxTVDashboard(),ephemeral=True)
 
+# Centre unique : les menus ouvrent des sous-panneaux privés, sans publier.
+NOX_SECTIONS = {
+    'accueil': ('🐾 Centre NOX', 'Choisis une rubrique ci-dessous. Les panneaux restent privés et ne publient rien.'),
+    'univers': ('🌌 Univers cosmique', 'Soins, exploration, rencontres, missions et chroniques du monde de NOX.'),
+    'refuge': ('🏡 Refuge', 'Retrouve le panneau du Refuge et ses six soins. Les rôles et souvenirs restent conservés.'),
+    'animations': ('🎲 Animations', 'Sondages, défis, aventures, missions collectives et surprises.'),
+    'publications': ('📬 Publications', '12 rendez-vous de 10h à 22h50, dont 6 illustrés. Les sondages et défis occupent des créneaux existants.'),
+    'tv': ('🎬 NOX TV', 'Catalogue, diagnostics, simulations, votes et contrôle des publications visuelles.'),
+    'administration': ('🛡️ Administration NOX', 'Planning, diagnostic, activation du quotidien et réglages. Aucun envoi ne part de ce tableau de bord.'),
+}
+
+
+def nox_dashboard_embed(section):
+    title, description = NOX_SECTIONS[section]
+    embed = horizons_embed(title=title, description=description, color=0xD4AF37)
+    if section == 'accueil':
+        embed.add_field(name='🧭 Navigation', value='Univers · Refuge · Animations · Publications · NOX TV · Administration', inline=False)
+    elif section == 'publications':
+        embed.add_field(name='📅 Programme', value='10h00–22h50 · 12 créneaux · 6 images · 2 sondages · 1 défi · 1 bilan', inline=False)
+    elif section == 'animations':
+        embed.add_field(name='🌟 Participer', value='Les membres votent et participent dans les messages de NOX. Les administrateurs pilotent les animations depuis les outils existants.', inline=False)
+    elif section == 'administration':
+        embed.add_field(name='🔒 Accès', value='Les contrôles sont réservés aux administrateurs. Les autres membres ne peuvent pas les déclencher.', inline=False)
+    return embed
+
+
+class NoxCentralSelect(discord.ui.Select):
+    def __init__(self):
+        options = [discord.SelectOption(label=title.split(' ', 1)[1], value=key, emoji=title.split(' ', 1)[0])
+                   for key, (title, _) in NOX_SECTIONS.items()]
+        super().__init__(placeholder='Choisir une rubrique de NOX', options=options, row=0)
+
+    async def callback(self, interaction):
+        view = self.view
+        if interaction.user.id != view.owner_id:
+            return await interaction.response.send_message('Ouvre ton propre centre avec `/nox`.', ephemeral=True)
+        view.section = self.values[0]
+        view.refresh()
+        await interaction.response.edit_message(embed=nox_dashboard_embed(view.section), view=view)
+
+
+class NoxDailyConfigModal(discord.ui.Modal, title='Configurer les publications de NOX'):
+    channel_id = discord.ui.TextInput(label='Identifiant du salon de publication', placeholder='ID numérique du salon', min_length=15, max_length=22)
+    active = discord.ui.TextInput(label='Activer ? (oui / non)', placeholder='oui', min_length=2, max_length=3)
+
+    async def on_submit(self, interaction):
+        if not interaction.guild or not interaction.user.guild_permissions.administrator:
+            return await interaction.response.send_message('Accès administrateur requis.', ephemeral=True)
+        raw = str(self.channel_id).strip()
+        answer = str(self.active).strip().lower()
+        if not raw.isdecimal() or answer not in ('oui', 'non'):
+            return await interaction.response.send_message('Indique un ID numérique et « oui » ou « non ».', ephemeral=True)
+        channel = interaction.guild.get_channel(int(raw))
+        if not isinstance(channel, discord.TextChannel):
+            return await interaction.response.send_message('Salon textuel introuvable sur ce serveur.', ephemeral=True)
+        member = interaction.guild.me
+        perms = channel.permissions_for(member) if member else None
+        if not perms or not (perms.view_channel and perms.send_messages and perms.manage_webhooks and perms.attach_files):
+            return await interaction.response.send_message('Permissions requises : voir, écrire, gérer les webhooks et joindre des fichiers.', ephemeral=True)
+        from .nox_refuge import DB
+        from . import nox_refuge_engine as engine
+        from .nox_daily_12 import initialize
+        with engine.connect(DB) as con:
+            initialize(con)
+            con.execute('INSERT INTO nox_daily_config(guild_id,channel_id,enabled) VALUES(?,?,?) '
+                        'ON CONFLICT(guild_id) DO UPDATE SET channel_id=excluded.channel_id,enabled=excluded.enabled',
+                        (interaction.guild.id, channel.id, int(answer == 'oui')))
+            con.commit()
+        await interaction.response.send_message(
+            f'🐾 Publications {"activées" if answer == "oui" else "suspendues"} dans {channel.mention}. '
+            'Les horaires existants restent inchangés.', ephemeral=True)
+
+
+class NoxActivityModal(discord.ui.Modal, title='NOX — interventions spontanées'):
+    channel_id = discord.ui.TextInput(label='Identifiant du salon', placeholder='ID du salon Discord', min_length=15, max_length=22)
+    active = discord.ui.TextInput(label='Activer (oui/non)', placeholder='non', min_length=2, max_length=3)
+
+    def __init__(self, kind):
+        super().__init__()
+        self.kind = kind
+
+    async def on_submit(self, interaction):
+        if not interaction.guild or not interaction.user.guild_permissions.administrator:
+            return await interaction.response.send_message('Réservé aux administrateurs.', ephemeral=True)
+        raw, answer = str(self.channel_id).strip(), str(self.active).strip().lower()
+        if not raw.isdecimal() or answer not in ('oui', 'non'):
+            return await interaction.response.send_message('Indique un ID de salon et oui ou non.', ephemeral=True)
+        channel = interaction.guild.get_channel(int(raw))
+        if not isinstance(channel, discord.TextChannel):
+            return await interaction.response.send_message('Salon textuel introuvable.', ephemeral=True)
+        cog = interaction.client.get_cog('NoxPresence' if self.kind == 'presence' else 'NoxLife')
+        if not cog:
+            return await interaction.response.send_message('Module indisponible.', ephemeral=True)
+        handler = cog.noxpresence if self.kind == 'presence' else cog.noxvie
+        await handler(interaction, channel, answer == 'oui')
+
+
+class NoxEventsModal(discord.ui.Modal, title='NOX — événements'):
+    birthdays = discord.ui.TextInput(label='Anniversaires (oui/non)', placeholder='non', min_length=2, max_length=3)
+    quizzes = discord.ui.TextInput(label='Quiz (oui/non)', placeholder='non', min_length=2, max_length=3)
+
+    async def on_submit(self, interaction):
+        if not interaction.guild or not interaction.user.guild_permissions.administrator:
+            return await interaction.response.send_message('Réservé aux administrateurs.', ephemeral=True)
+        values = [str(self.birthdays).strip().lower(), str(self.quizzes).strip().lower()]
+        if any(v not in ('oui', 'non') for v in values):
+            return await interaction.response.send_message('Réponds oui ou non aux deux champs.', ephemeral=True)
+        cog = interaction.client.get_cog('NoxEvents')
+        if not cog:
+            return await interaction.response.send_message('Module indisponible.', ephemeral=True)
+        await cog.noxevenements(interaction, *(v == 'oui' for v in values))
+
+
+class NoxSurpriseSelect(discord.ui.Select):
+    def __init__(self):
+        super().__init__(placeholder='Choisir une surprise à publier dans ce salon', options=[
+            discord.SelectOption(label='Absurdité cosmique', value='absurde', emoji='🪐'),
+            discord.SelectOption(label='Question loufoque', value='question', emoji='❓'),
+            discord.SelectOption(label='Mini-défi collectif', value='defi', emoji='🎲'),
+            discord.SelectOption(label='Douceur de NOX', value='douceur', emoji='💛'),
+        ])
+
+    async def callback(self, interaction):
+        if interaction.user.id != self.view.owner_id or not interaction.guild or not interaction.user.guild_permissions.administrator:
+            return await interaction.response.send_message('Réservé à l’administrateur ayant ouvert le panneau.', ephemeral=True)
+        if not isinstance(interaction.channel, discord.TextChannel):
+            return await interaction.response.send_message('Ouvre le panneau dans un salon textuel.', ephemeral=True)
+        cog = interaction.client.get_cog('NoxSurprises')
+        if not cog:
+            return await interaction.response.send_message('Module indisponible.', ephemeral=True)
+        choice = app_commands.Choice(name=self.values[0], value=self.values[0])
+        await cog.noxsurprise(interaction, choice, interaction.channel)
+
+
+class NoxSurpriseView(discord.ui.View):
+    def __init__(self, owner_id):
+        super().__init__(timeout=180)
+        self.owner_id = owner_id
+        self.add_item(NoxSurpriseSelect())
+
+
+class NoxRolesSyncModal(discord.ui.Modal, title='NOX — synchronisation des rôles'):
+    offset = discord.ui.TextInput(label='Début de pagination (0, 100, 200...)', default='0', max_length=6)
+
+    async def on_submit(self, interaction):
+        if not interaction.guild or not interaction.user.guild_permissions.administrator:
+            return await interaction.response.send_message('Réservé aux administrateurs.', ephemeral=True)
+        raw = str(self.offset).strip()
+        if not raw.isdecimal() or int(raw) > 100000:
+            return await interaction.response.send_message('Indique un nombre entre 0 et 100000.', ephemeral=True)
+        cog = interaction.client.get_cog('NoxHonorRoles')
+        if cog is None:
+            return await interaction.response.send_message('Module de rôles indisponible.', ephemeral=True)
+        await cog.noxroles(interaction, app_commands.Choice(name='Synchroniser', value='synchroniser'), int(raw))
+
+
+class NoxSpeakModal(discord.ui.Modal, title='NOX — message personnalisé'):
+    texte = discord.ui.TextInput(label='Message de NOX', style=discord.TextStyle.paragraph, min_length=1, max_length=1800)
+
+    async def on_submit(self, interaction):
+        if not interaction.guild or not interaction.user.guild_permissions.administrator:
+            return await interaction.response.send_message('Réservé aux administrateurs.', ephemeral=True)
+        if not isinstance(interaction.channel, discord.TextChannel):
+            return await interaction.response.send_message('Utilise un salon textuel.', ephemeral=True)
+        cog = interaction.client.get_cog('NoxPublications')
+        if cog is None:
+            return await interaction.response.send_message('Module de publication indisponible.', ephemeral=True)
+        await cog.me(interaction, str(self.texte), interaction.channel)
+
+
+class NoxManualSelect(discord.ui.Select):
+    def __init__(self):
+        import json
+        from pathlib import Path
+        catalogue = Path(__file__).resolve().parent.parent / 'data' / 'nox' / 'messages_manuels.json'
+        try:
+            items = json.loads(catalogue.read_text(encoding='utf-8'))
+            options = [discord.SelectOption(label=str(item['titre'])[:100], value=str(item['id'])) for item in items[:25]]
+        except (OSError, ValueError, KeyError, TypeError):
+            options = []
+        if not options:
+            options = [discord.SelectOption(label='Catalogue indisponible', value='missing')]
+        super().__init__(placeholder='Choisir une réplique de NOX', options=options)
+
+    async def callback(self, interaction):
+        if interaction.user.id != self.view.owner_id or not interaction.guild or not interaction.user.guild_permissions.administrator:
+            return await interaction.response.send_message('Réservé à l’administrateur ayant ouvert ce panneau.', ephemeral=True)
+        if not isinstance(interaction.channel, discord.TextChannel) or self.values[0] == 'missing':
+            return await interaction.response.send_message('Salon ou catalogue indisponible.', ephemeral=True)
+        cog = interaction.client.get_cog('NoxPublications')
+        if cog is None:
+            return await interaction.response.send_message('Module de publication indisponible.', ephemeral=True)
+        await cog.noxpublier(interaction, app_commands.Choice(name=self.values[0], value=self.values[0]), interaction.channel)
+
+
+class NoxManualView(discord.ui.View):
+    def __init__(self, owner_id):
+        super().__init__(timeout=180)
+        self.owner_id = owner_id
+        self.add_item(NoxManualSelect())
+
+
+class NoxCentralAction(discord.ui.Button):
+    def __init__(self, action, label, emoji, row=1, style=discord.ButtonStyle.secondary):
+        super().__init__(label=label, emoji=emoji, style=style, row=row)
+        self.action = action
+
+    async def callback(self, interaction):
+        view = self.view
+        if interaction.user.id != view.owner_id:
+            return await interaction.response.send_message('Ouvre ton propre centre avec `/nox`.', ephemeral=True)
+        staff = self.action in ('planning', 'diagnostic', 'config', 'tv', 'adventure_start', 'adventure_end', 'mission_start', 'mission_end', 'presence', 'vie', 'evenements', 'surprise', 'roles_install', 'roles_sync', 'speak', 'manual')
+        if staff and (not interaction.guild or not interaction.user.guild_permissions.administrator):
+            return await interaction.response.send_message('🛡️ Réservé aux administrateurs.', ephemeral=True)
+        if self.action == 'cosmos':
+            with connect() as con:
+                c = creature(con, interaction.guild.id)
+            await interaction.response.send_message(embed=creature_embed(c), view=NoxPanel(), ephemeral=True)
+        elif self.action == 'refuge':
+            from .nox_refuge import RefugeView
+            await interaction.response.send_message('🏡 **Refuge de NOX** — Prends soin de NOX avec les boutons ci-dessous.', view=RefugeView(), ephemeral=True)
+        elif self.action == 'tv':
+            from .nox_tv import NoxTVDashboard
+            await interaction.response.send_message('🎬 **NOX TV — Centre staff**', view=NoxTVDashboard(), ephemeral=True)
+        elif self.action in ('planning', 'diagnostic'):
+            cog_name = 'NoxPlanning' if self.action == 'planning' else 'NoxDiagnostics'
+            cog = interaction.client.get_cog(cog_name)
+            if cog is None:
+                return await interaction.response.send_message('Module indisponible.', ephemeral=True)
+            await getattr(cog, 'nox' + self.action)(interaction)
+        elif self.action == 'config':
+            await interaction.response.send_modal(NoxDailyConfigModal())
+        elif self.action in ('presence', 'vie'):
+            await interaction.response.send_modal(NoxActivityModal(self.action))
+        elif self.action == 'evenements':
+            await interaction.response.send_modal(NoxEventsModal())
+        elif self.action == 'speak':
+            await interaction.response.send_modal(NoxSpeakModal())
+        elif self.action == 'manual':
+            await interaction.response.send_message('📬 Choisis une réplique à publier dans ce salon.', view=NoxManualView(interaction.user.id), ephemeral=True)
+        elif self.action == 'surprise':
+            await interaction.response.send_message('🎭 Choisis une surprise. Elle sera publiée dans ce salon.', view=NoxSurpriseView(interaction.user.id), ephemeral=True)
+        elif self.action == 'roles_sync':
+            await interaction.response.send_modal(NoxRolesSyncModal())
+        elif self.action == 'roles_install':
+            cog = interaction.client.get_cog('NoxHonorRoles')
+            if cog is None:
+                return await interaction.response.send_message('Module de rôles indisponible.', ephemeral=True)
+            choice = app_commands.Choice(name='Installer', value='installer')
+            await cog.noxroles(interaction, choice, 0)
+        elif self.action in ('adventure_start', 'adventure_end', 'mission_start', 'mission_end'):
+            # Reuse existing business logic, including its DB guards and webhook sending.
+            is_adventure = self.action.startswith('adventure')
+            cog = interaction.client.get_cog('NoxAdventures' if is_adventure else 'NoxCosmicMissions')
+            if cog is None:
+                return await interaction.response.send_message('Module d’animation indisponible.', ephemeral=True)
+            choice = app_commands.Choice(name='Lancer' if self.action.endswith('start') else 'Conclure',
+                                         value='lancer' if self.action.endswith('start') else 'conclure')
+            handler = cog.noxaventure if is_adventure else cog.noxmission
+            await handler(interaction, choice, interaction.channel if self.action.endswith('start') else None)
+        elif self.action == 'memoire':
+            cog = interaction.client.get_cog('NoxMemory')
+            if cog:
+                await cog.noxmemoire(interaction)
+            else:
+                await interaction.response.send_message('Souvenirs indisponibles.', ephemeral=True)
+        elif self.action == 'titres':
+            cog = interaction.client.get_cog('NoxHonors')
+            if cog:
+                await cog.noxtitres(interaction)
+            else:
+                await interaction.response.send_message('Distinctions indisponibles.', ephemeral=True)
+        elif self.action == 'animations':
+            await interaction.response.send_message(
+                '🎲 **Animations NOX**\n• Deux sondages quotidiens avec boutons de vote\n'
+                '• Défi collectif à 15h50\n• Aventures et missions collectives\n'
+                '• Bilan à 22h50\n\nLes participations se font sur les publications du salon.', ephemeral=True)
+        elif self.action == 'publications':
+            await interaction.response.send_message(
+                '📬 **Publications NOX**\n12 créneaux de 10h00 à 22h50, dont 6 illustrés. '
+                'Le planning et le diagnostic sont disponibles dans Administration.', ephemeral=True)
+
+
+class NoxCentralView(discord.ui.View):
+    def __init__(self, owner_id):
+        super().__init__(timeout=600)
+        self.owner_id = owner_id
+        self.section = 'accueil'
+        self.refresh()
+
+    def refresh(self):
+        self.clear_items()
+        self.add_item(NoxCentralSelect())
+        actions = {
+            'accueil': [('cosmos','Univers','🌌'),('refuge','Refuge','🏡'),('animations','Animations','🎲')],
+            'univers': [('cosmos','Ouvrir l’univers','🌌'),('refuge','Refuge','🏡')],
+            'refuge': [('refuge','Ouvrir le Refuge','🏡'),('cosmos','Soins cosmiques','🌌'),('memoire','Mes souvenirs','📖'),('titres','Mes distinctions','🏅')],
+            'animations': [('adventure_start','Lancer aventure','🚀'),('adventure_end','Clore aventure','🏁'),('mission_start','Lancer mission','🌟'),('mission_end','Clore mission','🏆'),('animations','Informations','🎲'),('surprise','Surprise','🎭')],
+            'publications': [('publications','Programme','📬'),('manual','Publier une réplique','🗣️'),('speak','Faire parler NOX','✍️')],
+            'tv': [('tv','Ouvrir NOX TV (staff)','🎬')],
+            'administration': [('planning','Planning','📅'),('diagnostic','Diagnostic','🔎'),('config','Configurer le quotidien','⚙️'),('presence','Besoins de NOX','🏡'),('vie','Vie spontanée','💬'),('evenements','Événements','🎂'),('roles_install','Créer les rôles','🏅'),('roles_sync','Synchroniser rôles','🔄')],
+        }
+        for action, label, emoji in actions[self.section]:
+            self.add_item(NoxCentralAction(action, label, emoji))
+
+
 class CosmicMissionClaim(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=180)
@@ -1152,15 +1458,12 @@ class ChaosCosmique(commands.Cog):
         with connect() as conn:
             conn.execute('INSERT OR REPLACE INTO cosmic_panels VALUES(?,?,?)',(guild.id,channel.id,message.id))
 
-    @app_commands.command(name='nox', description='👾 Tableau de bord interactif de Nox et du Chaos Cosmique')
+    @app_commands.command(name='nox', description='🐾 Centre interactif de NOX : communauté, activités et administration')
     @app_commands.guild_only()
     async def nox_dashboard(self, interaction: discord.Interaction):
-        with connect() as conn:
-            c=creature(conn,interaction.guild.id)
-        embed=creature_embed(c)
-        embed.add_field(name='🌠 Son envie du jour',value=nox_wish(interaction.guild.id,datetime.now(LOCAL_TIMEZONE).date().isoformat()),inline=False)
-        embed.add_field(name='🎮 Comment jouer ?',value='Utilise les boutons ci-dessous. Chaque soin est possible une fois par jour et par membre.',inline=False)
-        await interaction.response.send_message(embed=embed,view=NoxPanel(),ephemeral=True)
+        await interaction.response.send_message(
+            embed=nox_dashboard_embed('accueil'),
+            view=NoxCentralView(interaction.user.id), ephemeral=True)
 
     async def nox(self, interaction: discord.Interaction):
         with connect() as conn:

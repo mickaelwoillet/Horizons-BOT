@@ -431,6 +431,129 @@ class NoxTVVotesModal(discord.ui.Modal, title='Résultats des votes NOX TV'):
             return
         await cog.votes(interaction, str(self.message_id.value).strip())
 
+class NoxTVPublishConfirm(discord.ui.View):
+    """Confirmation privée : aucun envoi avant validation explicite."""
+    def __init__(self, visual_id: str):
+        super().__init__(timeout=300)
+        self.visual_id = visual_id
+
+    @discord.ui.button(label='Publier cette scène', emoji='📢', style=discord.ButtonStyle.success)
+    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if not interaction.guild or not interaction.user.guild_permissions.manage_guild:
+            await interaction.response.send_message('Accès réservé aux responsables.', ephemeral=True)
+            return
+        button.disabled = True
+        await interaction.response.edit_message(view=self)
+        cog = interaction.client.get_cog('NoxTV')
+        if cog is None:
+            await interaction.followup.send('NOX TV indisponible.', ephemeral=True)
+            return
+        result = await cog.publish(interaction.guild, manual=True, visual_id=self.visual_id)
+        await interaction.followup.send(result, ephemeral=True)
+
+    @discord.ui.button(label='Annuler', emoji='✖️', style=discord.ButtonStyle.secondary)
+    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+        for child in self.children:
+            child.disabled = True
+        await interaction.response.edit_message(content='Publication annulée.', view=self)
+
+
+class NoxTVSceneSelect(discord.ui.Select):
+    def __init__(self, entries):
+        options = [discord.SelectOption(label=str(x['title'])[:100], value=x['id'],
+                                        description=x['id'][:100]) for x in entries]
+        super().__init__(placeholder='Choisir une scène NOX TV…', options=options, min_values=1, max_values=1)
+
+    async def callback(self, interaction: discord.Interaction):
+        if not interaction.guild or not interaction.user.guild_permissions.manage_guild:
+            await interaction.response.send_message('Accès réservé aux responsables.', ephemeral=True)
+            return
+        item = next((x for x in catalogue() if x['id'] == self.values[0]), None)
+        if item is None:
+            await interaction.response.send_message('Cette scène n’est plus disponible.', ephemeral=True)
+            return
+        await interaction.response.defer(ephemeral=True)
+        embed = horizons_embed(title=item['title'], description=item['text'], color=0x7764ff)
+        labels = scene_vote_labels(item['id'])
+        embed.add_field(name='Réponses proposées', value='\n'.join(f'{n}. {label}' for n, label in enumerate(labels, 1)), inline=False)
+        embed.add_field(name='Identifiant', value=f"`{item['id']}`", inline=False)
+        embed.set_footer(text='Aperçu privé · aucune publication avant confirmation')
+        asset = safe_media_path(item['file'])
+        if asset is None:
+            await interaction.followup.send('Le média de cette scène est introuvable.', ephemeral=True)
+            return
+        embed.set_image(url='attachment://' + item['file'])
+        try:
+            await interaction.followup.send(embed=embed, file=discord.File(asset, filename=item['file']),
+                                            view=NoxTVPublishConfirm(item['id']), ephemeral=True)
+        except (discord.Forbidden, discord.HTTPException, OSError) as exc:
+            LOG.warning('NOX TV: prévisualisation interactive impossible : %s', exc)
+            await interaction.followup.send('Impossible d’afficher le visuel. Vérifie le média et les permissions.', ephemeral=True)
+
+
+class NoxTVSceneBrowser(discord.ui.View):
+    """Pages de 25 scènes maximum, limite imposée par Discord."""
+    def __init__(self, entries, page=0):
+        super().__init__(timeout=900)
+        self.entries = list(entries)
+        self.page = page
+        self.pages = max(1, (len(self.entries) + 24) // 25)
+        self.add_item(NoxTVSceneSelect(self.entries[page*25:(page+1)*25]))
+        self.previous.disabled = page == 0
+        self.next_page.disabled = page >= self.pages - 1
+
+    @discord.ui.button(label='Précédent', emoji='⬅️', style=discord.ButtonStyle.secondary, row=1)
+    async def previous(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.change_page(interaction, self.page - 1)
+
+    @discord.ui.button(label='Suivant', emoji='➡️', style=discord.ButtonStyle.secondary, row=1)
+    async def next_page(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await self.change_page(interaction, self.page + 1)
+
+    async def change_page(self, interaction: discord.Interaction, page):
+        if not interaction.guild or not interaction.user.guild_permissions.manage_guild:
+            await interaction.response.send_message('Accès réservé aux responsables.', ephemeral=True)
+            return
+        if page < 0 or page >= self.pages:
+            await interaction.response.send_message('Page indisponible.', ephemeral=True)
+            return
+        await interaction.response.edit_message(content=f'🎬 **Catalogue NOX TV** — page {page+1}/{self.pages} · {len(self.entries)} scènes',
+                                                view=NoxTVSceneBrowser(self.entries, page))
+
+
+class NoxTVActivationConfirm(discord.ui.View):
+    """Confirmation explicite avant changement de l'automatisation NOX TV."""
+    def __init__(self, owner_id: int, enabled: bool):
+        super().__init__(timeout=120)
+        self.owner_id = owner_id
+        self.enabled = enabled
+
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        if (interaction.user.id != self.owner_id or not interaction.guild
+                or not interaction.user.guild_permissions.manage_guild):
+            await interaction.response.send_message('Action réservée au responsable ayant ouvert la confirmation.', ephemeral=True)
+            return False
+        return True
+
+    @discord.ui.button(label='Confirmer', emoji='✅', style=discord.ButtonStyle.danger)
+    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
+        for child in self.children:
+            child.disabled = True
+        cog = interaction.client.get_cog('NoxTV')
+        if cog is None:
+            await interaction.response.edit_message(content='NOX TV indisponible.', view=self)
+            return
+        # La méthode existante répond à l'interaction : ne pas la pré-acquitter.
+        await cog.activer(interaction, self.enabled)
+        await interaction.edit_original_response(view=self)
+
+    @discord.ui.button(label='Annuler', emoji='✖️', style=discord.ButtonStyle.secondary)
+    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+        for child in self.children:
+            child.disabled = True
+        await interaction.response.edit_message(content='Aucun réglage NOX TV modifié.', view=self)
+
+
 class NoxTVDashboard(discord.ui.View):
     """Private staff navigation; actions reuse the existing slash command handlers."""
     def __init__(self):
@@ -468,7 +591,7 @@ class NoxTVDashboard(discord.ui.View):
 
     @discord.ui.button(label='Catalogue', emoji='🎞️', style=discord.ButtonStyle.secondary, row=1)
     async def catalogue_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await self.run(interaction, 'voir_catalogue')
+        await self.run(interaction, 'catalogue_interactif')
 
     @discord.ui.button(label='Votes', emoji='🗳️', style=discord.ButtonStyle.secondary, row=2)
     async def votes_button(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -480,24 +603,21 @@ class NoxTVDashboard(discord.ui.View):
     @discord.ui.button(label='Activer', emoji='▶️', style=discord.ButtonStyle.success, row=2)
     async def enable_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         if not interaction.guild or not interaction.user.guild_permissions.manage_guild:
-            await interaction.response.send_message('Accès réservé au staff autorisé.', ephemeral=True)
+            await interaction.response.send_message('Accès réservé aux responsables.', ephemeral=True)
             return
-        cog = interaction.client.get_cog('NoxTV')
-        if cog is None:
-            await interaction.response.send_message('NOX TV indisponible.', ephemeral=True)
-            return
-        await cog.activer(interaction, True)
+        await interaction.response.send_message(
+            '▶️ Confirmer la **reprise de la rotation automatique NOX TV** ? Les horaires restent inchangés.',
+            view=NoxTVActivationConfirm(interaction.user.id, True), ephemeral=True)
 
-    @discord.ui.button(label='Désactiver', emoji='⏸️', style=discord.ButtonStyle.danger, row=2)
+    @discord.ui.button(label='Suspendre', emoji='⏸️', style=discord.ButtonStyle.danger, row=2)
     async def disable_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         if not interaction.guild or not interaction.user.guild_permissions.manage_guild:
-            await interaction.response.send_message('Accès réservé au staff autorisé.', ephemeral=True)
+            await interaction.response.send_message('Accès réservé aux responsables.', ephemeral=True)
             return
-        cog = interaction.client.get_cog('NoxTV')
-        if cog is None:
-            await interaction.response.send_message('NOX TV indisponible.', ephemeral=True)
-            return
-        await cog.activer(interaction, False)
+        await interaction.response.send_message(
+            '⏸️ Confirmer la **suspension de la rotation automatique NOX TV** ? '
+            'Les publications déjà envoyées et leurs votes restent conservés.',
+            view=NoxTVActivationConfirm(interaction.user.id, False), ephemeral=True)
 
 class NoxTV(commands.Cog):
     noxtv=app_commands.Group(name='noxtv', description='🎬 Publications visuelles de Nox (staff)')
@@ -660,7 +780,7 @@ class NoxTV(commands.Cog):
 
     async def panneau(self, i: discord.Interaction):
         embed = horizons_embed(title='🎬 NOX TV — Tableau de bord',
-            description='Contrôles privés : statut, diagnostic, audit, simulation, catalogue, votes et activation.\n'
+            description='Contrôles privés : statut, diagnostic, audit, simulation, catalogue interactif, votes et activation.\n'
                         'Les publications manuelles et la configuration du salon restent disponibles via les commandes staff existantes.',
             color=0x7764ff)
         await i.response.send_message(embed=embed, view=NoxTVDashboard(), ephemeral=True)
@@ -790,6 +910,19 @@ class NoxTV(commands.Cog):
         counts={r['choice']:r['total'] for r in rows}
         labels = labels_for_message(int(message_id), i.guild_id)
         await i.response.send_message('🎬 **Votes NOX TV**\n'+'\n'.join(f'{labels[n]} : {counts.get(n,0)}' for n in range(3)),ephemeral=True)
+
+    async def catalogue_interactif(self, i: discord.Interaction):
+        if not i.guild or not i.user.guild_permissions.manage_guild:
+            await i.response.send_message('Accès réservé aux responsables.', ephemeral=True)
+            return
+        entries = catalogue()
+        if not entries:
+            await i.response.send_message('Aucune scène NOX TV disponible.', ephemeral=True)
+            return
+        view = NoxTVSceneBrowser(entries)
+        await i.response.send_message(f'🎬 **Catalogue NOX TV** — page 1/{view.pages} · {len(entries)} scènes\n'
+                                      'Sélectionne une scène pour obtenir un aperçu privé et choisir de la publier.',
+                                      view=view, ephemeral=True)
 
     async def voir_catalogue(self, i:discord.Interaction):
         entries=catalogue()

@@ -1,0 +1,202 @@
+[
+  {
+    "id": "accueil_01",
+    "texte": "🚨 ALERTE COSMIQUE !\n\nBienvenue {mention} ! 🌌\n\nMoi c'est NOX, responsable officiel des câlins, des catastrophes et des biscuits disparus.\n\nInstalle-toi à ton rythme, et si les biscuits disparaissent, tu ne m'as jamais vu. 💛"
+  },
+  {
+    "id": "accueil_02",
+    "texte": "🚨 ALERTE COSMIQUE !\n\nBienvenue {mention} ! 🌌\n\nJ'avais écrit un discours magnifique, mais je l'ai mangé en croyant que c'était une crêpe.\n\nTu es ici chez toi. Même si je prétends que le canapé est mon vaisseau. 💛"
+  },
+  {
+    "id": "accueil_03",
+    "texte": "🚨 ALERTE COSMIQUE !\n\nBienvenue {mention} ! 🌌\n\nJe te rassure : les explosions de paillettes sont presque toujours contrôlées.\n\nPrends le temps de découvrir les autres, sans pression. Bienvenue dans notre univers ! 💛"
+  },
+  {
+    "id": "accueil_04",
+    "texte": "🚨 ALERTE COSMIQUE !\n\nBienvenue {mention} ! 🌌\n\nTu peux explorer tranquillement. Je surveille les cookies, c'est une mission très sérieuse.\n\nJe t'offre une étoile imaginaire et un vrai grand bienvenue ! 💛"
+  },
+  {
+    "id": "accueil_05",
+    "texte": "🚨 ALERTE COSMIQUE !\n\nBienvenue {mention} ! 🌌\n\nJe voulais être impressionnant, mais je me suis coincé dans mon casque spatial.\n\nSi tu trouves une chaussette spatiale, elle est à moi. Ne pose pas de questions. 💛"
+  },
+  {
+    "id": "accueil_06",
+    "texte": "🌠 Mes antennes viennent de détecter un nouvel humain !\n\nBienvenue {mention} ! 🌌\n\nMoi c'est NOX, responsable officiel des câlins, des catastrophes et des biscuits disparus.\n\nTu es ici chez toi. Même si je prétends que le canapé est mon vaisseau. 💛"
+  },
+  {
+    "id": "accueil_07",
+    "texte": "🌠 Mes antennes viennent de détecter un nouvel humain !\n\nBienvenue {mention} ! 🌌\n\nJ'avais écrit un discours magnifique, mais je l'ai mangé en croyant que c'était une crêpe.\n\nPrends le temps de découvrir les autres, sans pression. Bienvenue dans notre univers ! 💛"
+  },
+  {
+    "id": "accueil_08",
+    "texte": "🌠 Mes antennes viennent de détecter un nouvel humain !\n\nBienvenue {mention} ! 🌌\n\nJe te rassure : les explosions de paillettes sont presque toujours contrôlées.\n\nJe t'offre une étoile imaginaire et un vrai grand bienvenue ! 💛"
+  },
+  {
+    "id": "accueil_09",
+    "texte": "🌠 Mes antennes viennent de détecter un nouvel humain !\n\nBienvenue {mention} ! 🌌\n\nTu peux explorer tranquillement. Je surveille les cookies, c'est une mission très sérieuse.\n\nSi tu trouves une chaussette spatiale, elle est à moi. Ne pose pas de questions. 💛"
+  },
+  {
+    "id": "accueil_10",
+    "texte": "🌠 Mes antennes viennent de détecter un nouvel humain !\n\nBienvenue {mention} ! 🌌\n\nJe voulais être impressionnant, mais je me suis coincé dans mon casque spatial.\n\nInstalle-toi à ton rythme, et si les biscuits disparaissent, tu ne m'as jamais vu. 💛"
+  },
+  {
+    "id": "accueil_11",
+    "texte": "🍪 J'avais préparé des biscuits de bienvenue...\n\nBienvenue {mention} ! 🌌\n\nMoi c'est NOX, responsable officiel des câlins, des catastrophes et des biscuits disparus.\n\nPrends le temps de découvrir les autres, sans pression. Bienvenue dans notre univers ! 💛"
+  },
+  {
+    "id": "accueil_12",
+    "texte": "🍪 J'avais préparé des biscuits de bienvenue...\n\nBienvenue {mention} ! 🌌\n\nJ'avais écrit un discours magnifique, mais je l'ai mangé en croyant que c'était une crêpe.\n\nJe t'offre une étoile imaginaire et un vrai grand bienvenue ! 💛"
+  },
+  {
+    "id": "accueil_13",
+    "texte": "🍪 J'avais préparé des biscuits de bienvenue...\n\nBienvenue {mention} ! 🌌\n\nJe te rassure : les explosions de paillettes sont presque toujours contrôlées.\n\nSi tu trouves une chaussette spatiale, elle est à moi. Ne pose pas de questions. 💛"
+  },
+  {
+    "id": "accueil_14",
+    "texte": "🍪 J'avais préparé des biscuits de bienvenue...\n\nBienvenue {mention} ! 🌌\n\nTu peux explorer tranquillement. Je surveille les cookies, c'est une mission très sérieuse.\n\nInstalle-toi à ton rythme, et si les biscuits disparaissent, tu ne m'as jamais vu. 💛"
+  },
+  {
+    "id": "accueil_15",
+    "texte": "🍪 J'avais préparé des biscuits de bienvenue...\n\nBienvenue {mention} ! 🌌\n\nJe voulais être impressionnant, mais je me suis coincé dans mon casque spatial.\n\nTu es ici chez toi. Même si je prétends que le canapé est mon vaisseau. 💛"
+  },
+  {
+    "id": "accueil_16",
+    "texte": "🛸 Attention, atterrissage d'un nouvel explorateur !\n\nBienvenue {mention} ! 🌌\n\nMoi c'est NOX, responsable officiel des câlins, des catastrophes et des biscuits disparus.\n\nJe t'offre une étoile imaginaire et un vrai grand bienvenue ! 💛"
+  },
+  {
+    "id": "accueil_17",
+    "texte": "🛸 Attention, atterrissage d'un nouvel explorateur !\n\nBienvenue {mention} ! 🌌\n\nJ'avais écrit un discours magnifique, mais je l'ai mangé en croyant que c'était une crêpe.\n\nSi tu trouves une chaussette spatiale, elle est à moi. Ne pose pas de questions. 💛"
+  },
+  {
+    "id": "accueil_18",
+    "texte": "🛸 Attention, atterrissage d'un nouvel explorateur !\n\nBienvenue {mention} ! 🌌\n\nJe te rassure : les explosions de paillettes sont presque toujours contrôlées.\n\nInstalle-toi à ton rythme, et si les biscuits disparaissent, tu ne m'as jamais vu. 💛"
+  },
+  {
+    "id": "accueil_19",
+    "texte": "🛸 Attention, atterrissage d'un nouvel explorateur !\n\nBienvenue {mention} ! 🌌\n\nTu peux explorer tranquillement. Je surveille les cookies, c'est une mission très sérieuse.\n\nTu es ici chez toi. Même si je prétends que le canapé est mon vaisseau. 💛"
+  },
+  {
+    "id": "accueil_20",
+    "texte": "🛸 Attention, atterrissage d'un nouvel explorateur !\n\nBienvenue {mention} ! 🌌\n\nJe voulais être impressionnant, mais je me suis coincé dans mon casque spatial.\n\nPrends le temps de découvrir les autres, sans pression. Bienvenue dans notre univers ! 💛"
+  },
+  {
+    "id": "accueil_21",
+    "texte": "✨ La galaxie vient de gagner une étoile !\n\nBienvenue {mention} ! 🌌\n\nMoi c'est NOX, responsable officiel des câlins, des catastrophes et des biscuits disparus.\n\nSi tu trouves une chaussette spatiale, elle est à moi. Ne pose pas de questions. 💛"
+  },
+  {
+    "id": "accueil_22",
+    "texte": "✨ La galaxie vient de gagner une étoile !\n\nBienvenue {mention} ! 🌌\n\nJ'avais écrit un discours magnifique, mais je l'ai mangé en croyant que c'était une crêpe.\n\nInstalle-toi à ton rythme, et si les biscuits disparaissent, tu ne m'as jamais vu. 💛"
+  },
+  {
+    "id": "accueil_23",
+    "texte": "✨ La galaxie vient de gagner une étoile !\n\nBienvenue {mention} ! 🌌\n\nJe te rassure : les explosions de paillettes sont presque toujours contrôlées.\n\nTu es ici chez toi. Même si je prétends que le canapé est mon vaisseau. 💛"
+  },
+  {
+    "id": "accueil_24",
+    "texte": "✨ La galaxie vient de gagner une étoile !\n\nBienvenue {mention} ! 🌌\n\nTu peux explorer tranquillement. Je surveille les cookies, c'est une mission très sérieuse.\n\nPrends le temps de découvrir les autres, sans pression. Bienvenue dans notre univers ! 💛"
+  },
+  {
+    "id": "accueil_25",
+    "texte": "✨ La galaxie vient de gagner une étoile !\n\nBienvenue {mention} ! 🌌\n\nJe voulais être impressionnant, mais je me suis coincé dans mon casque spatial.\n\nJe t'offre une étoile imaginaire et un vrai grand bienvenue ! 💛"
+  },
+  {
+    "id": "accueil_26",
+    "texte": "🐾 STOP ! J'ai entendu un nouveau pas dans le couloir !\n\nBienvenue {mention} ! 🌌\n\nMoi c'est NOX, responsable officiel des câlins, des catastrophes et des biscuits disparus.\n\nInstalle-toi à ton rythme, et si les biscuits disparaissent, tu ne m'as jamais vu. 💛"
+  },
+  {
+    "id": "accueil_27",
+    "texte": "🐾 STOP ! J'ai entendu un nouveau pas dans le couloir !\n\nBienvenue {mention} ! 🌌\n\nJ'avais écrit un discours magnifique, mais je l'ai mangé en croyant que c'était une crêpe.\n\nTu es ici chez toi. Même si je prétends que le canapé est mon vaisseau. 💛"
+  },
+  {
+    "id": "accueil_28",
+    "texte": "🐾 STOP ! J'ai entendu un nouveau pas dans le couloir !\n\nBienvenue {mention} ! 🌌\n\nJe te rassure : les explosions de paillettes sont presque toujours contrôlées.\n\nPrends le temps de découvrir les autres, sans pression. Bienvenue dans notre univers ! 💛"
+  },
+  {
+    "id": "accueil_29",
+    "texte": "🐾 STOP ! J'ai entendu un nouveau pas dans le couloir !\n\nBienvenue {mention} ! 🌌\n\nTu peux explorer tranquillement. Je surveille les cookies, c'est une mission très sérieuse.\n\nJe t'offre une étoile imaginaire et un vrai grand bienvenue ! 💛"
+  },
+  {
+    "id": "accueil_30",
+    "texte": "🐾 STOP ! J'ai entendu un nouveau pas dans le couloir !\n\nBienvenue {mention} ! 🌌\n\nJe voulais être impressionnant, mais je me suis coincé dans mon casque spatial.\n\nSi tu trouves une chaussette spatiale, elle est à moi. Ne pose pas de questions. 💛"
+  },
+  {
+    "id": "accueil_31",
+    "texte": "🌌 Le radar à copains vient de s'affoler !\n\nBienvenue {mention} ! 🌌\n\nMoi c'est NOX, responsable officiel des câlins, des catastrophes et des biscuits disparus.\n\nTu es ici chez toi. Même si je prétends que le canapé est mon vaisseau. 💛"
+  },
+  {
+    "id": "accueil_32",
+    "texte": "🌌 Le radar à copains vient de s'affoler !\n\nBienvenue {mention} ! 🌌\n\nJ'avais écrit un discours magnifique, mais je l'ai mangé en croyant que c'était une crêpe.\n\nPrends le temps de découvrir les autres, sans pression. Bienvenue dans notre univers ! 💛"
+  },
+  {
+    "id": "accueil_33",
+    "texte": "🌌 Le radar à copains vient de s'affoler !\n\nBienvenue {mention} ! 🌌\n\nJe te rassure : les explosions de paillettes sont presque toujours contrôlées.\n\nJe t'offre une étoile imaginaire et un vrai grand bienvenue ! 💛"
+  },
+  {
+    "id": "accueil_34",
+    "texte": "🌌 Le radar à copains vient de s'affoler !\n\nBienvenue {mention} ! 🌌\n\nTu peux explorer tranquillement. Je surveille les cookies, c'est une mission très sérieuse.\n\nSi tu trouves une chaussette spatiale, elle est à moi. Ne pose pas de questions. 💛"
+  },
+  {
+    "id": "accueil_35",
+    "texte": "🌌 Le radar à copains vient de s'affoler !\n\nBienvenue {mention} ! 🌌\n\nJe voulais être impressionnant, mais je me suis coincé dans mon casque spatial.\n\nInstalle-toi à ton rythme, et si les biscuits disparaissent, tu ne m'as jamais vu. 💛"
+  },
+  {
+    "id": "accueil_36",
+    "texte": "🪐 Saturne m'a envoyé un message : on a de la visite !\n\nBienvenue {mention} ! 🌌\n\nMoi c'est NOX, responsable officiel des câlins, des catastrophes et des biscuits disparus.\n\nPrends le temps de découvrir les autres, sans pression. Bienvenue dans notre univers ! 💛"
+  },
+  {
+    "id": "accueil_37",
+    "texte": "🪐 Saturne m'a envoyé un message : on a de la visite !\n\nBienvenue {mention} ! 🌌\n\nJ'avais écrit un discours magnifique, mais je l'ai mangé en croyant que c'était une crêpe.\n\nJe t'offre une étoile imaginaire et un vrai grand bienvenue ! 💛"
+  },
+  {
+    "id": "accueil_38",
+    "texte": "🪐 Saturne m'a envoyé un message : on a de la visite !\n\nBienvenue {mention} ! 🌌\n\nJe te rassure : les explosions de paillettes sont presque toujours contrôlées.\n\nSi tu trouves une chaussette spatiale, elle est à moi. Ne pose pas de questions. 💛"
+  },
+  {
+    "id": "accueil_39",
+    "texte": "🪐 Saturne m'a envoyé un message : on a de la visite !\n\nBienvenue {mention} ! 🌌\n\nTu peux explorer tranquillement. Je surveille les cookies, c'est une mission très sérieuse.\n\nInstalle-toi à ton rythme, et si les biscuits disparaissent, tu ne m'as jamais vu. 💛"
+  },
+  {
+    "id": "accueil_40",
+    "texte": "🪐 Saturne m'a envoyé un message : on a de la visite !\n\nBienvenue {mention} ! 🌌\n\nJe voulais être impressionnant, mais je me suis coincé dans mon casque spatial.\n\nTu es ici chez toi. Même si je prétends que le canapé est mon vaisseau. 💛"
+  },
+  {
+    "id": "accueil_41",
+    "texte": "🎉 J'ai déclenché les confettis par accident !\n\nBienvenue {mention} ! 🌌\n\nMoi c'est NOX, responsable officiel des câlins, des catastrophes et des biscuits disparus.\n\nJe t'offre une étoile imaginaire et un vrai grand bienvenue ! 💛"
+  },
+  {
+    "id": "accueil_42",
+    "texte": "🎉 J'ai déclenché les confettis par accident !\n\nBienvenue {mention} ! 🌌\n\nJ'avais écrit un discours magnifique, mais je l'ai mangé en croyant que c'était une crêpe.\n\nSi tu trouves une chaussette spatiale, elle est à moi. Ne pose pas de questions. 💛"
+  },
+  {
+    "id": "accueil_43",
+    "texte": "🎉 J'ai déclenché les confettis par accident !\n\nBienvenue {mention} ! 🌌\n\nJe te rassure : les explosions de paillettes sont presque toujours contrôlées.\n\nInstalle-toi à ton rythme, et si les biscuits disparaissent, tu ne m'as jamais vu. 💛"
+  },
+  {
+    "id": "accueil_44",
+    "texte": "🎉 J'ai déclenché les confettis par accident !\n\nBienvenue {mention} ! 🌌\n\nTu peux explorer tranquillement. Je surveille les cookies, c'est une mission très sérieuse.\n\nTu es ici chez toi. Même si je prétends que le canapé est mon vaisseau. 💛"
+  },
+  {
+    "id": "accueil_45",
+    "texte": "🎉 J'ai déclenché les confettis par accident !\n\nBienvenue {mention} ! 🌌\n\nJe voulais être impressionnant, mais je me suis coincé dans mon casque spatial.\n\nPrends le temps de découvrir les autres, sans pression. Bienvenue dans notre univers ! 💛"
+  },
+  {
+    "id": "accueil_46",
+    "texte": "👀 Qui vient de faire clignoter mon détecteur d'amis ?\n\nBienvenue {mention} ! 🌌\n\nMoi c'est NOX, responsable officiel des câlins, des catastrophes et des biscuits disparus.\n\nSi tu trouves une chaussette spatiale, elle est à moi. Ne pose pas de questions. 💛"
+  },
+  {
+    "id": "accueil_47",
+    "texte": "👀 Qui vient de faire clignoter mon détecteur d'amis ?\n\nBienvenue {mention} ! 🌌\n\nJ'avais écrit un discours magnifique, mais je l'ai mangé en croyant que c'était une crêpe.\n\nInstalle-toi à ton rythme, et si les biscuits disparaissent, tu ne m'as jamais vu. 💛"
+  },
+  {
+    "id": "accueil_48",
+    "texte": "👀 Qui vient de faire clignoter mon détecteur d'amis ?\n\nBienvenue {mention} ! 🌌\n\nJe te rassure : les explosions de paillettes sont presque toujours contrôlées.\n\nTu es ici chez toi. Même si je prétends que le canapé est mon vaisseau. 💛"
+  },
+  {
+    "id": "accueil_49",
+    "texte": "👀 Qui vient de faire clignoter mon détecteur d'amis ?\n\nBienvenue {mention} ! 🌌\n\nTu peux explorer tranquillement. Je surveille les cookies, c'est une mission très sérieuse.\n\nPrends le temps de découvrir les autres, sans pression. Bienvenue dans notre univers ! 💛"
+  },
+  {
+    "id": "accueil_50",
+    "texte": "👀 Qui vient de faire clignoter mon détecteur d'amis ?\n\nBienvenue {mention} ! 🌌\n\nJe voulais être impressionnant, mais je me suis coincé dans mon casque spatial.\n\nJe t'offre une étoile imaginaire et un vrai grand bienvenue ! 💛"
+  }
+]

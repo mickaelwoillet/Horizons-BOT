@@ -2,6 +2,10 @@
 from __future__ import annotations
 from cogs.embed_theme import horizons_embed
 from datetime import datetime, timezone
+import json
+import hashlib
+import logging
+from config import DATA_DIR
 import discord
 from discord.ext import commands
 from config import (
@@ -47,11 +51,19 @@ class LoggingTools(commands.Cog):
         leave_id = LEAVE_CHANNEL_ID or WELCOME_CHANNEL_ID
         channel = member.guild.get_channel(leave_id) if leave_id else None
         if channel:
-            embed = horizons_embed(
-                title="👋 Un horizon se referme",
-                description=f"**{discord.utils.escape_markdown(member.display_name)}** vient de quitter HORIZONS.\n\nNous lui souhaitons une bonne continuation et lui adressons nos meilleurs vœux pour la suite. 💜",
-                color=discord.Color.orange())
-            await channel.send(embed=embed)
+            from .nox_identity import send_as_nox
+            choices = json.loads((DATA_DIR / "nox" / "departs.json").read_text(encoding="utf-8"))
+            index = int.from_bytes(hashlib.sha256(f"{member.guild.id}:{member.id}".encode()).digest()[:4], "big") % len(choices)
+            name = discord.utils.escape_mentions(discord.utils.escape_markdown(member.display_name))
+            content = choices[index]["texte"].replace("{nom}", name)
+            try:
+                await send_as_nox(channel, content=content)
+            except discord.HTTPException:
+                logging.getLogger(__name__).exception("Webhook NOX indisponible pour départ")
+                try:
+                    await channel.send(content, allowed_mentions=discord.AllowedMentions.none())
+                except discord.HTTPException:
+                    logging.getLogger(__name__).exception("Message de départ impossible")
 
     @commands.Cog.listener()
     async def on_message_delete(self, message: discord.Message):

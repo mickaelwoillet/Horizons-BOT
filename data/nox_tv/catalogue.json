@@ -473,5 +473,215 @@
       "👑 Taxer les chaussettes",
       "🌀 Traverser le portail"
     ]
+  },
+  {
+    "id": "nox_tresor_cristaux",
+    "file": "nox_tresor_cristaux.png",
+    "title": "Nox Tresor Cristaux",
+    "text": "✨ NOX a trouvé un coffre rempli de cristaux cosmiques ! Quel trésor emporterais-tu ?",
+    "kind": "nox",
+    "moods": [
+      "normal"
+    ],
+    "vote_labels": [
+      "💙 Encourager NOX",
+      "✨ Explorer",
+      "🍪 Offrir un biscuit"
+    ]
+  },
+  {
+    "id": "nox_explorateur",
+    "file": "nox_explorateur.png",
+    "title": "Nox Explorateur",
+    "text": "🧭 NOX part explorer les îles flottantes. Tu viens dans son équipe ?",
+    "kind": "nox",
+    "moods": [
+      "normal"
+    ],
+    "vote_labels": [
+      "💙 Encourager NOX",
+      "✨ Explorer",
+      "🍪 Offrir un biscuit"
+    ]
+  },
+  {
+    "id": "nox_buffet_cosmique",
+    "file": "nox_buffet_cosmique.png",
+    "title": "Nox Buffet Cosmique",
+    "text": "🍪 NOX assure que tous ces gâteaux sont pour une expérience scientifique. On le croit ?",
+    "kind": "nox",
+    "moods": [
+      "normal"
+    ],
+    "vote_labels": [
+      "💙 Encourager NOX",
+      "✨ Explorer",
+      "🍪 Offrir un biscuit"
+    ]
+  },
+  {
+    "id": "nox_refuge_lanternes",
+    "file": "nox_refuge_lanternes.png",
+    "title": "Nox Refuge Lanternes",
+    "text": "💜 NOX t’ouvre les portes du Refuge : une pause, un chocolat chaud et un peu de douceur.",
+    "kind": "nox",
+    "moods": [
+      "normal"
+    ],
+    "vote_labels": [
+      "💙 Encourager NOX",
+      "✨ Explorer",
+      "🍪 Offrir un biscuit"
+    ]
+  },
+  {
+    "id": "nox_betise_apesanteur",
+    "file": "nox_betise_apesanteur.png",
+    "title": "Nox Betise Apesanteur",
+    "text": "🛰️ En apesanteur, les biscuits volent. NOX affirme n’y être pour rien.",
+    "kind": "nox",
+    "moods": [
+      "normal"
+    ],
+    "vote_labels": [
+      "💙 Encourager NOX",
+      "✨ Explorer",
+      "🍪 Offrir un biscuit"
+    ]
+  },
+  {
+    "id": "nox_astronaute",
+    "file": "nox_astronaute.png",
+    "title": "Nox Astronaute",
+    "text": "🚀 NOX s’envole vers une nouvelle planète. Quel nom lui donnerais-tu ?",
+    "kind": "nox",
+    "moods": [
+      "normal"
+    ],
+    "vote_labels": [
+      "💙 Encourager NOX",
+      "✨ Explorer",
+      "🍪 Offrir un biscuit"
+    ]
+  },
+  {
+    "id": "nox_oups_biscuits",
+    "file": "nox_oups_biscuits.png",
+    "title": "Nox Oups Biscuits",
+    "text": "😇 Un pot de biscuits renversé, et NOX n’a absolument rien vu…",
+    "kind": "nox",
+    "moods": [
+      "normal"
+    ],
+    "vote_labels": [
+      "💙 Encourager NOX",
+      "✨ Explorer",
+      "🍪 Offrir un biscuit"
+    ]
+  },
+  {
+    "id": "nox_donut_galactique",
+    "file": "nox_donut_galactique.png",
+    "title": "Nox Donut Galactique",
+    "text": "🍩 NOX a découvert le donut le plus grand de la galaxie. Il propose de le partager… peut-être.",
+    "kind": "nox",
+    "moods": [
+      "normal"
+    ],
+    "vote_labels": [
+      "💙 Encourager NOX",
+      "✨ Explorer",
+      "🍪 Offrir un biscuit"
+    ]
+  },
+  {
+    "id": "nox_refuge_coussins",
+    "file": "nox_refuge_coussins.png",
+    "title": "Nox Refuge Coussins",
+    "text": "🌙 NOX a préparé un coin douillet pour les étoiles fatiguées.",
+    "kind": "nox",
+    "moods": [
+      "normal"
+    ],
+    "vote_labels": [
+      "💙 Encourager NOX",
+      "✨ Explorer",
+      "🍪 Offrir un biscuit"
+    ]
+  },
+  {
+    "id": "nox_pluie_etoiles",
+    "file": "nox_pluie_etoiles.png",
+    "title": "Nox Pluie Etoiles",
+    "text": "🌠 NOX observe une pluie d’étoiles filantes. Fais un vœu !",
+    "kind": "nox",
+    "moods": [
+      "normal"
+    ],
+    "vote_labels": [
+      "💙 Encourager NOX",
+      "✨ Explorer",
+      "🍪 Offrir un biscuit"
+    ]
+  },
+  {
+    "id": "nox_sieste_lune",
+    "file": "nox_sieste_lune.png",
+    "title": "Nox Sieste Lune",
+    "text": "💤 NOX s’est endormi sur la lune. Chut, les rêves cosmiques commencent.",
+    "kind": "nox",
+    "moods": [
+      "normal"
+    ],
+    "vote_labels": [
+      "💙 Encourager NOX",
+      "✨ Explorer",
+      "🍪 Offrir un biscuit"
+    ]
+  },
+  {
+    "id": "nox_anniversaire",
+    "file": "nox_anniversaire.png",
+    "title": "Nox Anniversaire",
+    "text": "🎂 NOX sort les bougies stellaires : joyeux anniversaire aux étoiles du jour !",
+    "kind": "nox",
+    "moods": [
+      "normal"
+    ],
+    "vote_labels": [
+      "💙 Encourager NOX",
+      "✨ Explorer",
+      "🍪 Offrir un biscuit"
+    ]
+  },
+  {
+    "id": "nox_tv_animation",
+    "file": "nox_tv_animation.png",
+    "title": "Nox Tv Animation",
+    "text": "🎙️ NOX TV est en direct ! Qui relève le prochain défi ?",
+    "kind": "nox",
+    "moods": [
+      "normal"
+    ],
+    "vote_labels": [
+      "💙 Encourager NOX",
+      "✨ Explorer",
+      "🍪 Offrir un biscuit"
+    ]
+  },
+  {
+    "id": "nox_boudeur",
+    "file": "nox_boudeur.png",
+    "title": "Nox Boudeur",
+    "text": "😾 NOX boude : quelqu’un a dit que les cookies n’étaient pas un repas équilibré.",
+    "kind": "nox",
+    "moods": [
+      "normal"
+    ],
+    "vote_labels": [
+      "💙 Encourager NOX",
+      "✨ Explorer",
+      "🍪 Offrir un biscuit"
+    ]
   }
 ]

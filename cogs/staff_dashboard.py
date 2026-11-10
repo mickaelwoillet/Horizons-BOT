@@ -4,13 +4,17 @@ from cogs.embed_theme import horizons_embed
 
 from datetime import datetime, timezone, timedelta
 import json
+import logging
 from pathlib import Path
 import discord
 from discord import app_commands
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 from config import GUILD_ID, STAFF_ROLE_ID, ALERT_LOG_CHANNEL_ID
 from .storage import db
+
+SHIFT_IDLE_MINUTES = 45
+shift_log = logging.getLogger(__name__)
 
 
 def _has_role(member: discord.Member, role_id: int | None) -> bool:
@@ -58,7 +62,11 @@ def can_view(level: str | None, section: str) -> bool:
 
 def is_on_service(guild_id: int, user_id: int) -> bool:
     with db() as conn:
-        return conn.execute("SELECT 1 FROM staff_shifts WHERE guild_id=? AND user_id=? AND ended_at IS NULL LIMIT 1", (guild_id, user_id)).fetchone() is not None
+        return conn.execute(
+            "SELECT 1 FROM staff_shifts WHERE guild_id=? AND user_id=? AND ended_at IS NULL "
+            "AND COALESCE(last_activity_at,started_at)>? LIMIT 1",
+            (guild_id, user_id, (datetime.now(timezone.utc) - timedelta(minutes=SHIFT_IDLE_MINUTES)).isoformat()),
+        ).fetchone() is not None
 
 
 def task_embed(guild: discord.Guild, status: str = "all", limit: int = 10) -> discord.Embed:
@@ -185,6 +193,11 @@ class SectionsGridView(discord.ui.View):
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user.id != self.user_id:
             await interaction.response.send_message("Ce panneau appartient à un autre membre du staff.", ephemeral=True)
+            return False
+        if (not isinstance(interaction.user, discord.Member) or not interaction.guild_id
+                or not access_level(interaction.user)
+                or not is_on_service(interaction.guild_id, interaction.user.id)):
+            await interaction.response.send_message("Accès refusé : droits insuffisants ou service terminé.", ephemeral=True)
             return False
         return True
 
@@ -470,8 +483,15 @@ class DashboardView(discord.ui.View):
         if interaction.user.id != self.user_id:
             await interaction.response.send_message("Ce dashboard appartient à une autre personne du staff. Lance `/dashboard` pour ouvrir le tien.", ephemeral=True)
             return False
-        if not isinstance(interaction.user, discord.Member) or not access_level(interaction.user):
+        current_level = access_level(interaction.user) if isinstance(interaction.user, discord.Member) else None
+        if not current_level:
             await interaction.response.send_message("Tu n'as plus accès à ce dashboard.", ephemeral=True)
+            return False
+        # Si les droits ont changé, reconstruire le panneau avant toute autre action.
+        if current_level != self.level:
+            await interaction.response.send_message(
+                "Tes permissions staff ont changé. Relance `/dashboard` pour actualiser tes accès.", ephemeral=True,
+            )
             return False
         # Un panneau ouvert avant la fin du service ne doit pas rester utilisable.
         if self.on_service and not is_on_service(interaction.guild_id, interaction.user.id):
@@ -530,13 +550,13 @@ class ShiftButton(discord.ui.Button):
                     (interaction.guild_id, interaction.user.id),
                 ).fetchone():
                     conn.execute(
-                        "INSERT INTO staff_shifts(guild_id,user_id,started_at,note) VALUES(?,?,?,?)",
-                        (interaction.guild_id, interaction.user.id, now, "Prise de service depuis le dashboard"),
+                        "INSERT INTO staff_shifts(guild_id,user_id,started_at,note,last_activity_at) VALUES(?,?,?,?,?)",
+                        (interaction.guild_id, interaction.user.id, now, "Prise de service depuis le dashboard", now),
                     )
                     changed = True
             else:
                 cur = conn.execute(
-                    "UPDATE staff_shifts SET ended_at=? WHERE guild_id=? AND user_id=? AND ended_at IS NULL",
+                    "UPDATE staff_shifts SET ended_at=?,end_reason='manual' WHERE guild_id=? AND user_id=? AND ended_at IS NULL",
                     (now, interaction.guild_id, interaction.user.id),
                 )
                 changed = bool(cur.rowcount)
@@ -711,6 +731,10 @@ class ThematicStaffView(discord.ui.View):
         self.add_item(ThematicContentButton())
         self.add_item(ThematicChannelsButton())
         self.add_item(ThematicScheduleButton())
+        if theme == "publications":
+            self.add_item(PublicationHealthButton())
+            self.add_item(PublicationNoxTVControlButton())
+            self.add_item(TechnicalBackupButton())
         self.add_item(ThematicRefreshButton())
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
@@ -983,6 +1007,123 @@ class ThematicScheduleButton(discord.ui.Button):
         )
 
 
+def publication_health_embed(bot: commands.Bot) -> discord.Embed:
+    """Diagnostic non destructif des boucles et de l'historique éditorial."""
+    from config import DATA_DIR, LOCAL_TIMEZONE
+    now = datetime.now(LOCAL_TIMEZONE)
+    loops = (
+        ("Quiz éditorial", "PublicationCalendar", "daily_quiz"),
+        ("Inspiration", "PublicationCalendar", "daily_inspiration"),
+        ("Message bienveillant", "PublicationCalendar", "daily_positive_message"),
+        ("Événement thématique", "PublicationCalendar", "daily_thematic_event"),
+        ("Question du jour", "Community", "daily_question"),
+        ("Blagues", "Jokes", "daily_joke"),
+        ("Devinettes", "Riddles", "daily_riddle"),
+        ("Horizon du jour", "HorizonsDaily", "horizon_of_day"),
+        ("Débat hebdomadaire", "HorizonsDaily", "weekly_debate"),
+        ("NOX TV", "NoxTV", "clock"),
+    )
+    lines = []
+    running = stopped = missing = 0
+    for label, cog_name, loop_name in loops:
+        cog = bot.get_cog(cog_name)
+        loop = getattr(cog, loop_name, None) if cog else None
+        if loop is None:
+            missing += 1
+            lines.append(f"⚪ **{label}** : boucle non trouvée (nom à vérifier)")
+            continue
+        try:
+            active = loop.is_running()
+            next_run = loop.next_iteration if active else None
+        except (AttributeError, RuntimeError):
+            active, next_run = False, None
+        if active:
+            running += 1
+            when = f" • vérification : {next_run.astimezone(LOCAL_TIMEZONE):%d/%m %H:%M}" if next_run else ""
+            lines.append(f"🟢 **{label}** : boucle active{when}")
+        else:
+            stopped += 1
+            lines.append(f"🔴 **{label}** : boucle arrêtée")
+    history = DATA_DIR / "publication_calendar_history.json"
+    try:
+        if history.exists():
+            raw = json.loads(history.read_text(encoding="utf-8"))
+            dates = raw.get("published_dates", {}) if isinstance(raw, dict) else {}
+            if not isinstance(dates, dict):
+                raise ValueError("published_dates invalide")
+            dates_text = "\n".join(f"• {key} : {value}" for key, value in sorted(dates.items())) or "Aucune date enregistrée"
+        else:
+            dates_text = "Historique absent (aucune publication confirmée dans ce fichier)"
+    except (OSError, UnicodeError, ValueError) as exc:
+        dates_text = f"⚠️ Historique illisible : {type(exc).__name__}"
+    embed = horizons_embed(
+        title="🩺 Diagnostic des publications",
+        description=f"**{running} actives · {stopped} arrêtées · {missing} non trouvées**\n"
+                    + "\n".join(lines)[:2800], color=discord.Color.blurple(),
+    )
+    embed.add_field(name="Dernières dates confirmées (calendrier éditorial)", value=dates_text[:1024], inline=False)
+    embed.set_footer(text=f"Lecture seule • {now:%d/%m/%Y %H:%M} • Vérification de boucle ≠ publication garantie")
+    return embed
+
+
+class PublicationHealthButton(discord.ui.Button):
+    def __init__(self):
+        super().__init__(label="Diagnostic", emoji="🩺", style=discord.ButtonStyle.secondary, row=2)
+
+    async def callback(self, interaction: discord.Interaction):
+        await interaction.response.edit_message(
+            embed=publication_health_embed(interaction.client), view=self.view,
+        )
+
+
+class PublicationNoxTVControlButton(discord.ui.Button):
+    """Accès au pilotage NOX TV existant, sans commande supplémentaire."""
+    def __init__(self):
+        super().__init__(label="Piloter NOX TV", emoji="🎬", style=discord.ButtonStyle.primary, row=2)
+
+    async def callback(self, interaction: discord.Interaction):
+        if not interaction.guild or not interaction.user.guild_permissions.manage_guild:
+            await interaction.response.send_message("Accès réservé aux responsables du serveur.", ephemeral=True)
+            return
+        if interaction.client.get_cog("NoxTV") is None:
+            await interaction.response.send_message("NOX TV n'est pas chargé.", ephemeral=True)
+            return
+        from .nox_tv import NoxTVDashboard
+        await interaction.response.send_message(
+            "🎬 **Pilotage NOX TV** — statut, diagnostic, catalogue interactif et publication confirmée. "
+            "L'activation ou la suspension de la rotation nécessite une confirmation.",
+            view=NoxTVDashboard(), ephemeral=True,
+        )
+
+
+
+class TechnicalBackupButton(discord.ui.Button):
+    """Diagnostic technique sans déclenchement de sauvegarde ni publication."""
+    def __init__(self):
+        super().__init__(label="Sauvegardes", emoji="💾", style=discord.ButtonStyle.secondary, row=2)
+
+    async def callback(self, interaction: discord.Interaction):
+        from .continuity import backup_diagnostic
+        from config import DATA_DIR
+        state = backup_diagnostic()
+        databases = state.get("databases", {})
+        timestamp = state.get("updated_at") or "Aucune sauvegarde enregistrée"
+        lines = [f"{'✅' if result == 'ok' else '⚠️'} `{name}` : {result}"
+                 for name, result in sorted(databases.items())]
+        if not lines:
+            lines = ["Aucun diagnostic disponible : vérifier le module Continuity."]
+        cog = interaction.client.get_cog("Continuity")
+        loop_running = bool(cog and cog.monitor.is_running())
+        embed = horizons_embed(
+            title="💾 Sauvegardes et continuité HORIZONS",
+            description=f"**Surveillance :** {'🟢 active' if loop_running else '🔴 inactive'}\n"
+                        f"**Dernier contrôle :** {timestamp}\n\n" + "\n".join(lines)[:2900],
+            color=discord.Color.blurple(),
+        )
+        embed.set_footer(text="Lecture seule • Sauvegardes locales : prévoir une copie externe")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+
+
 class ThematicRefreshButton(discord.ui.Button):
     def __init__(self):
         super().__init__(label="Retour à la rubrique", emoji="🔄", style=discord.ButtonStyle.secondary, row=1)
@@ -1083,6 +1224,73 @@ class StaffDashboard(commands.Cog):
     equipe = app_commands.Group(name="equipe", description="Gestion des tâches et services de l’équipe")
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self.auto_end_idle_shifts.start()
+
+    def cog_unload(self):
+        self.auto_end_idle_shifts.cancel()
+
+    @commands.Cog.listener("on_message")
+    async def track_staff_message(self, message: discord.Message):
+        if message.guild and not message.author.bot and isinstance(message.author, discord.Member):
+            await self._touch_shift(message.guild.id, message.author.id)
+
+    @commands.Cog.listener("on_interaction")
+    async def track_staff_interaction(self, interaction: discord.Interaction):
+        if interaction.guild_id and interaction.user and not interaction.user.bot:
+            await self._touch_shift(interaction.guild_id, interaction.user.id)
+
+    async def _touch_shift(self, guild_id: int, user_id: int):
+        """Track only existing shifts; a message never starts a shift.
+
+        The WHERE clause deliberately refuses to revive a service idle for 45 minutes,
+        even if the scheduled check has not yet run.
+        """
+        try:
+            now = datetime.now(timezone.utc)
+            cutoff = (now - timedelta(minutes=SHIFT_IDLE_MINUTES)).isoformat()
+            with db() as conn:
+                conn.execute(
+                    "UPDATE staff_shifts SET last_activity_at=? "
+                    "WHERE guild_id=? AND user_id=? AND ended_at IS NULL "
+                    "AND COALESCE(last_activity_at,started_at)>? "
+                    "AND COALESCE(last_activity_at,started_at)<?",
+                    (now.isoformat(), guild_id, user_id, cutoff,
+                     (now - timedelta(seconds=30)).isoformat()),
+                )
+        except Exception:
+            shift_log.exception("Suivi d'activité staff impossible")
+
+    @tasks.loop(minutes=1)
+    async def auto_end_idle_shifts(self):
+        now = datetime.now(timezone.utc)
+        cutoff = (now - timedelta(minutes=SHIFT_IDLE_MINUTES)).isoformat()
+        try:
+            with db() as conn:
+                # Clôturer à la limite réelle des 45 minutes, pas à l'heure du scan.
+                rows = conn.execute(
+                    "SELECT id,guild_id,user_id,COALESCE(last_activity_at,started_at) last_seen "
+                    "FROM staff_shifts WHERE ended_at IS NULL "
+                    "AND COALESCE(last_activity_at,started_at)<=?", (cutoff,),
+                ).fetchall()
+                for row in rows:
+                    last_seen = datetime.fromisoformat(row["last_seen"])
+                    if last_seen.tzinfo is None:
+                        last_seen = last_seen.replace(tzinfo=timezone.utc)
+                    ended = (last_seen + timedelta(minutes=SHIFT_IDLE_MINUTES)).isoformat()
+                    conn.execute(
+                        "UPDATE staff_shifts SET ended_at=?,end_reason='inactivity' "
+                        "WHERE id=? AND ended_at IS NULL", (ended, row["id"]),
+                    )
+            for row in rows:
+                guild = self.bot.get_guild(row["guild_id"])
+                if guild:
+                    await self.log_action(guild, f"⏳ Service de <@{row['user_id']}> terminé automatiquement après 45 min sans activité.")
+        except Exception:
+            shift_log.exception("Clôture automatique des services impossible")
+
+    @auto_end_idle_shifts.before_loop
+    async def before_auto_end_idle_shifts(self):
+        await self.bot.wait_until_ready()
 
     def dashboard_embed(self, member: discord.Member, active: bool) -> discord.Embed:
         if active:
@@ -1120,7 +1328,23 @@ class StaffDashboard(commands.Cog):
             elif section == "team":
                 rows = conn.execute("SELECT user_id,started_at,note FROM staff_shifts WHERE guild_id=? AND ended_at IS NULL ORDER BY started_at DESC LIMIT 20", (guild.id,)).fetchall()
                 body = "\n".join(f"<@{r['user_id']}> • depuis {r['started_at']}" + (f"\n↳ {r['note']}" if r['note'] else "") for r in rows) or "Aucune prise de service active."
+                totals = conn.execute(
+                    "SELECT user_id,COUNT(*) services, "
+                    "SUM(CASE WHEN ended_at IS NOT NULL THEN "
+                    "MAX(0,(julianday(ended_at)-julianday(started_at))*1440) ELSE 0 END) minutes, "
+                    "SUM(CASE WHEN ended_at IS NULL THEN 1 ELSE 0 END) active, "
+                    "SUM(CASE WHEN end_reason='inactivity' THEN 1 ELSE 0 END) idle_ends "
+                    "FROM staff_shifts WHERE guild_id=? GROUP BY user_id ORDER BY minutes DESC LIMIT 20",
+                    (guild.id,),
+                ).fetchall()
+                stats = "\n".join(
+                    f"<@{r['user_id']}> : **{r['services']}** service(s), "
+                    f"**{round(r['minutes'] or 0)} min** terminées, "
+                    f"**{r['idle_ends']}** fin(s) auto" for r in totals
+                ) or "Aucun service enregistré."
                 e = horizons_embed(title="🤝 Équipe staff — disponibilité", description=body, color=discord.Color.green())
+                e.add_field(name="📊 Historique des services (20 premiers)", value=stats[:1024], inline=False)
+                e.set_footer(text="Durées des services terminés uniquement • Inactivité : 45 min")
             elif section == "tasks":
                 return task_embed(guild)
             elif section == "events":
@@ -1151,9 +1375,11 @@ class StaffDashboard(commands.Cog):
         level = access_level(interaction.user)
         if not level:
             await interaction.response.send_message("Accès réservé au staff autorisé.", ephemeral=True); return
+        # Acquitter l'interaction avant les lectures SQLite pour éviter un délai Discord.
+        await interaction.response.defer(ephemeral=True)
         active = is_on_service(interaction.guild_id, interaction.user.id)
         view = DashboardView(self, interaction.user.id, active, level)
-        await interaction.response.send_message(embed=self.dashboard_embed(interaction.user, active), view=view, ephemeral=True)
+        await interaction.followup.send(embed=self.dashboard_embed(interaction.user, active), view=view, ephemeral=True)
 
     @equipe.command(name="tache_creer", description="Créer une tâche pour un membre du staff.")
     @app_commands.describe(titre="Titre court", responsable="Membre chargé de la tâche", description="Détails utiles", priorite="Niveau de priorité", echeance="Échéance facultative au format JJ/MM/AAAA")
@@ -1202,10 +1428,10 @@ class StaffDashboard(commands.Cog):
             if action.value == "start":
                 if is_on_service(interaction.guild_id, interaction.user.id):
                     await interaction.response.send_message("Tu es déjà en service.", ephemeral=True); return
-                conn.execute("INSERT INTO staff_shifts(guild_id,user_id,started_at,note) VALUES(?,?,?,?)", (interaction.guild_id,interaction.user.id,now,note))
+                conn.execute("INSERT INTO staff_shifts(guild_id,user_id,started_at,note,last_activity_at) VALUES(?,?,?,?,?)", (interaction.guild_id,interaction.user.id,now,note,now))
                 message = "🟢 Ton service est enregistré. Merci pour ton aide !"
             else:
-                cur = conn.execute("UPDATE staff_shifts SET ended_at=? WHERE guild_id=? AND user_id=? AND ended_at IS NULL", (now,interaction.guild_id,interaction.user.id))
+                cur = conn.execute("UPDATE staff_shifts SET ended_at=?,end_reason='manual' WHERE guild_id=? AND user_id=? AND ended_at IS NULL", (now,interaction.guild_id,interaction.user.id))
                 message = "🔴 Ton service est terminé." if cur.rowcount else "Aucun service actif n'était enregistré."
         await interaction.response.send_message(message, ephemeral=True)
         await self.log_action(interaction.guild, f"{interaction.user.mention} : {action.name.lower()}")

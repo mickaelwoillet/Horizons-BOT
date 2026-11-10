@@ -68,8 +68,23 @@ class RoleSelect(discord.ui.Select):
                 ephemeral=True,
             )
             return
-        to_remove = [roles_by_id[rid] for rid in all_ids if rid in {r.id for r in interaction.user.roles} and rid not in selected_ids]
-        to_add = [roles_by_id[rid] for rid in selected_ids if rid not in {r.id for r in interaction.user.roles}]
+        member_role_ids = {role.id for role in interaction.user.roles}
+        to_remove = [roles_by_id[rid] for rid in all_ids if rid in member_role_ids and rid not in selected_ids]
+        to_add = [roles_by_id[rid] for rid in selected_ids if rid not in member_role_ids]
+        # Vérifier la hiérarchie avant toute modification : éviter les changements partiels
+        # lorsqu'un rôle est au-dessus du rôle du bot ou est un rôle géré.
+        bot_member = interaction.guild.me
+        if bot_member is None:
+            await interaction.followup.send("Impossible de vérifier les permissions du bot pour le moment.", ephemeral=True)
+            return
+        if not bot_member.guild_permissions.manage_roles or any(
+            role.managed or role >= bot_member.top_role for role in (*to_remove, *to_add)
+        ):
+            await interaction.followup.send(
+                "Certains rôles ne sont pas modifiables par HORIZONS. Préviens l'équipe pour vérifier leur position et les permissions du bot.",
+                ephemeral=True,
+            )
+            return
         try:
             if to_remove:
                 await interaction.user.remove_roles(*to_remove, reason=f"Modification du profil : {self.category}")
@@ -89,13 +104,19 @@ class RoleSelect(discord.ui.Select):
             "Tempérament", "Notifications",
         }
         if self.category in trackable_categories:
-            with db() as conn:
-                columns = {row[1] for row in conn.execute("PRAGMA table_info(onboarding_progress)").fetchall()}
-                if "profile_customized" in columns:
-                    conn.execute(
-                        "UPDATE onboarding_progress SET profile_customized=1 WHERE guild_id=? AND user_id=?",
-                        (interaction.guild.id, interaction.user.id),
-                    )
+            try:
+                with db() as conn:
+                    columns = {row[1] for row in conn.execute("PRAGMA table_info(onboarding_progress)").fetchall()}
+                    if "profile_customized" in columns:
+                        conn.execute(
+                            "UPDATE onboarding_progress SET profile_customized=1 WHERE guild_id=? AND user_id=?",
+                            (interaction.guild.id, interaction.user.id),
+                        )
+            except Exception:
+                # Le suivi d'accueil est facultatif : une erreur de base ne doit pas
+                # faire croire à l'utilisateur que la modification des rôles a échoué.
+                import logging
+                logging.getLogger(__name__).exception("Suivi du profil impossible après mise à jour des rôles")
         await interaction.followup.send("Tes rôles ont été mis à jour. 💜", ephemeral=True)
 
 class RolePanelView(discord.ui.View):
