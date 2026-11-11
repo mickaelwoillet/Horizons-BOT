@@ -173,6 +173,7 @@ EXTENSIONS: Final[tuple[str, ...]] = (
     "cogs.nox_tv",
     "cogs.nox_publications",
     "cogs.nox_refuge",
+    "cogs.nox_junior",
     "cogs.nox_presence",
     "cogs.nox_life",
     "cogs.nox_events",
@@ -199,8 +200,10 @@ logging.basicConfig(
     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
     handlers=[
         logging.StreamHandler(sys.stdout),
-        RotatingFileHandler(LOG_DIR / "horizons.log", maxBytes=2 * 1024 * 1024,
-                            backupCount=2, encoding="utf-8"),
+        RotatingFileHandler(
+            LOG_DIR / "horizons.log", maxBytes=2 * 1024 * 1024,
+            backupCount=2, encoding="utf-8"
+        ),
     ],
 )
 logger = logging.getLogger("horizons")

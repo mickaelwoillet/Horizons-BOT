@@ -189,13 +189,6 @@ class NoxDaily12(commands.Cog):
         slot = eligible_slot(local_now)
         if slot is None:
             return
-        # Pas de catalogue chargé si aucune publication quotidienne n'est activée.
-        with engine.connect(DB) as con:
-            initialize(con)
-            rows = [dict(r) for r in con.execute(
-                'SELECT * FROM nox_daily_config WHERE enabled=1')]
-        if not rows:
-            return
         day = local_now.date().isoformat()
         try:
             dialogues = json.loads(CATALOG.read_text(encoding='utf-8'))
@@ -220,6 +213,9 @@ class NoxDaily12(commands.Cog):
         except (OSError, ValueError):
             LOG.exception('Catalogue illustré NOX inaccessible')
             image_scenes = []
+        with engine.connect(DB) as con:
+            initialize(con)
+            rows = [dict(r) for r in con.execute('SELECT * FROM nox_daily_config WHERE enabled=1')]
         for cfg in rows:
             guild_id = cfg['guild_id']
             with engine.connect(DB) as con:

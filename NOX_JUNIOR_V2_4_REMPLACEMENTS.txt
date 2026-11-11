@@ -1,0 +1,4 @@
+Six visuels approuvés remplacés : orange/rose/vert/violet besoin, rose/rouge endormi.
+Les 21 autres visuels sont inchangés.
+Attention : détourage automatique GrabCut à contrôler visuellement sur Discord.
+Archive de TEST, non déployée.

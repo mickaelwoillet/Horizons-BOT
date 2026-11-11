@@ -15,7 +15,7 @@ STAFF_ONLY = {
     "avertir", "avertissements", "retirer_avertissement", "timeout", "untimeout",
     "expulser", "bannir", "debannir", "purger", "note_membre", "dashboard",
     "tache_creer", "taches", "tache_statut", "service",
-    "alerte_equipe",
+    "alerte_equipe", "givemonnox",
 }
 MIXED_ACCESS = {
     "evenement_fermer": "Membres (créateur de l'événement) et équipe",
@@ -50,6 +50,7 @@ CATEGORIES = (
     ("🧭 Missions et expériences", {"mon_passeport", "valider_mission", "chercher", "defi_collectif", "rejoindre_defi", "creer_defi", "parcours", "actualiser_rangs"}),
     ("🎉 Événements et jeux", {"evenements", "evenement_fermer", "creer", "annuler", "reroll", "blague", "devinette"}),
     ("🎮 Arcade et progression", {"jeux", "xpjeux"}),
+    ("🐣 NOX Junior", {"monnox", "montrermonnox", "givemonnox"}),
     ("🌌 Trésors et constellations", {"gratter", "givegratte", "echanger_fragments", "echanger_poussiere", "collection_etoiles", "constellations", "inventaire_celeste", "souvenirs_celestes", "etoile"}),
     ("🌠 Saisons", {"saison", "saison_lancer", "saison_clore"}),
     ("🎂 Anniversaires", {"anniversaire_supprimer"}),

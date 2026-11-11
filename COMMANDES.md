@@ -413,3 +413,73 @@ Aucune nouvelle commande. Restauration des boutons d’aventure liée au message
 ## V10.85.51 — Fiabilisation du programmateur NOX
 
 Aucune nouvelle commande. Les identifiants des sondages/défis et l'état des publications sont enregistrés dans une transaction unique. En cas d'échec d'envoi incertain, la réservation est conservée pour éviter les doublons. Voir `V10_85_51_RAPPORT.md`.
+
+## NOX Junior V0.1 (fondations)
+- `/monnox` : adoption privée (rôle Lien vivant `1567215752656715927` et 10 soins au NOX collectif), sélection de compagnon, soins et renommage unique.
+- `/givemonnox membre` : rôle Fondateur `1566561887305339001` uniquement ; autorisation confirmée d'une deuxième adoption (maximum deux).
+- Soins Junior : 30 minutes de repos partagé entre les soins ; croissance par temps, complicité et activités.
+- Les mini-jeux complets, inventaires, cadeaux, chambres, talents et rencontres sont **prévus mais non encore implémentés** en V0.1.
+
+## NOX Junior V0.2 — Vie quotidienne
+- `/monnox` : panneau privé avec les six soins (nourrir, boire, jouer, câlin, laver, repos), actualisation des cinq jauges et humeur contextuelle.
+- Bouton **Journal** : dernières actions horodatées du compagnon ; bouton **Actualiser** : recalcul de l'état du compagnon.
+- Les jauges diminuent progressivement lors des consultations, avec un plancher de 30/100 et un maximum de 72 h de décroissance comptabilisée par période hors ligne.
+- Les six soins partagent le même repos de 30 minutes ; le renommage reste limité à une fois.
+- Les jeux avancés, les talents, les cadeaux, les rencontres et les chambres illustrées ne sont pas encore livrés.
+
+## NOX Junior V0.3 — Jeux et présentation
+- `/monnox` : bouton **Mini-jeux** (chasse aux étoiles, mémoire cosmique, décision cosmique) et bouton **Talents** (affinités enregistrées). Récompenses plafonnées à une partie par dix minutes et par compagnon.
+- `/montrermonnox [compagnon:1|2]` : publie volontairement dans le salon courant une illustration originale du bébé NOX et sa fiche (nom, âge, stade, couleur, humeur, complicité, activités et talent si révélé). Aucun message automatique.
+- `/givemonnox membre` : autorisation Fondateur de deuxième adoption, inchangée.
+
+## NOX Junior V0.4
+- `/monnox` : panneau privé, six mini-jeux (Chasse aux étoiles, Mémoire cosmique, Décision cosmique, Cristaux mystérieux, Énigmes stellaires, Constellations), explorations dans cinq régions et carnet des découvertes.
+- `/montrermonnox` : présentation publique volontaire avec portrait.
+- `/givemonnox` : attribution exceptionnelle Fondateur.
+- Les six mini-jeux restants (Parcours cosmique, Course des comètes, Mission sauvetage, Duo des étoiles, Chasse au trésor collective, Festival cosmique) sont prévus pour les phases suivantes.
+
+## NOX Junior V0.5
+- `/monnox` : neuf mini-jeux, dont Parcours cosmique, Course des comètes et Mission sauvetage.
+- `/monnox` → **Journal** : souvenirs automatiques, notes personnelles (titre 80 caractères, texte 1 000 caractères), création, lecture, modification, suppression confirmée et partage public confirmé. Chaque compagnon conserve son journal indépendant.
+- `/montrermonnox` : présentation publique volontaire, inchangée.
+- `/givemonnox` : attribution exceptionnelle Fondateur, inchangée.
+- Jeux sociaux restants : Duo des étoiles, Chasse au trésor collective, Festival cosmique (3 jeux).
+
+## NOX Junior V0.6 — Inventaire, cadeaux et chambres
+- `/monnox` → **Sac cosmique** : consulter les objets gagnés en exploration, fabriquer une veilleuse ou un coussin avec les matériaux nécessaires, proposer un cadeau à un autre membre possédant un NOX Junior.
+- `/monnox` → **Chambre** : choisir un thème et installer une décoration réellement possédée ; chambre indépendante pour chaque compagnon.
+- `/monnox` → **Cadeaux reçus** : accepter ou refuser les propositions en attente (expiration 24 h). Les objets non transférables, notamment les souvenirs, sont protégés.
+- Les explorations terminées attribuent désormais un matériau à l'inventaire, en transaction avec la récompense existante.
+- Aucune commande slash supplémentaire. `/montrermonnox` reste inchangée.
+
+## NOX Junior V0.7 — Rencontres cosmiques
+- `/monnox` → sélectionner son compagnon → **Rencontres** : proposer une rencontre à un autre membre possédant un NOX, consulter les invitations reçues ou envoyées et jouer après consentement.
+- Trois mini-jeux sociaux supplémentaires : **Duo des étoiles**, **Chasse au trésor collective** et **Festival cosmique** (12 mini-jeux au total : 9 individuels + 3 coopératifs).
+- Les invitations expirent après 24 h ; la participation des deux propriétaires est indispensable avant toute récompense. Récompenses attribuées une seule fois aux deux NOX, sauvegardées dans SQLite.
+- Aucune nouvelle commande slash. `/montrermonnox` reste une présentation publique volontaire.
+
+### NOX Junior V0.8 — Visuels
+- `/monnox` → bouton **Portrait** : illustration privée selon l'âge, la couleur, l'humeur et la chambre du compagnon.
+- `/monnox` → **Chambre** : aperçu illustré de l'ambiance choisie.
+- `/montrermonnox [compagnon]` : portrait public volontaire reflétant l'évolution et l'ambiance.
+- Aucun nouveau slash-command : toutes les actions restent regroupées dans le panneau personnel.
+
+### NOX Junior V0.9 — rencontres en trois manches
+- `/monnox` → **Rencontres** → invitation et acceptation inchangées.
+- Les trois jeux coopératifs (Duo des étoiles, Chasse au trésor collective, Festival cosmique) proposent chacun **3 manches**, avec trois décisions par manche.
+- Chaque membre joue une fois par manche ; le passage à la suivante exige les deux choix. Reprendre dans `/monnox` → Rencontres après la réponse du partenaire.
+- Récompense commune une seule fois, à la fin des trois manches, avec bonus pour les choix complémentaires.
+- Aucune commande slash supplémentaire.
+
+
+### NOX Junior V1.0 — Couleur arc-en-ciel 🌈 et consolidation
+- `/monnox` → **Adopter** : 9 couleurs disponibles, dont **🌈 Arc-en-ciel** (`arc_en_ciel`), avec motifs multicolores sur l'œuf et le compagnon à chaque stade.
+- `/monnox` → **Portrait** et **Chambre** : illustrations adaptées aux neuf couleurs, aux âges et aux humeurs.
+- `/montrermonnox [compagnon]` : présentation publique facultative avec portrait multicolore.
+- `/givemonnox membre` : **Fondateur uniquement**, autorisation d'adopter un deuxième compagnon.
+- `/aide` et `/aidestaff` : catalogue dynamique classant les commandes NOX Junior, avec restriction staff correcte pour `/givemonnox`.
+- Aucun changement de couleur automatique pour les compagnons existants. Aucune nouvelle commande slash.
+- Dépendance Pillow ajoutée à `requirements.txt` pour éviter un échec d'import au déploiement.
+
+### NOX Junior V1.6 — mini-jeux
+Depuis `/monnox` → **Mini-jeux**, 12 activités sont disponibles, dont **Cache-cache cosmique**, **Cuisine des étoiles** et **Danse des constellations**. Les parties sont rejouables ; seules les cinq premières parties terminées par jour rapportent 2 Poussières d'étoiles chacune.

@@ -257,3 +257,36 @@ Cinq anciennes sous-commandes (`statut`, `diagnostic`, `audit`, `simulation`, `c
 
 ### V10.85.10 — Surprises collectives NOX
 `/noxsurprise` (administrateur) : choisir parmi 4 thèmes (absurdité, question, mini-défi, douceur) et un salon. NOX publie via webhook ; pas de publication automatique. 32 répliques dans `data/nox/surprises_collectives.json`.
+
+### NOX Junior V0.1 — développement séparé
+Deux commandes : `/monnox` et `/givemonnox`. Données persistantes : `data/nox_junior.sqlite3` (ne jamais écraser en mise à jour). Les soins du NOX collectif sont lus depuis `data/nox_refuge.sqlite3`. La V0.1 ne contient que les fondations ; les jeux et images sont à venir. Tests locaux : `python -m unittest discover -s tests -p test_nox_junior_engine.py`.
+
+### NOX Junior V0.2 — vie quotidienne
+Six soins accessibles depuis le panneau privé `/monnox`, cinq jauges à évolution temporelle limitée, humeur contextuelle, journal des dernières actions et actualisation. Migration SQLite automatique non destructive depuis V0.1 (colonne `last_decay`). Préserver `data/nox_junior.sqlite3` et `data/nox_refuge.sqlite3` lors de l'installation. Tests locaux : `python -m unittest discover -s tests -p test_nox_junior_v02.py`. Pas encore validé sur Discord réel.
+
+
+## NOX Junior V0.3
+Trois mini-jeux, affinités persistantes et commande publique `/montrermonnox` avec portrait local. Voir `NOX_JUNIOR_V0_3_RAPPORT.md`.
+
+### NOX Junior V0.4
+Cinq régions d'exploration et six mini-jeux disponibles dans `/monnox`. Voir `NOX_JUNIOR_V0_4_RAPPORT.md`. Version de développement : tester sur un serveur Discord dédié avant production.
+
+
+## NOX Junior V0.5
+Voir `NOX_JUNIOR_V0_5_RAPPORT.md` pour les nouveautés, limites et tests.
+
+### NOX Junior V0.7 (développement)
+Rencontres cosmiques : invitation depuis `/monnox`, acceptation/refus par le destinataire, trois mini-jeux coopératifs nécessitant une action de chacun des deux membres, journal et affinités mis à jour. Aucune notification directe : le destinataire consulte `/monnox` → Rencontres. Voir `NOX_JUNIOR_V0_7_RAPPORT.md`. Ne pas remplacer la version de production avant essais Discord.
+
+### NOX Junior V0.8
+Moteur visuel hors ligne (`cogs/nox_junior_visual.py`), bouton Portrait, prévisualisation des chambres et portraits publics adaptés au stade de croissance. Voir `NOX_JUNIOR_V0_8_RAPPORT.md`.
+
+### NOX Junior V0.9
+Trois manches par jeu coopératif, progression enregistrée dans `junior_encounter_rounds`, décisions distinctes et récompense finale unique. Voir `NOX_JUNIOR_V0_9_RAPPORT.md`. Les parties actives de V0.7/V0.8 doivent de préférence être terminées avant migration ; une rencontre active antérieure peut reprendre au début des nouvelles manches.
+
+
+## NOX Junior V1.0
+Neuf couleurs à l'adoption, dont **🌈 Arc-en-ciel**. Les visuels PNG sont calculés localement.
+Installer les dépendances avec `pip install -r requirements.txt` (Pillow est requis).
+**Déploiement prudent :** sauvegarder les fichiers SQLite et `.env`, terminer les rencontres en cours, tester d'abord sur un serveur Discord distinct.
+Le moteur a des tests automatisés, mais aucune recette de bout en bout sur Discord n'est attestée.
