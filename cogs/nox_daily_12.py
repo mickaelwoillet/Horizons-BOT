@@ -56,6 +56,13 @@ def initialize(con):
         guild_id INTEGER NOT NULL, local_day TEXT NOT NULL, slot INTEGER NOT NULL,
         dialogue_id TEXT NOT NULL, state TEXT NOT NULL DEFAULT 'pending',
         PRIMARY KEY(guild_id,local_day,slot))''')
+    cols = {row[1] for row in con.execute('PRAGMA table_info(nox_daily_posts)')}
+    if 'message_id' not in cols:
+        con.execute('ALTER TABLE nox_daily_posts ADD COLUMN message_id INTEGER')
+    con.execute('''CREATE TABLE IF NOT EXISTS nox_daily_illustrated_votes (
+        guild_id INTEGER NOT NULL, message_id INTEGER NOT NULL,
+        user_id INTEGER NOT NULL, choice INTEGER NOT NULL,
+        PRIMARY KEY(guild_id,message_id,user_id))''')
     con.commit()
 
 
@@ -85,9 +92,70 @@ def choose_dialogue(dialogues, recent_ids, categories=None):
     return random.choice(options) if options else None
 
 
+# Boutons persistants pour les six rendez-vous illustrés (webhook NOX).
+# Les choix ne génèrent aucune poussière et ne créent pas de message public.
+SCENE_REACTIONS = {
+    'grillepain': ('🤝 Négocier', '🍞 Soutenir les tartines', '🚨 Appeler NOX'),
+    'ascenseur': ('🕰️ Chercher aujourd’hui', '⏳ Voyager hier', '🚀 Visiter demain'),
+}
+DEFAULT_REACTIONS = ('💜 Encourager NOX', '✨ Participer', '😂 En rire')
+
+
+def scene_reactions(scene_id):
+    return SCENE_REACTIONS.get(scene_id, DEFAULT_REACTIONS)
+
+
+class IllustratedReactionButton(discord.ui.Button):
+    def __init__(self, choice):
+        super().__init__(label=DEFAULT_REACTIONS[choice], style=discord.ButtonStyle.secondary,
+                         custom_id=f'horizons:nox:illustre:{choice}')
+        self.choice = choice
+
+    async def callback(self, interaction: discord.Interaction):
+        if not interaction.guild_id or not interaction.message:
+            await interaction.response.send_message('Cette interaction est réservée au serveur.', ephemeral=True)
+            return
+        with engine.connect(DB) as con:
+            initialize(con)
+            row = con.execute('''SELECT local_day,dialogue_id FROM nox_daily_posts
+                WHERE guild_id=? AND message_id=? AND state='sent' ''',
+                (interaction.guild_id, interaction.message.id)).fetchone()
+            if not row or not row['dialogue_id'].startswith('image:'):
+                await interaction.response.send_message('Cette publication ne possède pas de vote actif.', ephemeral=True)
+                return
+            scene_id = row['dialogue_id'][6:]
+            con.execute('''INSERT INTO nox_daily_illustrated_votes(guild_id,message_id,user_id,choice)
+                VALUES(?,?,?,?) ON CONFLICT(guild_id,message_id,user_id)
+                DO UPDATE SET choice=excluded.choice''',
+                (interaction.guild_id, interaction.message.id, interaction.user.id, self.choice))
+            con.commit()
+            totals = [0, 0, 0]
+            for choice, count in con.execute('''SELECT choice,COUNT(*) FROM nox_daily_illustrated_votes
+                WHERE guild_id=? AND message_id=? GROUP BY choice''',
+                (interaction.guild_id, interaction.message.id)):
+                if 0 <= choice < 3:
+                    totals[choice] = count
+        label = scene_reactions(scene_id)[self.choice]
+        await interaction.response.send_message(
+            f'🐉 NOX a reçu ta réaction : **{label}** !\n'
+            f'Votes : {totals[0]} · {totals[1]} · {totals[2]}. Tu peux changer ton choix.',
+            ephemeral=True)
+
+
+class IllustratedReactionView(discord.ui.View):
+    def __init__(self, scene_id=None):
+        super().__init__(timeout=None)
+        labels = scene_reactions(scene_id)
+        for index in range(3):
+            button = IllustratedReactionButton(index)
+            button.label = labels[index]
+            self.add_item(button)
+
+
 class NoxDaily12(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        bot.add_view(IllustratedReactionView())
         self.daily_loop.start()
 
     def cog_unload(self):
@@ -121,6 +189,13 @@ class NoxDaily12(commands.Cog):
         slot = eligible_slot(local_now)
         if slot is None:
             return
+        # Pas de catalogue chargé si aucune publication quotidienne n'est activée.
+        with engine.connect(DB) as con:
+            initialize(con)
+            rows = [dict(r) for r in con.execute(
+                'SELECT * FROM nox_daily_config WHERE enabled=1')]
+        if not rows:
+            return
         day = local_now.date().isoformat()
         try:
             dialogues = json.loads(CATALOG.read_text(encoding='utf-8'))
@@ -145,9 +220,6 @@ class NoxDaily12(commands.Cog):
         except (OSError, ValueError):
             LOG.exception('Catalogue illustré NOX inaccessible')
             image_scenes = []
-        with engine.connect(DB) as con:
-            initialize(con)
-            rows = [dict(r) for r in con.execute('SELECT * FROM nox_daily_config WHERE enabled=1')]
         for cfg in rows:
             guild_id = cfg['guild_id']
             with engine.connect(DB) as con:
@@ -166,7 +238,7 @@ class NoxDaily12(commands.Cog):
                     # Repeat only within the same theme when its catalogue is exhausted.
                     scene = random.choice(unseen or themed) if themed else None
                     item = ({'id': 'image:' + scene['id'], 'texte': scene['texte'],
-                             'image': scene['image']} if scene else None)
+                             'image': scene['image'], 'scene_id': scene['id']} if scene else None)
                 elif slot == 5:
                     from .nox_daily_challenges import select_challenge
                     challenge = select_challenge(con, guild_id, day, slot)
@@ -229,7 +301,8 @@ class NoxDaily12(commands.Cog):
                     path = IMAGE_DIR / Path(item['image']).name
                     with path.open('rb') as fp:
                         sent_message = await send_as_nox(channel, content=item['texte'],
-                                          file=discord.File(fp, filename=path.name))
+                                          file=discord.File(fp, filename=path.name),
+                                          view=IllustratedReactionView(item['scene_id']))
                 else:
                     if slot == 5:
                         from .nox_daily_challenges import ChallengeView
@@ -261,9 +334,9 @@ class NoxDaily12(commands.Cog):
                         con.execute("""UPDATE nox_daily_polls SET message_id=?
                             WHERE guild_id=? AND local_day=? AND slot=?""",
                             (sent_message.id, guild_id, day, slot))
-                    con.execute("""UPDATE nox_daily_posts SET state='sent'
+                    con.execute("""UPDATE nox_daily_posts SET state='sent',message_id=?
                         WHERE guild_id=? AND local_day=? AND slot=?""",
-                        (guild_id, day, slot))
+                        (sent_message.id if sent_message else None, guild_id, day, slot))
                     con.commit()
             except Exception:
                 LOG.exception('NOX: envoi effectue mais enregistrement impossible (guild=%s, slot=%s)',

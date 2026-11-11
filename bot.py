@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from logging.handlers import RotatingFileHandler
 import json
 import os
 import sys
@@ -198,7 +199,8 @@ logging.basicConfig(
     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler(LOG_DIR / "horizons.log", encoding="utf-8"),
+        RotatingFileHandler(LOG_DIR / "horizons.log", maxBytes=2 * 1024 * 1024,
+                            backupCount=2, encoding="utf-8"),
     ],
 )
 logger = logging.getLogger("horizons")
