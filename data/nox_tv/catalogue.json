@@ -254,7 +254,7 @@
   },
   {
     "id": "canard_matraque_anime",
-    "file": "canard_matraque_anime.gif",
+    "file": "coincoin_patrouille_pilon.gif",
     "title": "🦆 COIN-COIN BRANDIT LA MATRAQUE GASTRONOMIQUE !",
     "text": "Sa Majesté Coin-Coin Ier patrouille dans les couloirs avec une cuisse de poulet. Le ministère des Miettes nie tout lien avec cette opération.",
     "kind": "canard",
@@ -286,7 +286,7 @@
   },
   {
     "id": "nox_faim_anime",
-    "file": "nox_faim_anime.gif",
+    "file": "nox_reclame_biscuits.gif",
     "title": "🍪 NOX DÉCLARE UNE URGENCE GASTRONOMIQUE !",
     "text": "Nox a fait disparaître le dernier biscuit. Son estomac réclame une commission d’enquête et une livraison immédiate de cookies.",
     "kind": "nox",
@@ -302,7 +302,7 @@
   },
   {
     "id": "nox_jeu_ballon",
-    "file": "nox_jeu_ballon.png",
+    "file": "nox_joue_ballon.png",
     "title": "🎲 NOX DÉFIE LA GRAVITÉ !",
     "text": "Nox a trouvé un ballon cosmique qui refuse de retomber. Le Canard Suprême exige un permis de rebond.",
     "kind": "nox",
@@ -365,7 +365,7 @@
   },
   {
     "id": "nox_sommeil_conseil",
-    "file": "nox_sommeil_conseil.png",
+    "file": "nox_conseils_sommeil.png",
     "title": "💤 NOX S’ENDORT EN PLEIN CONSEIL !",
     "text": "Nox ronfle pendant une réunion de crise. Ses ronflements sont désormais classés comme phénomène astronomique.",
     "kind": "nox",
@@ -412,7 +412,7 @@
   },
   {
     "id": "coincoin_couronne_rebelle",
-    "file": "coincoin_couronne_rebelle.png",
+    "file": "coincoin_roi_rebelle.png",
     "title": "👑 LA COURONNE FAIT GRÈVE",
     "text": "La couronne de Coin-Coin refuse de rester sur sa tête et réclame une augmentation de diamants.",
     "kind": "canard",
@@ -444,7 +444,7 @@
   },
   {
     "id": "grille_pain_tartine_maire",
-    "file": "grille_pain_tartine_maire.png",
+    "file": "grille_pain_maire_tartines.png",
     "title": "🍞 UNE TARTINE ÉLUE MAIRE",
     "text": "Grille-Pain 3000 présente une tartine aux élections. Elle promet du beurre gratuit et une politique croustillante.",
     "kind": "grille_pain",
@@ -460,7 +460,7 @@
   },
   {
     "id": "exploration_portail_chaussettes",
-    "file": "exploration_portail_chaussettes.png",
+    "file": "nox_portail_chaussettes_perdues.png",
     "title": "🧦 LE PORTAIL DES CHAUSSETTES",
     "text": "Une expédition découvre le portail où disparaissent toutes les chaussettes de l’univers. Nox reconnaît immédiatement sa collection.",
     "kind": "exploration",

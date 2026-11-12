@@ -47,11 +47,11 @@ NEED_IMAGES = {
 DECOR_IMAGE_NAMES = tuple(f'nox_refuge_evolutif_{level}.png' for level in range(5))
 
 CARE_IMAGES = {
-    'nourrir': 'nox_biscuits_orbite.png',
+    'nourrir': 'nox_refuge_nourrir.png',
     'boire': 'nox_soif_cosmique_40.png',
     'jouer': 'nox_jeu_orbe_40.png',
     'calin': 'nox_reconfort_41.png',
-    'bain': 'nox_refuge_lanternes.png',
+    'bain': 'nox_refuge_bain.png',
     'repos': 'nox_bonne_nuit_couverture_40.png',
 }
 
