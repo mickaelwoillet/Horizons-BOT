@@ -1,0 +1,127 @@
+[
+  {
+    "question": "Quelle est la capitale du Canada ?",
+    "reponse": "Ottawa",
+    "categorie": "Géographie"
+  },
+  {
+    "question": "Quel est le plus grand océan de la planète ?",
+    "reponse": "L'océan Pacifique",
+    "categorie": "Géographie"
+  },
+  {
+    "question": "Dans quel pays se trouve la ville de Kyoto ?",
+    "reponse": "Le Japon",
+    "categorie": "Géographie"
+  },
+  {
+    "question": "Quel fleuve traverse Paris ?",
+    "reponse": "La Seine",
+    "categorie": "Géographie"
+  },
+  {
+    "question": "Quel est le plus haut sommet du monde ?",
+    "reponse": "L'Everest",
+    "categorie": "Géographie"
+  },
+  {
+    "question": "En quelle année débute la Révolution française ?",
+    "reponse": "1789",
+    "categorie": "Histoire"
+  },
+  {
+    "question": "Qui fut le premier empereur romain ?",
+    "reponse": "Auguste",
+    "categorie": "Histoire"
+  },
+  {
+    "question": "Quel mur est tombé en 1989 ?",
+    "reponse": "Le mur de Berlin",
+    "categorie": "Histoire"
+  },
+  {
+    "question": "Quelle civilisation a construit Machu Picchu ?",
+    "reponse": "Les Incas",
+    "categorie": "Histoire"
+  },
+  {
+    "question": "Qui a peint La Joconde ?",
+    "reponse": "Léonard de Vinci",
+    "categorie": "Arts"
+  },
+  {
+    "question": "Quel compositeur a écrit Les Quatre Saisons ?",
+    "reponse": "Antonio Vivaldi",
+    "categorie": "Musique"
+  },
+  {
+    "question": "Quel écrivain a créé le personnage de Sherlock Holmes ?",
+    "reponse": "Arthur Conan Doyle",
+    "categorie": "Littérature"
+  },
+  {
+    "question": "Qui a écrit Les Misérables ?",
+    "reponse": "Victor Hugo",
+    "categorie": "Littérature"
+  },
+  {
+    "question": "Quel instrument possède généralement 88 touches ?",
+    "reponse": "Le piano",
+    "categorie": "Musique"
+  },
+  {
+    "question": "Quelle planète est surnommée la planète rouge ?",
+    "reponse": "Mars",
+    "categorie": "Sciences"
+  },
+  {
+    "question": "Quel gaz les plantes absorbent-elles principalement pour la photosynthèse ?",
+    "reponse": "Le dioxyde de carbone",
+    "categorie": "Sciences"
+  },
+  {
+    "question": "Combien de côtés possède un hexagone ?",
+    "reponse": "Six",
+    "categorie": "Sciences"
+  },
+  {
+    "question": "Quel est le symbole chimique de l'or ?",
+    "reponse": "Au",
+    "categorie": "Sciences"
+  },
+  {
+    "question": "Quel organe pompe le sang dans le corps humain ?",
+    "reponse": "Le cœur",
+    "categorie": "Sciences"
+  },
+  {
+    "question": "Quel animal est le plus grand mammifère vivant ?",
+    "reponse": "La baleine bleue",
+    "categorie": "Nature"
+  },
+  {
+    "question": "Combien de joueurs une équipe de football compte-t-elle sur le terrain au début d'un match ?",
+    "reponse": "Onze",
+    "categorie": "Sport"
+  },
+  {
+    "question": "Dans quel sport utilise-t-on un volant ?",
+    "reponse": "Le badminton",
+    "categorie": "Sport"
+  },
+  {
+    "question": "Quel pays a offert la Statue de la Liberté aux États-Unis ?",
+    "reponse": "La France",
+    "categorie": "Culture"
+  },
+  {
+    "question": "Quelle langue compte le plus de locuteurs natifs dans le monde ?",
+    "reponse": "Le chinois mandarin",
+    "categorie": "Culture"
+  },
+  {
+    "question": "Quel est le nom du célèbre festival de cinéma organisé chaque année sur la Croisette ?",
+    "reponse": "Le Festival de Cannes",
+    "categorie": "Culture"
+  }
+]

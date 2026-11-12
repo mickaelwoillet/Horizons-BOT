@@ -1,0 +1,110 @@
+[
+  {
+    "id": "sondage_01",
+    "question": "NOX a trouvé trois boutons sur son vaisseau. Lequel appuies-tu ?",
+    "choix": [
+      "Faire pleuvoir des biscuits 🍪",
+      "Invoquer Coincoin 🦆",
+      "Activer la danse cosmique 🪩"
+    ]
+  },
+  {
+    "id": "sondage_02",
+    "question": "Pour accueillir un nouvel habitant, tu choisis…",
+    "choix": [
+      "Une visite guidée 🧭",
+      "Une blague de NOX 😄",
+      "Un chocolat imaginaire ☕"
+    ]
+  },
+  {
+    "id": "sondage_03",
+    "question": "Quelle planète mérite une visite ?",
+    "choix": [
+      "La planète des chaussettes 🧦",
+      "La planète des étoiles ✨",
+      "La planète des doudous 🧸"
+    ]
+  },
+  {
+    "id": "sondage_04",
+    "question": "NOX propose une pause collective. Tu préfères…",
+    "choix": [
+      "Une devinette 🧩",
+      "Un mini-défi 🎯",
+      "Une histoire absurde 📖"
+    ]
+  },
+  {
+    "id": "sondage_05",
+    "question": "Quel super-pouvoir offrir à NOX ?",
+    "choix": [
+      "Téléporter les biscuits 🍪",
+      "Comprendre les canards 🦆",
+      "Réparer les réveils ⏰"
+    ]
+  },
+  {
+    "id": "sondage_06",
+    "question": "Une soirée HORIZONS idéale, ce serait…",
+    "choix": [
+      "Un quiz en équipe 🧠",
+      "Une discussion tranquille 💬",
+      "Une aventure de NOX 🚀"
+    ]
+  },
+  {
+    "id": "sondage_07",
+    "question": "NOX a perdu sa carte spatiale. Où chercher ?",
+    "choix": [
+      "Sous son oreiller 🛏️",
+      "Dans le frigo 🧊",
+      "Chez Coincoin 🦆"
+    ]
+  },
+  {
+    "id": "sondage_08",
+    "question": "Quel petit geste illumine une journée ?",
+    "choix": [
+      "Un compliment 💛",
+      "Une écoute attentive 🫶",
+      "Un fou rire 😄"
+    ]
+  },
+  {
+    "id": "sondage_09",
+    "question": "Que devrait collectionner NOX ?",
+    "choix": [
+      "Des étoiles filantes 🌠",
+      "Des histoires drôles 📚",
+      "Des chaussettes uniques 🧦"
+    ]
+  },
+  {
+    "id": "sondage_10",
+    "question": "NOX prépare un festival. Au programme ?",
+    "choix": [
+      "Danse interstellaire 🪩",
+      "Concours de devinettes 🧩",
+      "Spectacle de Coincoin 🦆"
+    ]
+  },
+  {
+    "id": "sondage_11",
+    "question": "Pour explorer HORIZONS, tu choisis…",
+    "choix": [
+      "Une aventure collective 🚀",
+      "Une question surprenante ❓",
+      "Un défi de gentillesse 💛"
+    ]
+  },
+  {
+    "id": "sondage_12",
+    "question": "Quel cadeau pour son anniversaire cosmique ?",
+    "choix": [
+      "Un gâteau géant 🎂",
+      "Un doudou astronaute 🧸",
+      "Une pluie de confettis ✨"
+    ]
+  }
+]

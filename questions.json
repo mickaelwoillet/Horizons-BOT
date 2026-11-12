@@ -1,0 +1,502 @@
+[
+  {
+    "id": "QUE001",
+    "texte": "Quel petit rituel rend tes journées plus agréables ?",
+    "categorie": "Quotidien"
+  },
+  {
+    "id": "QUE002",
+    "texte": "Quelle chanson pourrais-tu écouter encore et encore ?",
+    "categorie": "Musique"
+  },
+  {
+    "id": "QUE003",
+    "texte": "Quel endroit te donne immédiatement envie de ralentir ?",
+    "categorie": "Voyage"
+  },
+  {
+    "id": "QUE004",
+    "texte": "Quel livre t'a laissé une impression durable ?",
+    "categorie": "Culture"
+  },
+  {
+    "id": "QUE005",
+    "texte": "Quelle compétence aimerais-tu apprendre cette année ?",
+    "categorie": "Découverte"
+  },
+  {
+    "id": "QUE006",
+    "texte": "Quel plat associes-tu à un souvenir heureux ?",
+    "categorie": "Cuisine"
+  },
+  {
+    "id": "QUE007",
+    "texte": "Quel film conseillerais-tu à quelqu'un qui ne sait pas quoi regarder ?",
+    "categorie": "Culture"
+  },
+  {
+    "id": "QUE008",
+    "texte": "Quelle invention te semble indispensable aujourd'hui ?",
+    "categorie": "Société"
+  },
+  {
+    "id": "QUE009",
+    "texte": "Tu préfères organiser ou improviser une sortie ?",
+    "categorie": "Préférences"
+  },
+  {
+    "id": "QUE010",
+    "texte": "Quel geste simple te fait te sentir accueilli ?",
+    "categorie": "Relations"
+  },
+  {
+    "id": "QUE011",
+    "texte": "Quelle qualité apprécies-tu particulièrement chez un ami ?",
+    "categorie": "Relations"
+  },
+  {
+    "id": "QUE012",
+    "texte": "Quel sujet pourrais-tu explorer pendant des heures ?",
+    "categorie": "Curiosité"
+  },
+  {
+    "id": "QUE013",
+    "texte": "Quelle activité aimerais-tu essayer au moins une fois ?",
+    "categorie": "Découverte"
+  },
+  {
+    "id": "QUE014",
+    "texte": "Quel paysage te ressource le plus : mer, forêt, montagne ou ville ?",
+    "categorie": "Voyage"
+  },
+  {
+    "id": "QUE015",
+    "texte": "Quel personnage de fiction aimerais-tu rencontrer ?",
+    "categorie": "Culture"
+  },
+  {
+    "id": "QUE016",
+    "texte": "Quelle tradition aimerais-tu transmettre ?",
+    "categorie": "Souvenirs"
+  },
+  {
+    "id": "QUE017",
+    "texte": "Quel est ton meilleur conseil pour décompresser ?",
+    "categorie": "Bien-être"
+  },
+  {
+    "id": "QUE018",
+    "texte": "Quel talent aimerais-tu partager avec la communauté ?",
+    "categorie": "Communauté"
+  },
+  {
+    "id": "QUE019",
+    "texte": "Quelle petite victoire récente aimerais-tu célébrer ?",
+    "categorie": "Bien-être"
+  },
+  {
+    "id": "QUE020",
+    "texte": "Quel objet du quotidien te simplifie vraiment la vie ?",
+    "categorie": "Quotidien"
+  },
+  {
+    "id": "QUE021",
+    "texte": "Si tu pouvais visiter une époque historique, laquelle choisirais-tu ?",
+    "categorie": "Imaginaire"
+  },
+  {
+    "id": "QUE022",
+    "texte": "Quelle découverte récente t'a surpris ?",
+    "categorie": "Curiosité"
+  },
+  {
+    "id": "QUE023",
+    "texte": "Quel parfum ou quelle odeur te rappelle un bon souvenir ?",
+    "categorie": "Souvenirs"
+  },
+  {
+    "id": "QUE024",
+    "texte": "Quel jeu de société ou jeu vidéo recommandes-tu ?",
+    "categorie": "Loisirs"
+  },
+  {
+    "id": "QUE025",
+    "texte": "Quel serait le thème idéal d'une soirée communautaire ?",
+    "categorie": "Communauté"
+  },
+  {
+    "id": "QUE026",
+    "texte": "Quelle œuvre aimerais-tu voir ou revoir en vrai ?",
+    "categorie": "Culture"
+  },
+  {
+    "id": "QUE027",
+    "texte": "Quel endroit de ta région mériterait d'être davantage connu ?",
+    "categorie": "Voyage"
+  },
+  {
+    "id": "QUE028",
+    "texte": "Quelle habitude aimerais-tu adopter doucement ?",
+    "categorie": "Bien-être"
+  },
+  {
+    "id": "QUE029",
+    "texte": "Qu'est-ce qui te fait rire presque à tous les coups ?",
+    "categorie": "Humour"
+  },
+  {
+    "id": "QUE030",
+    "texte": "Quel petit plaisir est souvent sous-estimé ?",
+    "categorie": "Quotidien"
+  },
+  {
+    "id": "QUE031",
+    "texte": "Quelle valeur souhaites-tu retrouver dans une communauté ?",
+    "categorie": "Communauté"
+  },
+  {
+    "id": "QUE032",
+    "texte": "Quel sujet aimerais-tu mieux comprendre ?",
+    "categorie": "Curiosité"
+  },
+  {
+    "id": "QUE033",
+    "texte": "Quelle saison correspond le mieux à ton humeur ? Pourquoi ?",
+    "categorie": "Préférences"
+  },
+  {
+    "id": "QUE034",
+    "texte": "Quel est le meilleur repas pour un dimanche tranquille ?",
+    "categorie": "Cuisine"
+  },
+  {
+    "id": "QUE035",
+    "texte": "Quel conseil donnerais-tu à quelqu'un qui commence une nouvelle activité ?",
+    "categorie": "Conseils"
+  },
+  {
+    "id": "QUE036",
+    "texte": "Quel souvenir de vacances te revient spontanément ?",
+    "categorie": "Souvenirs"
+  },
+  {
+    "id": "QUE037",
+    "texte": "Quel artiste aimerais-tu voir sur scène ?",
+    "categorie": "Musique"
+  },
+  {
+    "id": "QUE038",
+    "texte": "Quelle qualité aimerais-tu développer davantage ?",
+    "categorie": "Développement personnel"
+  },
+  {
+    "id": "QUE039",
+    "texte": "Comment aimes-tu célébrer une bonne nouvelle ?",
+    "categorie": "Quotidien"
+  },
+  {
+    "id": "QUE040",
+    "texte": "Quel lieu imaginaire aimerais-tu visiter ?",
+    "categorie": "Imaginaire"
+  },
+  {
+    "id": "QUE041",
+    "texte": "Quel sujet de conversation te met facilement à l'aise ?",
+    "categorie": "Relations"
+  },
+  {
+    "id": "QUE042",
+    "texte": "Quelle petite attention t'a récemment fait plaisir ?",
+    "categorie": "Bienveillance"
+  },
+  {
+    "id": "QUE043",
+    "texte": "Quel est ton meilleur moyen de faire une pause ?",
+    "categorie": "Bien-être"
+  },
+  {
+    "id": "QUE044",
+    "texte": "Si tu créais une journée thématique, que célébrerait-elle ?",
+    "categorie": "Créativité"
+  },
+  {
+    "id": "QUE045",
+    "texte": "Quel métier aurais-tu aimé découvrir de l'intérieur ?",
+    "categorie": "Découverte"
+  },
+  {
+    "id": "QUE046",
+    "texte": "Quel album ou quelle bande originale te touche particulièrement ?",
+    "categorie": "Musique"
+  },
+  {
+    "id": "QUE047",
+    "texte": "Quelle chose aimerais-tu faire plus souvent ?",
+    "categorie": "Quotidien"
+  },
+  {
+    "id": "QUE048",
+    "texte": "Quel conseil reçu t'accompagne encore aujourd'hui ?",
+    "categorie": "Souvenirs"
+  },
+  {
+    "id": "QUE049",
+    "texte": "Quel sujet aimerais-tu voir abordé lors d'un débat respectueux ?",
+    "categorie": "Communauté"
+  },
+  {
+    "id": "QUE050",
+    "texte": "Quelle activité créative te tente : photo, écriture, dessin, musique ou autre ?",
+    "categorie": "Loisirs"
+  },
+  {
+    "id": "QUE051",
+    "texte": "Qu'est-ce qui te donne le sentiment d'avoir passé une bonne journée ?",
+    "categorie": "Bien-être"
+  },
+  {
+    "id": "QUE052",
+    "texte": "Quel pays ou quelle région aimerais-tu découvrir pour sa culture ?",
+    "categorie": "Voyage"
+  },
+  {
+    "id": "QUE053",
+    "texte": "Quel plat aimerais-tu apprendre à cuisiner ?",
+    "categorie": "Cuisine"
+  },
+  {
+    "id": "QUE054",
+    "texte": "Quelle qualité rend une discussion agréable selon toi ?",
+    "categorie": "Relations"
+  },
+  {
+    "id": "QUE055",
+    "texte": "Quel personnage historique aimerais-tu questionner ?",
+    "categorie": "Histoire"
+  },
+  {
+    "id": "QUE056",
+    "texte": "Quelle expression ou quel mot utilises-tu souvent ?",
+    "categorie": "Langue"
+  },
+  {
+    "id": "QUE057",
+    "texte": "Quel son de la nature trouves-tu apaisant ?",
+    "categorie": "Nature"
+  },
+  {
+    "id": "QUE058",
+    "texte": "Quelle activité te permet de perdre la notion du temps ?",
+    "categorie": "Loisirs"
+  },
+  {
+    "id": "QUE059",
+    "texte": "Quel sujet léger pourrait lancer une conversation aujourd'hui ?",
+    "categorie": "Discussion"
+  },
+  {
+    "id": "QUE060",
+    "texte": "Qu'aimerais-tu que les nouveaux membres ressentent en arrivant ici ?",
+    "categorie": "Communauté"
+  },
+  {
+    "id": "QUE061",
+    "texte": "Quelle petite chose aimerais-tu célébrer cette semaine ?",
+    "categorie": "Bien-être"
+  },
+  {
+    "id": "QUE062",
+    "texte": "Si tu pouvais créer un musée, quel serait son thème ?",
+    "categorie": "Créativité"
+  },
+  {
+    "id": "QUE063",
+    "texte": "Quelle période de l'année préfères-tu et pourquoi ?",
+    "categorie": "Préférences"
+  },
+  {
+    "id": "QUE064",
+    "texte": "Quel objet emporterais-tu pour une journée imprévue hors de chez toi ?",
+    "categorie": "Quotidien"
+  },
+  {
+    "id": "QUE065",
+    "texte": "Quelle histoire familiale ou amicale aimes-tu raconter ?",
+    "categorie": "Souvenirs"
+  },
+  {
+    "id": "QUE066",
+    "texte": "Quel est ton moyen préféré de découvrir de nouvelles musiques ?",
+    "categorie": "Musique"
+  },
+  {
+    "id": "QUE067",
+    "texte": "Quel conseil donnerais-tu pour mieux accueillir une personne timide ?",
+    "categorie": "Inclusion"
+  },
+  {
+    "id": "QUE068",
+    "texte": "Quel paysage aimerais-tu avoir sous les yeux au réveil ?",
+    "categorie": "Imaginaire"
+  },
+  {
+    "id": "QUE069",
+    "texte": "Quelle activité collective aimerais-tu tester sur HORIZONS ?",
+    "categorie": "Communauté"
+  },
+  {
+    "id": "QUE070",
+    "texte": "Quel film ou livre t'a fait changer de perspective ?",
+    "categorie": "Culture"
+  },
+  {
+    "id": "QUE071",
+    "texte": "Quelle chose aimerais-tu apprendre auprès d'un autre membre ?",
+    "categorie": "Apprentissage"
+  },
+  {
+    "id": "QUE072",
+    "texte": "Quel est ton petit-déjeuner idéal ?",
+    "categorie": "Cuisine"
+  },
+  {
+    "id": "QUE073",
+    "texte": "Quelle invention du futur aimerais-tu voir exister ?",
+    "categorie": "Imaginaire"
+  },
+  {
+    "id": "QUE074",
+    "texte": "Qu'est-ce qui te fait te sentir écouté ?",
+    "categorie": "Relations"
+  },
+  {
+    "id": "QUE075",
+    "texte": "Quelle cause de solidarité mériterait davantage de visibilité ?",
+    "categorie": "Société"
+  },
+  {
+    "id": "QUE076",
+    "texte": "Quel lieu de ta ville recommanderais-tu à un visiteur ?",
+    "categorie": "Voyage"
+  },
+  {
+    "id": "QUE077",
+    "texte": "Quelle activité te fait du bien quand tu as besoin de calme ?",
+    "categorie": "Bien-être"
+  },
+  {
+    "id": "QUE078",
+    "texte": "Quel est le meilleur conseil pour débuter dans un loisir ?",
+    "categorie": "Conseils"
+  },
+  {
+    "id": "QUE079",
+    "texte": "Quelle chanson choisirais-tu pour le générique de ta vie ?",
+    "categorie": "Musique"
+  },
+  {
+    "id": "QUE080",
+    "texte": "Quel sujet aimerais-tu expliquer à quelqu'un qui le découvre ?",
+    "categorie": "Curiosité"
+  },
+  {
+    "id": "QUE081",
+    "texte": "Quel mot aimerais-tu voir davantage dans les échanges en ligne ?",
+    "categorie": "Communauté"
+  },
+  {
+    "id": "QUE082",
+    "texte": "Quel petit défi accessible pourrais-tu te lancer cette semaine ?",
+    "categorie": "Développement personnel"
+  },
+  {
+    "id": "QUE083",
+    "texte": "Quelle fête ou tradition d'un autre pays aimerais-tu découvrir ?",
+    "categorie": "Culture"
+  },
+  {
+    "id": "QUE084",
+    "texte": "Quel est ton endroit préféré pour lire, écouter ou réfléchir ?",
+    "categorie": "Quotidien"
+  },
+  {
+    "id": "QUE085",
+    "texte": "Quel personnage fictif ferait un bon colocataire ?",
+    "categorie": "Humour"
+  },
+  {
+    "id": "QUE086",
+    "texte": "Quelle activité extérieure apprécies-tu le plus ?",
+    "categorie": "Loisirs"
+  },
+  {
+    "id": "QUE087",
+    "texte": "Qu'est-ce qui transforme un simple groupe en véritable communauté ?",
+    "categorie": "Communauté"
+  },
+  {
+    "id": "QUE088",
+    "texte": "Quel souvenir est associé à une odeur ou à une musique précise ?",
+    "categorie": "Souvenirs"
+  },
+  {
+    "id": "QUE089",
+    "texte": "Quelle compétence pratique devrait être enseignée à tout le monde ?",
+    "categorie": "Apprentissage"
+  },
+  {
+    "id": "QUE090",
+    "texte": "Quel serait ton programme idéal pour une journée sans contrainte ?",
+    "categorie": "Imaginaire"
+  },
+  {
+    "id": "QUE091",
+    "texte": "Quelle forme de reconnaissance te touche le plus ?",
+    "categorie": "Relations"
+  },
+  {
+    "id": "QUE092",
+    "texte": "Quel thème aimerais-tu retrouver dans une prochaine animation ?",
+    "categorie": "Communauté"
+  },
+  {
+    "id": "QUE093",
+    "texte": "Quelle découverte culturelle aimerais-tu partager ?",
+    "categorie": "Culture"
+  },
+  {
+    "id": "QUE094",
+    "texte": "Quel conseil bienveillant aimerais-tu adresser à ton toi d'il y a cinq ans ?",
+    "categorie": "Réflexion"
+  },
+  {
+    "id": "QUE095",
+    "texte": "Quelle chose simple te donne de l'énergie ?",
+    "categorie": "Bien-être"
+  },
+  {
+    "id": "QUE096",
+    "texte": "Quel sujet pourrait réunir des personnes qui ne se connaissent pas encore ?",
+    "categorie": "Discussion"
+  },
+  {
+    "id": "QUE097",
+    "texte": "Quel est ton moyen préféré de célébrer l'arrivée d'une nouvelle saison ?",
+    "categorie": "Quotidien"
+  },
+  {
+    "id": "QUE098",
+    "texte": "Quel endroit aimerais-tu faire découvrir à tes proches ?",
+    "categorie": "Voyage"
+  },
+  {
+    "id": "QUE099",
+    "texte": "Quelle qualité te semble essentielle dans le travail en équipe ?",
+    "categorie": "Relations"
+  },
+  {
+    "id": "QUE100",
+    "texte": "Quel défi créatif collectif pourrait-on relever ensemble ?",
+    "categorie": "Créativité"
+  }
+]
