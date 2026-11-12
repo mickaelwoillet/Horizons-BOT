@@ -94,15 +94,16 @@ class PetSelect(discord.ui.Select):
         super().__init__(placeholder='Choisis ton compagnon', options=[discord.SelectOption(label=f"{r['name']} · {r['color']}", value=str(r['id'])) for r in rows])
 
     async def callback(self, interaction):
+        await interaction.response.defer(ephemeral=True, thinking=True)
         with engine.connect(DB) as con:
             try:
                 row = engine.snapshot(con, int(self.values[0]), interaction.user.id, interaction.guild.id)
             except engine.JuniorError as exc:
-                return await interaction.response.send_message(str(exc), ephemeral=True)
+                return await interaction.followup.send(str(exc), ephemeral=True)
         with engine.connect(DB) as con:
             purse = engine.wallet(con,row['id'],interaction.user.id,interaction.guild.id)
             picture = room_picture(con,row['id'],interaction.user.id,interaction.guild.id,row)
-        await interaction.response.send_message(embed=visual_embed(row,purse),file=picture,view=PetView(row['id']),ephemeral=True)
+        await interaction.followup.send(embed=visual_embed(row,purse),file=picture,view=PetView(row['id']),ephemeral=True)
 
 
 def pet_embed(row):
@@ -1369,6 +1370,8 @@ class NoxJunior(commands.Cog):
     @app_commands.command(name='monnox',description='Accueillir et retrouver ton compagnon NOX Junior')
     @app_commands.guild_only()
     async def monnox(self,interaction:discord.Interaction):
+        # Acknowledge within Discord's 3-second interaction deadline before image rendering.
+        await interaction.response.defer(ephemeral=True, thinking=True)
         with engine.connect(DB) as con:
             rows=engine.pets(con,interaction.guild.id,interaction.user.id)
             grant=con.execute('SELECT 1 FROM junior_grants WHERE guild_id=? AND owner_id=?',(interaction.guild.id,interaction.user.id)).fetchone()
@@ -1377,17 +1380,17 @@ class NoxJunior(commands.Cog):
         can_adopt=len(rows)<max_pets and (ok or bool(grant and len(rows)==1))
         if not rows:
             if can_adopt:
-                await interaction.response.send_message('🐣 Choisis la couleur de ton premier œuf !',view=AdoptionView(),ephemeral=True)
+                await interaction.followup.send('🐣 Choisis la couleur de ton premier œuf !',view=AdoptionView(),ephemeral=True)
             else:
-                await interaction.response.send_message(f'🐣 Adoption disponible avec le rôle **Lien vivant** et **10 soins** au NOX collectif. Tes soins : **{count}/10**.',ephemeral=True)
+                await interaction.followup.send(f'🐣 Adoption disponible avec le rôle **Lien vivant** et **10 soins** au NOX collectif. Tes soins : **{count}/10**.',ephemeral=True)
             return
         if len(rows)==1:
             with engine.connect(DB) as con:
                 row=engine.snapshot(con,rows[0]['id'],interaction.user.id,interaction.guild.id)
                 purse=engine.wallet(con,row['id'],interaction.user.id,interaction.guild.id)
                 picture=room_picture(con,row['id'],interaction.user.id,interaction.guild.id,row)
-            return await interaction.response.send_message(embed=visual_embed(row,purse),file=picture,view=PetView(row['id']),ephemeral=True)
-        await interaction.response.send_message('💙 Voici tes compagnons :',view=PetListView(rows,can_adopt),ephemeral=True)
+            return await interaction.followup.send(embed=visual_embed(row,purse),file=picture,view=PetView(row['id']),ephemeral=True)
+        await interaction.followup.send('💙 Voici tes compagnons :',view=PetListView(rows,can_adopt),ephemeral=True)
 
     @app_commands.command(name='montrermonnox',description='Présenter publiquement ton compagnon NOX Junior')
     @app_commands.guild_only()
