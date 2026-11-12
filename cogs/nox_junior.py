@@ -923,6 +923,8 @@ class PetAdvancedView(discord.ui.View):
         await interaction.response.send_message('🤝 **Rencontres cosmiques** · Invitations consenties, jeux à deux et souvenirs communs. Consulte tes invitations ou invite un ami.',view=view,ephemeral=True)
 
     async def _care(self, interaction, action):
+        # ACK du clic AVANT toute opération SQLite ou Pillow (limite Discord 3 s).
+        await interaction.response.defer(thinking=False)
         try:
             with engine.connect(DB) as con:
                 engine.snapshot(con, self.pet_id, interaction.user.id, interaction.guild.id)
@@ -931,9 +933,9 @@ class PetAdvancedView(discord.ui.View):
         except engine.JuniorError as exc:
             # A daily cap or an unavailable companion must never leave a Discord
             # button spinning with the generic "Interaction failed" message.
-            return await interaction.response.send_message(str(exc), ephemeral=True)
+            return await interaction.followup.send(str(exc), ephemeral=True)
         if remaining:
-            return await interaction.response.send_message(
+            return await interaction.followup.send(
                 f'💤 NOX fait une petite pause : encore {remaining // 60 + 1} minute(s) au maximum. '
                 'Tu peux toujours consulter sa chambre, son journal et ses décorations.',ephemeral=True)
         reactions={'nourrir':('heureux','🍎 Miam ! NOX se régale !'),
@@ -948,7 +950,7 @@ class PetAdvancedView(discord.ui.View):
         with engine.connect(DB) as con:
             purse=engine.wallet(con,self.pet_id,interaction.user.id,interaction.guild.id)
             picture=room_picture(con,self.pet_id,interaction.user.id,interaction.guild.id,row,emotion)
-        await interaction.response.edit_message(embed=visual_embed(row,purse,message),attachments=[picture],view=self)
+        await interaction.edit_original_response(embed=visual_embed(row,purse,message),attachments=[picture],view=self)
         async def restore():
             import asyncio
             await asyncio.sleep(7)
@@ -1008,11 +1010,12 @@ class JuniorCategoryView(discord.ui.View):
         async def go_home(interaction):
             if interaction.user.id != self.owner_id:
                 return await interaction.response.send_message('Ce panneau ne t’appartient pas.', ephemeral=True)
+            await interaction.response.defer(thinking=False)
             with engine.connect(DB) as con:
                 pet = engine.snapshot(con, self.pet_id, interaction.user.id, interaction.guild.id)
                 purse = engine.wallet(con, self.pet_id, interaction.user.id, interaction.guild.id)
                 picture = room_picture(con, self.pet_id, interaction.user.id, interaction.guild.id, pet)
-            await interaction.response.edit_message(content=None, embed=visual_embed(pet,purse), attachments=[picture], view=PetView(self.pet_id))
+            await interaction.edit_original_response(content=None, embed=visual_embed(pet,purse), attachments=[picture], view=PetView(self.pet_id))
         back.callback = go_home
         self.add_item(back)
 
@@ -1044,12 +1047,13 @@ class PetView(PetAdvancedView):
             self.add_item(button)
         refresh = discord.ui.Button(label='Actualiser les jauges', emoji='🔄', style=discord.ButtonStyle.secondary, row=3)
         async def update(interaction):
+            await interaction.response.defer(thinking=False)
             self._visual_seq += 1
             with engine.connect(DB) as con:
                 pet = engine.snapshot(con, self.pet_id, interaction.user.id, interaction.guild.id)
                 purse = engine.wallet(con, self.pet_id, interaction.user.id, interaction.guild.id)
                 picture = room_picture(con, self.pet_id, interaction.user.id, interaction.guild.id, pet)
-            await interaction.response.edit_message(embed=visual_embed(pet,purse),attachments=[picture],view=self)
+            await interaction.edit_original_response(embed=visual_embed(pet,purse),attachments=[picture],view=self)
         refresh.callback = update
         self.add_item(refresh)
 

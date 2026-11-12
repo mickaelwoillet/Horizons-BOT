@@ -1,1 +1,0 @@
-Images NOX Junior integrees depuis Desktop.zip. Calme = neutre pour les bebes; besoin = triste. Oeufs rose et turquoise absents : ajouter eggs/rose.png et eggs/turquoise.png des validation. Les stades adolescent et adulte gardent le rendu existant.
