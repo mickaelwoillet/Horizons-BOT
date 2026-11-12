@@ -2,7 +2,7 @@
 from __future__ import annotations
 import discord
 from discord import app_commands
-from discord.ext import commands
+from discord.ext import commands, tasks
 from config import DATA_DIR
 from pathlib import Path
 import io
@@ -23,6 +23,41 @@ REFUGE_DB = Path(DATA_DIR) / 'nox_refuge.sqlite3'
 GIVEAWAY_CHANNEL_ID = 1566562183490441326
 INVITE_IMAGE = Path(__file__).resolve().parent.parent / 'assets' / 'nox_junior' / 'invitation_grand_nox.webp'
 log = logging.getLogger(__name__)
+
+
+# Les notifications sont enregistrées en SQLite : aucun doublon après redémarrage.
+STAGE_ORDER = ('oeuf', 'nouveau_ne', 'bebe', 'adolescent', 'adulte')
+STAGE_TITLES = {'nouveau_ne': 'Ton œuf a éclos !', 'bebe': 'Ton nouveau-né est devenu bébé !',
+                'adolescent': 'Ton bébé est devenu adolescent !', 'adulte': 'Ton NOX Junior est adulte !'}
+
+
+def init_growth_notifications(con):
+    con.execute('''CREATE TABLE IF NOT EXISTS junior_growth_notifications (
+        pet_id INTEGER PRIMARY KEY, stage TEXT NOT NULL, notified_at REAL NOT NULL DEFAULT 0)''')
+
+
+def growth_message(pet, stage, has_room):
+    name = discord.utils.escape_markdown(pet['name'])
+    if stage == 'nouveau_ne':
+        story = (f'CRAC ! 🥚💥 Ici NOX, directeur autoproclamé des éclosions improbables ! '
+                 f'**{name}** vient de sortir de son œuf. J’ai vérifié : ce n’est pas une omelette cosmique. OUF !')
+    elif stage == 'bebe':
+        story = (f'ALERTE AUX PETITES PATTES ! 🍼🚀 Ici NOX ! **{name}** est maintenant un bébé. '
+                 'Il grandit si vite que j’ai dû mesurer sa taille avec une baguette de pain intergalactique !')
+    elif stage == 'adolescent':
+        story = (f'🚨 Alerte chaussettes en orbite ! **{name}** est devenu adolescent ! '
+                 'Ici NOX : je décline toute responsabilité pour les coiffures stellaires et les opinions sur la décoration.')
+    else:
+        story = (f'🎓✨ Ici NOX ! **{name}** est maintenant adulte. '
+                 'Je lui ai remis un diplôme officiel de grandissement cosmique, signé avec une patte et trois miettes de biscuit.')
+    if not has_room:
+        room_tip = ('🏠 **NOUVEAU : tu peux choisir sa chambre !** Ouvre `/monnox`, '
+                    'puis **🏠 Mon univers / Ma chambre** pour sélectionner une ambiance et la décorer. '
+                    'Le premier choix offre un **Oreiller douillet** !')
+    else:
+        room_tip = ('🏠 Sa chambre est déjà configurée : tu peux toujours retrouver et modifier '
+                    'ses décorations depuis `/monnox` → **🏠 Mon univers / Ma chambre**.')
+    return f'🐾 **{STAGE_TITLES[stage]}**\n\n{story}\n\n{room_tip}\n\n💜 Prends soin de ton compagnon avec `/monnox` !'
 
 
 def eligible(member, guild_id):
@@ -56,6 +91,9 @@ class AdoptionModal(discord.ui.Modal, title='Adopter un NOX Junior'):
         with engine.connect(DB) as con:
             init_invitation_table(con)
             con.execute("UPDATE junior_egg_invitations SET status='adopted' WHERE guild_id=? AND owner_id=? AND status='pending'", (interaction.guild.id, interaction.user.id))
+        with engine.connect(DB) as con:
+            init_growth_notifications(con)
+            con.execute('INSERT OR IGNORE INTO junior_growth_notifications(pet_id,stage) VALUES (?,?)', (pet_id, 'oeuf'))
         await interaction.response.send_message(f'🐣 Bienvenue à **{discord.utils.escape_markdown(str(self.name))}** ! Ton œuf {self.color} (n°{pet_id}) est prêt. Ouvre `/monnox` pour le retrouver.', ephemeral=True)
 
 
@@ -1320,6 +1358,61 @@ class NoxJunior(commands.Cog):
             pending = con.execute("SELECT guild_id, owner_id FROM junior_egg_invitations WHERE status='pending' AND message_id IS NOT NULL").fetchall()
         for row in pending:
             bot.add_view(EggInvitationView(row['guild_id'], row['owner_id']))
+        # Initialiser l'état des adoptions existantes sans annoncer rétroactivement
+        # toutes les évolutions survenues avant l'installation de cette version.
+        with engine.connect(DB) as con:
+            init_growth_notifications(con)
+            for pet in con.execute('SELECT * FROM junior_pets').fetchall():
+                current_stage, _ = engine.stage(pet)
+                con.execute('INSERT OR IGNORE INTO junior_growth_notifications(pet_id,stage) VALUES (?,?)',
+                            (pet['id'], current_stage))
+        self.growth_watch.start()
+
+    def cog_unload(self):
+        self.growth_watch.cancel()
+
+    @tasks.loop(minutes=3)
+    async def growth_watch(self):
+        with engine.connect(DB) as con:
+            init_growth_notifications(con)
+            rows = con.execute('''SELECT p.*, n.stage AS announced_stage
+                                  FROM junior_pets p JOIN junior_growth_notifications n ON n.pet_id=p.id''').fetchall()
+            pending = []
+            for pet in rows:
+                current, _ = engine.stage(pet)
+                old = pet['announced_stage']
+                if current not in STAGE_ORDER or old not in STAGE_ORDER:
+                    continue
+                if STAGE_ORDER.index(current) > STAGE_ORDER.index(old):
+                    has_room = con.execute('SELECT 1 FROM junior_rooms WHERE pet_id=?', (pet['id'],)).fetchone() is not None
+                    pending.append((dict(pet), current, old, has_room))
+        for pet, current, old, has_room in pending:
+            msg = growth_message(pet, current, has_room)
+            delivered = False
+            try:
+                user = self.bot.get_user(pet['owner_id']) or await self.bot.fetch_user(pet['owner_id'])
+                await user.send(msg)
+                delivered = True
+            except (discord.Forbidden, discord.NotFound, discord.HTTPException):
+                log.info('NOX Junior: MP impossible pour %s, tentative dans le salon cadeau', pet['owner_id'])
+            if not delivered:
+                guild = self.bot.get_guild(pet['guild_id'])
+                channel = guild.get_channel(GIVEAWAY_CHANNEL_ID) if guild else None
+                if channel:
+                    try:
+                        await channel.send(f'<@{pet["owner_id"]}>\n{msg}',
+                            allowed_mentions=discord.AllowedMentions(users=True, roles=False, everyone=False))
+                        delivered = True
+                    except (discord.Forbidden, discord.HTTPException):
+                        log.warning('NOX Junior: notification de croissance impossible pour %s', pet['id'])
+            if delivered:
+                with engine.connect(DB) as con:
+                    con.execute('''UPDATE junior_growth_notifications SET stage=?,notified_at=strftime('%s','now')
+                                   WHERE pet_id=? AND stage=?''', (current, pet['id'], old))
+
+    @growth_watch.before_loop
+    async def before_growth_watch(self):
+        await self.bot.wait_until_ready()
 
     @commands.Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member):

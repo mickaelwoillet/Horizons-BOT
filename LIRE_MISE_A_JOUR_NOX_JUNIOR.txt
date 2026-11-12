@@ -1,0 +1,17 @@
+HORIZONS - rangement des illustrations NOX Junior
+
+Les illustrations sont maintenant dans :
+  data/nox_junior/characters/nouveau_ne/
+  data/nox_junior/characters/bebe/
+
+Le fichier cogs/nox_junior_visual.py a ete adapte pour ces chemins.
+Le visuel du compagnon doit fonctionner meme avant la selection d'une chambre.
+
+IMPORTANT : arreter le bot avant la mise a jour. Sauvegarder le projet et les bases SQLite.
+Si vous extrayez cette archive sur une ancienne version, SUPPRIMEZ MANUELLEMENT
+les anciens fichiers bebe_*.webp et nouveau_ne_*.webp directement dans
+data/nox_junior/characters/ (pas les sous-dossiers).
+Sinon, ils resteront presents en doublon.
+Ne supprimez pas les bases SQLite, le fichier .env ni les images dans les nouveaux dossiers.
+
+Les notifications de croissance de la version precedente sont conservees.

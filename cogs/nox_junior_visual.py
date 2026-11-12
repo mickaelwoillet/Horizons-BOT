@@ -155,24 +155,48 @@ def _character_asset(root, stage, color, mood):
     else:
         variants=(mood,'neutre','heureux')
     for emotion in dict.fromkeys(variants):
-        file=_asset_image(root/'characters'/f'{stage}_{color}_{emotion}.webp')
+        file=_asset_image(root/'characters'/stage/f'{stage}_{color}_{emotion}.webp')
         if file.is_file(): return file
-    return root/'characters'/f'__missing_{stage}_{color}.png'
+    return root/'characters'/stage/f'__missing_{stage}_{color}.png'
 
 def compose_room(pet, stage='bebe', mood='calme', theme=None, decorations=(), size=(1280,720)):
     """Composite PNG assets at runtime; missing assets use legacy renderer until approved files arrive."""
     from PIL import Image
     root=Path(__file__).resolve().parent.parent/'data'/'nox_junior'
-    base=_asset_image(root/'rooms'/f'{theme}.webp')
-    if theme is None or not base.is_file():
-        if stage=='oeuf':
-            egg=_asset_image(root/'eggs'/f"{pet.get('color','bleu')}.webp")
-            if egg.is_file():
-                with Image.open(egg) as egg_img:
-                    result=io.BytesIO();egg_img.convert('RGB').resize(size,Image.Resampling.LANCZOS).save(result,format='PNG');result.seek(0)
-                    return result
-        return render(pet,stage=stage,mood=mood,theme='cosmos',size=(760,440))
-    canvas=Image.open(base).convert('RGBA').resize(size,Image.Resampling.LANCZOS)
+    # The default 'cosmos' room has no file. Previously this returned the old
+    # procedural mascot, silently ignoring every approved character illustration.
+    base=_asset_image(root/'rooms'/f'{theme}.webp') if theme else None
+    if stage=='oeuf':
+        egg=_asset_image(root/'eggs'/f"{pet.get('color','bleu')}.webp")
+        if egg.is_file():
+            with Image.open(egg) as egg_img:
+                result=io.BytesIO()
+                egg_img.convert('RGB').resize(size,Image.Resampling.LANCZOS).save(result,format='PNG')
+                result.seek(0)
+                return result
+    character=_character_asset(root,stage,str(pet.get('color','bleu')),mood)
+    if character.is_file():
+        with Image.open(character) as source:
+            # Baby illustrations already include their own complete galactic
+            # backgrounds: display them without shrinking into a small rectangle.
+            if source.mode != 'RGBA' or source.getextrema()[3][0] == 255:
+                result=io.BytesIO()
+                source.convert('RGB').resize(size,Image.Resampling.LANCZOS).save(result,format='PNG')
+                result.seek(0)
+                return result
+    if base is not None and base.is_file():
+        canvas=Image.open(base).convert('RGBA').resize(size,Image.Resampling.LANCZOS)
+    else:
+        # Built-in cosmos backdrop for transparent newborn character cutouts.
+        from PIL import ImageDraw
+        canvas=Image.new('RGBA',size,(12,19,48,255))
+        draw=ImageDraw.Draw(canvas)
+        rng=random.Random(5107)
+        for _ in range(165):
+            x=rng.randrange(size[0]); y=rng.randrange(int(size[1]*.84))
+            r=rng.choice((1,1,1,2,2,3))
+            draw.ellipse((x-r,y-r,x+r,y+r),fill=(110,150,218,235))
+        draw.ellipse((int(size[0]*.22),int(size[1]*.83),int(size[0]*.78),int(size[1]*.93)),fill=(30,42,85,255))
     # Chaque emplacement est indépendant ; couchage sous le personnage.
     from . import nox_junior_engine as economy
     slot_items = decorations.items() if isinstance(decorations,dict) else ((economy.DECOR_SLOTS.get(code),code) for code in decorations)
@@ -195,11 +219,14 @@ def compose_room(pet, stage='bebe', mood='calme', theme=None, decorations=(), si
                 egg_img=egg_img.convert('RGB').resize(size,Image.Resampling.LANCZOS)
                 result=io.BytesIO();egg_img.save(result,format='PNG');result.seek(0)
                 return result
-    character=_character_asset(root,stage,str(pet.get('color','bleu')),mood)
     if character.is_file():
-        layer=Image.open(character).convert('RGBA')
-        layer.thumbnail((int(size[0]*.37),int(size[1]*.68)),Image.Resampling.LANCZOS)
-        canvas.alpha_composite(layer,((size[0]-layer.width)//2,int(size[1]*.88)-layer.height))
+        with Image.open(character) as source:
+            layer=source.convert('RGBA')
+            layer.thumbnail((int(size[0]*.65),int(size[1]*.78)),Image.Resampling.LANCZOS)
+            canvas.alpha_composite(layer,((size[0]-layer.width)//2,int(size[1]*.88)-layer.height))
+    elif stage not in ('adolescent','adulte'):
+        # Missing asset: do not pretend another life stage is the correct one.
+        return render(pet,stage=stage,mood=mood,theme='cosmos',size=(760,440))
     out=io.BytesIO();canvas.convert('RGB').save(out,format='PNG');out.seek(0);return out
 
 
