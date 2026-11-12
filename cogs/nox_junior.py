@@ -21,7 +21,7 @@ LIEN_VIVANT_ROLE = 1567215752656715927
 DB = Path(DATA_DIR) / 'nox_junior.sqlite3'
 REFUGE_DB = Path(DATA_DIR) / 'nox_refuge.sqlite3'
 GIVEAWAY_CHANNEL_ID = 1566562183490441326
-INVITE_IMAGE = Path(__file__).resolve().parent.parent / 'assets' / 'nox_junior' / 'invitation_grand_nox.png'
+INVITE_IMAGE = Path(__file__).resolve().parent.parent / 'assets' / 'nox_junior' / 'invitation_grand_nox.webp'
 log = logging.getLogger(__name__)
 
 
@@ -1308,7 +1308,7 @@ def egg_invitation_embed(member):
         ).replace('\\n', '\n'),
         color=0x247BFF,
     )
-    embed.set_image(url='attachment://invitation_grand_nox.png')
+    embed.set_image(url='attachment://invitation_grand_nox.webp')
     embed.set_footer(text='HORIZONS · Unis dans la diversité · Le cadeau du Grand NOX')
     return embed
 
@@ -1355,7 +1355,7 @@ class NoxJunior(commands.Cog):
                 message = await channel.send(
                     content=after.mention,
                     embed=egg_invitation_embed(after),
-                    file=discord.File(INVITE_IMAGE, filename='invitation_grand_nox.png'),
+                    file=discord.File(INVITE_IMAGE, filename='invitation_grand_nox.webp'),
                     view=view,
                     allowed_mentions=discord.AllowedMentions(users=[after], roles=False, everyone=False),
                 )

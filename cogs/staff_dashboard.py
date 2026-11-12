@@ -266,7 +266,7 @@ class RegardboardView(discord.ui.View):
         if cog is None:
             await interaction.response.send_message("Le module Regard du Jour n'est pas chargé.", ephemeral=True)
             return
-        await getattr(type(cog), name).callback(cog, interaction)
+        await getattr(cog, name)(interaction)
 
     @discord.ui.button(label="Diagnostic", emoji="🩺", style=discord.ButtonStyle.secondary)
     async def diagnostic_button(self, interaction, button):

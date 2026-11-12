@@ -25,9 +25,9 @@ REMINDER_AFTER = timedelta(hours=36)
 
 # Images livrées avec le bot, jamais hébergées sur un service externe.
 WELCOME_IMAGE_PATHS = (
-    DATA_DIR / "welcome_images" / "activites.png",
-    DATA_DIR / "welcome_images" / "commandes.png",
-    DATA_DIR / "welcome_images" / "parcours.png",
+    DATA_DIR / "welcome_images" / "activites.webp",
+    DATA_DIR / "welcome_images" / "commandes.webp",
+    DATA_DIR / "welcome_images" / "parcours.webp",
 )
 
 

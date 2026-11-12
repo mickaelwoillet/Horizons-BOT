@@ -1,7 +1,7 @@
 [
   {
     "id": "nox_faim",
-    "file": "nox_faim.png",
+    "file": "nox_faim.webp",
     "title": "👾 NOX A FAIM !",
     "text": "L’Observatoire a reçu 47 plaintes de l’estomac de Nox. Quelqu’un possède un biscuit ?",
     "kind": "nox",
@@ -16,7 +16,7 @@
   },
   {
     "id": "canard_attaque",
-    "file": "canard_attaque.png",
+    "file": "canard_attaque.webp",
     "title": "🦆 ALERTE : CANARD ARMÉ !",
     "text": "Sa Majesté Coin-Coin Ier a réquisitionné une cuisse de poulet. Le grille-pain demande l’asile politique.",
     "kind": "canard",
@@ -46,7 +46,7 @@
   },
   {
     "id": "nox_faim_pancarte",
-    "file": "nox_faim_pancarte.png",
+    "file": "nox_faim_pancarte.webp",
     "title": "🍪 NOX DÉCLARE LA FAMINE COSMIQUE",
     "text": "Nox exige un comité de crise, trois biscuits et un câlin. Dans cet ordre.",
     "kind": "nox",
@@ -62,7 +62,7 @@
   },
   {
     "id": "course_du_canard",
-    "file": "course_du_canard.png",
+    "file": "course_du_canard.webp",
     "title": "🦆 POURSUITE ROYALE À L’OBSERVATOIRE",
     "text": "Le Canard Suprême brandit une cuisse de poulet. Nox a été vu fuyant avec les dernières miettes.",
     "kind": "canard",
@@ -78,7 +78,7 @@
   },
   {
     "id": "grille_pain_apocalypse",
-    "file": "grille_pain_apocalypse.png",
+    "file": "grille_pain_apocalypse.webp",
     "title": "🍞 GRILLE-PAIN 3000 ANNONCE LA FIN DU MONDE",
     "text": "Une tartine a brûlé. Grille-Pain 3000 déclenche le protocole APOCALYPSE. Nox réclame un avocat et du beurre.",
     "kind": "grille_pain",
@@ -94,7 +94,7 @@
   },
   {
     "id": "nox_dort_reunion",
-    "file": "nox_dort_reunion.png",
+    "file": "nox_dort_reunion.webp",
     "title": "💤 NOX S’ENDORT EN PLEIN CONSEIL DE CRISE",
     "text": "Le Canard Suprême exige une enquête. Nox ronfle sur les documents classifiés. Le professeur Gloups est bouleversé.",
     "kind": "nox",
@@ -110,7 +110,7 @@
   },
   {
     "id": "grille_pain_alerte",
-    "file": "grille_pain_alerte.png",
+    "file": "grille_pain_alerte.webp",
     "title": "🚨 ALERTE : UNE TARTINE MENACE LE COSMOS",
     "text": "Grille-Pain 3000 vient de lancer une alerte rouge. Cause officielle : une tartine beaucoup trop croustillante.",
     "kind": "grille_pain",
@@ -126,7 +126,7 @@
   },
   {
     "id": "nox_conseil_panique",
-    "file": "nox_conseil_panique.png",
+    "file": "nox_conseil_panique.webp",
     "title": "💤 NOX DORT PENDANT LA FIN DU MONDE",
     "text": "Le conseil de crise est en panique générale. Nox ronfle au milieu des dossiers classés TOP BISCUIT.",
     "kind": "nox",
@@ -142,7 +142,7 @@
   },
   {
     "id": "madame_paradoxe",
-    "file": "madame_paradoxe.png",
+    "file": "madame_paradoxe.webp",
     "title": "⏳ MADAME PARADOXE A VOLÉ UN MARDI",
     "text": "Le calendrier compte maintenant huit jours. Personne ne sait où ranger le mardi supplémentaire.",
     "kind": "paradoxe",
@@ -158,7 +158,7 @@
   },
   {
     "id": "gloups_experience",
-    "file": "gloups_experience.png",
+    "file": "gloups_experience.webp",
     "title": "🧪 GLOUPS A MIS UNE GALAXIE EN BOUTEILLE",
     "text": "Le professeur Gloups assure que son expérience est totalement sans danger. Le flacon vient de demander un avocat.",
     "kind": "gloups",
@@ -174,7 +174,7 @@
   },
   {
     "id": "paradoxe_mardi_25",
-    "file": "paradoxe_mardi_25.png",
+    "file": "paradoxe_mardi_25.webp",
     "title": "⏳ LE MARDI 2,5 EXISTE DÉSORMAIS",
     "text": "Madame Paradoxe a inversé la semaine. Le mardi 2,5 est apparu entre deux goûters. Nox exige une troisième pause biscuits.",
     "kind": "paradoxe",
@@ -190,7 +190,7 @@
   },
   {
     "id": "gloups_experience_547",
-    "file": "gloups_experience_547.png",
+    "file": "gloups_experience_547.webp",
     "title": "🧪 EXPÉRIENCE 547 : PRESQUE SANS DANGER",
     "text": "Gloups a créé une galaxie de poche. La notice indique « presque stable ». Coin-Coin veut immédiatement la taxer.",
     "kind": "gloups",
@@ -206,7 +206,7 @@
   },
   {
     "id": "paradoxe_horloges_folles",
-    "file": "paradoxe_horloges_folles.png",
+    "file": "paradoxe_horloges_folles.webp",
     "title": "⏳ LES HORLOGES FONT GRÈVE",
     "text": "Madame Paradoxe a demandé aux horloges de travailler une heure de plus. Elles exigent désormais des congés payés dans le futur.",
     "kind": "paradoxe",
@@ -222,7 +222,7 @@
   },
   {
     "id": "gloups_fiole_rebelle",
-    "file": "gloups_fiole_rebelle.png",
+    "file": "gloups_fiole_rebelle.webp",
     "title": "🧪 LA FIOLE DE GLOUPS VEUT DÉMISSIONNER",
     "text": "La galaxie miniature du professeur Gloups refuse de tourner sans contrat. Coin-Coin propose de la payer en miettes.",
     "kind": "gloups",
@@ -302,7 +302,7 @@
   },
   {
     "id": "nox_jeu_ballon",
-    "file": "nox_joue_ballon.png",
+    "file": "nox_joue_ballon.webp",
     "title": "🎲 NOX DÉFIE LA GRAVITÉ !",
     "text": "Nox a trouvé un ballon cosmique qui refuse de retomber. Le Canard Suprême exige un permis de rebond.",
     "kind": "nox",
@@ -318,7 +318,7 @@
   },
   {
     "id": "gloups_planete_fugueuse",
-    "file": "gloups_planete_fugueuse.png",
+    "file": "gloups_planete_fugueuse.webp",
     "title": "🪐 LA PLANÈTE A PRIS LA FUITE !",
     "text": "Le professeur Gloups a perdu une planète miniature. Elle réclame désormais des congés payés et un hamac orbital.",
     "kind": "gloups",
@@ -334,7 +334,7 @@
   },
   {
     "id": "coincoin_conference_miettes",
-    "file": "coincoin_conference_miettes.png",
+    "file": "coincoin_conference_miettes.webp",
     "title": "🦆 CONFÉRENCE DE PRESSE DES MIETTES !",
     "text": "Coin-Coin jure ne pas avoir volé les biscuits. Les miettes sur sa cape refusent de témoigner.",
     "kind": "canard",
@@ -350,7 +350,7 @@
   },
   {
     "id": "paradoxe_ascenseur_temporel",
-    "file": "paradoxe_ascenseur_temporel.png",
+    "file": "paradoxe_ascenseur_temporel.webp",
     "title": "⏳ L’ASCENSEUR ARRIVE HIER !",
     "text": "Madame Paradoxe a inventé un ascenseur temporel. Il dessert uniquement hier, demain et la pause déjeuner.",
     "kind": "paradoxe",
@@ -365,7 +365,7 @@
   },
   {
     "id": "nox_sommeil_conseil",
-    "file": "nox_conseils_sommeil.png",
+    "file": "nox_conseils_sommeil.webp",
     "title": "💤 NOX S’ENDORT EN PLEIN CONSEIL !",
     "text": "Nox ronfle pendant une réunion de crise. Ses ronflements sont désormais classés comme phénomène astronomique.",
     "kind": "nox",
@@ -381,7 +381,7 @@
   },
   {
     "id": "gloups_pluie_bulles",
-    "file": "gloups_pluie_bulles.png",
+    "file": "gloups_pluie_bulles.webp",
     "title": "🫧 IL PLEUT DES BULLES DE SCIENCE !",
     "text": "Gloups a inversé la gravité des bulles. Chaque bulle contient une petite météo différente.",
     "kind": "gloups",
@@ -395,24 +395,8 @@
     ]
   },
   {
-    "id": "nox_biscuits_orbite",
-    "file": "nox_biscuits_orbite.png",
-    "title": "🍪 LA PLANÈTE BISCUIT",
-    "text": "Nox découvre une planète entièrement faite de biscuits. Le Conseil vote immédiatement une loi contre le grignotage orbital.",
-    "kind": "nox",
-    "moods": [
-      "normal",
-      "calin"
-    ],
-    "vote_labels": [
-      "🍪 Accueillir Nox",
-      "👑 Taxer les pépites",
-      "🚀 Dévorer la planète"
-    ]
-  },
-  {
     "id": "coincoin_couronne_rebelle",
-    "file": "coincoin_roi_rebelle.png",
+    "file": "coincoin_roi_rebelle.webp",
     "title": "👑 LA COURONNE FAIT GRÈVE",
     "text": "La couronne de Coin-Coin refuse de rester sur sa tête et réclame une augmentation de diamants.",
     "kind": "canard",
@@ -428,7 +412,7 @@
   },
   {
     "id": "paradoxe_reveil_infini",
-    "file": "paradoxe_reveil_infini.png",
+    "file": "paradoxe_reveil_infini.webp",
     "title": "⏰ LE RÉVEIL SONNE DEMAIN",
     "text": "Madame Paradoxe a inventé un réveil qui sonne avant même qu’on se couche. Les habitants exigent huit heures de sommeil rétroactives.",
     "kind": "paradoxe",
@@ -444,7 +428,7 @@
   },
   {
     "id": "grille_pain_tartine_maire",
-    "file": "grille_pain_maire_tartines.png",
+    "file": "grille_pain_maire_tartines.webp",
     "title": "🍞 UNE TARTINE ÉLUE MAIRE",
     "text": "Grille-Pain 3000 présente une tartine aux élections. Elle promet du beurre gratuit et une politique croustillante.",
     "kind": "grille_pain",
@@ -460,7 +444,7 @@
   },
   {
     "id": "exploration_portail_chaussettes",
-    "file": "nox_portail_chaussettes_perdues.png",
+    "file": "nox_portail_chaussettes_perdues.webp",
     "title": "🧦 LE PORTAIL DES CHAUSSETTES",
     "text": "Une expédition découvre le portail où disparaissent toutes les chaussettes de l’univers. Nox reconnaît immédiatement sa collection.",
     "kind": "exploration",
@@ -476,7 +460,7 @@
   },
   {
     "id": "nox_tresor_cristaux",
-    "file": "nox_tresor_cristaux.png",
+    "file": "nox_tresor_cristaux.webp",
     "title": "Nox Tresor Cristaux",
     "text": "✨ NOX a trouvé un coffre rempli de cristaux cosmiques ! Quel trésor emporterais-tu ?",
     "kind": "nox",
@@ -491,7 +475,7 @@
   },
   {
     "id": "nox_explorateur",
-    "file": "nox_explorateur.png",
+    "file": "nox_explorateur.webp",
     "title": "Nox Explorateur",
     "text": "🧭 NOX part explorer les îles flottantes. Tu viens dans son équipe ?",
     "kind": "nox",
@@ -506,7 +490,7 @@
   },
   {
     "id": "nox_buffet_cosmique",
-    "file": "nox_buffet_cosmique.png",
+    "file": "nox_buffet_cosmique.webp",
     "title": "Nox Buffet Cosmique",
     "text": "🍪 NOX assure que tous ces gâteaux sont pour une expérience scientifique. On le croit ?",
     "kind": "nox",
@@ -520,23 +504,8 @@
     ]
   },
   {
-    "id": "nox_refuge_lanternes",
-    "file": "nox_refuge_lanternes.png",
-    "title": "Nox Refuge Lanternes",
-    "text": "💜 NOX t’ouvre les portes du Refuge : une pause, un chocolat chaud et un peu de douceur.",
-    "kind": "nox",
-    "moods": [
-      "normal"
-    ],
-    "vote_labels": [
-      "💙 Encourager NOX",
-      "✨ Explorer",
-      "🍪 Offrir un biscuit"
-    ]
-  },
-  {
     "id": "nox_betise_apesanteur",
-    "file": "nox_betise_apesanteur.png",
+    "file": "nox_betise_apesanteur.webp",
     "title": "Nox Betise Apesanteur",
     "text": "🛰️ En apesanteur, les biscuits volent. NOX affirme n’y être pour rien.",
     "kind": "nox",
@@ -551,7 +520,7 @@
   },
   {
     "id": "nox_astronaute",
-    "file": "nox_astronaute.png",
+    "file": "nox_astronaute.webp",
     "title": "Nox Astronaute",
     "text": "🚀 NOX s’envole vers une nouvelle planète. Quel nom lui donnerais-tu ?",
     "kind": "nox",
@@ -566,7 +535,7 @@
   },
   {
     "id": "nox_oups_biscuits",
-    "file": "nox_oups_biscuits.png",
+    "file": "nox_oups_biscuits.webp",
     "title": "Nox Oups Biscuits",
     "text": "😇 Un pot de biscuits renversé, et NOX n’a absolument rien vu…",
     "kind": "nox",
@@ -581,7 +550,7 @@
   },
   {
     "id": "nox_donut_galactique",
-    "file": "nox_donut_galactique.png",
+    "file": "nox_donut_galactique.webp",
     "title": "Nox Donut Galactique",
     "text": "🍩 NOX a découvert le donut le plus grand de la galaxie. Il propose de le partager… peut-être.",
     "kind": "nox",
@@ -596,7 +565,7 @@
   },
   {
     "id": "nox_refuge_coussins",
-    "file": "nox_refuge_coussins.png",
+    "file": "nox_refuge_coussins.webp",
     "title": "Nox Refuge Coussins",
     "text": "🌙 NOX a préparé un coin douillet pour les étoiles fatiguées.",
     "kind": "nox",
@@ -611,7 +580,7 @@
   },
   {
     "id": "nox_pluie_etoiles",
-    "file": "nox_pluie_etoiles.png",
+    "file": "nox_pluie_etoiles.webp",
     "title": "Nox Pluie Etoiles",
     "text": "🌠 NOX observe une pluie d’étoiles filantes. Fais un vœu !",
     "kind": "nox",
@@ -626,7 +595,7 @@
   },
   {
     "id": "nox_sieste_lune",
-    "file": "nox_sieste_lune.png",
+    "file": "nox_sieste_lune.webp",
     "title": "Nox Sieste Lune",
     "text": "💤 NOX s’est endormi sur la lune. Chut, les rêves cosmiques commencent.",
     "kind": "nox",
@@ -641,7 +610,7 @@
   },
   {
     "id": "nox_anniversaire",
-    "file": "nox_anniversaire.png",
+    "file": "nox_anniversaire.webp",
     "title": "Nox Anniversaire",
     "text": "🎂 NOX sort les bougies stellaires : joyeux anniversaire aux étoiles du jour !",
     "kind": "nox",
@@ -656,7 +625,7 @@
   },
   {
     "id": "nox_tv_animation",
-    "file": "nox_tv_animation.png",
+    "file": "nox_tv_animation.webp",
     "title": "Nox Tv Animation",
     "text": "🎙️ NOX TV est en direct ! Qui relève le prochain défi ?",
     "kind": "nox",
@@ -671,7 +640,7 @@
   },
   {
     "id": "nox_boudeur",
-    "file": "nox_boudeur.png",
+    "file": "nox_boudeur.webp",
     "title": "Nox Boudeur",
     "text": "😾 NOX boude : quelqu’un a dit que les cookies n’étaient pas un repas équilibré.",
     "kind": "nox",
@@ -686,7 +655,7 @@
   },
   {
     "id": "nox_cookie_festin_39",
-    "file": "nox_cookie_festin_39.png",
+    "file": "nox_cookie_festin_39.webp",
     "title": "🍪 LE FESTIN COSMIQUE DE NOX",
     "text": "NOX a découvert une constellation de cookies. Il promet de partager… après une dernière bouchée.",
     "kind": "nox",
@@ -702,7 +671,7 @@
   },
   {
     "id": "nox_portrait_etoile_39",
-    "file": "nox_portrait_etoile_39.png",
+    "file": "nox_portrait_etoile_39.webp",
     "title": "💙 NOX VOUS SOUHAITE LA BIENVENUE",
     "text": "Un sourire, quelques étoiles et beaucoup de tendresse : NOX est heureux de vous retrouver.",
     "kind": "nox",
@@ -718,7 +687,7 @@
   },
   {
     "id": "nox_bonne_nuit_40",
-    "file": "nox_bonne_nuit_couverture_40.png",
+    "file": "nox_bonne_nuit_couverture_40.webp",
     "title": "🌙 NOX VOUS SOUHAITE BONNE NUIT",
     "text": "La galaxie se repose, et NOX aussi. Faites de beaux rêves !",
     "kind": "nox",
@@ -733,7 +702,7 @@
   },
   {
     "id": "nox_debat_40",
-    "file": "nox_debat_agora_40.png",
+    "file": "nox_debat_agora_40.webp",
     "title": "🎙️ NOX OUVRE LE DÉBAT",
     "text": "La parole circule dans l’Agora. On échange avec respect !",
     "kind": "nox",
@@ -748,7 +717,7 @@
   },
   {
     "id": "nox_question_40",
-    "file": "nox_question_cosmique_40.png",
+    "file": "nox_question_cosmique_40.webp",
     "title": "❓ LA QUESTION COSMIQUE",
     "text": "NOX a une question pour toute la galaxie.",
     "kind": "nox",
@@ -763,7 +732,7 @@
   },
   {
     "id": "nox_jeu_40",
-    "file": "nox_jeu_orbe_40.png",
+    "file": "nox_jeu_orbe_40.webp",
     "title": "🎮 NOX VEUT JOUER",
     "text": "Une balle de lumière traverse le ciel. Qui vient jouer ?",
     "kind": "nox",
@@ -778,7 +747,7 @@
   },
   {
     "id": "nox_soif_40",
-    "file": "nox_soif_cosmique_40.png",
+    "file": "nox_soif_cosmique_40.webp",
     "title": "💧 NOX A SOIF",
     "text": "Un peu d’eau cosmique, et NOX retrouve son énergie !",
     "kind": "nox",
@@ -793,7 +762,7 @@
   },
   {
     "id": "nox_tristesse_41",
-    "file": "nox_tristesse_41.png",
+    "file": "nox_tristesse_41.webp",
     "title": "NOX A UN COUP DE BLUES",
     "text": "Un peu de compagnie lui ferait du bien.",
     "kind": "nox",
@@ -808,7 +777,7 @@
   },
   {
     "id": "nox_reconfort_41",
-    "file": "nox_reconfort_41.png",
+    "file": "nox_reconfort_41.webp",
     "title": "NOX EST RÉCONFORTÉ",
     "text": "Une présence bienveillante réchauffe sa galaxie.",
     "kind": "nox",
@@ -823,7 +792,7 @@
   },
   {
     "id": "nox_joie_41",
-    "file": "nox_joie_41.png",
+    "file": "nox_joie_41.webp",
     "title": "NOX DÉBORDE DE JOIE",
     "text": "Ses petites pattes font des étincelles de bonheur !",
     "kind": "nox",
@@ -838,7 +807,7 @@
   },
   {
     "id": "nox_fatigue_41",
-    "file": "nox_fatigue_41.png",
+    "file": "nox_fatigue_41.webp",
     "title": "NOX A BESOIN DE REPOS",
     "text": "Ses yeux se ferment : une petite pause cosmique s’impose.",
     "kind": "nox",
@@ -853,7 +822,7 @@
   },
   {
     "id": "nox_inquietude_41",
-    "file": "nox_inquietude_41.png",
+    "file": "nox_inquietude_41.webp",
     "title": "NOX EST INQUIET",
     "text": "Un étrange portail s’est ouvert : explorons-le sans nous précipiter.",
     "kind": "nox",
@@ -868,7 +837,7 @@
   },
   {
     "id": "nox_scene_bienvenue_42",
-    "file": "nox_scene_bienvenue_42.png",
+    "file": "nox_scene_bienvenue_42.webp",
     "title": "🐾 NOX vous souhaite la bienvenue",
     "text": "Une nouvelle étoile vient de rejoindre HORIZONS ! NOX distribue les sourires et garde les biscuits sous surveillance.",
     "kind": "nox",
@@ -883,7 +852,7 @@
   },
   {
     "id": "nox_scene_petite_faim_42",
-    "file": "nox_scene_petite_faim_42.png",
+    "file": "nox_scene_petite_faim_42.webp",
     "title": "🍪 La pause biscuits de NOX",
     "text": "Une enquête officielle est ouverte : qui a fait disparaître les biscuits cosmiques ? NOX a des miettes sur les moustaches.",
     "kind": "nox",
@@ -898,7 +867,7 @@
   },
   {
     "id": "nox_scene_boire_42",
-    "file": "nox_scene_boire_42.png",
+    "file": "nox_scene_boire_42.webp",
     "title": "💧 La fontaine stellaire",
     "text": "NOX découvre une fontaine de comètes fraîches. Un verre pour lui, un pour la galaxie !",
     "kind": "nox",
@@ -913,7 +882,7 @@
   },
   {
     "id": "nox_scene_jouer_42",
-    "file": "nox_scene_jouer_42.png",
+    "file": "nox_scene_jouer_42.webp",
     "title": "🎮 La récréation cosmique",
     "text": "NOX a lancé la balle la plus brillante de la galaxie. Qui osera jouer avec lui ?",
     "kind": "nox",
@@ -928,7 +897,7 @@
   },
   {
     "id": "nox_scene_question_42",
-    "file": "nox_scene_question_42.png",
+    "file": "nox_scene_question_42.webp",
     "title": "❓ La question du jour de NOX",
     "text": "Si tu pouvais découvrir une seule planète imaginaire, à quoi ressemblerait-elle ?",
     "kind": "nox",
@@ -943,7 +912,7 @@
   },
   {
     "id": "nox_scene_agora_42",
-    "file": "nox_scene_agora_42.png",
+    "file": "nox_scene_agora_42.webp",
     "title": "🎙️ NOX ouvre le débat",
     "text": "NOX prend le micro : quelle petite habitude rend notre communauté plus accueillante ?",
     "kind": "nox",
@@ -958,7 +927,7 @@
   },
   {
     "id": "nox_scene_mission_42",
-    "file": "nox_scene_mission_42.png",
+    "file": "nox_scene_mission_42.webp",
     "title": "🧭 Mission HORIZONS",
     "text": "NOX part en mission : aujourd’hui, offre un mot gentil à une personne de la communauté.",
     "kind": "nox",
@@ -973,7 +942,7 @@
   },
   {
     "id": "nox_scene_anniversaire_42",
-    "file": "nox_scene_anniversaire_42.png",
+    "file": "nox_scene_anniversaire_42.webp",
     "title": "🎂 Un anniversaire galactique",
     "text": "NOX a préparé un gâteau stellaire ! À qui souhaite-t-on une très belle journée ?",
     "kind": "nox",
@@ -988,7 +957,7 @@
   },
   {
     "id": "nox_scene_entraide_42",
-    "file": "nox_scene_entraide_42.png",
+    "file": "nox_scene_entraide_42.webp",
     "title": "💛 Un peu de lumière pour toi",
     "text": "NOX t’envoie un cœur lumineux. Tu peux demander de l’aide, ou simplement venir discuter.",
     "kind": "nox",
@@ -1003,7 +972,7 @@
   },
   {
     "id": "nox_scene_repos_42",
-    "file": "nox_scene_repos_42.png",
+    "file": "nox_scene_repos_42.webp",
     "title": "🌙 Une pause bien méritée",
     "text": "Même les explorateurs de galaxies ont besoin de repos. NOX s’accorde un moment de douceur.",
     "kind": "nox",
@@ -1018,7 +987,7 @@
   },
   {
     "id": "nox_scene_coup_de_mou_42",
-    "file": "nox_scene_coup_de_mou_42.png",
+    "file": "nox_scene_coup_de_mou_42.webp",
     "title": "🥺 NOX a besoin de douceur",
     "text": "NOX se repose sous sa couverture. Un petit message réconfortant lui ferait plaisir.",
     "kind": "nox",
@@ -1033,7 +1002,7 @@
   },
   {
     "id": "nox_scene_bonne_nuit_42",
-    "file": "nox_scene_bonne_nuit_42.png",
+    "file": "nox_scene_bonne_nuit_42.webp",
     "title": "🌌 Bonne nuit, les étoiles",
     "text": "NOX ferme les yeux et confie ses rêves à la lune. Passez une nuit paisible !",
     "kind": "nox",

@@ -24,7 +24,7 @@ async def send_as_nox(channel: discord.TextChannel, *, content: str | None = Non
     from config import DATA_DIR
     # The avatar is stored ON the NOX webhook, not on the Horizons bot.
     # No public image URL or extra bot account is required.
-    portrait = Path(DATA_DIR) / 'nox_tv' / 'nox_avatar.png'
+    portrait = Path(DATA_DIR) / 'nox_tv' / 'nox_avatar.webp'
     if portrait.is_file() and not getattr(hook, 'avatar', None):
         try:
             await hook.edit(avatar=portrait.read_bytes(), reason='Avatar officiel de NOX')

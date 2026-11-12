@@ -38,21 +38,21 @@ IMAGE_DIR = Path(DATA_DIR) / 'nox_tv'
 # Images officielles du NOX bleu, par besoin et par niveau de jauge.
 # Priorité à la jauge la plus basse, avec un seuil d'alerte à 45 %.
 NEED_IMAGES = {
-    'faim': 'nox_faim.png',
-    'soif': 'nox_soif_cosmique_40.png',
-    'bonheur': 'nox_tristesse_41.png',
-    'energie': 'nox_fatigue_41.png',
-    'hygiene': 'nox_refuge_coussins.png',
+    'faim': 'nox_faim.webp',
+    'soif': 'nox_soif_cosmique_40.webp',
+    'bonheur': 'nox_tristesse_41.webp',
+    'energie': 'nox_fatigue_41.webp',
+    'hygiene': 'nox_refuge_coussins.webp',
 }
-DECOR_IMAGE_NAMES = tuple(f'nox_refuge_evolutif_{level}.png' for level in range(5))
+DECOR_IMAGE_NAMES = tuple(f'nox_refuge_evolutif_{level}.webp' for level in range(5))
 
 CARE_IMAGES = {
-    'nourrir': 'nox_refuge_nourrir.png',
-    'boire': 'nox_soif_cosmique_40.png',
-    'jouer': 'nox_jeu_orbe_40.png',
-    'calin': 'nox_reconfort_41.png',
-    'bain': 'nox_refuge_bain.png',
-    'repos': 'nox_bonne_nuit_couverture_40.png',
+    'nourrir': 'nox_refuge_nourrir.webp',
+    'boire': 'nox_soif_cosmique_40.webp',
+    'jouer': 'nox_jeu_orbe_40.webp',
+    'calin': 'nox_reconfort_41.webp',
+    'bain': 'nox_refuge_bain.webp',
+    'repos': 'nox_bonne_nuit_couverture_40.webp',
 }
 
 def choose_refuge_image(state, last_action=None, decorations=0):
@@ -65,13 +65,13 @@ def choose_refuge_image(state, last_action=None, decorations=0):
     elif last_action in CARE_IMAGES:
         name = CARE_IMAGES[last_action]
     elif min(stats.values()) < 70:
-        name = 'nox_refuge_coussins.png'
+        name = 'nox_refuge_coussins.webp'
     else:
         name = DECOR_IMAGE_NAMES[max(0, min(4, int(decorations)))]
     file_path = IMAGE_DIR / name
     if file_path.is_file():
         return file_path
-    fallback = IMAGE_DIR / 'nox_refuge_coussins.png'
+    fallback = IMAGE_DIR / 'nox_refuge_coussins.webp'
     return fallback if fallback.is_file() else None
 
 def refuge_embed_and_file(state, last_action=None):

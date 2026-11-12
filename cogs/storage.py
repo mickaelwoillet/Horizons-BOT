@@ -10,6 +10,33 @@ DB_PATH = DATA_DIR / "horizons.sqlite3"
 SCHEMA = """
 PRAGMA journal_mode=WAL;
 PRAGMA foreign_keys=ON;
+-- AutoMod V2 : stockage persistant des infractions et sanctions.
+CREATE TABLE IF NOT EXISTS automod_infractions (
+ id INTEGER PRIMARY KEY AUTOINCREMENT,
+ guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
+ channel_id INTEGER, message_id INTEGER,
+ reason TEXT NOT NULL, source TEXT NOT NULL, created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_automod_infractions_member
+ ON automod_infractions(guild_id,user_id,created_at);
+CREATE TABLE IF NOT EXISTS automod_sanctions (
+ id INTEGER PRIMARY KEY AUTOINCREMENT,
+ guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
+ infraction_id INTEGER, action TEXT NOT NULL, reason TEXT NOT NULL,
+ duration_seconds INTEGER NOT NULL DEFAULT 0,
+ source TEXT NOT NULL, status TEXT NOT NULL,
+ created_at TEXT NOT NULL, expires_at TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_automod_sanctions_member
+ ON automod_sanctions(guild_id,user_id,created_at);
+CREATE TABLE IF NOT EXISTS automod_tempbans (
+ guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
+ reason TEXT NOT NULL, expires_at TEXT NOT NULL,
+ status TEXT NOT NULL DEFAULT 'active',
+ PRIMARY KEY(guild_id,user_id)
+);
+CREATE INDEX IF NOT EXISTS idx_automod_tempbans_expiry
+ ON automod_tempbans(status,expires_at);
 CREATE TABLE IF NOT EXISTS sky_unlocks (
  guild_id INTEGER NOT NULL, user_id INTEGER NOT NULL,
  star_key TEXT NOT NULL, unlocked_at TEXT NOT NULL,

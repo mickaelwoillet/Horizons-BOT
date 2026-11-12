@@ -9,3 +9,9 @@ data/*.sqlite3-wal
 data/content_history.json
 data/community_history.json
 data/publication_calendar_history.json
+
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+*.db
+*.pyc

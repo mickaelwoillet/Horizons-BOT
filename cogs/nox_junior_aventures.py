@@ -41,7 +41,7 @@ WALKS = {
 }
 
 # Image 16:9 paysage par promenade, conservée dans le ZIP.
-SCENE_IMAGES = {code: f'assets/nox_junior/walks/{code}.png' for code in WALKS}
+SCENE_IMAGES = {code: f'assets/nox_junior/walks/{code}.webp' for code in WALKS}
 
 def start(code):
     if code not in WALKS: raise ValueError('Promenade inconnue.')

@@ -20,14 +20,14 @@ from cogs.horizons_arcade import award_xp, total_xp, xp_level
 log = logging.getLogger(__name__)
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "data" / "assets" / "celestial"
-CARD_ART = ASSETS / "carte_celeste.png"
+CARD_ART = ASSETS / "carte_celeste.webp"
 REWARD_ART = {
-    "thought": ASSETS / "recompense_thought.png",
-    "star": ASSETS / "recompense_star.png",
-    "dust": ASSETS / "recompense_dust.png",
-    "xp": ASSETS / "recompense_xp.png",
-    "fragment": ASSETS / "recompense_fragment.png",
-    "surprise": ASSETS / "recompense_surprise.png",
+    "thought": ASSETS / "recompense_thought.webp",
+    "star": ASSETS / "recompense_star.webp",
+    "dust": ASSETS / "recompense_dust.webp",
+    "xp": ASSETS / "recompense_xp.webp",
+    "fragment": ASSETS / "recompense_fragment.webp",
+    "surprise": ASSETS / "recompense_surprise.webp",
 }
 
 STARS = {
@@ -65,12 +65,12 @@ REWARD_WEIGHTS = {"thought": 40, "dust": 25, "xp": 15, "star": 12, "fragment": 7
 # Récompenses de collection : souvenirs narratifs et visuels, sans inflation
 # de poussière/XP/cartes. Les rôles automatiques restent les récompenses sociales.
 COLLECTION_REWARDS = {
-    "origines": ("🌅 Mémoire des Origines", "Les premiers éclats ont tracé le chemin. Tu as réuni Aube, Espérance, Courage et Sérénité : ton voyage a trouvé sa première constellation.", "souvenir_origines.png"),
-    "liens": ("💗 Mémoire des Liens", "Liberté, Écoute, Amitié et Tendresse brillent ensemble. Cette constellation célèbre les rencontres qui donnent un sens au voyage.", "souvenir_liens.png"),
-    "forces": ("🔥 Mémoire des Forces", "Sagesse, Harmonie, Rêve et Confiance sont réunies. Cette constellation rappelle que la force peut aussi être douce et réfléchie.", "souvenir_forces.png"),
-    "lumieres": ("✨ Mémoire des Lumières", "Bienveillance, Résilience, Joie et Mystère illuminent ton ciel. Une lumière partagée peut en faire naître bien d'autres.", "souvenir_lumieres.png"),
-    "infini": ("🌌 Mémoire de l'Infini", "Partage, Unité, Éternité et HORIZONS sont réunies. Cette constellation célèbre ce qui grandit lorsque chacun apporte sa lumière.", "souvenir_infini.png"),
-    "complete": ("🌟 Le Ciel HORIZONS", "Tu as réuni les 20 étoiles. Ton parcours devient un témoignage de patience, de curiosité et de lumière partagée. Le ciel HORIZONS est désormais complet.", "souvenir_complet.png"),
+    "origines": ("🌅 Mémoire des Origines", "Les premiers éclats ont tracé le chemin. Tu as réuni Aube, Espérance, Courage et Sérénité : ton voyage a trouvé sa première constellation.", "souvenir_origines.webp"),
+    "liens": ("💗 Mémoire des Liens", "Liberté, Écoute, Amitié et Tendresse brillent ensemble. Cette constellation célèbre les rencontres qui donnent un sens au voyage.", "souvenir_liens.webp"),
+    "forces": ("🔥 Mémoire des Forces", "Sagesse, Harmonie, Rêve et Confiance sont réunies. Cette constellation rappelle que la force peut aussi être douce et réfléchie.", "souvenir_forces.webp"),
+    "lumieres": ("✨ Mémoire des Lumières", "Bienveillance, Résilience, Joie et Mystère illuminent ton ciel. Une lumière partagée peut en faire naître bien d'autres.", "souvenir_lumieres.webp"),
+    "infini": ("🌌 Mémoire de l'Infini", "Partage, Unité, Éternité et HORIZONS sont réunies. Cette constellation célèbre ce qui grandit lorsque chacun apporte sa lumière.", "souvenir_infini.webp"),
+    "complete": ("🌟 Le Ciel HORIZONS", "Tu as réuni les 20 étoiles. Ton parcours devient un témoignage de patience, de curiosité et de lumière partagée. Le ciel HORIZONS est désormais complet.", "souvenir_complet.webp"),
 }
 
 
@@ -485,11 +485,11 @@ class CelestialTreasures(commands.Cog):
             details = f"Une belle surprise ! **+25 poussières célestes**. Ton total : **{balance}**."
             title = "🎁 Une surprise céleste !"
         embed = horizons_embed(title=title, description=details)
-        embed.set_thumbnail(url="attachment://carte_celeste.png")
+        embed.set_thumbnail(url="attachment://carte_celeste.webp")
         embed.set_image(url=f"attachment://{reward}.png")
         embed.add_field(name="Carte utilisée", value="Carte quotidienne" if source == "daily" else "Carte offerte", inline=True)
         embed.set_footer(text="HORIZONS • Chaque étoile raconte quelque chose")
-        files = [discord.File(CARD_ART, filename="carte_celeste.png"), discord.File(REWARD_ART[reward], filename=f"{reward}.png")]
+        files = [discord.File(CARD_ART, filename="carte_celeste.webp"), discord.File(REWARD_ART[reward], filename=f"{reward}.png")]
         await interaction.response.edit_message(content=None, embed=embed, attachments=files, view=None)
 
     async def gratter(self, interaction: discord.Interaction):
@@ -508,9 +508,9 @@ class CelestialTreasures(commands.Cog):
             await interaction.response.send_message("Tu as déjà gratté ta carte du jour. Reviens demain pour une nouvelle surprise ! 🌠", ephemeral=True)
             return
         embed = horizons_embed(title="🎟️ Ta carte céleste", description="Une surprise t'attend. Clique sur le bouton pour découvrir ce que le ciel t'a réservé !")
-        embed.set_image(url="attachment://carte_celeste.png")
+        embed.set_image(url="attachment://carte_celeste.webp")
         embed.set_footer(text="Une carte quotidienne • Les cartes offertes sont indépendantes")
-        await interaction.response.send_message(embed=embed, file=discord.File(CARD_ART, filename="carte_celeste.png"), view=ScratchView(self,interaction.user.id), ephemeral=True)
+        await interaction.response.send_message(embed=embed, file=discord.File(CARD_ART, filename="carte_celeste.webp"), view=ScratchView(self,interaction.user.id), ephemeral=True)
 
     @app_commands.command(name="givegratte", description="Offrir des cartes à gratter à un membre (administration).")
     @app_commands.checks.has_permissions(administrator=True)

@@ -130,11 +130,18 @@ def render(pet, stage='bebe', mood='calme', theme='cosmos', decoration='none', s
 
 
 
+def _asset_image(path):
+    """Prefer optimized WebP, retain compatibility with existing PNG assets."""
+    path=Path(path)
+    webp=path.with_suffix('.webp')
+    return webp if webp.is_file() else path
+
+
 def _character_asset(root, stage, color, mood):
     """Find the exact approved illustration. No wrong-color or random fallback."""
     root=Path(root)
     if stage=='oeuf':
-        return root/'eggs'/f'{color}.png'
+        return _asset_image(root/'eggs'/f'{color}.webp')
     # The baby collection uses 'neutre', not 'calme'.
     if stage=='bebe':
         aliases={'calme':'neutre','besoin':'triste'}
@@ -148,7 +155,7 @@ def _character_asset(root, stage, color, mood):
     else:
         variants=(mood,'neutre','heureux')
     for emotion in dict.fromkeys(variants):
-        file=root/'characters'/f'{stage}_{color}_{emotion}.png'
+        file=_asset_image(root/'characters'/f'{stage}_{color}_{emotion}.webp')
         if file.is_file(): return file
     return root/'characters'/f'__missing_{stage}_{color}.png'
 
@@ -156,10 +163,10 @@ def compose_room(pet, stage='bebe', mood='calme', theme=None, decorations=(), si
     """Composite PNG assets at runtime; missing assets use legacy renderer until approved files arrive."""
     from PIL import Image
     root=Path(__file__).resolve().parent.parent/'data'/'nox_junior'
-    base=root/'rooms'/f'{theme}.png'
+    base=_asset_image(root/'rooms'/f'{theme}.webp')
     if theme is None or not base.is_file():
         if stage=='oeuf':
-            egg=root/'eggs'/f"{pet.get('color','bleu')}.png"
+            egg=_asset_image(root/'eggs'/f"{pet.get('color','bleu')}.webp")
             if egg.is_file():
                 with Image.open(egg) as egg_img:
                     result=io.BytesIO();egg_img.convert('RGB').resize(size,Image.Resampling.LANCZOS).save(result,format='PNG');result.seek(0)
@@ -171,7 +178,7 @@ def compose_room(pet, stage='bebe', mood='calme', theme=None, decorations=(), si
     slot_items = decorations.items() if isinstance(decorations,dict) else ((economy.DECOR_SLOTS.get(code),code) for code in decorations)
     for slot,code in slot_items:
         if slot not in economy.SLOT_POSITIONS or code not in economy.DECOR_SLOTS or economy.DECOR_SLOTS[code]!=slot: continue
-        asset=root/'decorations'/f'{code}.png'
+        asset=_asset_image(root/'decorations'/f'{code}.webp')
         if not asset.is_file(): continue
         layer=Image.open(asset).convert('RGBA')
         if slot=='couchage': max_w,max_h=.36,.19
@@ -181,7 +188,7 @@ def compose_room(pet, stage='bebe', mood='calme', theme=None, decorations=(), si
         x,y=economy.SLOT_POSITIONS[slot]
         canvas.alpha_composite(layer,(max(0,min(size[0]-layer.width,int(x*size[0]-layer.width/2))),max(0,min(size[1]-layer.height,int(y*size[1]-layer.height/2)))))
     if stage=='oeuf':
-        egg=root/'eggs'/f"{pet.get('color','bleu')}.png"
+        egg=_asset_image(root/'eggs'/f"{pet.get('color','bleu')}.webp")
         if egg.is_file():
             # Œuf illustré : image complète (fond galactique inclus), sans accessoires.
             with Image.open(egg) as egg_img:
@@ -199,7 +206,7 @@ def compose_room(pet, stage='bebe', mood='calme', theme=None, decorations=(), si
 def compose_walk(pet, code, stage='nouveau_ne', mood='heureux', size=(1280,720)):
     """Return PNG with the member's own NOX over the matching story landscape."""
     from PIL import Image, ImageEnhance
-    base=Path(__file__).resolve().parent.parent/'assets'/'nox_junior'/'walks'/f'{code}.png'
+    base=_asset_image(Path(__file__).resolve().parent.parent/'assets'/'nox_junior'/'walks'/f'{code}.webp')
     if code not in ('prairie','etoiles','plage','jardin','foret','automne','hiver') or not base.is_file():
         raise ValueError('Unknown walk background')
     canvas=Image.open(base).convert('RGBA').resize(size,Image.Resampling.LANCZOS)

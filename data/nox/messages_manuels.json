@@ -3,120 +3,120 @@
     "id": "nox_01",
     "titre": "Faim cosmique",
     "message": "🍕 Mon ventre vient de déposer une plainte officielle. Il réclame des biscuits stellaires !",
-    "image": "nox_cookie_festin_39.png"
+    "image": "nox_cookie_festin_39.webp"
   },
   {
     "id": "nox_02",
     "titre": "Soif de comète",
     "message": "💧 J’ai demandé un verre d’eau. On m’a livré un nuage. Le service laisse à désirer.",
-    "image": "nox_soif_cosmique_40.png"
+    "image": "nox_soif_cosmique_40.webp"
   },
   {
     "id": "nox_03",
     "titre": "Envie de jouer",
     "message": "🎮 Quelqu’un veut jouer avec moi ? Je promets de ne déplacer que deux planètes.",
-    "image": "nox_jeu_orbe_40.png"
+    "image": "nox_jeu_orbe_40.webp"
   },
   {
     "id": "nox_04",
     "titre": "Besoin de câlin",
     "message": "💛 Alerte intergalactique : mes réserves de câlins sont dangereusement basses.",
-    "image": "nox_refuge_coussins.png"
+    "image": "nox_refuge_coussins.webp"
   },
   {
     "id": "nox_05",
     "titre": "Sommeil étrange",
     "message": "😴 Je ne dors pas. J’inspecte l’intérieur de mes paupières pour la science.",
-    "image": "nox_sieste_lune.png"
+    "image": "nox_sieste_lune.webp"
   },
   {
     "id": "nox_06",
     "titre": "Bêtise du jour",
     "message": "🌀 J’ai touché au bouton rouge. Maintenant, mercredi arrive avant mardi. Oups.",
-    "image": "nox_betise_apesanteur.png"
+    "image": "nox_betise_apesanteur.webp"
   },
   {
     "id": "nox_07",
     "titre": "Question absurde",
     "message": "🌠 Si je mange une étoile filante, je fais mon vœu avant ou après ?",
-    "image": "nox_scene_question_42.png"
+    "image": "nox_scene_question_42.webp"
   },
   {
     "id": "nox_08",
     "titre": "Bonjour la galaxie",
     "message": "☀️ Bonjour les étoiles ! Aujourd’hui, je vais être sage. Enfin, pendant cinq minutes.",
-    "image": "nox_scene_bienvenue_42.png"
+    "image": "nox_scene_bienvenue_42.webp"
   },
   {
     "id": "nox_09",
     "titre": "Bonne nuit",
     "message": "🌙 Je vais compter les étoiles pour dormir. Je vous écris dans trois millions d’années.",
-    "image": "nox_scene_bonne_nuit_42.png"
+    "image": "nox_scene_bonne_nuit_42.webp"
   },
   {
     "id": "nox_10",
     "titre": "Danse cosmique",
     "message": "🪩 Je viens d’inventer une danse. Les lois de la gravité ont demandé un congé.",
-    "image": "nox_tv_animation.png"
+    "image": "nox_tv_animation.webp"
   },
   {
     "id": "nox_11",
     "titre": "Bouderie adorable",
     "message": "😤 Je boude. Sauf si quelqu’un apporte un cookie. Là, on peut négocier.",
-    "image": "nox_boudeur.png"
+    "image": "nox_boudeur.webp"
   },
   {
     "id": "nox_12",
     "titre": "Mot doux",
     "message": "✨ Vous êtes ma constellation préférée. Mais chut, j’ai une réputation de petit chaos à tenir.",
-    "image": "nox_reconfort_41.png"
+    "image": "nox_reconfort_41.webp"
   },
   {
     "id": "nox_13",
     "titre": "Mission biscuit",
     "message": "🍪 Mission urgente : localiser le dernier biscuit avant que Coin-Coin ne le découvre.",
-    "image": "nox_scene_petite_faim_42.png"
+    "image": "nox_scene_petite_faim_42.webp"
   },
   {
     "id": "nox_14",
     "titre": "Curiosité NOX",
     "message": "🔭 Vous faites quoi de beau ? Moi, j’apprends aux météorites à faire des ricochets.",
-    "image": "nox_astronaute.png"
+    "image": "nox_astronaute.webp"
   },
   {
     "id": "nox_15",
     "titre": "Petit encouragement",
     "message": "💛 Même les étoiles clignotent parfois. Tu as le droit de souffler un peu.",
-    "image": "nox_scene_entraide_42.png"
+    "image": "nox_scene_entraide_42.webp"
   },
   {
     "id": "nox_16",
     "titre": "Cache-cache spatial",
     "message": "🙈 Je joue à cache-cache avec une lune. Elle triche : elle est toujours dans le ciel.",
-    "image": "nox_explorateur.png"
+    "image": "nox_explorateur.webp"
   },
   {
     "id": "nox_17",
     "titre": "Panique miniature",
     "message": "🚨 URGENCE ! Mon ombre me suit partout. Je soupçonne un complot.",
-    "image": "nox_conseil_panique.png"
+    "image": "nox_conseil_panique.webp"
   },
   {
     "id": "nox_18",
     "titre": "Fête improvisée",
     "message": "🎉 J’organise une fête cosmique. Dress code : chaussettes dépareillées et bonne humeur.",
-    "image": "nox_scene_anniversaire_42.png"
+    "image": "nox_scene_anniversaire_42.webp"
   },
   {
     "id": "nox_19",
     "titre": "Pensée du jour",
     "message": "💭 Et si les trous noirs étaient juste des poches géantes où l’univers range ses clés ?",
-    "image": "nox_pluie_etoiles.png"
+    "image": "nox_pluie_etoiles.webp"
   },
   {
     "id": "nox_20",
     "titre": "Appel au refuge",
     "message": "🐾 Petite visite au Refuge ? J’ai plein d’histoires et peut-être besoin d’un câlin.",
-    "image": "nox_refuge_coussins.png"
+    "image": "nox_refuge_coussins.webp"
   }
 ]

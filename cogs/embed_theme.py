@@ -7,7 +7,7 @@ import discord
 
 ROOT = __import__("pathlib").Path(__file__).resolve().parents[1]
 ASSET_DIR = ROOT / "data" / "assets"
-LOGO_PATH = ASSET_DIR / "logo_horizons.png"
+LOGO_PATH = ASSET_DIR / "logo_horizons.webp"
 LOGO_STATE_PATH = ASSET_DIR / "logo_url.json"
 
 # Palette volontairement sobre : l'or reste la signature, les autres teintes

@@ -1,313 +1,301 @@
 [
   {
-    "id": "biscuits",
-    "image": "nox_biscuits_orbite.png",
-    "texte": "🍪 J’ai lancé une opération de sauvetage des biscuits en orbite. Ils ont refusé de rentrer sans une escorte diplomatique. Vous négociez ou vous les mangez ?",
-    "theme": "humour"
-  },
-  {
     "id": "chaussettes",
-    "image": "exploration_portail_chaussettes.png",
+    "image": "exploration_portail_chaussettes.webp",
     "texte": "🧦 Un portail vient de s’ouvrir dans ma réserve à chaussettes. J’ai perdu la gauche et découvert un univers où les chaussettes dirigent tout. On explore ?",
     "theme": "aventure"
   },
   {
     "id": "sommeil",
-    "image": "nox_sommeil_conseil.png",
+    "image": "nox_sommeil_conseil.webp",
     "texte": "💤 Réunion de crise : j’ai demandé cinq minutes de sieste et le conseil cosmique m’a proposé un trimestre sabbatique. Vous votez pour combien ?",
     "theme": "tendresse"
   },
   {
     "id": "ballon",
-    "image": "nox_jeu_ballon.png",
+    "image": "nox_jeu_ballon.webp",
     "texte": "🎮 J’ai inventé un sport intergalactique : poursuivre un ballon qui n’obéit à aucune loi physique. Qui rejoint mon équipe ?",
     "theme": "insolite"
   },
   {
     "id": "canard",
-    "image": "course_du_canard.png",
+    "image": "course_du_canard.webp",
     "texte": "🦆 Un canard spatial m’a défié à la course. Il est parti avant le signal, puis a déclaré qu’il était le signal. On dépose une réclamation ?",
     "theme": "insolite"
   },
   {
     "id": "grillepain",
-    "image": "grille_pain_apocalypse.png",
+    "image": "grille_pain_apocalypse.webp",
     "texte": "🔥 Mon grille-pain prétend être le chef de la galaxie. Il a déjà nommé trois tartines ministres. Qui négocie la paix ?",
     "theme": "humour"
   },
   {
     "id": "paradoxe",
-    "image": "paradoxe_horloges_folles.png",
+    "image": "paradoxe_horloges_folles.webp",
     "texte": "⏰ Mes horloges se sont disputées sur l’heure du goûter. Résultat : il est toujours l’heure des biscuits. Je trouve cette science remarquable.",
     "theme": "surprise"
   },
   {
     "id": "experience",
-    "image": "gloups_experience.png",
+    "image": "gloups_experience.webp",
     "texte": "🧪 Gloups a testé une potion censée rendre invisible. On voit toujours Gloups, mais la potion a disparu. Vous avez une hypothèse ?",
     "theme": "surprise"
   },
   {
     "id": "planete",
-    "image": "gloups_planete_fugueuse.png",
+    "image": "gloups_planete_fugueuse.webp",
     "texte": "🪐 Une petite planète vient de fuguer. Elle a laissé un mot : « Je reviens après les vacances. » Quelqu’un connaît un bon détective cosmique ?",
     "theme": "cosmos"
   },
   {
     "id": "coincoin",
-    "image": "coincoin_conference_miettes.png",
+    "image": "coincoin_conference_miettes.webp",
     "texte": "🎤 Coincoin organise une conférence internationale sur les miettes. Je suis invité comme expert en disparition de biscuits. Des questions pour le public ?",
     "theme": "insolite"
   },
   {
     "id": "faim",
-    "image": "nox_faim_pancarte.png",
+    "image": "nox_faim_pancarte.webp",
     "texte": "🍽️ J’ai dressé une pancarte « urgence goûter ». Le conseil cosmique m’a répondu « dossier incomplet ». Vous signez ma pétition ?",
     "theme": "tendresse"
   },
   {
     "id": "reveil",
-    "image": "paradoxe_reveil_infini.png",
+    "image": "paradoxe_reveil_infini.webp",
     "texte": "🌙 J’ai essayé de me réveiller plus tôt. Mon réveil a demandé à se rendormir. On a finalement négocié un petit-déjeuner commun.",
     "theme": "aventure"
   },
   {
     "id": "canard_attaque",
-    "image": "canard_attaque.png",
+    "image": "canard_attaque.webp",
     "texte": "🦆 Alerte cosmique : Coincoin a lancé une attaque de plumes. Qui vient négocier une trêve ?",
     "theme": "insolite"
   },
   {
     "id": "coincoin_couronne",
-    "image": "coincoin_couronne_rebelle.png",
+    "image": "coincoin_couronne_rebelle.webp",
     "texte": "👑 Coincoin s’est proclamé roi des miettes. Son premier décret : goûter obligatoire !",
     "theme": "humour"
   },
   {
     "id": "experience_547",
-    "image": "gloups_experience_547.png",
+    "image": "gloups_experience_547.webp",
     "texte": "🧪 Gloups annonce son expérience numéro 547. Je garde les biscuits en lieu sûr, par précaution.",
     "theme": "surprise"
   },
   {
     "id": "fiole_rebelle",
-    "image": "gloups_fiole_rebelle.png",
+    "image": "gloups_fiole_rebelle.webp",
     "texte": "🧪 Une fiole s’est échappée du laboratoire. Elle exige désormais un jour de congé.",
     "theme": "surprise"
   },
   {
     "id": "pluie_bulles",
-    "image": "gloups_pluie_bulles.png",
+    "image": "gloups_pluie_bulles.webp",
     "texte": "🫧 Il pleut des bulles sur notre planète. Qui veut faire une promenade cosmique ?",
     "theme": "cosmos"
   },
   {
     "id": "grillepain_alerte",
-    "image": "grille_pain_alerte.png",
+    "image": "grille_pain_alerte.webp",
     "texte": "🚨 Le grille-pain a déclenché une alerte orange pour une tartine trop croustillante.",
     "theme": "humour"
   },
   {
     "id": "tartine_maire",
-    "image": "grille_pain_tartine_maire.png",
+    "image": "grille_pain_tartine_maire.webp",
     "texte": "🍞 Une tartine se présente aux élections de la galaxie. Son programme : plus de confiture !",
     "theme": "humour"
   },
   {
     "id": "madame_paradoxe",
-    "image": "madame_paradoxe.png",
+    "image": "madame_paradoxe.webp",
     "texte": "⏳ Madame Paradoxe m’a promis une surprise hier pour demain. Vous suivez ?",
     "theme": "surprise"
   },
   {
     "id": "conseil_panique",
-    "image": "nox_conseil_panique.png",
+    "image": "nox_conseil_panique.webp",
     "texte": "🐾 J’ai réuni le conseil cosmique. Le sujet : pourquoi les biscuits disparaissent-ils toujours ?",
     "theme": "humour"
   },
   {
     "id": "dort_reunion",
-    "image": "nox_dort_reunion.png",
+    "image": "nox_dort_reunion.webp",
     "texte": "💤 J’ai tenté une réunion pendant ma sieste. Le compte rendu est très reposant.",
     "theme": "tendresse"
   },
   {
     "id": "nox_faim",
-    "image": "nox_faim.png",
+    "image": "nox_faim.webp",
     "texte": "🍪 Mon ventre a envoyé un message prioritaire au centre de contrôle. Quelqu’un a vu le goûter ?",
     "theme": "tendresse"
   },
   {
     "id": "ascenseur_temporel",
-    "image": "paradoxe_ascenseur_temporel.png",
+    "image": "paradoxe_ascenseur_temporel.webp",
     "texte": "🛗 L’ascenseur temporel s’est arrêté entre hier et demain. Qui connaît le bouton « aujourd’hui » ?",
     "theme": "aventure"
   },
   {
     "id": "mardi_25",
-    "image": "paradoxe_mardi_25.png",
+    "image": "paradoxe_mardi_25.webp",
     "texte": "🗓️ Mon calendrier affiche mardi 25 depuis trois jours. J’appelle ça une semaine prolongée.",
     "theme": "insolite"
   },
   {
     "id": "nox_tresor_cristaux",
-    "image": "nox_tresor_cristaux.png",
+    "image": "nox_tresor_cristaux.webp",
     "texte": "✨ NOX a trouvé un coffre rempli de cristaux cosmiques ! Quel trésor emporterais-tu ?",
     "theme": "surprise"
   },
   {
     "id": "nox_explorateur",
-    "image": "nox_explorateur.png",
+    "image": "nox_explorateur.webp",
     "texte": "🧭 NOX part explorer les îles flottantes. Tu viens dans son équipe ?",
     "theme": "aventure"
   },
   {
     "id": "nox_buffet_cosmique",
-    "image": "nox_buffet_cosmique.png",
+    "image": "nox_buffet_cosmique.webp",
     "texte": "🍪 NOX assure que tous ces gâteaux sont pour une expérience scientifique. On le croit ?",
     "theme": "humour"
   },
   {
-    "id": "nox_refuge_lanternes",
-    "image": "nox_refuge_lanternes.png",
-    "texte": "💜 NOX t’ouvre les portes du Refuge : une pause, un chocolat chaud et un peu de douceur.",
-    "theme": "tendresse"
-  },
-  {
     "id": "nox_betise_apesanteur",
-    "image": "nox_betise_apesanteur.png",
+    "image": "nox_betise_apesanteur.webp",
     "texte": "🛰️ En apesanteur, les biscuits volent. NOX affirme n’y être pour rien.",
     "theme": "insolite"
   },
   {
     "id": "nox_astronaute",
-    "image": "nox_astronaute.png",
+    "image": "nox_astronaute.webp",
     "texte": "🚀 NOX s’envole vers une nouvelle planète. Quel nom lui donnerais-tu ?",
     "theme": "cosmos"
   },
   {
     "id": "nox_oups_biscuits",
-    "image": "nox_oups_biscuits.png",
+    "image": "nox_oups_biscuits.webp",
     "texte": "😇 Un pot de biscuits renversé, et NOX n’a absolument rien vu…",
     "theme": "humour"
   },
   {
     "id": "nox_donut_galactique",
-    "image": "nox_donut_galactique.png",
+    "image": "nox_donut_galactique.webp",
     "texte": "🍩 NOX a découvert le donut le plus grand de la galaxie. Il propose de le partager… peut-être.",
     "theme": "humour"
   },
   {
     "id": "nox_refuge_coussins",
-    "image": "nox_refuge_coussins.png",
+    "image": "nox_refuge_coussins.webp",
     "texte": "🌙 NOX a préparé un coin douillet pour les étoiles fatiguées.",
     "theme": "tendresse"
   },
   {
     "id": "nox_pluie_etoiles",
-    "image": "nox_pluie_etoiles.png",
+    "image": "nox_pluie_etoiles.webp",
     "texte": "🌠 NOX observe une pluie d’étoiles filantes. Fais un vœu !",
     "theme": "cosmos"
   },
   {
     "id": "nox_sieste_lune",
-    "image": "nox_sieste_lune.png",
+    "image": "nox_sieste_lune.webp",
     "texte": "💤 NOX s’est endormi sur la lune. Chut, les rêves cosmiques commencent.",
     "theme": "tendresse"
   },
   {
     "id": "nox_anniversaire",
-    "image": "nox_anniversaire.png",
+    "image": "nox_anniversaire.webp",
     "texte": "🎂 NOX sort les bougies stellaires : joyeux anniversaire aux étoiles du jour !",
     "theme": "surprise"
   },
   {
     "id": "nox_tv_animation",
-    "image": "nox_tv_animation.png",
+    "image": "nox_tv_animation.webp",
     "texte": "🎙️ NOX TV est en direct ! Qui relève le prochain défi ?",
     "theme": "aventure"
   },
   {
     "id": "nox_boudeur",
-    "image": "nox_boudeur.png",
+    "image": "nox_boudeur.webp",
     "texte": "😾 NOX boude : quelqu’un a dit que les cookies n’étaient pas un repas équilibré.",
     "theme": "insolite"
   },
   {
     "id": "nox_bonne_nuit_40",
-    "image": "nox_bonne_nuit_couverture_40.png",
+    "image": "nox_bonne_nuit_couverture_40.webp",
     "texte": "🌙 Ma couverture a capturé quelques étoiles pour veiller sur vos rêves. Bonne nuit, la galaxie !",
     "theme": "tendresse"
   },
   {
     "id": "nox_agora_40",
-    "image": "nox_debat_agora_40.png",
+    "image": "nox_debat_agora_40.webp",
     "texte": "🎙️ J’ai ouvert l’Agora cosmique ! On peut avoir des avis différents et s’écouter quand même. Quel sujet mérite notre prochaine discussion ?",
     "theme": "aventure"
   },
   {
     "id": "nox_question_40",
-    "image": "nox_question_cosmique_40.png",
+    "image": "nox_question_cosmique_40.webp",
     "texte": "❓ Question de NOX : si tu pouvais visiter une planète imaginaire, à quoi ressemblerait-elle ?",
     "theme": "cosmos"
   },
   {
     "id": "nox_jeu_40",
-    "image": "nox_jeu_orbe_40.png",
+    "image": "nox_jeu_orbe_40.webp",
     "texte": "🎮 J’ai lancé une balle de lumière à travers trois galaxies. Qui vient jouer avec moi ?",
     "theme": "surprise"
   },
   {
     "id": "nox_soif_40",
-    "image": "nox_soif_cosmique_40.png",
+    "image": "nox_soif_cosmique_40.webp",
     "texte": "💧 J’ai trouvé une fontaine de comètes fraîches ! Qui veut partager une pause cosmique ?",
     "theme": "insolite"
   },
   {
     "id": "nox_reconfort_41",
-    "image": "nox_reconfort_41.png",
+    "image": "nox_reconfort_41.webp",
     "texte": "💙 Une présence, un sourire, un câlin : voilà comment on réchauffe toute une galaxie. Vous partagez un peu de douceur ?",
     "theme": "tendresse"
   },
   {
     "id": "nox_joie_41",
-    "image": "nox_joie_41.png",
+    "image": "nox_joie_41.webp",
     "texte": "✨ J’ai tellement de joie à partager que mes pattes font des étincelles ! Qui vient célébrer une petite victoire avec moi ?",
     "theme": "surprise"
   },
   {
     "id": "nox_inquietude_41",
-    "image": "nox_inquietude_41.png",
+    "image": "nox_inquietude_41.webp",
     "texte": "🌀 Un portail mystérieux s’est ouvert devant moi. Je suis un peu inquiet… mais très curieux. On enquête ensemble ?",
     "theme": "aventure"
   },
   {
     "id": "scene_petite_faim_42",
-    "image": "nox_scene_petite_faim_42.png",
+    "image": "nox_scene_petite_faim_42.webp",
     "texte": "🍪 NOX accuse une météorite d’avoir mangé tous les biscuits. La météorite demande un avocat. Vous croyez qui ?",
     "theme": "humour"
   },
   {
     "id": "scene_mission_42",
-    "image": "nox_scene_mission_42.png",
+    "image": "nox_scene_mission_42.webp",
     "texte": "🧭 NOX a trouvé une carte stellaire menant à une planète inconnue. On suit les étoiles ou son instinct ?",
     "theme": "aventure"
   },
   {
     "id": "scene_anniversaire_42",
-    "image": "nox_scene_anniversaire_42.png",
+    "image": "nox_scene_anniversaire_42.webp",
     "texte": "🎂 NOX a caché un gâteau dans une boîte cosmique. Surprise : il a oublié à qui il était destiné !",
     "theme": "surprise"
   },
   {
     "id": "scene_question_42",
-    "image": "nox_scene_question_42.png",
+    "image": "nox_scene_question_42.webp",
     "texte": "❓ NOX se demande si les étoiles ont un jour de congé. Et si oui, qui éclaire le ciel pendant leur absence ?",
     "theme": "insolite"
   },
   {
     "id": "scene_bonne_nuit_42",
-    "image": "nox_scene_bonne_nuit_42.png",
+    "image": "nox_scene_bonne_nuit_42.webp",
     "texte": "🌙 NOX s’est blotti sous sa couverture d’étoiles. Il vous souhaite une douce nuit et de beaux rêves.",
     "theme": "tendresse"
   }

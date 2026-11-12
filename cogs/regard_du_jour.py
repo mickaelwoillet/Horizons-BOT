@@ -416,7 +416,7 @@ class RegardDuJour(commands.Cog):
                 items=db.execute("SELECT * FROM regard_items WHERE day=? AND status='approved' AND category!='🎵 Musique' ORDER BY id LIMIT ?",(day,ARTICLE_MAX)).fetchall()
             if not items and not old:
                 logger.warning('Regard %s : aucune actualité validée ; publication vide annulée.', day)
-                return 'Aucune actualité vérifiée : publication reportée. Consulte /regard_diagnostic.'
+                return 'Aucune actualité vérifiée : publication reportée. Consulte `/dashboard` → Regardboard → Diagnostic.'
             music=await self.select_music(day) if AUTO_MODE else None
             if rebuild:
                 old = None
@@ -643,8 +643,8 @@ class RegardDuJour(commands.Cog):
             with connect() as db:posted=db.execute('SELECT thread_id FROM regard_posts WHERE day=?',(day,)).fetchone()
             # Une collecte complète supplémentaire au maximum à 18h, en cas de panne RSS à 16h.
             with connect() as db: retried=db.execute('SELECT value FROM regard_state WHERE key=?',('retry:'+day,)).fetchone()
-            if AUTO_MODE and not posted and (not retried or retried['value'] != now.strftime('%Y-%m-%dT%H')):
-                with connect() as db:db.execute('INSERT OR REPLACE INTO regard_state(key,value) VALUES(?,?)',('retry:'+day,now.strftime('%Y-%m-%dT%H')))
+            if AUTO_MODE and not posted and not retried:
+                with connect() as db:db.execute('INSERT OR REPLACE INTO regard_state(key,value) VALUES(?,?)',('retry:'+day,now.isoformat()))
                 try:
                     await self.collect(day)
                     self.auto_select(day)

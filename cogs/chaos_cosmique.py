@@ -1397,21 +1397,21 @@ class ChaosCosmique(commands.Cog):
         embed.add_field(name='🗺️ Partir à l’aventure',value='**Explorer le monde** ouvre la carte et ses lieux ; **Mission du jour** propose un objectif ; **État du cosmos** décrit le monde ; **Portail secret** révèle ses mystères.',inline=False)
         embed.add_field(name='📜 Percer les secrets',value='Découvre les chroniques, les personnages improbables et les anomalies dans le serveur.',inline=False)
         embed.set_footer(text=marker)
-        art=Path(__file__).resolve().parent.parent/'data'/'chaos_cosmique'/'histoire_chaos_cosmique.png'
+        art=Path(__file__).resolve().parent.parent/'data'/'chaos_cosmique'/'histoire_chaos_cosmique.webp'
         if old_message is not None:
             # Mise à jour sur place : les réactions restent et aucun doublon n'apparaît.
             if art.is_file():
-                embed.set_image(url='attachment://histoire_chaos_cosmique.png')
+                embed.set_image(url='attachment://histoire_chaos_cosmique.webp')
                 await old_message.edit(embed=embed,view=CosmicStoryButtons(),
-                    attachments=[discord.File(art,filename='histoire_chaos_cosmique.png')])
+                    attachments=[discord.File(art,filename='histoire_chaos_cosmique.webp')])
             else:
                 if old_message.attachments:
                     embed.set_image(url=old_message.attachments[0].url)
                 await old_message.edit(embed=embed,view=CosmicStoryButtons())
             return False
         if art.is_file():
-            embed.set_image(url='attachment://histoire_chaos_cosmique.png')
-            await channel.send(embed=embed,view=CosmicStoryButtons(),file=discord.File(art,filename='histoire_chaos_cosmique.png'),
+            embed.set_image(url='attachment://histoire_chaos_cosmique.webp')
+            await channel.send(embed=embed,view=CosmicStoryButtons(),file=discord.File(art,filename='histoire_chaos_cosmique.webp'),
                                allowed_mentions=discord.AllowedMentions.none())
         else:
             await channel.send(embed=embed,view=CosmicStoryButtons(),allowed_mentions=discord.AllowedMentions.none())
@@ -1546,13 +1546,62 @@ class ChaosCosmique(commands.Cog):
     @cosmos.command(name='diagnostic', description='Staff : vérifier la configuration cosmique')
     @app_commands.guild_only()
     @app_commands.checks.has_permissions(manage_guild=True)
-    async def diagnostic(self,interaction:discord.Interaction):
+    async def diagnostic(self, interaction: discord.Interaction):
+        # Diagnostic en lecture seule : aucune modification des événements en cours.
         with connect() as conn:
-            w=ensure_world(conn,interaction.guild.id)
-            c=creature(conn,interaction.guild.id)
-            n=progress(conn,interaction.guild.id)
-            panel=conn.execute('SELECT 1 FROM cosmic_panels WHERE guild_id=?',(interaction.guild.id,)).fetchone()
-        await interaction.response.send_message(f'🌌 **Diagnostic Chaos Cosmique**\nActif : **{not bool(w["paused"])}** · Salon : **{w["channel_id"] or "non défini"}**\nAnomalies résolues : **{n}** · Active : **{w["active_event_id"]}**\nNox : **stade {c["stage"]}** · Panneau : **{bool(panel)}**\nBase : `chaos_cosmique.sqlite3`',ephemeral=True)
+            w = ensure_world(conn, interaction.guild.id)
+            c = creature(conn, interaction.guild.id)
+            n = progress(conn, interaction.guild.id)
+            panel = conn.execute('SELECT 1 FROM cosmic_panels WHERE guild_id=?',
+                                 (interaction.guild.id,)).fetchone()
+            active = None
+            if w['active_event_id']:
+                active = conn.execute(
+                    'SELECT id, day, event_key, message_id FROM cosmic_events '
+                    'WHERE id=? AND guild_id=?',
+                    (w['active_event_id'], interaction.guild.id)
+                ).fetchone()
+        channel = interaction.guild.get_channel(w['channel_id']) if w['channel_id'] else None
+        if channel is None and w['channel_id']:
+            try:
+                channel = await interaction.guild.fetch_channel(w['channel_id'])
+            except (discord.HTTPException, discord.Forbidden):
+                channel = None
+        problems = []
+        if w['paused']:
+            problems.append('Univers en pause : `/cosmos activer actif:True`.')
+        if not w['channel_id']:
+            problems.append('Aucun salon : `/cosmos canal` pour choisir un salon textuel.')
+        elif not isinstance(channel, discord.TextChannel):
+            problems.append('Salon inaccessible ou non textuel : vérifie `/cosmos canal`.')
+        else:
+            me = interaction.guild.me
+            perms = channel.permissions_for(me) if me else None
+            if perms and not (perms.view_channel and perms.send_messages and perms.embed_links):
+                problems.append('Permissions insuffisantes : Voir le salon, Envoyer des messages et Intégrer des liens.')
+        if w['active_event_id']:
+            if active:
+                problems.append(
+                    f'Anomalie #{active["id"]} du {active["day"]} en attente de décision '
+                    f'(message {active["message_id"]}). Aucune nouvelle publication avant résolution.'
+                )
+            else:
+                problems.append('Événement actif introuvable dans la base : vérifier avant toute correction.')
+        today = datetime.now(LOCAL_TIMEZONE).date().isoformat()
+        if w['last_event_day'] == today:
+            problems.append('Une anomalie a déjà été publiée aujourd’hui.')
+        if not problems:
+            problems.append('Configuration compatible avec la prochaine vérification automatique après 18 h (heure de Paris).')
+        status = '\n'.join(f'• {p}' for p in problems)
+        await interaction.response.send_message(
+            f'🌌 **Diagnostic Chaos Cosmique**\n'
+            f'Actif : **{not bool(w["paused"])}** · Salon : **{w["channel_id"] or "non défini"}**\n'
+            f'Anomalies résolues : **{n}** · Active : **{w["active_event_id"]}**\n'
+            f'Dernière publication : **{w["last_event_day"] or "aucune"}**\n'
+            f'Nox : **stade {c["stage"]}** · Panneau : **{bool(panel)}**\n'
+            f'Base : `chaos_cosmique.sqlite3`\n\n**Contrôles**\n{status}',
+            ephemeral=True,
+        )
 
 
 async def setup(bot):

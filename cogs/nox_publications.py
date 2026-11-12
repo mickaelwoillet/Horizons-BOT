@@ -20,20 +20,20 @@ IMAGE_DIR = Path(DATA_DIR) / 'nox_tv'
 # Illustration des textes libres : sélection déterministe par vocabulaire.
 # Les catégories explicites priment sur le portrait neutre. Aucune IA ni URL externe.
 FREE_TEXT_SCENES = (
-    (('bonne nuit', 'dormir', 'sommeil', 'sieste', 'repos'), 'nox_scene_bonne_nuit_42.png'),
-    (('anniversaire', 'gateau', 'bougie', 'fete'), 'nox_scene_anniversaire_42.png'),
-    (('boire', 'soif', 'eau', 'hydrat'), 'nox_scene_boire_42.png'),
-    (('faim', 'biscuit', 'cookie', 'manger', 'pizza'), 'nox_scene_petite_faim_42.png'),
-    (('jouer', 'jeu', 'manette', 'partie', 'quiz'), 'nox_scene_jouer_42.png'),
-    (('triste', 'chagrin', 'pleurer', 'larmes'), 'nox_tristesse_41.png'),
-    (('fatigue', 'epuise', 'malade', 'faible'), 'nox_fatigue_41.png'),
-    (('calin', 'reconfort', 'soutien', 'courage', 'entraide'), 'nox_scene_entraide_42.png'),
-    (('question', 'pourquoi', 'comment', 'devinette'), 'nox_scene_question_42.png'),
-    (('debat', 'agora', 'discut', 'avis'), 'nox_scene_agora_42.png'),
-    (('mission', 'aventure', 'explor', 'decouvr'), 'nox_scene_mission_42.png'),
-    (('bonjour', 'bienvenue', 'salut', 'coucou'), 'nox_scene_bienvenue_42.png'),
+    (('bonne nuit', 'dormir', 'sommeil', 'sieste', 'repos'), 'nox_scene_bonne_nuit_42.webp'),
+    (('anniversaire', 'gateau', 'bougie', 'fete'), 'nox_scene_anniversaire_42.webp'),
+    (('boire', 'soif', 'eau', 'hydrat'), 'nox_scene_boire_42.webp'),
+    (('faim', 'biscuit', 'cookie', 'manger', 'pizza'), 'nox_scene_petite_faim_42.webp'),
+    (('jouer', 'jeu', 'manette', 'partie', 'quiz'), 'nox_scene_jouer_42.webp'),
+    (('triste', 'chagrin', 'pleurer', 'larmes'), 'nox_tristesse_41.webp'),
+    (('fatigue', 'epuise', 'malade', 'faible'), 'nox_fatigue_41.webp'),
+    (('calin', 'reconfort', 'soutien', 'courage', 'entraide'), 'nox_scene_entraide_42.webp'),
+    (('question', 'pourquoi', 'comment', 'devinette'), 'nox_scene_question_42.webp'),
+    (('debat', 'agora', 'discut', 'avis'), 'nox_scene_agora_42.webp'),
+    (('mission', 'aventure', 'explor', 'decouvr'), 'nox_scene_mission_42.webp'),
+    (('bonjour', 'bienvenue', 'salut', 'coucou'), 'nox_scene_bienvenue_42.webp'),
 )
-NEUTRAL_SCENE = 'nox_portrait_etoile_39.png'
+NEUTRAL_SCENE = 'nox_portrait_etoile_39.webp'
 
 
 def illustration_for_free_text(texte: str) -> Path | None:
