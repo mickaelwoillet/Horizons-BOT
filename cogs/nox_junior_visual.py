@@ -128,12 +128,42 @@ def render(pet, stage='bebe', mood='calme', theme='cosmos', decoration='none', s
     return out
 
 
+
+
+def _character_asset(root, stage, color, mood):
+    """Find the exact approved illustration. No wrong-color or random fallback."""
+    root=Path(root)
+    if stage=='oeuf':
+        return root/'eggs'/f'{color}.png'
+    # The baby collection uses 'neutre', not 'calme'.
+    if stage=='bebe':
+        aliases={'calme':'neutre','besoin':'triste'}
+        chosen=aliases.get(mood,mood)
+        variants=(chosen,'neutre','heureux')
+    elif stage=='nouveau_ne':
+        aliases={'calme':'heureux','neutre':'heureux','triste':'besoin',
+                 'surpris':'heureux','amoureux':'heureux'}
+        chosen=aliases.get(mood,mood)
+        variants=(chosen,'heureux')
+    else:
+        variants=(mood,'neutre','heureux')
+    for emotion in dict.fromkeys(variants):
+        file=root/'characters'/f'{stage}_{color}_{emotion}.png'
+        if file.is_file(): return file
+    return root/'characters'/f'__missing_{stage}_{color}.png'
+
 def compose_room(pet, stage='bebe', mood='calme', theme=None, decorations=(), size=(1280,720)):
     """Composite PNG assets at runtime; missing assets use legacy renderer until approved files arrive."""
     from PIL import Image
     root=Path(__file__).resolve().parent.parent/'data'/'nox_junior'
     base=root/'rooms'/f'{theme}.png'
     if theme is None or not base.is_file():
+        if stage=='oeuf':
+            egg=root/'eggs'/f"{pet.get('color','bleu')}.png"
+            if egg.is_file():
+                with Image.open(egg) as egg_img:
+                    result=io.BytesIO();egg_img.convert('RGB').resize(size,Image.Resampling.LANCZOS).save(result,format='PNG');result.seek(0)
+                    return result
         return render(pet,stage=stage,mood=mood,theme='cosmos',size=(760,440))
     canvas=Image.open(base).convert('RGBA').resize(size,Image.Resampling.LANCZOS)
     # Chaque emplacement est indépendant ; couchage sous le personnage.
@@ -150,8 +180,15 @@ def compose_room(pet, stage='bebe', mood='calme', theme=None, decorations=(), si
         layer.thumbnail((int(size[0]*max_w),int(size[1]*max_h)),Image.Resampling.LANCZOS)
         x,y=economy.SLOT_POSITIONS[slot]
         canvas.alpha_composite(layer,(max(0,min(size[0]-layer.width,int(x*size[0]-layer.width/2))),max(0,min(size[1]-layer.height,int(y*size[1]-layer.height/2)))))
-    character=root/'characters'/f'{stage}_{pet.get("color","bleu")}_{mood}.png'
-    if not character.is_file(): character=root/'characters'/f'{stage}_{pet.get("color","bleu")}_neutre.png'
+    if stage=='oeuf':
+        egg=root/'eggs'/f"{pet.get('color','bleu')}.png"
+        if egg.is_file():
+            # Œuf illustré : image complète (fond galactique inclus), sans accessoires.
+            with Image.open(egg) as egg_img:
+                egg_img=egg_img.convert('RGB').resize(size,Image.Resampling.LANCZOS)
+                result=io.BytesIO();egg_img.save(result,format='PNG');result.seek(0)
+                return result
+    character=_character_asset(root,stage,str(pet.get('color','bleu')),mood)
     if character.is_file():
         layer=Image.open(character).convert('RGBA')
         layer.thumbnail((int(size[0]*.37),int(size[1]*.68)),Image.Resampling.LANCZOS)
@@ -168,11 +205,7 @@ def compose_walk(pet, code, stage='nouveau_ne', mood='heureux', size=(1280,720))
     canvas=Image.open(base).convert('RGBA').resize(size,Image.Resampling.LANCZOS)
     color=str(pet.get('color','bleu'))
     if color not in PALETTE:raise ValueError('Unknown color')
-    moods={'besoin':'besoin','endormi':'endormi','heureux':'heureux','calme':'heureux'}
-    mood=moods.get(mood,'heureux')
-    asset=Path(__file__).resolve().parent.parent/'data'/'nox_junior'/'characters'/f'{stage}_{color}_{mood}.png'
-    if not asset.is_file():
-        asset=Path(__file__).resolve().parent.parent/'data'/'nox_junior'/'characters'/f'{stage}_{color}_heureux.png'
+    asset=_character_asset(Path(__file__).resolve().parent.parent/'data'/'nox_junior',stage,color,mood)
     if asset.is_file():
         layer=Image.open(asset).convert('RGBA')
         layer.thumbnail((int(size[0]*.35),int(size[1]*.68)),Image.Resampling.LANCZOS)
