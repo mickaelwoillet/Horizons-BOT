@@ -21,6 +21,8 @@ PARIS = ZoneInfo('Europe/Paris')
 CATALOG = Path(DATA_DIR) / 'nox' / 'dialogues_vie.json'
 IMAGE_CATALOG = Path(DATA_DIR) / 'nox' / 'publications_illustrees.json'
 IMAGE_DIR = Path(DATA_DIR) / 'nox_tv'
+# Illustrations remplacées et validées pour la rotation quotidienne.
+UNSUITABLE_SCENES = frozenset()
 EXTRA_CATALOG = Path(DATA_DIR) / 'nox' / 'dialogues_participatifs.json'
 # Six illustrated and six text-only appointments, each with a distinct editorial purpose.
 SLOT_THEMES = (
@@ -94,10 +96,19 @@ def choose_dialogue(dialogues, recent_ids, categories=None):
 
 # Boutons persistants pour les six rendez-vous illustrés (webhook NOX).
 # Les choix ne génèrent aucune poussière et ne créent pas de message public.
+# Les choix sont liés à la scène, y compris après un redémarrage.
 SCENE_REACTIONS = {
+    'tartine_maire': ('🗳️ Voter tartine', '🍓 Proposer une loi', '😂 Contester'),
+    'nox_explorateur': ('🧭 Explorer', '🎒 Préparer le sac', '🔭 Observer'),
+    'paradoxe': ('🍪 Voter goûter', '⏰ Régler l’horloge', '😂 Taquiner NOX'),
+    'nox_betise_apesanteur': ('🛰️ Rattraper', '🐾 Aider NOX', '🤫 Garder le secret'),
+    'planete': ('🔎 Enquêter', '🚀 Rechercher', '📡 Envoyer un signal'),
+    'sommeil': ('😴 Accorder une sieste', '☕ Réveiller NOX', '🗳️ Voter'),
+    'chaussettes': ('🧦 Suivre le portail', '🧭 Explorer', '🛟 Secourir NOX'),
     'grillepain': ('🤝 Négocier', '🍞 Soutenir les tartines', '🚨 Appeler NOX'),
     'ascenseur': ('🕰️ Chercher aujourd’hui', '⏳ Voyager hier', '🚀 Visiter demain'),
 }
+SCENE_REACTIONS.update({'chaussettes': ('🧦 Suivre le portail', '🧭 Explorer', '🛟 Secourir NOX'), 'sommeil': ('😴 Accorder une sieste', '☕ Réveiller NOX', '🗳️ Voter'), 'ballon': ('⚽ Jouer', '🏆 Arbitrer', '😂 Encourager'), 'canard': ('🏁 Faire la course', '🦆 Soutenir Coincoin', '🍪 Offrir un biscuit'), 'grillepain': ('🤝 Négocier', '🍞 Soutenir les tartines', '🚨 Appeler NOX'), 'paradoxe': ('🍪 Voter goûter', '⏰ Régler l’horloge', '😂 Taquiner NOX'), 'experience': ('🧪 Tester', '🛡️ Se protéger', '😂 Observer'), 'planete': ('🔎 Enquêter', '🚀 Rechercher', '📡 Envoyer un signal'), 'coincoin': ('🎤 Écouter', '🍞 Offrir des miettes', '❓ Questionner'), 'faim': ('🍪 Nourrir NOX', '🥛 Offrir du lait', '💙 Le câliner'), 'reveil': ('⏰ Réveiller', '🌙 Laisser dormir', '🧭 Chercher l’heure'), 'canard_attaque': ('🛡️ Se protéger', '🦆 Négocier', '😂 Riposter en plumes'), 'coincoin_couronne': ('👑 Couronner', '🍪 Offrir un tribut', '🗳️ Voter'), 'experience_547': ('🧪 Tester la fiole', '🛡️ Se cacher', '📋 Prendre des notes'), 'fiole_rebelle': ('🧪 Rattraper', '💬 Négocier', '😂 Encourager'), 'pluie_bulles': ('🫧 Attraper une bulle', '🌈 Se promener', '📸 Photographier'), 'grillepain_alerte': ('🚨 Enquêter', '🍞 Sauver la tartine', '😂 Rassurer'), 'tartine_maire': ('🗳️ Voter tartine', '🍓 Proposer une loi', '😂 Contester'), 'madame_paradoxe': ('⏳ Voyager', '❓ Questionner', '🎁 Ouvrir la surprise'), 'conseil_panique': ('🍪 Défendre les biscuits', '📜 Débattre', '😂 Rassurer'), 'dort_reunion': ('😴 Chuchoter', '📜 Rédiger le compte rendu', '☕ Réveiller'), 'nox_faim': ('🍪 Donner un biscuit', '🍎 Préparer un repas', '💙 Encourager'), 'ascenseur_temporel': ('🕰️ Revenir hier', '🚀 Aller demain', '🛗 Appeler au secours'), 'mardi_25': ('📆 Vérifier la date', '⏰ Régler l’horloge', '😂 Rire du paradoxe'), 'nox_tresor_cristaux': ('💎 Examiner', '🗝️ Ouvrir', '🧭 Chercher l’origine'), 'nox_explorateur': ('🧭 Explorer', '🎒 Préparer le sac', '🔭 Observer'), 'nox_buffet_cosmique': ('🍰 Goûter', '🧪 Vérifier', '😂 Taquiner'), 'nox_betise_apesanteur': ('🛰️ Rattraper', '🐾 Aider NOX', '🤫 Garder le secret'), 'nox_astronaute': ('🚀 Décoller', '🪐 Nommer la planète', '🔭 Observer'), 'nox_oups_biscuits': ('🔎 Enquêter', '🍪 Ramasser', '🤫 Garder le secret'), 'nox_donut_galactique': ('🍩 Partager', '📏 Mesurer', '😂 Goûter'), 'nox_refuge_coussins': ('🛏️ Installer un coussin', '💙 Se reposer', '🌟 Remercier'), 'nox_pluie_etoiles': ('🌠 Faire un vœu', '🔭 Observer', '💫 Compter les étoiles'), 'nox_sieste_lune': ('😴 Laisser dormir', '🌙 Monter la garde', '💙 Border NOX'), 'nox_anniversaire': ('🎂 Souffler les bougies', '🎁 Offrir un cadeau', '🎉 Fêter'), 'nox_tv_animation': ('🎤 Passer à l’antenne', '🎬 Choisir un défi', '😂 Applaudir'), 'nox_boudeur': ('🍪 Réconcilier', '💙 Faire un câlin', '😂 Plaisanter'), 'nox_bonne_nuit_40': ('🌙 Dire bonne nuit', '✨ Veiller', '💙 Envoyer un câlin'), 'nox_agora_40': ('🎤 Donner son avis', '👂 Écouter', '🤝 Trouver un accord'), 'nox_question_40': ('🪐 Choisir une planète', '🚀 Imaginer un voyage', '🔭 Explorer'), 'nox_jeu_40': ('🎮 Rejoindre le jeu', '✨ Attraper l’orbe', '🏆 Encourager'), 'nox_soif_40': ('💧 Boire', '🌠 Remplir la gourde', '💙 Partager'), 'nox_reconfort_41': ('💙 Faire un câlin', '🌟 Envoyer du soutien', '👂 Écouter'), 'nox_joie_41': ('✨ Partager la joie', '🎉 Danser', '💙 Sourire'), 'nox_inquietude_41': ('🌀 Examiner le portail', '🐾 Rassurer NOX', '🧭 Explorer'), 'scene_petite_faim_42': ('🍪 Chercher les biscuits', '☄️ Interroger la météorite', '😂 Taquiner'), 'scene_mission_42': ('🗺️ Lire la carte', '🚀 Partir', '🔭 Repérer la planète'), 'scene_anniversaire_42': ('🎁 Ouvrir la boîte', '🎂 Partager le gâteau', '🎉 Fêter'), 'scene_question_42': ('🌟 Imaginer', '📆 Proposer un congé', '😂 Répondre'), 'scene_bonne_nuit_42': ('🌙 Dire bonne nuit', '💙 Border NOX', '✨ Veiller')})
 DEFAULT_REACTIONS = ('💜 Encourager NOX', '✨ Participer', '😂 En rire')
 
 
@@ -106,10 +117,13 @@ def scene_reactions(scene_id):
 
 
 class IllustratedReactionButton(discord.ui.Button):
-    def __init__(self, choice):
-        super().__init__(label=DEFAULT_REACTIONS[choice], style=discord.ButtonStyle.secondary,
-                         custom_id=f'horizons:nox:illustre:{choice}')
+    def __init__(self, choice, scene_id=None):
+        # Les anciens messages conservent leurs identifiants historiques.
+        key = f'horizons:nox:illustre:{scene_id}:{choice}' if scene_id else f'horizons:nox:illustre:{choice}'
+        super().__init__(label=scene_reactions(scene_id)[choice], style=discord.ButtonStyle.secondary,
+                         custom_id=key)
         self.choice = choice
+        self.scene_id = scene_id
 
     async def callback(self, interaction: discord.Interaction):
         if not interaction.guild_id or not interaction.message:
@@ -124,6 +138,9 @@ class IllustratedReactionButton(discord.ui.Button):
                 await interaction.response.send_message('Cette publication ne possède pas de vote actif.', ephemeral=True)
                 return
             scene_id = row['dialogue_id'][6:]
+            if self.scene_id is not None and scene_id != self.scene_id:
+                await interaction.response.send_message('Ce bouton ne correspond pas à cette histoire.', ephemeral=True)
+                return
             con.execute('''INSERT INTO nox_daily_illustrated_votes(guild_id,message_id,user_id,choice)
                 VALUES(?,?,?,?) ON CONFLICT(guild_id,message_id,user_id)
                 DO UPDATE SET choice=excluded.choice''',
@@ -137,7 +154,7 @@ class IllustratedReactionButton(discord.ui.Button):
                     totals[choice] = count
         label = scene_reactions(scene_id)[self.choice]
         await interaction.response.send_message(
-            f'🐉 NOX a reçu ta réaction : **{label}** !\n'
+            f'🐾 NOX a reçu ton choix : **{label}** !\n'
             f'Votes : {totals[0]} · {totals[1]} · {totals[2]}. Tu peux changer ton choix.',
             ephemeral=True)
 
@@ -145,17 +162,22 @@ class IllustratedReactionButton(discord.ui.Button):
 class IllustratedReactionView(discord.ui.View):
     def __init__(self, scene_id=None):
         super().__init__(timeout=None)
-        labels = scene_reactions(scene_id)
         for index in range(3):
-            button = IllustratedReactionButton(index)
-            button.label = labels[index]
-            self.add_item(button)
+            self.add_item(IllustratedReactionButton(index, scene_id))
 
 
 class NoxDaily12(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        bot.add_view(IllustratedReactionView())
+        bot.add_view(IllustratedReactionView())  # Compatibilité des anciens messages
+        # Enregistrer toutes les vues spécifiques pour les boutons persistants.
+        try:
+            scenes = json.loads(IMAGE_CATALOG.read_text(encoding='utf-8'))
+            for scene in scenes:
+                if isinstance(scene, dict) and isinstance(scene.get('id'), str) and len(scene['id']) < 60:
+                    bot.add_view(IllustratedReactionView(scene['id']))
+        except (OSError, ValueError):
+            LOG.exception('Enregistrement des boutons NOX impossible')
         self.daily_loop.start()
 
     def cog_unload(self):
@@ -207,6 +229,7 @@ class NoxDaily12(commands.Cog):
             image_scenes = json.loads(IMAGE_CATALOG.read_text(encoding='utf-8'))
             image_scenes = [scene for scene in image_scenes if
                 isinstance(scene, dict) and isinstance(scene.get('id'), str)
+                and scene['id'] not in UNSUITABLE_SCENES
                 and isinstance(scene.get('texte'), str)
                 and isinstance(scene.get('image'), str)
                 and (IMAGE_DIR / Path(scene['image']).name).is_file()]

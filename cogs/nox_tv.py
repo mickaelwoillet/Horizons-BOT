@@ -654,13 +654,26 @@ class NoxTV(commands.Cog):
                 WHERE guild_id=? AND message_id>0
                 ORDER BY day DESC LIMIT 2''',(guild.id,))]
             choices=[x for x in items if x['id'] not in recent] or items
+            # Une exploration garantie au moins une fois tous les quatre cycles
+            # automatiques, sans modifier la sélection manuelle.
+            if not manual and visual_id is None:
+                count = db.execute('SELECT COUNT(*) FROM noxtv_posts WHERE guild_id=? AND message_id>0', (guild.id,)).fetchone()[0]
+                if count % 4 == 0:
+                    exploration_items = [x for x in choices if x.get('kind') == 'exploration']
+                    if exploration_items:
+                        choices = exploration_items
             if visual_id is not None:
                 item=next((x for x in items if x['id'] == visual_id), None)
                 if item is None:
                     return 'Visuel inconnu : consulte /noxtv catalogue.'
             else:
                 item=choose_visual(choices, [], nox_mood(guild.id))
-            # Respecter le salon configuré, sauf choix manuel explicite.
+            # La rotation automatique utilise le salon propre au type de scène.
+            # Les publications manuelles conservent un éventuel salon explicitement choisi.
+            if not manual:
+                channel_id = channel_for_kind(item.get('kind'))
+            elif channel_override is None:
+                channel_id = channel_for_kind(item.get('kind')) or channel_id
             if not channel_id:
                 return 'Salon de destination non configuré.'
             if not manual:
