@@ -137,6 +137,10 @@ def connect(path):
     CREATE TABLE IF NOT EXISTS junior_grants (
       guild_id INTEGER NOT NULL, owner_id INTEGER NOT NULL, granted_by INTEGER NOT NULL,
       created_at REAL NOT NULL, PRIMARY KEY(guild_id,owner_id));
+    CREATE TABLE IF NOT EXISTS junior_care_cycles (
+      pet_id INTEGER PRIMARY KEY, actions TEXT NOT NULL DEFAULT '',
+      cooldown_until REAL NOT NULL DEFAULT 0
+    );
     CREATE TABLE IF NOT EXISTS junior_events (
       id INTEGER PRIMARY KEY AUTOINCREMENT, pet_id INTEGER NOT NULL REFERENCES junior_pets(id),
       event TEXT NOT NULL, created_at REAL NOT NULL);
@@ -382,7 +386,15 @@ def care(con, pet_id, owner_id, action, now=None, guild_id=None):
         if pet is None:
             raise JuniorError('Compagnon introuvable.')
         rest_remaining = activity_rest_remaining(con, pet_id, now)
-        remaining = rest_remaining or (max(0, 20-(now-pet['last_care'])) if pet['last_care'] else 0)
+        cycle = con.execute('SELECT actions,cooldown_until FROM junior_care_cycles WHERE pet_id=?',(pet_id,)).fetchone()
+        if cycle and cycle['cooldown_until'] > 0 and now >= cycle['cooldown_until']:
+            con.execute('UPDATE junior_care_cycles SET actions=?,cooldown_until=0 WHERE pet_id=?',('',pet_id))
+            cycle = None
+        completed_actions = set(filter(None,(cycle['actions'] if cycle else '').split(',')))
+        cooldown = max(0,cycle['cooldown_until']-now) if cycle else 0
+        remaining = rest_remaining or cooldown
+        if not remaining and action in completed_actions:
+            raise JuniorError('💜 Ce soin est déjà fait dans ce cycle. Effectue les autres soins avant la pause de 10 minutes.')
         if remaining > 0:
             con.rollback()
             return int(remaining)
@@ -395,6 +407,12 @@ def care(con, pet_id, owner_id, action, now=None, guild_id=None):
         stat, value = CARE[action]
         con.execute(f'UPDATE junior_pets SET {stat}=MIN(100,{stat}+?), bond=bond+2, activities=activities+1, last_care=?,updated_at=? WHERE id=?', (value,now,now,pet_id))
         con.execute('INSERT INTO junior_events(pet_id,event,created_at) VALUES (?,?,?)', (pet_id,'soin:'+action,now))
+        completed_actions.add(action)
+        # Six different cares per cycle, then one shared ten-minute pause.
+        next_cooldown = now + 600 if len(completed_actions) == len(CARE) else 0
+        con.execute('INSERT INTO junior_care_cycles(pet_id,actions,cooldown_until) VALUES(?,?,?) '
+                    'ON CONFLICT(pet_id) DO UPDATE SET actions=excluded.actions,cooldown_until=excluded.cooldown_until',
+                    (pet_id,','.join(sorted(completed_actions)),next_cooldown))
         con.execute('INSERT OR IGNORE INTO junior_star_wallet(pet_id) VALUES(?)',(pet_id,))
         con.execute('INSERT INTO junior_daily_care(pet_id,care_date,count) VALUES(?,?,1) ON CONFLICT(pet_id,care_date) DO UPDATE SET count=count+1', (pet_id,care_day))
         # Only care #10 and #20 of each UTC day yield a star dust; #21-40 remain effective.

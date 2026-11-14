@@ -179,7 +179,7 @@ def compose_room(pet, stage='bebe', mood='calme', theme=None, decorations=(), si
         with Image.open(character) as source:
             # Baby illustrations already include their own complete galactic
             # backgrounds: display them without shrinking into a small rectangle.
-            if source.mode != 'RGBA' or source.getextrema()[3][0] == 255:
+            if (not theme or not decorations) and (source.mode != 'RGBA' or source.getextrema()[3][0] == 255):
                 result=io.BytesIO()
                 source.convert('RGB').resize(size,Image.Resampling.LANCZOS).save(result,format='PNG')
                 result.seek(0)
@@ -197,20 +197,6 @@ def compose_room(pet, stage='bebe', mood='calme', theme=None, decorations=(), si
             r=rng.choice((1,1,1,2,2,3))
             draw.ellipse((x-r,y-r,x+r,y+r),fill=(110,150,218,235))
         draw.ellipse((int(size[0]*.22),int(size[1]*.83),int(size[0]*.78),int(size[1]*.93)),fill=(30,42,85,255))
-    # Chaque emplacement est indépendant ; couchage sous le personnage.
-    from . import nox_junior_engine as economy
-    slot_items = decorations.items() if isinstance(decorations,dict) else ((economy.DECOR_SLOTS.get(code),code) for code in decorations)
-    for slot,code in slot_items:
-        if slot not in economy.SLOT_POSITIONS or code not in economy.DECOR_SLOTS or economy.DECOR_SLOTS[code]!=slot: continue
-        asset=_asset_image(root/'decorations'/f'{code}.webp')
-        if not asset.is_file(): continue
-        layer=Image.open(asset).convert('RGBA')
-        if slot=='couchage': max_w,max_h=.36,.19
-        elif slot=='sol_centre': max_w,max_h=.45,.18
-        else: max_w,max_h=.17,.24
-        layer.thumbnail((int(size[0]*max_w),int(size[1]*max_h)),Image.Resampling.LANCZOS)
-        x,y=economy.SLOT_POSITIONS[slot]
-        canvas.alpha_composite(layer,(max(0,min(size[0]-layer.width,int(x*size[0]-layer.width/2))),max(0,min(size[1]-layer.height,int(y*size[1]-layer.height/2)))))
     if stage=='oeuf':
         egg=_asset_image(root/'eggs'/f"{pet.get('color','bleu')}.webp")
         if egg.is_file():
@@ -227,13 +213,38 @@ def compose_room(pet, stage='bebe', mood='calme', theme=None, decorations=(), si
     elif stage not in ('adolescent','adulte'):
         # Missing asset: do not pretend another life stage is the correct one.
         return render(pet,stage=stage,mood=mood,theme='cosmos',size=(760,440))
+    # Chaque emplacement est indépendant ; couchage sous le personnage.
+    from . import nox_junior_engine as economy
+    slot_items = decorations.items() if isinstance(decorations,dict) else ((economy.DECOR_SLOTS.get(code),code) for code in decorations)
+    for slot,code in slot_items:
+        if slot not in economy.SLOT_POSITIONS or code not in economy.DECOR_SLOTS or economy.DECOR_SLOTS[code]!=slot: continue
+        asset=_asset_image(root/'decorations'/f'{code}.webp')
+        if not asset.is_file():
+            # Existing shop items have no supplied artwork. Show a legible
+            # in-room item marker instead of silently omitting the purchase.
+            from PIL import ImageDraw, ImageFont
+            label = economy.SHOP.get(code, (code.replace('_',' ').title(),))[0]
+            layer=Image.new('RGBA',(260,82),(0,0,0,0))
+            badge=ImageDraw.Draw(layer)
+            badge.rounded_rectangle((2,2,258,80),radius=18,fill=(21,24,66,225),outline=(242,192,89,255),width=3)
+            try: font=ImageFont.truetype('DejaVuSans.ttf',16)
+            except OSError: font=ImageFont.load_default()
+            badge.text((13,28),label[:24],font=font,fill=(255,234,184,255))
+        else:
+            layer=Image.open(asset).convert('RGBA')
+        if slot=='couchage': max_w,max_h=.36,.19
+        elif slot=='sol_centre': max_w,max_h=.45,.18
+        else: max_w,max_h=.17,.24
+        layer.thumbnail((int(size[0]*max_w),int(size[1]*max_h)),Image.Resampling.LANCZOS)
+        x,y=economy.SLOT_POSITIONS[slot]
+        canvas.alpha_composite(layer,(max(0,min(size[0]-layer.width,int(x*size[0]-layer.width/2))),max(0,min(size[1]-layer.height,int(y*size[1]-layer.height/2)))))
     out=io.BytesIO();canvas.convert('RGB').save(out,format='PNG');out.seek(0);return out
 
 
 def compose_walk(pet, code, stage='nouveau_ne', mood='heureux', size=(1280,720)):
     """Return PNG with the member's own NOX over the matching story landscape."""
     from PIL import Image, ImageEnhance
-    base=_asset_image(Path(__file__).resolve().parent.parent/'assets'/'nox_junior'/'walks'/f'{code}.webp')
+    base=_asset_image(Path(__file__).resolve().parent.parent/'data'/'nox_junior'/'walks'/f'{code}.webp')
     if code not in ('prairie','etoiles','plage','jardin','foret','automne','hiver') or not base.is_file():
         raise ValueError('Unknown walk background')
     canvas=Image.open(base).convert('RGBA').resize(size,Image.Resampling.LANCZOS)

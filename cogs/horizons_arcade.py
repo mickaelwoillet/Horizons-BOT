@@ -26,7 +26,9 @@ ARCADE_QUIZ = [
  {"q":"Quelle est la langue officielle du Brésil ?","a":"portugais","choices":["Espagnol","Portugais","Français","Anglais"]},
  {"q":"Combien de couleurs compte traditionnellement l'arc-en-ciel ?","a":"7","choices":["5","6","7","8"]},
 ]
+ARCADE_QUIZ.extend([{'q': 'Quel astre est au centre de notre système solaire ?', 'a': 'soleil', 'choices': ['Soleil', 'Lune', 'Jupiter', 'Sirius']}, {'q': 'Quelle planète est surnommée la planète rouge ?', 'a': 'mars', 'choices': ['Mars', 'Neptune', 'Vénus', 'Saturne']}, {'q': 'Combien de jours compte une année bissextile ?', 'a': '366', 'choices': ['364', '365', '366', '367']}, {'q': 'Quelle est la capitale de la Belgique ?', 'a': 'bruxelles', 'choices': ['Bruxelles', 'Bruges', 'Liège', 'Anvers']}, {'q': 'Quel animal est le plus grand mammifère vivant ?', 'a': 'baleine bleue', 'choices': ['Éléphant', 'Baleine bleue', 'Girafe', 'Orque']}, {'q': 'Quelle est la capitale de l’Italie ?', 'a': 'rome', 'choices': ['Milan', 'Venise', 'Rome', 'Naples']}, {'q': 'Combien de côtés a un octogone ?', 'a': '8', 'choices': ['6', '7', '8', '10']}, {'q': 'Quel est le symbole chimique de l’eau ?', 'a': 'h2o', 'choices': ['CO2', 'H2O', 'O2', 'NaCl']}, {'q': 'Quel instrument mesure la température ?', 'a': 'thermometre', 'choices': ['Baromètre', 'Thermomètre', 'Boussole', 'Altimètre']}, {'q': 'Quel peintre a réalisé La Joconde ?', 'a': 'leonard de vinci', 'choices': ['Claude Monet', 'Léonard de Vinci', 'Pablo Picasso', 'Vincent van Gogh']}, {'q': 'Quel fleuve traverse Paris ?', 'a': 'seine', 'choices': ['Loire', 'Rhône', 'Seine', 'Garonne']}, {'q': 'Combien de pattes possède une araignée ?', 'a': '8', 'choices': ['6', '8', '10', '12']}, {'q': 'Quel est le plus vaste océan du globe ?', 'a': 'pacifique', 'choices': ['Indien', 'Arctique', 'Atlantique', 'Pacifique']}, {'q': 'Quelle planète est la plus proche du Soleil ?', 'a': 'mercure', 'choices': ['Mars', 'Mercure', 'Terre', 'Vénus']}, {'q': 'Dans quel pays se trouve la ville de Kyoto ?', 'a': 'japon', 'choices': ['Japon', 'Chine', 'Vietnam', 'Thaïlande']}, {'q': 'Quel gaz est majoritaire dans l’atmosphère terrestre ?', 'a': 'azote', 'choices': ['Oxygène', 'Hydrogène', 'Azote', 'Hélium']}, {'q': 'Quelle est la capitale du Canada ?', 'a': 'ottawa', 'choices': ['Toronto', 'Vancouver', 'Ottawa', 'Montréal']}, {'q': 'Combien font 12 × 12 ?', 'a': '144', 'choices': ['124', '132', '144', '154']}, {'q': 'Quelle est la monnaie officielle du Japon ?', 'a': 'yen', 'choices': ['Won', 'Yuan', 'Yen', 'Dollar']}, {'q': 'Qui a écrit Les Misérables ?', 'a': 'victor hugo', 'choices': ['Émile Zola', 'Victor Hugo', 'Molière', 'Jules Verne']}, {'q': 'Combien de cordes a généralement une guitare classique ?', 'a': '6', 'choices': ['4', '5', '6', '8']}, {'q': 'Quel organe pompe le sang ?', 'a': 'coeur', 'choices': ['Poumon', 'Cœur', 'Foie', 'Rein']}, {'q': 'Quel continent abrite le désert du Sahara ?', 'a': 'afrique', 'choices': ['Asie', 'Afrique', 'Europe', 'Océanie']}, {'q': 'Quel sport utilise un volant ?', 'a': 'badminton', 'choices': ['Tennis', 'Badminton', 'Handball', 'Volley-ball']}, {'q': 'Quelle couleur obtient-on en mélangeant du bleu et du jaune en peinture ?', 'a': 'vert', 'choices': ['Orange', 'Violet', 'Vert', 'Rose']}, {'q': 'Combien de minutes y a-t-il dans deux heures ?', 'a': '120', 'choices': ['90', '100', '120', '150']}, {'q': 'Quel est le satellite naturel de la Terre ?', 'a': 'lune', 'choices': ['Mars', 'Lune', 'Titan', 'Europe']}, {'q': 'Dans quel pays se trouve la ville de Lisbonne ?', 'a': 'portugal', 'choices': ['Espagne', 'Portugal', 'Italie', 'Grèce']}, {'q': 'Quel métal a pour symbole Fe ?', 'a': 'fer', 'choices': ['Fer', 'Fluor', 'Argent', 'Étain']}, {'q': 'Quelle est la capitale de la Norvège ?', 'a': 'oslo', 'choices': ['Oslo', 'Stockholm', 'Helsinki', 'Copenhague']}])
 ANAGRAMS = [("CHIEN","NICHE"),("IMAGE","MAGIE"),("MARIE","AIMER"),("TRACE","CARTE"),("RAME","MARE"),("LAME","MALE"),("GARE","RAGE"),("PARE","RAPE"),("SOIN","IONS"),("NAGE","ANGE")]
+ANAGRAMS.extend([('GALAXIE', 'GALAXIE'), ('PLANETE', 'PLANETE'), ('ETOILE', 'ETOILE'), ('COMETE', 'COMETE'), ('ASTRE', 'ASTRE'), ('LUMIERE', 'LUMIERE'), ('COSMOS', 'COSMOS'), ('DRAGON', 'DRAGON'), ('CRISTAL', 'CRISTAL'), ('MAGIQUE', 'MAGIQUE'), ('HORIZON', 'HORIZON'), ('BISCUIT', 'BISCUIT'), ('MYSTERE', 'MYSTERE'), ('JARDIN', 'JARDIN'), ('SOURIRE', 'SOURIRE'), ('VOYAGE', 'VOYAGE'), ('AMITIE', 'AMITIE'), ('TRESOR', 'TRESOR'), ('NUAGE', 'NUAGE'), ('PORTAIL', 'PORTAIL'), ('CHATEAU', 'CHATEAU'), ('FUSEE', 'FUSEE'), ('ANNEAU', 'ANNEAU'), ('ORANGE', 'ORANGE'), ('VIOLET', 'VIOLET'), ('SAPHIR', 'SAPHIR'), ('LANTERNE', 'LANTERNE'), ('PAPILLON', 'PAPILLON'), ('MELODIE', 'MELODIE'), ('LIBERTE', 'LIBERTE'), ('SOLIDAIRE', 'SOLIDAIRE'), ('PARTAGE', 'PARTAGE'), ('RENCONTRE', 'RENCONTRE'), ('AVENTURE', 'AVENTURE'), ('ENIGME', 'ENIGME'), ('ARCADE', 'ARCADE'), ('SOLEIL', 'SOLEIL'), ('LUNE', 'LUNE'), ('NEBULEUSE', 'NEBULEUSE'), ('CONSTELLATION', 'CONSTELLATION')])
 RIDDLES = [
  ("Je peux être pleine ou nouvelle, mais je ne suis jamais vide de lumière. Qui suis-je ?","lune"),
  ("Plus je sèche, plus je deviens mouillée. Qui suis-je ?","serviette"),
@@ -37,6 +39,24 @@ RIDDLES = [
  ("J'ai des aiguilles mais je ne couds pas. Qui suis-je ?","horloge"),
  ("Je réponds sans parler et je répète sans comprendre. Qui suis-je ?","echo"),
 ]
+import collections
+
+# Variété Arcade : tirage sans répétition immédiate pour chaque type de question.
+_RECENT_ARCADE = {}
+
+def _arcade_choice(pool, category):
+    recent = _RECENT_ARCADE.setdefault(category, collections.deque(maxlen=min(12, max(1, len(pool) // 2))))
+    choices = [item for i, item in enumerate(pool) if i not in recent]
+    if not choices:
+        recent.clear()
+        choices = list(pool)
+    selected = random.choice(choices)
+    index = next(i for i, item in enumerate(pool) if item is selected)
+    recent.append(index)
+    return selected
+
+RIDDLES.extend([('Je possède des touches mais je n’ouvre aucune porte. Qui suis-je ?', 'piano'), ('Je suis plein de trous, pourtant je retiens l’eau. Qui suis-je ?', 'eponge'), ('Plus on m’enlève, plus je grandis. Qui suis-je ?', 'trou'), ('Je suis léger comme une plume, mais personne ne peut me retenir longtemps. Qui suis-je ?', 'souffle'), ('J’ai un cou, mais pas de tête. Qui suis-je ?', 'bouteille'), ('Je cours sans jambes et j’ai un lit sans dormir. Qui suis-je ?', 'riviere'), ('Je monte et je descends sans bouger de ma place. Qui suis-je ?', 'escalier'), ('J’ai des dents, mais je ne mords jamais. Qui suis-je ?', 'peigne'), ('Je peux être ouvert ou fermé, mais je ne suis pas une porte. Je raconte des histoires. Qui suis-je ?', 'livre'), ('Je disparais dès qu’on prononce mon nom. Qui suis-je ?', 'silence'), ('Je suis toujours à venir et jamais arrivé. Qui suis-je ?', 'demain'), ('J’ai des villes, des routes et des rivières, mais aucun habitant. Qui suis-je ?', 'carte'), ('Je peux faire le tour du monde sans quitter mon coin. Qui suis-je ?', 'timbre'), ('Je suis blanc quand je suis sale et noir quand je suis propre. Qui suis-je ?', 'tableau'), ('On me trouve une fois dans minute, deux fois dans moment et jamais dans heure. Qui suis-je ?', 'm'), ('Je n’ai pas de bouche, mais je peux siffler dans les arbres. Qui suis-je ?', 'vent')])
+
 DAILY_CAP = 60
 
 
@@ -497,13 +517,13 @@ class HorizonsArcade(commands.Cog):
 
     async def quizjeu(self, interaction: discord.Interaction):
         if not await self.require_arcade_channel(interaction): return
-        item = random.choice(ARCADE_QUIZ)
+        item = _arcade_choice(ARCADE_QUIZ, "quiz")
         embed = horizons_embed(title="🧠 Quiz de l'Arcade", description=f"{item['q']}\n\n" + "\n".join(f"**{i+1}.** {v}" for i,v in enumerate(item['choices'])) + "\n\nChaque membre peut tenter sa chance : une bonne réponse rapporte des XP Célestes.")
         await interaction.response.send_message(embed=embed, view=AnswerView(self,interaction.user.id,"quizjeu", "Ta réponse",item['a'],10,True))
 
     async def anagramme(self, interaction: discord.Interaction):
         if not await self.require_arcade_channel(interaction): return
-        _, solution = random.choice(ANAGRAMS)
+        _, solution = _arcade_choice(ANAGRAMS, "anagramme")
         letters = list(solution.upper()); random.shuffle(letters)
         while "".join(letters) == solution.upper(): random.shuffle(letters)
         embed = horizons_embed(title="🔤 L'anagramme", description=f"Remets ces lettres dans l'ordre :\n\n# {' · '.join(letters)}")
@@ -511,7 +531,7 @@ class HorizonsArcade(commands.Cog):
 
     async def enigme(self, interaction: discord.Interaction):
         if not await self.require_arcade_channel(interaction): return
-        question, solution = random.choice(RIDDLES)
+        question, solution = _arcade_choice(RIDDLES, "enigme")
         await interaction.response.send_message(embed=horizons_embed(title="🧩 Énigme de l'Arcade", description=question), view=AnswerView(self,interaction.user.id,"enigme","Ta réponse",solution,10),ephemeral=True)
 
     async def reflexe(self, interaction: discord.Interaction):
@@ -527,14 +547,14 @@ class HorizonsArcade(commands.Cog):
         game = jeu.value
         expected = ""; reward = 10
         if game == "quiz":
-            item = random.choice(ARCADE_QUIZ); expected = item["a"]
+            item = _arcade_choice(ARCADE_QUIZ, "quiz"); expected = item["a"]
             details = item["q"] + "\n\n" + "\n".join(f"**{i+1}.** {v}" for i,v in enumerate(item["choices"]))
         elif game == "anagramme":
-            _, expected = random.choice(ANAGRAMS); letters = list(expected.upper()); random.shuffle(letters)
+            _, expected = _arcade_choice(ANAGRAMS, "anagramme"); letters = list(expected.upper()); random.shuffle(letters)
             while "".join(letters) == expected.upper(): random.shuffle(letters)
             details = "Remettez ces lettres dans l'ordre :\n\n# " + " · ".join(letters)
         elif game == "enigme":
-            details, expected = random.choice(RIDDLES)
+            details, expected = _arcade_choice(RIDDLES, "enigme")
         elif game == "nombre":
             expected = str(random.randint(1, 10)); details = "Trouvez le nombre mystère entre **1 et 10**. Chacun propose une réponse."
         elif game == "de": details = "Chaque membre peut lancer le dé une fois. Le résultat est partagé dans le tableau des participants."; reward = 5

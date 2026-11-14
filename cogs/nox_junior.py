@@ -520,18 +520,19 @@ class PromenadeSelect(discord.ui.Select):
         with engine.connect(DB) as con:
             if not con.execute('SELECT 1 FROM junior_pets WHERE id=? AND owner_id=? AND guild_id=?',(self.pet_id,self.owner_id,interaction.guild.id)).fetchone():
                 return await interaction.response.send_message('Compagnon introuvable.',ephemeral=True)
+        await interaction.response.defer()
         session=aventures.start(self.values[0])
         with engine.connect(DB) as con:
             pet=engine.snapshot(con,self.pet_id,self.owner_id,interaction.guild.id)
         if pet is None:
-            return await interaction.response.send_message('Compagnon introuvable.',ephemeral=True)
+            return await interaction.followup.send('Compagnon introuvable.',ephemeral=True)
         stage,_=engine.stage(pet)
         mood,_=engine.mood(pet)
         try:
             picture = discord.File(nox_junior_visual.compose_walk(dict(pet),session['code'],stage=stage,mood=mood),filename='promenade.png')
         except (ValueError,OSError) as exc:
-            return await interaction.response.send_message('Illustration de promenade indisponible.',ephemeral=True)
-        await interaction.response.edit_message(content=None,embed=promenade_embed(session),attachments=[picture],view=PromenadeScene(self.pet_id,self.owner_id,session))
+            return await interaction.followup.send(f'Illustration de promenade indisponible ({type(exc).__name__}).',ephemeral=True)
+        await interaction.edit_original_response(content=None,embed=promenade_embed(session),attachments=[picture],view=PromenadeScene(self.pet_id,self.owner_id,session))
 
 
 class PromenadeMenu(discord.ui.View):
