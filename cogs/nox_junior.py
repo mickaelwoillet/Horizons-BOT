@@ -642,6 +642,22 @@ class GiftInboxView(discord.ui.View):
         super().__init__(timeout=180);self.add_item(GiftInboxSelect(owner_id,gifts))
 
 
+async def refresh_room_after_change(interaction, pet_id, owner_id, view):
+    """Replace the old ephemeral room preview after equipping/changing a theme."""
+    with engine.connect(DB) as con:
+        info = engine.room(con,pet_id,owner_id,interaction.guild.id)
+        pet = engine.snapshot(con,pet_id,owner_id,interaction.guild.id)
+        decos = [r for r in engine.inventory(con,pet_id,owner_id,interaction.guild.id) if r['category']=='decoration']
+    picture = discord.File(baby_portrait(pet,info),filename='chambre_nox.png')
+    embed = discord.Embed(title='🏠 Chambre personnelle',description=(
+        f"Ambiance : **{info['theme'] or 'À choisir après éclosion'}**\n"
+        f"Décorations installées : **{len(info['slots'])}**\n\n✨ Chambre actualisée !"),color=0x7864CC)
+    embed.set_image(url='attachment://chambre_nox.png')
+    # Recreate controls to include newly owned objects and preserve valid selection.
+    new_view = RoomView(pet_id,owner_id,decos)
+    await interaction.response.edit_message(embed=embed,attachments=[picture],view=new_view)
+
+
 class RoomThemeSelect(discord.ui.Select):
     def __init__(self,pet_id,owner_id):
         self.pet_id,self.owner_id=pet_id,owner_id
@@ -651,7 +667,7 @@ class RoomThemeSelect(discord.ui.Select):
         if interaction.user.id!=self.owner_id: return await interaction.response.send_message('Accès refusé.',ephemeral=True)
         try:
             with engine.connect(DB) as con: engine.decorate(con,self.pet_id,self.owner_id,interaction.guild.id,theme=self.values[0])
-            await interaction.response.send_message('🏠 Chambre choisie ! Ton Oreiller douillet exclusif est offert lors du premier choix !',ephemeral=True)
+            await refresh_room_after_change(interaction,self.pet_id,self.owner_id,self.view)
         except engine.JuniorError as exc:
             await interaction.response.send_message(str(exc),ephemeral=True)
 
@@ -666,7 +682,7 @@ class RoomDecorationSelect(discord.ui.Select):
         if interaction.user.id!=self.owner_id: return await interaction.response.send_message('Accès refusé.',ephemeral=True)
         try:
             with engine.connect(DB) as con: engine.decorate(con,self.pet_id,self.owner_id,interaction.guild.id,decoration=self.values[0])
-            await interaction.response.send_message('✨ Décoration installée !',ephemeral=True)
+            await refresh_room_after_change(interaction,self.pet_id,self.owner_id,self.view)
         except engine.JuniorError as exc: await interaction.response.send_message(str(exc),ephemeral=True)
 
 
@@ -681,7 +697,7 @@ class ShopSelect(discord.ui.Select):
             with engine.connect(DB) as con:
                 price=engine.purchase_decoration(con,self.pet_id,self.owner_id,interaction.guild.id,self.values[0])
                 balance=engine.wallet(con,self.pet_id,self.owner_id,interaction.guild.id)['balance']
-            await interaction.response.send_message(f'✨ Décoration achetée et installée ! -{price} poussières. Solde : {balance}.',ephemeral=True)
+            await interaction.response.send_message(f'✨ Décoration achetée et installée ! -{price} poussières. Solde : {balance}. Ouvre à nouveau **🏠 Chambre** pour voir la nouvelle illustration.',ephemeral=True)
         except engine.JuniorError as exc: await interaction.response.send_message(str(exc),ephemeral=True)
 
 

@@ -208,7 +208,7 @@ def compose_room(pet, stage='bebe', mood='calme', theme=None, decorations=(), si
     # Approved decoration assets: distinct positions, realistic sizing, and stable layering.
     # Existing shop IDs, slot ownership, and SQLite inventory are retained.
     from . import nox_junior_engine as economy
-    placements = {'coussin_etoile': (0.5, 0.8, 0.24, 0.19), 'oreiller_douillet': (0.5, 0.78, 0.22, 0.16), 'tapis_constellations': (0.5, 0.89, 0.4, 0.2), 'lampe_lunaire': (0.16, 0.52, 0.15, 0.32), 'mobile_etoiles': (0.5, 0.16, 0.28, 0.26), 'coffre_tresors': (0.84, 0.77, 0.19, 0.28), 'plante_lumineuse': (0.17, 0.83, 0.22, 0.26), 'peluche_mini_nox': (0.3, 0.78, 0.13, 0.2), 'cristal_galactique': (0.79, 0.51, 0.13, 0.24), 'globe_cosmique': (0.87, 0.39, 0.17, 0.38), 'fontaine_magique': (0.91, 0.83, 0.17, 0.31)}
+    placements = {'coussin_etoile': (0.5, 0.885, 0.36, 0.23), 'oreiller_douillet': (0.5, 0.875, 0.32, 0.21), 'tapis_constellations': (0.5, 0.89, 0.4, 0.2), 'lampe_lunaire': (0.16, 0.52, 0.15, 0.32), 'mobile_etoiles': (0.5, 0.16, 0.28, 0.26), 'coffre_tresors': (0.84, 0.77, 0.19, 0.28), 'plante_lumineuse': (0.17, 0.83, 0.22, 0.26), 'peluche_mini_nox': (0.3, 0.78, 0.13, 0.2), 'cristal_galactique': (0.79, 0.51, 0.13, 0.24), 'globe_cosmique': (0.87, 0.39, 0.17, 0.38), 'fontaine_magique': (0.91, 0.83, 0.17, 0.31)}
     equipped = []
     slot_items = decorations.items() if isinstance(decorations,dict) else ((economy.DECOR_SLOTS.get(code),code) for code in decorations)
     for slot,code in slot_items:
@@ -235,6 +235,21 @@ def compose_room(pet, stage='bebe', mood='calme', theme=None, decorations=(), si
             canvas.alpha_composite(layer,((size[0]-layer.width)//2,int(size[1]*.88)-layer.height))
     elif stage not in ('adolescent','adulte'):
         return render(pet,stage=stage,mood=mood,theme='cosmos',size=(760,440))
+    # The front lip of bedding must remain visible beneath the pet.
+    # Redraw only its bottom portion in front of the pet, not the full cushion.
+    for code in equipped:
+        if code in ('coussin_etoile', 'oreiller_douillet'):
+            asset=_asset_image(root/'decorations'/f'{code}.webp')
+            if asset.is_file():
+                with Image.open(asset) as img:
+                    layer=img.convert('RGBA')
+                    x,y,w,h=placements[code]
+                    layer.thumbnail((int(size[0]*w),int(size[1]*h)),Image.Resampling.LANCZOS)
+                    px=max(0,min(size[0]-layer.width,int(x*size[0]-layer.width/2)))
+                    py=max(0,min(size[1]-layer.height,int(y*size[1]-layer.height/2)))
+                    # Only bottom 18%: visible border, never covering face or torso.
+                    strip=int(layer.height*.82)
+                    canvas.alpha_composite(layer.crop((0,strip,layer.width,layer.height)),(px,py+strip))
     # Furniture stands around NOX Junior, never on its face.
     for code in equipped:
         if code not in back: draw_object(code)
