@@ -205,39 +205,39 @@ def compose_room(pet, stage='bebe', mood='calme', theme=None, decorations=(), si
                 egg_img=egg_img.convert('RGB').resize(size,Image.Resampling.LANCZOS)
                 result=io.BytesIO();egg_img.save(result,format='PNG');result.seek(0)
                 return result
+    # Approved decoration assets: distinct positions, realistic sizing, and stable layering.
+    # Existing shop IDs, slot ownership, and SQLite inventory are retained.
+    from . import nox_junior_engine as economy
+    placements = {'coussin_etoile': (0.5, 0.8, 0.24, 0.19), 'oreiller_douillet': (0.5, 0.78, 0.22, 0.16), 'tapis_constellations': (0.5, 0.89, 0.4, 0.2), 'lampe_lunaire': (0.16, 0.52, 0.15, 0.32), 'mobile_etoiles': (0.5, 0.16, 0.28, 0.26), 'coffre_tresors': (0.84, 0.77, 0.19, 0.28), 'plante_lumineuse': (0.17, 0.83, 0.22, 0.26), 'peluche_mini_nox': (0.3, 0.78, 0.13, 0.2), 'cristal_galactique': (0.79, 0.51, 0.13, 0.24), 'globe_cosmique': (0.87, 0.39, 0.17, 0.38), 'fontaine_magique': (0.91, 0.83, 0.17, 0.31)}
+    equipped = []
+    slot_items = decorations.items() if isinstance(decorations,dict) else ((economy.DECOR_SLOTS.get(code),code) for code in decorations)
+    for slot,code in slot_items:
+        if slot in economy.SLOT_POSITIONS and economy.DECOR_SLOTS.get(code)==slot and code in placements:
+            equipped.append(code)
+    def draw_object(code):
+        asset=_asset_image(root/'decorations'/f'{code}.webp')
+        if not asset.is_file(): return
+        with Image.open(asset) as img:
+            layer=img.convert('RGBA')
+            x,y,w,h=placements[code]
+            layer.thumbnail((int(size[0]*w),int(size[1]*h)),Image.Resampling.LANCZOS)
+            px=max(0,min(size[0]-layer.width,int(x*size[0]-layer.width/2)))
+            py=max(0,min(size[1]-layer.height,int(y*size[1]-layer.height/2)))
+            canvas.alpha_composite(layer,(px,py))
+    # Ground objects and bedding are painted first; they must never cover the pet.
+    back={'tapis_constellations','coussin_etoile','oreiller_douillet','mobile_etoiles'}
+    for code in equipped:
+        if code in back: draw_object(code)
     if character.is_file():
         with Image.open(character) as source:
             layer=source.convert('RGBA')
             layer.thumbnail((int(size[0]*.65),int(size[1]*.78)),Image.Resampling.LANCZOS)
             canvas.alpha_composite(layer,((size[0]-layer.width)//2,int(size[1]*.88)-layer.height))
     elif stage not in ('adolescent','adulte'):
-        # Missing asset: do not pretend another life stage is the correct one.
         return render(pet,stage=stage,mood=mood,theme='cosmos',size=(760,440))
-    # Chaque emplacement est indépendant ; couchage sous le personnage.
-    from . import nox_junior_engine as economy
-    slot_items = decorations.items() if isinstance(decorations,dict) else ((economy.DECOR_SLOTS.get(code),code) for code in decorations)
-    for slot,code in slot_items:
-        if slot not in economy.SLOT_POSITIONS or code not in economy.DECOR_SLOTS or economy.DECOR_SLOTS[code]!=slot: continue
-        asset=_asset_image(root/'decorations'/f'{code}.webp')
-        if not asset.is_file():
-            # Existing shop items have no supplied artwork. Show a legible
-            # in-room item marker instead of silently omitting the purchase.
-            from PIL import ImageDraw, ImageFont
-            label = economy.SHOP.get(code, (code.replace('_',' ').title(),))[0]
-            layer=Image.new('RGBA',(260,82),(0,0,0,0))
-            badge=ImageDraw.Draw(layer)
-            badge.rounded_rectangle((2,2,258,80),radius=18,fill=(21,24,66,225),outline=(242,192,89,255),width=3)
-            try: font=ImageFont.truetype('DejaVuSans.ttf',16)
-            except OSError: font=ImageFont.load_default()
-            badge.text((13,28),label[:24],font=font,fill=(255,234,184,255))
-        else:
-            layer=Image.open(asset).convert('RGBA')
-        if slot=='couchage': max_w,max_h=.36,.19
-        elif slot=='sol_centre': max_w,max_h=.45,.18
-        else: max_w,max_h=.17,.24
-        layer.thumbnail((int(size[0]*max_w),int(size[1]*max_h)),Image.Resampling.LANCZOS)
-        x,y=economy.SLOT_POSITIONS[slot]
-        canvas.alpha_composite(layer,(max(0,min(size[0]-layer.width,int(x*size[0]-layer.width/2))),max(0,min(size[1]-layer.height,int(y*size[1]-layer.height/2)))))
+    # Furniture stands around NOX Junior, never on its face.
+    for code in equipped:
+        if code not in back: draw_object(code)
     out=io.BytesIO();canvas.convert('RGB').save(out,format='PNG');out.seek(0);return out
 
 

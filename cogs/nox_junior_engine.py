@@ -42,15 +42,15 @@ RECIPES = {'veilleuse': {'cristal_lunaire':3,'poussiere_etoiles':10}}
 # Boutique virtuelle : aucune transaction monétaire réelle.
 SHOP = {
  'coussin_etoile': ('Coussin étoilé',40,'couchage'),
- 'plante_lumineuse': ('Plante lumineuse',55,'sol_gauche'),
- 'lampe_lunaire': ('Lampe lunaire',70,'meuble_gauche'),
- 'cristal_galactique': ('Cristal galactique',90,'sol_droit'),
- 'peluche_mini_nox': ('Peluche miniature NOX',110,'meuble_droit'),
- 'globe_cosmique': ('Globe cosmique',130,'fond_gauche'),
- 'coffre_tresors': ('Coffre aux trésors',150,'fond_droit'),
- 'tapis_constellations': ('Tapis céleste',170,'sol_centre'),
- 'mobile_etoiles': ('Mobile des étoiles',190,'plafond'),
- 'fontaine_magique': ('Arc-en-ciel enchanté',220,'coin_droit'),
+ 'plante_lumineuse': ('Panier de repos cosmique',55,'sol_gauche'),
+ 'lampe_lunaire': ('Lampe étoilée',70,'meuble_gauche'),
+ 'cristal_galactique': ('Veilleuse lunaire',90,'sol_droit'),
+ 'peluche_mini_nox': ('Peluche de dragon étoilé',110,'meuble_droit'),
+ 'globe_cosmique': ('Bibliothèque céleste',130,'fond_gauche'),
+ 'coffre_tresors': ('Coffre à jouets galactique',150,'fond_droit'),
+ 'tapis_constellations': ('Tapis lunaire',170,'sol_centre'),
+ 'mobile_etoiles': ('Mobile céleste',190,'plafond'),
+ 'fontaine_magique': ('Fontaine aux étoiles',220,'coin_droit'),
 }
 DECOR_SLOTS = {'oreiller_douillet':'couchage', **{code:data[2] for code,data in SHOP.items()}}
 SLOT_POSITIONS = {'couchage':(.50,.81),'sol_gauche':(.16,.82),'meuble_gauche':(.18,.55),
