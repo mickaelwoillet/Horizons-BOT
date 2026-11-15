@@ -25,7 +25,7 @@ def catalog():
 class ChoiceButton(discord.ui.Button):
     def __init__(self, category, name, rid, selected):
         super().__init__(label=name[:80], style=discord.ButtonStyle.success if selected else discord.ButtonStyle.secondary,
-                         emoji='✓' if selected else None)
+                         emoji=None)
         self.category, self.role_name, self.role_id = category, name, int(rid)
 
     async def callback(self, interaction: discord.Interaction):
@@ -99,8 +99,15 @@ class CategoryButton(discord.ui.Button):
     async def callback(self, interaction):
         if not isinstance(interaction.user,discord.Member):
             return await interaction.response.send_message('Disponible sur le serveur uniquement.',ephemeral=True)
-        await interaction.response.send_message(f'**{self.category}** — clique pour ajouter ou retirer un rôle.',
-                                                view=ChoicePage(self.category,0,interaction.user),ephemeral=True)
+        await interaction.response.defer(ephemeral=True)
+        try:
+            view = ChoicePage(self.category, 0, interaction.user)
+            await interaction.followup.send(
+                f'**{self.category}** — clique pour ajouter ou retirer un rôle.',
+                view=view, ephemeral=True)
+        except Exception:
+            LOG.exception('Erreur ouverture rubrique profil : %s', self.category)
+            await interaction.followup.send('Impossible d’ouvrir cette rubrique. Préviens le staff.', ephemeral=True)
 
 class ProfileHub(discord.ui.View):
     def __init__(self):
