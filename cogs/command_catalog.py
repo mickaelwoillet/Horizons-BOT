@@ -10,12 +10,12 @@ from .embed_theme import horizons_embed
 STAFF_ONLY = {
     "aidestaff", "annonce", "export_structure", "idee_statut", "actualiser_rangs",
     "creer_defi", "giveaway creer", "giveaway reroll",
-    "publier_roles", "publier_guides_cercles",
+    "publier_roles", "installer_roles", "publier_guides_cercles",
     "accueil_bilan", "saison_lancer", "saison_clore", "givegratte",
     "avertir", "avertissements", "retirer_avertissement", "timeout", "untimeout",
     "expulser", "bannir", "debannir", "purger", "note_membre", "dashboard",
     "tache_creer", "taches", "tache_statut", "service",
-    "alerte_equipe", "givemonnox", "structure", "reglement_staff",
+    "alerte_equipe", "givemonnox",
 }
 MIXED_ACCESS = {
     "evenement_fermer": "Membres (créateur de l'événement) et équipe",
@@ -23,14 +23,13 @@ MIXED_ACCESS = {
 }
 STAFF_PERMISSIONS = {
     "export_structure": "Permission Administrateur Discord.",
-    "structure": "Réservée au Fondateur ; renommage et suppression après confirmations séparées.",
-    "reglement_staff": "Réservée au Fondateur ; publication du règlement et validation des candidatures.",
     "annonce": "Rôle staff autorisé ou permission de gestion prévue par le serveur.",
     "idee_statut": "Rôle staff ou administrateur.",
     "actualiser_rangs": "Permission Gérer les rôles.",
     "creer_defi": "Permission Gérer le serveur.",
     "giveaway creer": "Administrateur ou rôle staff.",
-    "publier_roles": "Administrateur, Gérer le serveur ou rôle staff.",
+    "publier_roles": "Permission Gérer le serveur.",
+    "installer_roles": "Permission Administrateur Discord.",
     "dashboard": "Staff habilité ; certaines rubriques exigent une prise de service.",
     "horizons_dashboard": "Staff habilité ; statistiques collectives uniquement.",
     "tache_creer": "Staff habilité en service (création selon niveau d'accès).",
@@ -55,10 +54,10 @@ CATEGORIES = (
     ("🐣 NOX Junior", {"monnox", "montrermonnox", "givemonnox"}),
     ("🌌 Trésors et constellations", {"gratter", "givegratte", "echanger_fragments", "echanger_poussiere", "collection_etoiles", "constellations", "inventaire_celeste", "souvenirs_celestes", "etoile"}),
     ("🌠 Saisons", {"saison", "saison_lancer", "saison_clore"}),
-    ("🎂 Anniversaires", {"anniversaire_supprimer"}),
+    ("🎂 Anniversaires", {"anniversaire_supprimer", "prochains_anniversaires"}),
     ("🌿 Bien-être et affinités", {"mes_succes", "affinites"}),
     ("🎫 Assistance et sécurité", {"signaler", "message_anonyme"}),
-    ("🛡️ Modération et gestion", {"avertir", "avertissements", "retirer_avertissement", "timeout", "untimeout", "expulser", "bannir", "debannir", "purger", "note_membre", "annonce", "alerte_equipe", "dashboard", "tache_creer", "taches", "tache_statut", "service", "publier_roles", "aidestaff", "export_structure", "publier_guides_cercles", "accueil_bilan", "structure", "reglement_staff"}),
+    ("🛡️ Modération et gestion", {"avertir", "avertissements", "retirer_avertissement", "timeout", "untimeout", "expulser", "bannir", "debannir", "purger", "note_membre", "annonce", "alerte_equipe", "dashboard", "tache_creer", "taches", "tache_statut", "service", "publier_roles", "installer_roles", "aidestaff", "export_structure", "publier_guides_cercles", "accueil_bilan"}),
 )
 
 def _category(name: str) -> str:

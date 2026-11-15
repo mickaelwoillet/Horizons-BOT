@@ -1,30 +1,4 @@
 {
-  "Tranche d'âge": [
-    [
-      "16–17 ans",
-      1566561973817049259
-    ],
-    [
-      "18–24 ans",
-      1567266316052860978
-    ],
-    [
-      "25–34 ans",
-      1566561972248387607
-    ],
-    [
-      "35–44 ans",
-      1567266472215191613
-    ],
-    [
-      "45 ans et +",
-      1567266549688176811
-    ],
-    [
-      "Je préfère ne pas préciser mon âge",
-      1567266608936910931
-    ]
-  ],
   "Pronoms": [
     [
       "Il / Lui",
@@ -71,6 +45,30 @@
     [
       "Identité non précisée",
       1567268104319541298
+    ],
+    [
+      "Agenre",
+      0
+    ],
+    [
+      "Genderfluid",
+      0
+    ],
+    [
+      "Bigenre",
+      0
+    ],
+    [
+      "Demi-garçon",
+      0
+    ],
+    [
+      "Demi-fille",
+      0
+    ],
+    [
+      "En questionnement",
+      0
     ]
   ],
   "Orientation sexuelle": [
@@ -97,6 +95,34 @@
     [
       "Asexuel(le)",
       1567277770206093424
+    ],
+    [
+      "Demisexuel(le)",
+      0
+    ],
+    [
+      "Aromantique",
+      0
+    ],
+    [
+      "Omnisexuel(le)",
+      0
+    ],
+    [
+      "Polysexuel(le)",
+      0
+    ],
+    [
+      "Queer",
+      0
+    ],
+    [
+      "En questionnement",
+      0
+    ],
+    [
+      "Orientation non précisée",
+      0
     ]
   ],
   "Messages privés": [
@@ -145,6 +171,18 @@
     [
       "Autres langues",
       1567269204627820635
+    ],
+    [
+      "Mandarin",
+      0
+    ],
+    [
+      "Hindi",
+      0
+    ],
+    [
+      "Russe",
+      0
     ]
   ],
   "Cultures à partager ou découvrir": [
@@ -179,36 +217,96 @@
     [
       "Autres cultures",
       1567269854136770621
+    ],
+    [
+      "Cultures moyen-orientales",
+      0
+    ],
+    [
+      "Cultures océaniennes",
+      0
+    ],
+    [
+      "Cultures nord-américaines",
+      0
     ]
   ],
   "Région": [
     [
+      "Auvergne-Rhône-Alpes",
+      0
+    ],
+    [
+      "Bourgogne-Franche-Comté",
+      0
+    ],
+    [
+      "Bretagne",
+      0
+    ],
+    [
+      "Centre-Val de Loire",
+      0
+    ],
+    [
+      "Corse",
+      0
+    ],
+    [
       "Grand Est",
       1567270108236218549
+    ],
+    [
+      "Hauts-de-France",
+      0
     ],
     [
       "Île-de-France",
       1567270209729986681
     ],
     [
-      "Nord",
-      1567270274045313134
+      "Normandie",
+      0
     ],
     [
-      "Ouest",
-      1567270355922583706
+      "Nouvelle-Aquitaine",
+      0
     ],
     [
-      "Sud-Ouest",
-      1567270459593203803
+      "Occitanie",
+      0
     ],
     [
-      "Sud-Est",
-      1567270558201020506
+      "Pays de la Loire",
+      0
     ],
     [
-      "Outre-mer",
-      1567270659384541254
+      "Provence-Alpes-Côte d’Azur",
+      0
+    ],
+    [
+      "Guadeloupe",
+      0
+    ],
+    [
+      "Martinique",
+      0
+    ],
+    [
+      "Guyane",
+      0
+    ],
+    [
+      "La Réunion",
+      0
+    ],
+    [
+      "Mayotte",
+      0
+    ],
+    [
+      "Autres territoires ultramarins",
+      0
     ],
     [
       "Autre pays",
@@ -297,6 +395,22 @@
     [
       "Autres styles de musique",
       1567272527569485894
+    ],
+    [
+      "R&B",
+      0
+    ],
+    [
+      "Jazz",
+      0
+    ],
+    [
+      "Metal",
+      0
+    ],
+    [
+      "Reggae",
+      0
     ]
   ],
   "Jeux": [
@@ -467,6 +581,18 @@
     [
       "Spontané(e)",
       1567276178195087410
+    ],
+    [
+      "Empathique",
+      0
+    ],
+    [
+      "Créatif(ve)",
+      0
+    ],
+    [
+      "Réfléchi(e)",
+      0
     ]
   ],
   "Notifications": [
@@ -497,6 +623,60 @@
     [
       "Aucune notification",
       1567276945694269510
+    ]
+  ],
+  "Tranche d'âge": [
+    [
+      "16–17 ans",
+      1566561973817049259
+    ],
+    [
+      "18–20 ans",
+      0
+    ],
+    [
+      "21–24 ans",
+      0
+    ],
+    [
+      "25–29 ans",
+      0
+    ],
+    [
+      "30–34 ans",
+      0
+    ],
+    [
+      "35–39 ans",
+      0
+    ],
+    [
+      "40–44 ans",
+      0
+    ],
+    [
+      "45–49 ans",
+      0
+    ],
+    [
+      "50–54 ans",
+      0
+    ],
+    [
+      "55–59 ans",
+      0
+    ],
+    [
+      "60–64 ans",
+      0
+    ],
+    [
+      "65 ans et +",
+      0
+    ],
+    [
+      "Je préfère ne pas préciser mon âge",
+      1567266608936910931
     ]
   ]
 }

@@ -58,6 +58,39 @@ class Birthdays(commands.Cog):
             cur = conn.execute("DELETE FROM birthdays WHERE guild_id=? AND user_id=?", (interaction.guild_id,interaction.user.id))
         await interaction.response.send_message("Ton anniversaire a été supprimé." if cur.rowcount else "Aucun anniversaire n'était enregistré.", ephemeral=True)
 
+    @app_commands.command(name="prochains_anniversaires", description="Afficher les 10 prochains anniversaires de HORIZONS.")
+    @app_commands.guild_only()
+    async def prochains_anniversaires(self, interaction: discord.Interaction):
+        today = datetime.now(LOCAL_TIMEZONE).date()
+        with db() as conn:
+            rows = conn.execute("SELECT user_id,month,day FROM birthdays WHERE guild_id=?", (interaction.guild_id,)).fetchall()
+        upcoming = []
+        for row in rows:
+            member = interaction.guild.get_member(row["user_id"])
+            if member is None:
+                continue
+            for year in (today.year, today.year + 1, today.year + 2):
+                try:
+                    birthday = date(year, int(row["month"]), int(row["day"]))
+                except ValueError:
+                    # Anniversaires du 29 février : affichés le 28 février les années non bissextiles.
+                    birthday = date(year, 2, 28) if (int(row["month"]), int(row["day"])) == (2, 29) else None
+                if birthday and birthday >= today:
+                    upcoming.append((birthday, member))
+                    break
+        upcoming.sort(key=lambda item: (item[0], item[1].display_name.casefold()))
+        embed = discord.Embed(title="🎂 Les 10 prochains anniversaires", color=0xC9A44C)
+        if upcoming:
+            embed.description = "\n".join(
+                f"**{index}.** {member.mention} — **{when:%d/%m}** "
+                f"({'aujourd’hui' if (when-today).days == 0 else f'dans {(when-today).days} jour(s)'})"
+                for index, (when, member) in enumerate(upcoming[:10], 1)
+            )
+        else:
+            embed.description = "Aucun anniversaire à venir parmi les membres présents."
+        embed.set_footer(text="HORIZONS • Anniversaires enregistrés volontairement • Années de naissance masquées")
+        await interaction.response.send_message(embed=embed)
+
     @tasks.loop(time=time(hour=9, minute=0, tzinfo=LOCAL_TIMEZONE))
     async def daily_birthdays(self):
         today = datetime.now(LOCAL_TIMEZONE)

@@ -172,8 +172,7 @@ class StaffRecrutement(commands.Cog):
                 # être absent et une interaction ne doit pas cibler un autre dossier.
                 LOG.warning('Candidature %s sans message de validation ; republication manuelle nécessaire', member_id)
 
-    @app_commands.command(name='reglement_staff', description='Publier ou actualiser le panneau du règlement Staff (Fondateur)')
-    async def reglement_staff(self, i: discord.Interaction):
+    async def publish_staff_rules(self, i: discord.Interaction):
         if not founder(i):
             return await i.response.send_message('Réservé au Fondateur.', ephemeral=True)
         channel = i.guild.get_channel(RULES)

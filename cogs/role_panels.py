@@ -1,177 +1,170 @@
-"""Panneaux de rôles HORIZONS, avec sélections persistantes."""
+"""Profil HORIZONS : panneau permanent à boutons et catégories éphémères."""
 from __future__ import annotations
-from cogs.embed_theme import horizons_embed
 import json
+import logging
 from pathlib import Path
 import discord
 from discord import app_commands
 from discord.ext import commands
 from config import DATA_DIR, STAFF_ROLE_ID
-from .storage import db
+from .embed_theme import horizons_embed
 
-CATALOG_PATH = DATA_DIR / "role_catalog.json"
-SINGLE = {"Tranche d'âge", "Pronoms", "Identité de genre", "Orientation sexuelle", "Messages privés", "Région"}
-DESCRIPTIONS = {
-    "Tranche d'âge": "Choisis une seule tranche. Le choix est facultatif.",
-    "Pronoms": "Choisis les pronoms que tu souhaites afficher. Une seule réponse.",
-    "Identité de genre": "Choisis une seule réponse, ou ne réponds pas.",
-    "Orientation sexuelle": "Question totalement facultative et personnelle. Ne choisis ce rôle que si tu souhaites l'afficher.",
-    "Messages privés": "Indique clairement tes préférences. Ce rôle ne bloque pas techniquement les DM Discord.",
-    "Langues": "Plusieurs réponses possibles.",
-    "Cultures à partager ou découvrir": "Choisis les cultures que tu souhaites partager ou découvrir, sans avoir à déclarer tes origines.",
-    "Région": "Choisis une seule zone générale. Aucune localisation précise n'est demandée.",
-    "Centres d'intérêt": "Plusieurs réponses possibles.",
-    "Styles musicaux": "Plusieurs réponses possibles.",
-    "Jeux": "Plusieurs réponses possibles.",
-    "Communication": "Plusieurs réponses possibles.",
-    "Disponibilités": "Plusieurs réponses possibles.",
-    "Ce que je recherche": "Plusieurs réponses possibles.",
-    "Tempérament": "Plusieurs réponses possibles.",
-    "Notifications": "Plusieurs réponses possibles. « Aucune notification » est exclusif des autres choix.",
-}
+LOG = logging.getLogger(__name__)
+CATALOG_PATH = DATA_DIR / 'role_catalog.json'
+SINGLE = {"Tranche d'âge", 'Pronoms', 'Messages privés', 'Région'}
+# Identité et orientation peuvent se recouper : sélection multiple facultative.
+EMOJIS = {'Région':'🌍',"Tranche d'âge":'🎂','Pronoms':'🗣️','Identité de genre':'🏳️‍⚧️',
+          'Orientation sexuelle':'💞','Messages privés':'✉️','Langues':'🌐',
+          'Cultures à partager ou découvrir':'🎨',"Centres d'intérêt":'✨',
+          'Styles musicaux':'🎵','Jeux':'🎮','Communication':'💬',
+          'Disponibilités':'🕒','Ce que je recherche':'🤝','Tempérament':'🌈','Notifications':'🔔'}
 
-def load_catalog():
-    return json.loads(CATALOG_PATH.read_text(encoding="utf-8"))
+def catalog():
+    return json.loads(CATALOG_PATH.read_text(encoding='utf-8'))
 
-class RoleSelect(discord.ui.Select):
-    def __init__(self, category: str, options: list[tuple[str, int]]):
-        self.category = category
-        self.role_options = options
-        multi = category not in SINGLE
-        super().__init__(
-            placeholder=f"Choisir : {category}"[:150],
-            min_values=0,
-            max_values=len(options) if multi else 1,
-            options=[discord.SelectOption(label=name[:100], value=str(role_id)) for name, role_id in options],
-            custom_id=f"horizons:roles:{list(load_catalog()).index(category)}",
-        )
+class ChoiceButton(discord.ui.Button):
+    def __init__(self, category, name, rid, selected):
+        super().__init__(label=name[:80], style=discord.ButtonStyle.success if selected else discord.ButtonStyle.secondary,
+                         emoji='✓' if selected else None)
+        self.category, self.role_name, self.role_id = category, name, int(rid)
 
     async def callback(self, interaction: discord.Interaction):
-        if not isinstance(interaction.user, discord.Member) or interaction.guild is None:
-            await interaction.response.send_message("Cette sélection est disponible sur le serveur HORIZONS.", ephemeral=True)
-            return
-        await interaction.response.defer(ephemeral=True)
-        all_ids = {rid for _, rid in self.role_options}
-        selected_ids = {int(value) for value in self.values}
-        # « Aucune notification » annule les autres choix de notification, et inversement.
-        if self.category == "Notifications":
-            none_id = next((rid for label, rid in self.role_options if label == "Aucune notification"), None)
-            if none_id in selected_ids:
-                selected_ids = {none_id}
-            elif selected_ids:
-                selected_ids.discard(none_id)
-        roles_by_id = {role.id: role for role in interaction.guild.roles}
-        missing = [rid for rid in all_ids if rid not in roles_by_id]
-        if missing:
-            await interaction.followup.send(
-                f"Certains rôles n'existent pas ou ne sont pas accessibles ({len(missing)}). Préviens l'équipe HORIZONS.",
-                ephemeral=True,
-            )
-            return
-        member_role_ids = {role.id for role in interaction.user.roles}
-        to_remove = [roles_by_id[rid] for rid in all_ids if rid in member_role_ids and rid not in selected_ids]
-        to_add = [roles_by_id[rid] for rid in selected_ids if rid not in member_role_ids]
-        # Vérifier la hiérarchie avant toute modification : éviter les changements partiels
-        # lorsqu'un rôle est au-dessus du rôle du bot ou est un rôle géré.
-        bot_member = interaction.guild.me
-        if bot_member is None:
-            await interaction.followup.send("Impossible de vérifier les permissions du bot pour le moment.", ephemeral=True)
-            return
-        if not bot_member.guild_permissions.manage_roles or any(
-            role.managed or role >= bot_member.top_role for role in (*to_remove, *to_add)
-        ):
-            await interaction.followup.send(
-                "Certains rôles ne sont pas modifiables par HORIZONS. Préviens l'équipe pour vérifier leur position et les permissions du bot.",
-                ephemeral=True,
-            )
-            return
+        if not interaction.guild or not isinstance(interaction.user, discord.Member):
+            return await interaction.response.send_message('Disponible uniquement sur HORIZONS.', ephemeral=True)
+        guild, member = interaction.guild, interaction.user
+        role = guild.get_role(self.role_id)
+        if role is None:
+            return await interaction.response.send_message('Ce rôle n’est pas encore installé. Demande au staff d’utiliser /installer_roles.', ephemeral=True)
+        me = guild.me
+        if not me or not me.guild_permissions.manage_roles or role.managed or role >= me.top_role:
+            return await interaction.response.send_message('Le bot ne peut pas attribuer ce rôle. Vérifie sa hiérarchie.', ephemeral=True)
+        selected = role in member.roles
+        old_roles = []
+        if not selected and self.category in SINGLE:
+            old_roles = [guild.get_role(int(rid)) for name, rid in catalog()[self.category] if int(rid) and int(rid) != role.id]
+            old_roles = [r for r in old_roles if r in member.roles]
+            legacy_path = DATA_DIR / 'role_legacy_ids.json'
+            if legacy_path.exists():
+                legacy_ids = json.loads(legacy_path.read_text(encoding='utf-8')).get(self.category, [])
+                old_roles.extend(r for rid in legacy_ids if (r := guild.get_role(int(rid))) and r in member.roles and r != role and r not in old_roles)
+            if any(r.managed or r >= me.top_role for r in old_roles):
+                return await interaction.response.send_message('Un ancien rôle ne peut pas être retiré par le bot.', ephemeral=True)
+        if self.category == 'Notifications' and not selected:
+            options = catalog()[self.category]
+            none = next((guild.get_role(int(rid)) for name, rid in options if name == 'Aucune notification' and int(rid)), None)
+            if self.role_name == 'Aucune notification':
+                old_roles = [guild.get_role(int(rid)) for name, rid in options if name != self.role_name and int(rid) and guild.get_role(int(rid)) in member.roles]
+            elif none and none in member.roles:
+                old_roles = [none]
         try:
-            if to_remove:
-                await interaction.user.remove_roles(*to_remove, reason=f"Modification du profil : {self.category}")
-            if to_add:
-                await interaction.user.add_roles(*to_add, reason=f"Choix du profil : {self.category}")
-        except discord.Forbidden:
-            await interaction.followup.send("Je n'ai pas la permission de gérer ces rôles. Vérifie que mon rôle est placé au-dessus des rôles HORIZONS.", ephemeral=True)
-            return
+            if old_roles:
+                await member.remove_roles(*old_roles, reason='Profil HORIZONS : choix exclusif')
+            if selected:
+                await member.remove_roles(role, reason='Profil HORIZONS : désélection')
+            else:
+                await member.add_roles(role, reason='Profil HORIZONS : sélection')
         except discord.HTTPException:
-            await interaction.followup.send("Discord n'a pas accepté la modification. Réessaie.", ephemeral=True)
-            return
-        # Le suivi d'accueil ne conserve aucun rôle ni choix personnel.
-        # Il note seulement qu'un membre a personnalisé des préférences non sensibles.
-        trackable_categories = {
-            "Langues", "Cultures à partager ou découvrir", "Centres d'intérêt",
-            "Styles musicaux", "Jeux", "Communication", "Disponibilités",
-            "Tempérament", "Notifications",
-        }
-        if self.category in trackable_categories:
-            try:
-                with db() as conn:
-                    columns = {row[1] for row in conn.execute("PRAGMA table_info(onboarding_progress)").fetchall()}
-                    if "profile_customized" in columns:
-                        conn.execute(
-                            "UPDATE onboarding_progress SET profile_customized=1 WHERE guild_id=? AND user_id=?",
-                            (interaction.guild.id, interaction.user.id),
-                        )
-            except Exception:
-                # Le suivi d'accueil est facultatif : une erreur de base ne doit pas
-                # faire croire à l'utilisateur que la modification des rôles a échoué.
-                import logging
-                logging.getLogger(__name__).exception("Suivi du profil impossible après mise à jour des rôles")
-        await interaction.followup.send("Tes rôles ont été mis à jour. 💜", ephemeral=True)
+            return await interaction.response.send_message('Modification impossible pour le moment. Réessaie.', ephemeral=True)
+        await interaction.response.edit_message(
+            content=f'{EMOJIS.get(self.category,"🎭")} **{self.category}** — clique pour ajouter ou retirer un rôle.\n'
+                    f'**{self.role_name}** : {"retiré" if selected else "ajouté"} ✔',
+            view=ChoicePage(self.category, self.view.page, member))
 
-class RolePanelView(discord.ui.View):
-    def __init__(self, category: str, options: list[tuple[str, int]]):
+class PageButton(discord.ui.Button):
+    def __init__(self, category, page, label):
+        super().__init__(label=label, style=discord.ButtonStyle.primary, row=4)
+        self.category, self.page = category, page
+    async def callback(self, interaction):
+        await interaction.response.edit_message(content=f'**{self.category}** — sélectionne les rôles souhaités.', view=ChoicePage(self.category,self.page,interaction.user))
+
+class ChoicePage(discord.ui.View):
+    def __init__(self, category, page, member):
+        super().__init__(timeout=900)
+        self.page = page
+        options = catalog()[category]
+        ids = {r.id for r in member.roles}
+        start = page*20
+        for name, rid in options[start:start+20]:
+            self.add_item(ChoiceButton(category,name,rid,int(rid) in ids))
+        if page:
+            self.add_item(PageButton(category,page-1,'◀ Précédent'))
+        if start+20 < len(options):
+            self.add_item(PageButton(category,page+1,'Suivant ▶'))
+
+class CategoryButton(discord.ui.Button):
+    def __init__(self, category, idx):
+        super().__init__(label=category[:80], emoji=EMOJIS.get(category), style=discord.ButtonStyle.secondary,
+                         custom_id=f'horizons:profile:category:{idx}')
+        self.category = category
+    async def callback(self, interaction):
+        if not isinstance(interaction.user,discord.Member):
+            return await interaction.response.send_message('Disponible sur le serveur uniquement.',ephemeral=True)
+        await interaction.response.send_message(f'**{self.category}** — clique pour ajouter ou retirer un rôle.',
+                                                view=ChoicePage(self.category,0,interaction.user),ephemeral=True)
+
+class ProfileHub(discord.ui.View):
+    def __init__(self):
         super().__init__(timeout=None)
-        self.add_item(RoleSelect(category, options))
+        for idx, category in enumerate(catalog()):
+            self.add_item(CategoryButton(category,idx))
 
 class RolePanels(commands.Cog):
-    def __init__(self, bot: commands.Bot):
-        self.bot = bot
+    def __init__(self,bot): self.bot=bot
+    async def cog_load(self): self.bot.add_view(ProfileHub())
 
-    async def cog_load(self):
-        # Les custom_id sont uniques par catégorie : enregistrer les vues
-        # globalement permet aux anciens panneaux de fonctionner même si
-        # leurs identifiants de message ne figurent plus dans SQLite.
-        catalog = load_catalog()
-        for category, raw_options in catalog.items():
-            options = [(label, int(role_id)) for label, role_id in raw_options]
-            self.bot.add_view(RolePanelView(category, options))
-
-    @app_commands.command(name="publier_roles", description="Publier les panneaux de choix des rôles HORIZONS dans ce salon.")
-    async def publier_roles(self, interaction: discord.Interaction):
-        member = interaction.user
-        allowed = isinstance(member, discord.Member) and (
-            member.guild_permissions.administrator or member.guild_permissions.manage_guild or
-            (STAFF_ROLE_ID and any(r.id == STAFF_ROLE_ID for r in member.roles))
-        )
-        if not allowed:
-            await interaction.response.send_message("Commande réservée à l'équipe HORIZONS.", ephemeral=True)
-            return
-        if not isinstance(interaction.channel, discord.TextChannel):
-            await interaction.response.send_message("Utilise cette commande dans le salon textuel 🎭・choix-des-rôles.", ephemeral=True)
-            return
+    @app_commands.command(name='installer_roles',description='Créer les rôles de profil manquants et actualiser le panneau (administration).')
+    @app_commands.default_permissions(manage_roles=True)
+    async def installer_roles(self, interaction: discord.Interaction):
+        if not isinstance(interaction.user,discord.Member) or not interaction.user.guild_permissions.administrator:
+            return await interaction.response.send_message('Commande réservée aux administrateurs.',ephemeral=True)
+        if not interaction.guild.me.guild_permissions.manage_roles:
+            return await interaction.response.send_message('Le bot doit avoir la permission Gérer les rôles.',ephemeral=True)
         await interaction.response.defer(ephemeral=True)
-        published = 0
-        for category, raw_options in load_catalog().items():
-            options = [(name, int(role_id)) for name, role_id in raw_options]
-            embed = horizons_embed(
-                title=f"🎭 {category}",
-                description=DESCRIPTIONS.get(category, "Choisis les rôles qui correspondent à tes envies. Plusieurs réponses possibles.") + "\n\nTu peux modifier ton choix à tout moment.",
-                color=discord.Color.from_rgb(145, 85, 220),
-            )
-            embed.set_footer(text="HORIZONS • Tes choix sont facultatifs")
-            try:
-                message = await interaction.channel.send(embed=embed, view=RolePanelView(category, options))
-            except discord.HTTPException:
-                await interaction.followup.send(f"Publication interrompue à la catégorie **{category}**. Vérifie les permissions du bot.", ephemeral=True)
-                return
-            with db() as conn:
-                conn.execute(
-                    "INSERT OR REPLACE INTO role_panels(channel_id,message_id,category) VALUES(?,?,?)",
-                    (interaction.channel.id, message.id, category),
-                )
-            published += 1
-        await interaction.followup.send(f"✅ **{published} panneaux** de rôles ont été publiés dans {interaction.channel.mention}.", ephemeral=True)
+        data=catalog(); created=[]; existing={r.name:r for r in interaction.guild.roles}
+        for category, options in data.items():
+            for entry in options:
+                name,rid=entry
+                if rid and interaction.guild.get_role(int(rid)):continue
+                role=existing.get(name)
+                if role is None:
+                    try:
+                        role=await interaction.guild.create_role(name=name,mentionable=False,hoist=False,
+                                                                 reason=f'HORIZONS : profil {category}')
+                    except discord.HTTPException as exc:
+                        CATALOG_PATH.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+                        return await interaction.followup.send(f'Installation interrompue sur **{name}** : {exc}. {len(created)} rôles créés, IDs sauvegardés.',ephemeral=True)
+                    created.append(name)
+                entry[1]=role.id
+                existing[name]=role
+        CATALOG_PATH.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+        await interaction.followup.send(f'✅ {len(created)} nouveaux rôles créés ; catalogue actualisé. Utilise `/publier_roles` dans le salon des rôles pour afficher le panneau.',ephemeral=True)
 
-async def setup(bot: commands.Bot):
-    await bot.add_cog(RolePanels(bot))
+    @app_commands.command(name='publier_roles',description='Publier le panneau unique de personnalisation du profil HORIZONS.')
+    @app_commands.default_permissions(manage_guild=True)
+    async def publier_roles(self,interaction:discord.Interaction):
+        if not isinstance(interaction.user,discord.Member) or not (interaction.user.guild_permissions.manage_guild or interaction.user.guild_permissions.administrator):
+            return await interaction.response.send_message('Commande réservée au staff.',ephemeral=True)
+        if not isinstance(interaction.channel,discord.TextChannel):
+            return await interaction.response.send_message('Utilise un salon textuel.',ephemeral=True)
+        missing=sum(1 for options in catalog().values() for _,rid in options if not rid or not interaction.guild.get_role(int(rid)))
+        if missing:
+            return await interaction.response.send_message(f'{missing} rôles restent à installer. Lance d’abord `/installer_roles`.',ephemeral=True)
+        embed=horizons_embed(title='🎭 Mon profil HORIZONS',description='Choisis une rubrique ci-dessous. Les boutons ouvrent des choix **privés**, modifiables à tout moment.\n\nLes informations personnelles sont entièrement facultatives.',color=discord.Color.gold())
+        embed.set_footer(text='HORIZONS • Unis dans la diversité')
+        await interaction.response.defer(ephemeral=True)
+        # Retirer seulement les anciens panneaux répertoriés dans SQLite, jamais les messages des membres.
+        from .storage import db
+        with db() as conn:
+            rows=conn.execute('SELECT channel_id,message_id FROM role_panels WHERE channel_id=?',(interaction.channel.id,)).fetchall()
+        for row in rows:
+            try:
+                msg=await interaction.channel.fetch_message(row['message_id'])
+                if msg.author.id == self.bot.user.id: await msg.delete()
+            except discord.HTTPException: pass
+        message=await interaction.channel.send(embed=embed,view=ProfileHub())
+        with db() as conn:
+            conn.execute('DELETE FROM role_panels WHERE channel_id=?',(interaction.channel.id,))
+            conn.execute('INSERT INTO role_panels(channel_id,message_id,category) VALUES(?,?,?)',(interaction.channel.id,message.id,'Profil HORIZONS'))
+        await interaction.followup.send('✅ Panneau de profil publié. Les anciens panneaux enregistrés ont été remplacés.',ephemeral=True)
+
+async def setup(bot):await bot.add_cog(RolePanels(bot))

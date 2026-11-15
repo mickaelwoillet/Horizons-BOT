@@ -204,7 +204,16 @@ Depuis `/monnox` → **Mini-jeux**, 12 activités sont disponibles, dont **Cache
 
 ## Administration de la structure et recrutement Staff
 
-- `/structure` (Fondateur) : aperçu des renommages, application après confirmation ou suppression distinctement confirmée des trois salons abandonnés. Les permissions existantes sont conservées ; la suppression des salons efface leur historique Discord.
-- `/reglement_staff` (Fondateur) : publie ou actualise le règlement Staff. Les candidats avec le rôle **Staff en attente** acceptent par bouton ; le Fondateur reçoit la demande dans **logs-fondateur**, choisit Animateur, Médiateur, Modérateur ou Administrateur, ou refuse. Après approbation, les rôles **Équipe STAFF** et de fonction sont attribués, et **Staff en attente** est retiré.
+- `/structure` (ancienne commande retirée) : aperçu des renommages, application après confirmation ou suppression distinctement confirmée des trois salons abandonnés. Les permissions existantes sont conservées ; la suppression des salons efface leur historique Discord.
+- `/reglement_staff` (ancienne commande retirée) : publie ou actualise le règlement Staff. Les candidats avec le rôle **Staff en attente** acceptent par bouton ; le Fondateur reçoit la demande dans **logs-fondateur**, choisit Animateur, Médiateur, Modérateur ou Administrateur, ou refuse. Après approbation, les rôles **Équipe STAFF** et de fonction sont attribués, et **Staff en attente** est retiré.
 - Les fonctionnalités **Regard du Jour** et **météo des émotions** ont été retirées des panneaux et commandes ; leurs anciennes données ne sont pas supprimées automatiquement.
 - Le salon général est renommé **🌌・𝓛𝓐 𝓟𝓛𝓐𝓒𝓔・💬** par `/structure`, avec une description explicite.
+
+
+## Profil et anniversaires — nouvelle interface
+
+- `/installer_roles` (administration) : crée les rôles de profil manquants et sauvegarde leurs identifiants dans `data/role_catalog.json`. À lancer **une seule fois** après la mise à jour ; relançable sans doublons.
+- `/publier_roles` (gestion du serveur) : remplace les anciens panneaux enregistrés par un panneau unique de boutons. Les sélections sont privées, et les choix peuvent être retirés.
+- `/prochains_anniversaires` : affiche les dix prochains anniversaires enregistrés, sans divulguer les années de naissance.
+- Les anciennes commandes `/structure` et `/reglement_staff` ont été retirées. Les panneaux Staff déjà publiés restent utilisables.
+- Les anciens rôles de zones cardinales et de tranches d'âge ne sont **pas supprimés automatiquement** : vérifier les attributions existantes avant un nettoyage manuel.
