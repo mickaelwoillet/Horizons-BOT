@@ -1,4 +1,4 @@
-"""Fonctionnalités communautaires HORIZONS : humeur privée, succès et affinités."""
+"""Fonctionnalités communautaires HORIZONS : succès et affinités."""
 from __future__ import annotations
 from .embed_theme import send_official_panel, edit_official_panel
 from cogs.embed_theme import get_logo_url, horizons_embed
@@ -12,7 +12,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from config import (
-    DATA_DIR, MOOD_CHANNEL_ID, SUCCESS_CHANNEL_ID, AFFINITY_CHANNEL_ID,
+    DATA_DIR, SUCCESS_CHANNEL_ID, AFFINITY_CHANNEL_ID,
     LOCAL_TIMEZONE, GUILD_ID,
 )
 from .storage import db
@@ -22,16 +22,6 @@ AFFINITY_CATEGORIES = (
     "Langues", "Centres d'intérêt", "Styles musicaux", "Jeux",
     "Communication", "Disponibilités", "Ce que je recherche",
 )
-MOODS = [
-    app_commands.Choice(name="😊 Je vais bien", value="Je vais bien"),
-    app_commands.Choice(name="😁 Je suis heureux(se)", value="Heureux(se)"),
-    app_commands.Choice(name="😐 Ça va, sans plus", value="Ça va, sans plus"),
-    app_commands.Choice(name="😔 Je ne vais pas très bien", value="Pas très bien"),
-    app_commands.Choice(name="😣 Je suis stressé(e)", value="Stressé(e)"),
-    app_commands.Choice(name="💤 Je suis fatigué(e)", value="Fatigué(e)"),
-    app_commands.Choice(name="🤝 J'aimerais parler à quelqu'un", value="Besoin de parler"),
-]
-
 ACHIEVEMENTS = {
     "first_day": ("🌱 Premier horizon", "Tu as participé à la vie de HORIZONS pour la première fois."),
     "seven_days": ("🌿 Présence régulière", "Tu as été actif(ve) pendant 7 jours différents."),
@@ -100,51 +90,6 @@ class AffinityPanel(discord.ui.View):
         await self._run(interaction, "disable")
 
 
-class MoodChoice(discord.ui.Select):
-    def __init__(self):
-        super().__init__(placeholder="Choisir ma météo", min_values=1, max_values=1,
-                         options=[discord.SelectOption(label=c.name, value=c.value) for c in MOODS],
-                         custom_id="horizons:mood:choose:v2")
-
-    async def callback(self, interaction: discord.Interaction):
-        cog = interaction.client.get_cog("HorizonsFeatures")
-        if cog is None:
-            await interaction.response.send_message("Service indisponible.", ephemeral=True); return
-        choice = next((c for c in MOODS if c.value == self.values[0]), None)
-        if choice is None:
-            await interaction.response.send_message("Choix invalide.", ephemeral=True); return
-        await cog.humeur.callback(cog, interaction, choice)
-
-
-class MoodSelectView(discord.ui.View):
-    def __init__(self):
-        super().__init__(timeout=180)
-        self.add_item(MoodChoice())
-
-
-class MoodPanel(discord.ui.View):
-    def __init__(self):
-        super().__init__(timeout=None)
-
-    @discord.ui.button(label="Ma météo", emoji="💗", style=discord.ButtonStyle.primary, custom_id="horizons:mood:panel:choose:v2")
-    async def mood(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_message("Choisis ton humeur du jour, en privé :", view=MoodSelectView(), ephemeral=True)
-
-    @discord.ui.button(label="Voir ma météo", emoji="🌤️", style=discord.ButtonStyle.secondary, custom_id="horizons:mood:panel:today:v2")
-    async def today(self, interaction: discord.Interaction, button: discord.ui.Button):
-        cog = interaction.client.get_cog("HorizonsFeatures")
-        if cog: await cog.ma_meteo.callback(cog, interaction)
-        else: await interaction.response.send_message("Service indisponible.", ephemeral=True)
-
-    @discord.ui.button(label="Écrire au staff", emoji="✉️", style=discord.ButtonStyle.secondary, custom_id="horizons:mood:panel:staff:v2")
-    async def staff(self, interaction: discord.Interaction, button: discord.ui.Button):
-        cog = interaction.client.get_cog("Tickets")
-        if cog is None:
-            await interaction.response.send_message("Messagerie staff indisponible.", ephemeral=True); return
-        from .tickets import TicketOpenModal
-        await interaction.response.send_modal(TicketOpenModal(cog))
-
-
 class HorizonsFeatures(commands.Cog):
 
     def __init__(self, bot: commands.Bot):
@@ -160,38 +105,14 @@ class HorizonsFeatures(commands.Cog):
 
     async def cog_load(self):
         self.bot.add_view(AffinityPanel())
-        self.bot.add_view(MoodPanel())
+        
 
     @commands.Cog.listener()
     async def on_ready(self):
         if self._panels_checked:
             return
         self._panels_checked = True
-        await self.ensure_explanation(MOOD_CHANNEL_ID, "mood_explanation_message", self.mood_embed(), view=MoodPanel())
         await self.ensure_explanation(AFFINITY_CHANNEL_ID, "affinity_explanation_message", self.affinity_embed(), view=AffinityPanel())
-
-    @staticmethod
-    def mood_embed() -> discord.Embed:
-        embed = horizons_embed(
-            title="❤️ La météo de l'humeur",
-            description=(
-                "**Comment te sens-tu aujourd'hui ?**\n\n"
-                "Chaque journée est différente. Prends quelques secondes pour indiquer ton humeur "
-                "du moment avec le bouton **Ma météo**.\n\n"
-                "😊 Je vais bien • 😁 Heureux(se) • 😐 Ça va, sans plus\n"
-                "😔 Pas très bien • 😣 Stressé(e) • 💤 Fatigué(e)\n"
-                "🤝 J'aimerais parler à quelqu'un\n\n"
-                "**Ta réponse est privée :** elle n'est pas publiée dans ce salon et les autres membres "
-                "ne peuvent pas consulter ton historique. Tu peux consulter ton humeur du jour avec **Voir ma météo**. "
-                "Cette réponse n'envoie pas d'alerte au staff. Pour contacter l'équipe en privé, utilise **Écrire au staff**.\n\n"
-                "La participation est entièrement facultative. En cas de danger immédiat, contacte les services d'urgence."
-            ),
-            color=discord.Color.from_rgb(226, 91, 137),
-        )
-        embed.set_footer(text="HORIZONS • Un espace sans jugement")
-        if not embed.thumbnail.url and (self_logo := get_logo_url()):
-            embed.set_thumbnail(url=self_logo)
-        return embed
 
     @staticmethod
     def affinity_embed() -> discord.Embed:
@@ -294,43 +215,6 @@ class HorizonsFeatures(commands.Cog):
                 "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
                 (setting_key, str(message.id)),
             )
-
-    @app_commands.command(name="humeur", description="Enregistrer ton humeur du jour en privé.")
-    @app_commands.choices(mood=MOODS)
-    async def humeur(self, interaction: discord.Interaction, mood: app_commands.Choice[str]):
-        if interaction.guild_id != GUILD_ID:
-            await interaction.response.send_message("Cette commande est réservée au serveur HORIZONS.", ephemeral=True)
-            return
-        now = datetime.now(timezone.utc).isoformat()
-        with db() as conn:
-            conn.execute(
-                "INSERT INTO mood_entries(guild_id,user_id,mood_date,mood,created_at) VALUES(?,?,?,?,?) "
-                "ON CONFLICT(guild_id,user_id,mood_date) DO UPDATE SET mood=excluded.mood,created_at=excluded.created_at",
-                (interaction.guild_id, interaction.user.id, today_local(), mood.value, now),
-            )
-            cutoff = (datetime.now(LOCAL_TIMEZONE).date() - timedelta(days=90)).isoformat()
-            conn.execute("DELETE FROM mood_entries WHERE mood_date < ?", (cutoff,))
-        extra = (
-            "\nSi tu souhaites parler à l'équipe en privé, tu peux utiliser `/ticket_ouvrir`."
-            if mood.value == "Besoin de parler" else ""
-        )
-        await interaction.response.send_message(
-            f"Ton humeur du jour a été enregistrée en privé : **{mood.value}**. 💜\n"
-            "Tu peux la modifier en relançant `/humeur`." + extra,
-            ephemeral=True,
-        )
-
-    @app_commands.command(name="ma_meteo", description="Consulter ton humeur du jour en privé.")
-    async def ma_meteo(self, interaction: discord.Interaction):
-        with db() as conn:
-            row = conn.execute(
-                "SELECT mood,created_at FROM mood_entries WHERE guild_id=? AND user_id=? AND mood_date=?",
-                (interaction.guild_id or 0, interaction.user.id, today_local()),
-            ).fetchone()
-        if not row:
-            await interaction.response.send_message("Tu n'as pas encore renseigné ton humeur aujourd'hui. Utilise `/humeur` si tu le souhaites.", ephemeral=True)
-            return
-        await interaction.response.send_message(f"Ta météo du jour : **{row['mood']}**. 💜", ephemeral=True)
 
     async def unlock(self, guild: discord.Guild, member: discord.Member, key: str):
         title, description = ACHIEVEMENTS[key]

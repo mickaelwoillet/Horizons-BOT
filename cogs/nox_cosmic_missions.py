@@ -55,10 +55,11 @@ class NoxCosmicMissions(commands.Cog):
     async def cog_load(self):
         with engine.connect(DB) as con:
             init_db(con)
-            rows = con.execute('SELECT id FROM nox_cosmic_missions WHERE closed_at IS NULL').fetchall()
+            rows = con.execute('SELECT id,message_id FROM nox_cosmic_missions WHERE closed_at IS NULL AND message_id IS NOT NULL').fetchall()
             con.commit()
-        for row in rows:
-            self.bot.add_view(HelpView(self, row[0]).configure())
+        for mission_id, message_id in rows:
+            # Chaque vue est liée à son message, même si son custom_id est unique.
+            self.bot.add_view(HelpView(self, mission_id).configure(), message_id=message_id)
 
     async def help(self, interaction: discord.Interaction, mission_id: int):
         if not interaction.guild or interaction.user.bot:

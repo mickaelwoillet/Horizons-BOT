@@ -1,13 +1,19 @@
 """Synchronisation des sept distinctions NOX avec des rôles Discord existants."""
 from __future__ import annotations
 
+import os
+import logging
 import discord
 from discord import app_commands
 from discord.ext import commands
 
+from .embed_theme import horizons_embed
 from .nox_honors import honorary_titles
 from .nox_refuge import DB
 from . import nox_refuge_engine as engine
+
+LOG = logging.getLogger(__name__)
+DISTINCTIONS_CHANNEL_ID = int(os.getenv("NOX_DISTINCTIONS_CHANNEL_ID", "1569434256311193721"))
 
 ROLE_NAMES = {
     "premier_calin": "💛 Premier câlin cosmique",
@@ -46,6 +52,27 @@ async def sync_member(member: discord.Member) -> tuple[int, list[str]]:
         except (discord.Forbidden, discord.HTTPException) as exc:
             errors.append(f"Attribution impossible : {type(exc).__name__}")
             return 0, errors
+    if eligible:
+        # Une seule annonce par attribution réussie ; aucune annonce lors d'un simple contrôle.
+        channel = guild.get_channel(DISTINCTIONS_CHANNEL_ID)
+        if isinstance(channel, discord.TextChannel):
+            embed = horizons_embed(
+                title="🌟 Une nouvelle distinction de NOX !",
+                description=(
+                    f"{member.mention} vient de recevoir "
+                    + ("la distinction" if len(eligible) == 1 else "les distinctions")
+                    + " :\n" + "\n".join(f"• **{role.name}**" for role in eligible)
+                    + "\n\n🐾 Merci de prendre soin de NOX et de faire vivre son Refuge !"
+                ),
+            )
+            try:
+                await channel.send(embed=embed, allowed_mentions=discord.AllowedMentions(users=[member], roles=False, everyone=False))
+            except (discord.Forbidden, discord.HTTPException) as exc:
+                LOG.warning("Annonce distinctions NOX impossible (salon=%s, membre=%s): %s", channel.id, member.id, exc)
+                errors.append("Rôles attribués, mais annonce impossible dans le salon des distinctions")
+        else:
+            LOG.warning("Salon des distinctions NOX introuvable : %s", DISTINCTIONS_CHANNEL_ID)
+            errors.append("Rôles attribués, mais salon des distinctions introuvable")
     return len(eligible), errors
 
 

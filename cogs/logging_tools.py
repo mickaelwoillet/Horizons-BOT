@@ -56,12 +56,18 @@ class LoggingTools(commands.Cog):
             index = int.from_bytes(hashlib.sha256(f"{member.guild.id}:{member.id}".encode()).digest()[:4], "big") % len(choices)
             name = discord.utils.escape_mentions(discord.utils.escape_markdown(member.display_name))
             content = choices[index]["texte"].replace("{nom}", name)
+            departure_embed = discord.Embed(
+                title="🌙 Un explorateur quitte HORIZONS",
+                description=content,
+                color=discord.Color.from_rgb(65, 110, 200),
+            )
+            departure_embed.set_footer(text="HORIZONS • Les horizons se croisent et se retrouvent")
             try:
-                await send_as_nox(channel, content=content)
+                await send_as_nox(channel, embed=departure_embed)
             except discord.HTTPException:
                 logging.getLogger(__name__).exception("Webhook NOX indisponible pour départ")
                 try:
-                    await channel.send(content, allowed_mentions=discord.AllowedMentions.none())
+                    await channel.send(embed=departure_embed, allowed_mentions=discord.AllowedMentions.none())
                 except discord.HTTPException:
                     logging.getLogger(__name__).exception("Message de départ impossible")
 

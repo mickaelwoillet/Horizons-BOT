@@ -15,7 +15,7 @@ STAFF_ONLY = {
     "avertir", "avertissements", "retirer_avertissement", "timeout", "untimeout",
     "expulser", "bannir", "debannir", "purger", "note_membre", "dashboard",
     "tache_creer", "taches", "tache_statut", "service",
-    "alerte_equipe", "givemonnox",
+    "alerte_equipe", "givemonnox", "structure", "reglement_staff",
 }
 MIXED_ACCESS = {
     "evenement_fermer": "Membres (créateur de l'événement) et équipe",
@@ -23,6 +23,8 @@ MIXED_ACCESS = {
 }
 STAFF_PERMISSIONS = {
     "export_structure": "Permission Administrateur Discord.",
+    "structure": "Réservée au Fondateur ; renommage et suppression après confirmations séparées.",
+    "reglement_staff": "Réservée au Fondateur ; publication du règlement et validation des candidatures.",
     "annonce": "Rôle staff autorisé ou permission de gestion prévue par le serveur.",
     "idee_statut": "Rôle staff ou administrateur.",
     "actualiser_rangs": "Permission Gérer les rôles.",
@@ -54,9 +56,9 @@ CATEGORIES = (
     ("🌌 Trésors et constellations", {"gratter", "givegratte", "echanger_fragments", "echanger_poussiere", "collection_etoiles", "constellations", "inventaire_celeste", "souvenirs_celestes", "etoile"}),
     ("🌠 Saisons", {"saison", "saison_lancer", "saison_clore"}),
     ("🎂 Anniversaires", {"anniversaire_supprimer"}),
-    ("🌿 Bien-être et affinités", {"humeur", "ma_meteo", "mes_succes", "affinites"}),
+    ("🌿 Bien-être et affinités", {"mes_succes", "affinites"}),
     ("🎫 Assistance et sécurité", {"signaler", "message_anonyme"}),
-    ("🛡️ Modération et gestion", {"avertir", "avertissements", "retirer_avertissement", "timeout", "untimeout", "expulser", "bannir", "debannir", "purger", "note_membre", "annonce", "alerte_equipe", "dashboard", "tache_creer", "taches", "tache_statut", "service", "publier_roles", "aidestaff", "export_structure", "publier_guides_cercles", "accueil_bilan"}),
+    ("🛡️ Modération et gestion", {"avertir", "avertissements", "retirer_avertissement", "timeout", "untimeout", "expulser", "bannir", "debannir", "purger", "note_membre", "annonce", "alerte_equipe", "dashboard", "tache_creer", "taches", "tache_statut", "service", "publier_roles", "aidestaff", "export_structure", "publier_guides_cercles", "accueil_bilan", "structure", "reglement_staff"}),
 )
 
 def _category(name: str) -> str:
@@ -124,11 +126,11 @@ def build_catalog_embeds(bot, *, audience: str = "all", updated: str = "") -> li
     if audience == "members":
         entries = [e for e in entries if not e["staff"]]
         title = "✦ HORIZONS — Commandes des membres"
-        intro = "**Accès par boutons :** `/centre` → Regard du Jour (proposition, points), Capsules (espace personnel) et activités.\n\nRépertoire des commandes membres actuellement chargées. Les paramètres entre < > sont obligatoires ; ceux entre [ ] sont facultatifs. Les activités du carrefour HORIZONS (dont Petits Bonheurs et Mystère du jour) sont accessibles par menu, sans commande."
+        intro = "**Accès par boutons :** `/centre` → Capsules (espace personnel), Carte du Ciel et activités.\n\nRépertoire des commandes membres actuellement chargées. Les paramètres entre < > sont obligatoires ; ceux entre [ ] sont facultatifs. Les activités du carrefour HORIZONS (dont Petits Bonheurs et Mystère du jour) sont accessibles par menu, sans commande."
     elif audience == "staff":
         entries = [e for e in entries if e["staff"]]
         title = "✦ HORIZONS — Commandes de l'équipe"
-        intro = "**Accès par boutons :** `/dashboard` → Regardboard, Event, Capsules staff (question, attente, modération) et NOX TV.\n\nRépertoire des commandes staff actuellement chargées. L'accès reste contrôlé par le bot et les permissions Discord ; certaines fonctions exigent une prise de service. Le carrefour communautaire et ses activités ne nécessitent pas de commande slash supplémentaire."
+        intro = "**Accès par boutons :** `/dashboard` → Event, Capsules staff (question, attente, modération) et NOX TV.\n\nRépertoire des commandes staff actuellement chargées. L'accès reste contrôlé par le bot et les permissions Discord ; certaines fonctions exigent une prise de service. Le carrefour communautaire et ses activités ne nécessitent pas de commande slash supplémentaire."
     else:
         title = "✦ HORIZONS — Catalogue des commandes"
         intro = "🌌 **Pour commencer : `/centre`** ouvre ton espace personnel et privé, avec accueil personnalisé, Carte du Ciel et accès aux activités.\n\nRépertoire complet des commandes actuellement chargées. < > = obligatoire ; [ ] = facultatif."

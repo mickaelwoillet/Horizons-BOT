@@ -255,14 +255,21 @@ class SmartWelcome(commands.Cog):
         choices = json.loads((DATA_DIR / "nox" / "accueils.json").read_text(encoding="utf-8"))
         index = int.from_bytes(hashlib.sha256(f"{member.guild.id}:{member.id}".encode()).digest()[:4], "big") % len(choices)
         content = choices[index]["texte"].replace("{mention}", member.mention)
+        # Un embed par arrivée : séparation visuelle nette entre deux membres.
+        welcome_embed = discord.Embed(
+            title="🌠 Un nouvel explorateur rejoint HORIZONS !",
+            description=content,
+            color=discord.Color.from_rgb(212, 174, 65),
+        )
+        welcome_embed.set_footer(text="HORIZONS • Découvrir · Échanger · Rejoindre")
         try:
             # Les boutons de charte et découverte restent sur le message de NOX.
-            await send_as_nox(channel, content=content, view=WelcomeView(),
+            await send_as_nox(channel, embed=welcome_embed, view=WelcomeView(),
                               allowed_mentions=discord.AllowedMentions(users=[member], roles=False, everyone=False))
         except discord.HTTPException:
             logger.exception("Webhook NOX indisponible : accueil via bot pour %s", member.id)
             try:
-                await channel.send(content=content, view=WelcomeView(),
+                await channel.send(embed=welcome_embed, view=WelcomeView(),
                                    allowed_mentions=discord.AllowedMentions(users=[member], roles=False, everyone=False))
             except discord.HTTPException:
                 logger.exception("Impossible d'envoyer l'accueil pour %s", member.id)

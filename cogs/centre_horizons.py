@@ -12,7 +12,7 @@ from .storage import db
 from .sky_map import progress, unlocked, ORIGINS
 from . import future_letters, time_capsules, collective_capsules, sky_bridges
 from .coffre_horizons import snapshot as coffre_snapshot
-from .centre_v86 import community_snapshot, compatible_activities, mood_summary, mood_enable, mood_clear
+from .centre_v86 import community_snapshot, compatible_activities
 
 log = logging.getLogger(__name__)
 
@@ -24,8 +24,6 @@ SECTIONS = {
     "capsules": ("⏳ Mes Capsules du Temps", "Confie un souvenir à ton futur toi pour 30, 90 ou 180 jours. Une question collective mensuelle est proposée si le staff l’active. Participation volontaire et modérée."),
     "activites": ("🧭 Mes activités", "Retrouve tes inscriptions, tes présences confirmées et les activités à venir, ainsi que tes saisons, ton passeport, tes jeux et tes idées."),
     "suivi": ("🌠 Ma vie HORIZONS", "Tes Cercles, tes propositions, tes missions et tes jeux, réunis dans ton Centre personnel."),
-    "regard": ("📰 Le Regard du Jour", "Propose un article au staff et consulte tes points du Regard du Jour."),
-    "meteo": ("💙 Ma météo privée", "Historique facultatif des sept derniers jours. Tu décides de son activation et tu peux supprimer tes données."),
 }
 
 
@@ -142,13 +140,6 @@ def section_embed(key: str, member: discord.abc.User, guild_id: int) -> discord.
         embed.add_field(name="🧭 Ton passeport", value=info['missions'], inline=False)
         embed.add_field(name="🎮 Ton Arcade", value=info['arcade'], inline=False)
         embed.add_field(name="Pour aller plus loin", value="Utilise le menu « Ma progression » ci-dessous pour ton rang, ton parcours et tes badges. `/mon_passeport`, `/jeux` et `/mes_idees` restent disponibles.", inline=False)
-    if key == "meteo":
-        info = mood_summary(guild_id, member.id)
-        if info['enabled']:
-            embed.add_field(name="Tes sept derniers jours", value="\n".join(info['entries']) or "Aucune météo enregistrée sur cette période.", inline=False)
-            embed.add_field(name="Confidentialité", value="Cet historique est facultatif et visible uniquement dans ton Centre. Tu peux l'effacer ci-dessous.", inline=False)
-        else:
-            embed.add_field(name="Historique désactivé", value="Tu peux activer la consultation privée de ta météo. Rien ne sera utilisé pour les étoiles, les affinités ou les classements.", inline=False)
     if key == "passerelles":
         ideas = compatible_activities(guild_id, member.id)
         if ideas:
@@ -390,42 +381,10 @@ class BridgeInboxSelect(discord.ui.Select):
             await interaction.followup.send("Cette invitation n'est plus disponible.",ephemeral=True)
 
 
-class MoodActivateButton(discord.ui.Button):
-    def __init__(self):
-        super().__init__(label="Activer mon historique", style=discord.ButtonStyle.secondary, emoji="💙", row=2)
-    async def callback(self, interaction: discord.Interaction):
-        mood_enable(interaction.guild_id, interaction.user.id)
-        view = self.view
-        view.update_section_controls(interaction.guild_id, interaction.user.id)
-        await interaction.response.edit_message(embed=section_embed("meteo", interaction.user, interaction.guild_id), view=view)
 
 
-class MoodEraseButton(discord.ui.Button):
-    def __init__(self):
-        super().__init__(label="Effacer mes météos", style=discord.ButtonStyle.danger, emoji="🗑️", row=2)
-    async def callback(self, interaction: discord.Interaction):
-        # Confirmation explicite : un clic accidentel ne supprime aucune donnée.
-        await interaction.response.send_message(
-            "Cette action supprimera toutes tes météos enregistrées sur ce serveur. Confirmer ?",
-            view=MoodEraseConfirm(interaction.user.id), ephemeral=True)
 
 
-class MoodEraseConfirm(discord.ui.View):
-    def __init__(self, owner_id):
-        super().__init__(timeout=90)
-        self.owner_id = owner_id
-    async def interaction_check(self, interaction):
-        if interaction.user.id != self.owner_id:
-            await interaction.response.send_message("Action personnelle uniquement.", ephemeral=True)
-            return False
-        return True
-    @discord.ui.button(label="Oui, supprimer définitivement", style=discord.ButtonStyle.danger)
-    async def confirm(self, interaction, button):
-        mood_clear(interaction.guild_id, interaction.user.id)
-        await interaction.response.edit_message(content="Tes météos et ton choix d'activation ont été effacés.", view=None)
-    @discord.ui.button(label="Annuler", style=discord.ButtonStyle.secondary)
-    async def cancel(self, interaction, button):
-        await interaction.response.edit_message(content="Suppression annulée.", view=None)
 
 
 class SeasonActionSelect(discord.ui.Select):
@@ -496,29 +455,8 @@ class ProgressionSelect(discord.ui.Select):
 
 
 
-class RegardMemberModal(discord.ui.Modal, title="Proposer au Regard du Jour"):
-    titre = discord.ui.TextInput(label="Titre (12 à 170 caractères)", min_length=12, max_length=170)
-    lien = discord.ui.TextInput(label="Lien HTTPS", max_length=900)
-    async def on_submit(self, interaction):
-        cog = interaction.client.get_cog("RegardDuJour")
-        if cog is None:
-            return await interaction.response.send_message("Le Regard du Jour est indisponible.", ephemeral=True)
-        await type(cog).proposer.callback(cog, interaction, str(self.titre.value), str(self.lien.value), False)
 
-class RegardMemberButton(discord.ui.Button):
-    def __init__(self):
-        super().__init__(label="Proposer un article", emoji="📰", style=discord.ButtonStyle.primary, row=2)
-    async def callback(self, interaction):
-        await interaction.response.send_modal(RegardMemberModal())
 
-class RegardPointsButton(discord.ui.Button):
-    def __init__(self):
-        super().__init__(label="Mes points Regard", emoji="🌟", style=discord.ButtonStyle.secondary, row=2)
-    async def callback(self, interaction):
-        cog = interaction.client.get_cog("RegardDuJour")
-        if cog is None:
-            return await interaction.response.send_message("Le Regard du Jour est indisponible.", ephemeral=True)
-        await type(cog).points.callback(cog, interaction)
 
 class CentreView(discord.ui.View):
     def __init__(self, owner_id: int, visits: int, last_visit: str | None):
@@ -532,7 +470,7 @@ class CentreView(discord.ui.View):
 
     def update_section_controls(self, guild_id: int | None, user_id: int | None):
         for item in list(self.children):
-            if isinstance(item, (LetterDurationSelect, LetterManageSelect, CapsuleDurationSelect, CapsuleManageSelect, CollectiveCapsuleButton, CollectiveWithdrawButton, BridgeInterestsSelect, BridgeLeaveButton, BridgeInviteButton, BridgeCancelButton, BridgeInboxSelect, MoodActivateButton, MoodEraseButton, RegardMemberButton, RegardPointsButton, SeasonActionSelect, ActivityFunSelect, ProgressionSelect)):
+            if isinstance(item, (LetterDurationSelect, LetterManageSelect, CapsuleDurationSelect, CapsuleManageSelect, CollectiveCapsuleButton, CollectiveWithdrawButton, BridgeInterestsSelect, BridgeLeaveButton, BridgeInviteButton, BridgeCancelButton, BridgeInboxSelect, SeasonActionSelect, ActivityFunSelect, ProgressionSelect)):
                 self.remove_item(item)
         if guild_id is None:
             return
@@ -542,14 +480,6 @@ class CentreView(discord.ui.View):
             return
         if self.selected == "suivi":
             self.add_item(ProgressionSelect())
-            return
-        if self.selected == "regard":
-            self.add_item(RegardMemberButton())
-            self.add_item(RegardPointsButton())
-            return
-        if self.selected == "meteo":
-            self.add_item(MoodActivateButton())
-            self.add_item(MoodEraseButton())
             return
         if self.selected == "passerelles":
             current = sky_bridges.profile(guild_id,user_id)

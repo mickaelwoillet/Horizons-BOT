@@ -6,7 +6,7 @@ from __future__ import annotations
 import logging
 import discord
 from discord.ext import commands
-from config import (GUILD_ID, AFFINITY_CHANNEL_ID, MOOD_CHANNEL_ID,
+from config import (GUILD_ID, AFFINITY_CHANNEL_ID,
                     IDEAS_CHANNEL_ID, SOLIDARITY_CHANNEL_ID,
                     FIND_PARTNER_CHANNEL_ID, COLLECTIVE_CHALLENGES_CHANNEL_ID, ANONYMOUS_CHANNEL_ID)
 from .storage import db
@@ -17,7 +17,6 @@ log = logging.getLogger(__name__)
 NAMES = {
     AFFINITY_CHANNEL_ID: '🧩・connexions-du-ciel',
     ANONYMOUS_CHANNEL_ID: '💌・paroles-libres',
-    MOOD_CHANNEL_ID: '💗・meteo-des-emotions',
     IDEAS_CHANNEL_ID: '💡・boite-a-idees',
     SOLIDARITY_CHANNEL_ID: '💜・eclats-de-reconnaissance',
     FIND_PARTNER_CHANNEL_ID: '🤝・activites-ensemble',

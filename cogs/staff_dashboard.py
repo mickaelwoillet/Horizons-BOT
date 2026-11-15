@@ -201,112 +201,12 @@ class SectionsGridView(discord.ui.View):
             return False
         return True
 
-class RegardValidateModal(discord.ui.Modal, title="Regard — décision de modération"):
-    numero = discord.ui.TextInput(label="Identifiant numérique", placeholder="Ex. 42", max_length=12)
-    decision = discord.ui.TextInput(label="Décision", placeholder="approuver ou refuser", max_length=12)
-
-    def __init__(self, bot, action):
-        super().__init__()
-        self.bot, self.action = bot, action
-
-    async def on_submit(self, interaction: discord.Interaction):
-        if not isinstance(interaction.user, discord.Member) or not access_level(interaction.user) or not is_on_service(interaction.guild_id, interaction.user.id):
-            return await interaction.response.send_message("Staff en service uniquement.", ephemeral=True)
-        if not str(self.numero.value).isdigit():
-            return await interaction.response.send_message("Identifiant invalide.", ephemeral=True)
-        choice = str(self.decision.value).strip().lower()
-        mapping = {"approuver": ("approved", "Approuver"), "refuser": ("rejected", "Refuser")}
-        if choice not in mapping:
-            return await interaction.response.send_message("Indique approuver ou refuser.", ephemeral=True)
-        from discord import app_commands
-        cog = self.bot.get_cog("RegardDuJour")
-        if cog is None:
-            return await interaction.response.send_message("Module Regard indisponible.", ephemeral=True)
-        value, label = mapping[choice]
-        decision = app_commands.Choice(name=label, value=value)
-        if self.action == "valider":
-            await type(cog).valider.callback(cog, interaction, int(self.numero.value), decision)
-        else:
-            await type(cog).proposition_valider.callback(cog, interaction, int(self.numero.value), decision)
 
 
-class RegardAddModal(discord.ui.Modal, title="Ajouter au Regard du Jour"):
-    titre = discord.ui.TextInput(label="Titre", max_length=200)
-    lien = discord.ui.TextInput(label="Lien HTTPS", max_length=1000)
-    musique = discord.ui.TextInput(label="Musique ? (oui/non)", default="non", max_length=3)
-
-    def __init__(self, bot):
-        super().__init__()
-        self.bot = bot
-
-    async def on_submit(self, interaction):
-        cog = self.bot.get_cog("RegardDuJour")
-        if cog is None:
-            return await interaction.response.send_message("Module Regard indisponible.", ephemeral=True)
-        value = self.musique.value.strip().lower()
-        if value not in ("oui", "non"):
-            return await interaction.response.send_message("Indique oui ou non pour la musique.", ephemeral=True)
-        await type(cog).ajouter(cog, interaction, self.titre.value, self.lien.value, value == "oui")
 
 
-class RegardboardView(discord.ui.View):
-    """Actions de lecture du Regard, sans nouvelle commande slash."""
-    def __init__(self, bot, user_id):
-        super().__init__(timeout=600)
-        self.bot, self.user_id = bot, user_id
-
-    async def interaction_check(self, interaction):
-        if interaction.user.id != self.user_id or not isinstance(interaction.user, discord.Member) or not access_level(interaction.user) or not is_on_service(interaction.guild_id, interaction.user.id):
-            await interaction.response.send_message("Accès réservé au staff en service et au propriétaire de ce panneau.", ephemeral=True)
-            return False
-        return True
-
-    async def _call(self, interaction, name):
-        cog = self.bot.get_cog("RegardDuJour")
-        if cog is None:
-            await interaction.response.send_message("Le module Regard du Jour n'est pas chargé.", ephemeral=True)
-            return
-        await getattr(cog, name)(interaction)
-
-    @discord.ui.button(label="Diagnostic", emoji="🩺", style=discord.ButtonStyle.secondary)
-    async def diagnostic_button(self, interaction, button):
-        await self._call(interaction, "diagnostic")
-
-    @discord.ui.button(label="Propositions membres", emoji="📬", style=discord.ButtonStyle.secondary)
-    async def proposals_button(self, interaction, button):
-        await self._call(interaction, "propositions")
-
-    @discord.ui.button(label="Valider un article", emoji="✅", style=discord.ButtonStyle.primary)
-    async def validate_article_button(self, interaction, button):
-        await interaction.response.send_modal(RegardValidateModal(self.bot, "valider"))
-
-    @discord.ui.button(label="Traiter une proposition", emoji="📝", style=discord.ButtonStyle.secondary)
-    async def validate_proposal_button(self, interaction, button):
-        await interaction.response.send_modal(RegardValidateModal(self.bot, "proposition_valider"))
-
-    @discord.ui.button(label="Articles à valider", emoji="📰", style=discord.ButtonStyle.primary)
-    async def selection_button(self, interaction, button):
-        await self._call(interaction, "selection")
-
-    @discord.ui.button(label="Collecter les liens", emoji="🔎", style=discord.ButtonStyle.secondary, row=1)
-    async def collect_button(self, interaction, button):
-        await self._call(interaction, "collecter")
-
-    @discord.ui.button(label="Ajouter un article", emoji="➕", style=discord.ButtonStyle.primary, row=1)
-    async def add_button(self, interaction, button):
-        await interaction.response.send_modal(RegardAddModal(self.bot))
 
 
-class RegardboardButton(discord.ui.Button):
-    def __init__(self, bot):
-        super().__init__(label="Regardboard", emoji="📰", style=discord.ButtonStyle.secondary, row=3)
-        self.bot = bot
-
-    async def callback(self, interaction):
-        if not isinstance(interaction.user, discord.Member) or not access_level(interaction.user) or not is_on_service(interaction.guild_id, interaction.user.id):
-            await interaction.response.send_message("Prise de service staff obligatoire.", ephemeral=True)
-            return
-        await interaction.response.send_message("**Regardboard** — suivi et sélection des articles. Les actions de validation sont accessibles ici ; les autres opérations restent protégées.", view=RegardboardView(self.bot, interaction.user.id), ephemeral=True)
 
 
 
@@ -471,7 +371,6 @@ class DashboardView(discord.ui.View):
             self.add_item(PublicationsPanelButton())
             self.add_item(AnimationsPanelButton())
             self.add_item(CommunityHubButton())
-            self.add_item(RegardboardButton(cog.bot))
             if level in {"founder", "admin", "animator"}:
                 self.add_item(EventBoardButton())
             if level in {"founder", "admin"}:
@@ -751,7 +650,6 @@ def thematic_staff_embed(guild: discord.Guild, theme: str, choice: str = "overvi
     if theme == "publications":
         sections = {
             "overview": ("📰 Publications et routines", "Vue d'ensemble des publications. Les horaires automatiques restent inchangés."),
-            "regard": ("🗞️ Le Regard du Jour", "Articles, musique, votes et bilan hebdomadaire. Consulte le forum du Regard du Jour pour les contenus publiés."),
             "routines": ("☀️ Routines HORIZONS", "Question du jour, blague, devinette, Horizon du jour et inspiration quotidienne."),
             "calendrier": ("📅 Calendrier éditorial", "Les publications programmées sont assurées par les modules existants. Ce panneau n'exécute aucun test ni envoi."),
         }
@@ -765,8 +663,7 @@ def thematic_staff_embed(guild: discord.Guild, theme: str, choice: str = "overvi
     title, description = sections.get(choice, sections["overview"])
     embed = horizons_embed(title=title, description=description, color=discord.Color.blurple())
     import config
-    channel_keys = ({"regard": ["REGARD_FORUM_CHANNEL_ID", "REGARD_ARCHIVE_CHANNEL_ID"],
-                     "routines": ["DAILY_QUESTION_CHANNEL_ID", "HORIZON_DAILY_CHANNEL_ID", "JOKE_DAILY_CHANNEL_ID", "RIDDLE_DAILY_CHANNEL_ID"],
+    channel_keys = ({"routines": ["DAILY_QUESTION_CHANNEL_ID", "HORIZON_DAILY_CHANNEL_ID", "JOKE_DAILY_CHANNEL_ID", "RIDDLE_DAILY_CHANNEL_ID"],
                      "calendrier": ["AGENDA_CHANNEL_ID"]} if theme == "publications" else
                     {"quiz": ["QUIZ_CHANNEL_ID"], "defis": ["COLLECTIVE_CHALLENGES_CHANNEL_ID", "MISSIONS_CHANNEL_ID"],
                      "evenements": ["AGENDA_CHANNEL_ID"]})
@@ -781,8 +678,7 @@ def thematic_staff_embed(guild: discord.Guild, theme: str, choice: str = "overvi
 class ThematicStaffSelect(discord.ui.Select):
     def __init__(self, theme: str):
         self.theme = theme
-        entries = ([('overview', 'Vue générale'), ('regard', 'Regard du Jour'),
-                    ('routines', 'Routines quotidiennes'), ('calendrier', 'Calendrier')]
+        entries = ([('overview', 'Vue générale'), ('routines', 'Routines quotidiennes'), ('calendrier', 'Calendrier')]
                    if theme == 'publications' else
                    [('overview', 'Vue générale'), ('quiz', 'Quiz culturels'),
                     ('defis', 'Défis et missions'), ('evenements', 'Événements')])
@@ -801,7 +697,6 @@ def thematic_status_embed(bot: commands.Bot, theme: str) -> discord.Embed:
     """Diagnostic en lecture seule des modules réellement chargés."""
     # Utiliser les noms des extensions, plus fiables que les noms de classes Cog.
     extensions = ({
-        "Regard du Jour": "cogs.regard_du_jour",
         "Routines quotidiennes": "cogs.horizons_daily",
         "Calendrier éditorial": "cogs.publication_calendar",
         "Blagues": "cogs.jokes",
@@ -890,7 +785,6 @@ def thematic_channels_embed(guild: discord.Guild, theme: str) -> discord.Embed:
     """Vérifie les salons configurés sans publier ni modifier les permissions."""
     import config
     groups = ({
-        "Regard du Jour": ("REGARD_FORUM_CHANNEL_ID", "REGARD_ARCHIVE_CHANNEL_ID"),
         "Routines": ("DAILY_QUESTION_CHANNEL_ID", "HORIZON_DAILY_CHANNEL_ID", "JOKE_DAILY_CHANNEL_ID", "RIDDLE_DAILY_CHANNEL_ID"),
         "Agenda": ("AGENDA_CHANNEL_ID",),
     } if theme == "publications" else {
@@ -964,7 +858,6 @@ def thematic_schedule_embed(bot: commands.Bot, theme: str) -> discord.Embed:
         "Devinette du jour": ("Riddles", "daily_riddle", None),
         "Horizon du jour": ("HorizonsDaily", "horizon_of_day", None),
         "Débat hebdomadaire": ("HorizonsDaily", "weekly_debate", None),
-        "Regard du Jour (vérification)": ("RegardDuJour", "scheduler", None),
     } if theme == "publications" else {
         "Animation hebdomadaire": ("WeeklyAnimations", "friday_animation", None),
         "Anniversaires": ("Birthdays", "daily_birthdays", None),

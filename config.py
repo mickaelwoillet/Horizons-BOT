@@ -8,9 +8,7 @@ from zoneinfo import ZoneInfo
 from dotenv import load_dotenv
 
 BASE_DIR: Final[Path] = Path(__file__).resolve().parent
-# Le .env local doit primer sur les variables héritées du panneau d’hébergement.
-# Sans override, REGARD_ENABLED=false défini par l’hébergeur reste actif même
-# après avoir changé /app/.env en true.
+# Le .env local prime sur les variables héritées du panneau d’hébergement.
 load_dotenv(BASE_DIR / ".env", override=True)
 
 
@@ -60,8 +58,7 @@ FIND_PARTNER_CHANNEL_ID = env_int("FIND_PARTNER_CHANNEL_ID", 1567247627181883483
 COLLECTIVE_CHALLENGES_CHANNEL_ID = env_int("COLLECTIVE_CHALLENGES_CHANNEL_ID", 1567247726985355424)
 CIRCLE_PROPOSALS_CHANNEL_ID = env_int("CIRCLES_CHANNEL_ID", 1568998630831169666)  # Circuit réunifié
 CIRCLES_CHANNEL_ID = env_int("CIRCLES_CHANNEL_ID", 1568998630831169666)
-MOOD_CHANNEL_ID = env_int("MOOD_CHANNEL_ID", 1567290709583593503)
-SUCCESS_CHANNEL_ID = env_int("SUCCESS_CHANNEL_ID", 1566566574641512529)
+SUCCESS_CHANNEL_ID = env_int("SUCCESS_CHANNEL_ID", 1569434256311193721)
 AGENDA_CHANNEL_ID = env_int("AGENDA_CHANNEL_ID", 1566569087184797786)
 AFFINITY_CHANNEL_ID = env_int("AFFINITY_CHANNEL_ID", 1567291911176323173)
 IDEAS_CHANNEL_ID = env_int("IDEAS_CHANNEL_ID", 1567300011165880451)

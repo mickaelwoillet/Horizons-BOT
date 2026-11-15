@@ -130,9 +130,10 @@ EXTENSIONS: Final[tuple[str, ...]] = (
     "cogs.centre_horizons",
     "cogs.onboarding",
     "cogs.smart_welcome",
-    "cogs.regard_du_jour",
     "cogs.today_hub",
     "cogs.salon_harmony",
+    "cogs.structure_horizons",
+    "cogs.staff_recrutement",
     "cogs.visual_identity",
     "cogs.continuity",
     "cogs.moderation",
@@ -235,16 +236,23 @@ class HorizonsBot(commands.Bot):
 
         # Extensions optionnelles : les modules seront ajoutés au fil de la
         # reconstruction. Une extension absente est signalée sans bloquer le bot.
+        failed_extensions: list[str] = []
         for extension in EXTENSIONS:
             module_path = BASE_DIR.joinpath(*extension.split(".")).with_suffix(".py")
             if not module_path.is_file():
-                logger.info("Extension en attente : %s", extension)
+                logger.error("Extension déclarée mais absente : %s", extension)
+                failed_extensions.append(extension)
                 continue
             try:
                 await self.load_extension(extension)
                 logger.info("Extension chargée : %s", extension)
             except Exception:
+                failed_extensions.append(extension)
                 logger.exception("Échec du chargement de l'extension %s", extension)
+
+        if failed_extensions:
+            logger.critical("Synchronisation des commandes suspendue : %d extension(s) non chargée(s) : %s", len(failed_extensions), ", ".join(failed_extensions))
+            return
 
         if self.guild_object:
             # Les commandes définies dans les cogs sont globales par défaut.

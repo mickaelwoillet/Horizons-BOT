@@ -1117,15 +1117,37 @@ class NoxCentralView(discord.ui.View):
 
 
 class CosmicMissionClaim(discord.ui.View):
+    """La mission est une interaction explicite, puis une récompense unique par jour."""
     def __init__(self):
-        super().__init__(timeout=180)
+        super().__init__(timeout=300)
 
-    @discord.ui.button(label='Récupérer ma récompense',emoji='🎁',style=discord.ButtonStyle.success)
-    async def claim(self,i,b):
-        day=datetime.now(LOCAL_TIMEZONE).date().isoformat()
+    @discord.ui.button(label='Accomplir la mission', emoji='🐾', style=discord.ButtonStyle.primary)
+    async def complete(self, i: discord.Interaction, button: discord.ui.Button):
+        if not i.guild:
+            await i.response.send_message('Cette mission se déroule sur HORIZONS.', ephemeral=True)
+            return
+        day = datetime.now(LOCAL_TIMEZONE).date().isoformat()
         with connect() as conn:
-            msg=claim_mission(conn,i.guild.id,i.user.id,day)
-        await i.response.send_message(msg,ephemeral=True)
+            action, title, desc, done, claimed = mission_status(conn, i.guild.id, i.user.id, day)
+            if claimed:
+                msg = '🏆 Cette mission a déjà été récompensée aujourd’hui.'
+            elif done:
+                msg = '✅ Mission déjà accomplie ! Clique sur « Récupérer ma récompense ».'
+            else:
+                conn.execute('INSERT OR IGNORE INTO cosmic_actions(guild_id,user_id,action,day) VALUES(?,?,?,?)',
+                             (i.guild.id, i.user.id, 'nox:' + action, day))
+                msg = f'🐾 **{title}**\n{desc}\n✨ Action accomplie ! Tu peux récupérer ta récompense.'
+        await i.response.send_message(msg, ephemeral=True)
+
+    @discord.ui.button(label='Récupérer ma récompense', emoji='🎁', style=discord.ButtonStyle.success)
+    async def claim(self, i: discord.Interaction, button: discord.ui.Button):
+        if not i.guild:
+            await i.response.send_message('Cette mission se déroule sur HORIZONS.', ephemeral=True)
+            return
+        day = datetime.now(LOCAL_TIMEZONE).date().isoformat()
+        with connect() as conn:
+            msg = claim_mission(conn, i.guild.id, i.user.id, day)
+        await i.response.send_message(msg, ephemeral=True)
 
 
 class CosmicExplore(discord.ui.View):

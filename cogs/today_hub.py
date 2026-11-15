@@ -18,7 +18,7 @@ from config import (
     GUILD_ID, EXPERIENCES_CATEGORY_ID, MEMBER_ROLE_ID, NEW_MEMBER_ROLE_ID,
     STAFF_ROLE_ID, ADMIN_ROLE_ID, MOD_ROLE_ID, ANIMATOR_ROLE_ID,
     DAILY_QUESTION_CHANNEL_ID, AGENDA_CHANNEL_ID, FIND_PARTNER_CHANNEL_ID,
-    MOOD_CHANNEL_ID, LOCAL_TIMEZONE,
+    LOCAL_TIMEZONE,
 )
 from cogs.storage import db
 from cogs.embed_theme import horizons_embed, wait_for_logo_ready
@@ -43,6 +43,7 @@ class TodayChoice(discord.ui.Select):
             options=[
                 discord.SelectOption(label="Discuter", value="discussion", emoji="💬", description="Rejoindre une conversation"),
                 discord.SelectOption(label="Jouer", value="games", emoji="🎮", description="Retrouver l'Arcade"),
+                discord.SelectOption(label="S’occuper de NOX", value="care_nox", emoji="🐾", description="Rejoindre le Refuge de NOX"),
                 discord.SelectOption(label="Explorer", value="treasures", emoji="🌌", description="Découvrir les Trésors du Ciel"),
                 discord.SelectOption(label="Rencontrer", value="meet", emoji="🤝", description="Voir les propositions existantes"),
                 discord.SelectOption(label="Mes affinités", value="affinities", emoji="🧩", description="Accéder aux affinités existantes"),
@@ -53,7 +54,6 @@ class TodayChoice(discord.ui.Select):
                 discord.SelectOption(label="Mystère du jour", value="mystere", emoji="🔎", description="Résoudre une mini-énigme"),
                 discord.SelectOption(label="Rendez-vous surprise", value="surprise", emoji="🎲", description="Une idée courte à partager"),
                 discord.SelectOption(label="Mon bocal", value="mon_bocal", emoji="🫙", description="Relire mon bonheur de la semaine"),
-                discord.SelectOption(label="Faire une pause", value="wellbeing", emoji="🌻", description="Prendre un moment pour soi"),
             ],
         )
 
@@ -102,17 +102,20 @@ class TodayChoice(discord.ui.Select):
             "discussion": (DAILY_QUESTION_CHANNEL_ID, "💬 Rejoins la question du jour et échange à ton rythme."),
             "meet": (FIND_PARTNER_CHANNEL_ID, "🤝 Propose une activité ou rejoins une proposition existante."),
             "events": (AGENDA_CHANNEL_ID, "📅 Découvre les rendez-vous et événements de la communauté."),
-            "wellbeing": (MOOD_CHANNEL_ID, "🌻 Un espace pour prendre une pause et écouter ton humeur."),
         }
         if choice in destinations:
             cid, description = destinations[choice]
-        elif choice in {"games", "treasures"}:
+        elif choice in {"games", "treasures", "care_nox"}:
             # Recherche du salon par son nom : les IDs Arcade et Trésors ne sont
             # pas fixés dans config.py dans la version de référence.
-            keywords = ("arcade-horizons", "arcade") if choice == "games" else ("tresors-du-ciel", "trésors-du-ciel", "tresors")
+            keywords = (("arcade-horizons", "arcade") if choice == "games"
+                        else ("refuge",) if choice == "care_nox"
+                        else ("tresors-du-ciel", "trésors-du-ciel", "tresors"))
             channel = next((c for c in interaction.guild.text_channels if any(k in c.name.lower() for k in keywords)), None)
             cid = channel.id if channel else None
-            description = "🎮 L'Arcade t'attend !" if choice == "games" else "🌌 Explore les étoiles et constellations !"
+            description = ("🎮 L'Arcade t'attend !" if choice == "games"
+                           else "🐾 NOX t’attend dans son Refuge !" if choice == "care_nox"
+                           else "🌌 Explore les étoiles et constellations !")
         else:
             cid, description = None, "Cette activité n'est pas encore disponible."
         if not cid or interaction.guild.get_channel(cid) is None:
@@ -585,7 +588,7 @@ class TodayHub(commands.Cog):
             description=(
                 "Bienvenue dans ton carrefour communautaire !\n\n"
                 "Choisis une activité dans le menu ci-dessous : discuter, jouer, "
-                "explorer les Trésors du Ciel, rencontrer des membres, participer "
+                "explorer les Trésors du Ciel, prendre soin de NOX, rencontrer des membres, participer "
                 "à un événement, relever un défi collectif, déposer un petit bonheur, "
                 "résoudre un mystère, découvrir une surprise ou prendre une pause.\n\n"
                 f"**Idée du jour :** {idea}\n\n"

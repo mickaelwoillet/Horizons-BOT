@@ -20,7 +20,8 @@ CHANNEL_DEFAULTS = {
     'anomalies': 1569434251785412699,
     'nox': 1569434252909608980,
     'chroniques': 1569434254448918701,
-    'exploration': 1569434256311193721,
+    # L'ancien salon Exploration est réservé aux distinctions NOX.
+    # Les aventures vont aux Chroniques sauf salon dédié configuré.
     'histoire': 1569440702167785522,
 }
 KIND_ROUTES = {
@@ -29,11 +30,16 @@ KIND_ROUTES = {
     'grille_pain': 'anomalies',
     'paradoxe': 'anomalies',
     'gloups': 'observatoire',
-    'exploration': 'exploration',
+    'exploration': 'chroniques',
     'chronique': 'chroniques',
 }
 
 def channel_for_kind(kind):
+    # Un salon d'aventures explicite est possible sans réutiliser les distinctions.
+    if kind == 'exploration':
+        raw = os.getenv('NOX_TV_ADVENTURES_CHANNEL_ID', '').strip()
+        if raw.isdecimal() and int(raw) > 0:
+            return int(raw)
     destination = KIND_ROUTES.get(kind, 'observatoire')
     raw = os.getenv('COSMOS_CHANNEL_' + destination.upper(), str(CHANNEL_DEFAULTS[destination])).strip()
     return int(raw) if raw.isdecimal() and int(raw) > 0 else None
@@ -779,8 +785,15 @@ class NoxTV(commands.Cog):
                     continue
                 with connect() as db:
                     setting = db.execute('SELECT enabled FROM noxtv_settings WHERE guild_id=?', (guild.id,)).fetchone()
+                    # Une réservation sans message_id peut correspondre à un envoi
+                    # accepté par Discord malgré une erreur réseau. Ne jamais
+                    # relancer automatiquement tant que ce cas n'a pas été vérifié.
+                    pending = db.execute('SELECT day FROM noxtv_posts WHERE guild_id=? AND message_id=0 ORDER BY day LIMIT 1', (guild.id,)).fetchone()
                     last = db.execute('SELECT MAX(day) AS last_day FROM noxtv_posts WHERE guild_id=? AND message_id>0', (guild.id,)).fetchone()
                 if not setting or not setting['enabled']:
+                    continue
+                if pending:
+                    LOG.warning('NOX TV: réservation non confirmée pour le serveur %s (%s) ; vérification manuelle nécessaire, rotation suspendue', guild.id, pending['day'])
                     continue
                 last_day = datetime.fromisoformat(last['last_day']).date() if last and last['last_day'] else None
                 if last_day is None or (now.date() - last_day).days >= 2:
