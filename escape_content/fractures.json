@@ -325,11 +325,11 @@
           "title": "L’atelier du temps",
           "description": "Quel objet de mesure du temps est posé parmi les instruments ?",
           "answers": [
-            "sablier"
+            "horloge"
           ],
           "hints": [
-            "Observe les petits objets sur les établis.",
-            "Réfléchis au vocabulaire de la salle : l’atelier du temps."
+            "Cet instrument indique les heures et les minutes.",
+            "Il possède généralement un cadran et des aiguilles."
           ],
           "rewards": [
             "atelier_fragment_5"
