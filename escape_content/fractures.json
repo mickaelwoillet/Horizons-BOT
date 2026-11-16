@@ -42,8 +42,8 @@
         },
         {
           "id": "obs_lune",
-          "title": "Les quatre visages",
-          "description": "Au-dessus de la grande porte, quatre représentations célestes racontent un cycle. Quel astre est représenté ?",
+          "title": "Le cycle déchiffré",
+          "description": "Sur la frise, quatre états se succèdent : nouvelle, premier quartier, pleine, dernier quartier. Quel astre suit ce cycle ?",
           "answers": [
             "lune",
             "la lune"
@@ -52,14 +52,14 @@
             "fragment_lunaire"
           ],
           "hints": [
-            "Lève les yeux au-dessus de la porte.",
-            "Cet astre possède des phases."
+            "Les quatre états sont des phases astronomiques.",
+            "Cet astre tourne autour de la Terre."
           ]
         },
         {
           "id": "obs_plume",
-          "title": "Le témoin silencieux",
-          "description": "Sur le bureau, un instrument d’écriture blanc se dresse dans son encrier. Que faut-il nommer ?",
+          "title": "Le mot de l’astronome",
+          "description": "Sur le bureau, un billet porte : « Mon premier est la première lettre de Planète ; mon deuxième celle de Lumière ; mon troisième celle de Univers ; mon quatrième celle de Météore ; mon cinquième celle de Encre. » Quel mot de cinq lettres obtiens-tu ?",
           "answers": [
             "plume",
             "une plume",
@@ -69,25 +69,24 @@
             "plume_astrale"
           ],
           "hints": [
-            "Cherche au premier plan à droite.",
-            "Avant les stylos, on écrivait parfois avec cet objet."
+            "Prends la première lettre de chaque mot indiqué, dans l’ordre.",
+            "P – L – U – M – E."
           ]
         },
         {
           "id": "obs_boussole",
-          "title": "Le point immobile",
-          "description": "Au centre du sol, un motif oriente les voyageurs. Quel symbole à plusieurs pointes évoque les directions cardinales ?",
+          "title": "La logique des directions",
+          "description": "Un voyageur fait face au nord. Il pivote d’un quart de tour vers la droite, puis d’un demi-tour. Quelle direction regarde-t-il maintenant ? Réponds par un point cardinal.",
           "answers": [
-            "rose des vents",
-            "rose des vent",
-            "boussole"
+            "ouest",
+            "l ouest"
           ],
           "rewards": [
             "sceau_des_directions"
           ],
           "hints": [
-            "Observe le centre du sol.",
-            "Le motif ressemble à une rose des vents."
+            "Nord → est après le premier pivot.",
+            "Depuis l’est, un demi-tour mène à l’ouest."
           ]
         },
         {
@@ -152,17 +151,14 @@
         },
         {
           "id": "cart_ecrans",
-          "title": "Les yeux du centre",
-          "description": "Sur les murs, plusieurs dispositifs rectangulaires affichent des diagrammes et des cartes. Comment appelle-t-on ces dispositifs ?",
+          "title": "Le code des écrans",
+          "description": "Un écran affiche « 3 – 15 – 19 – 13 – 15 – 19 ». Chaque nombre correspond au rang d’une lettre dans l’alphabet (A=1, B=2…). Quel mot obtiens-tu ?",
           "answers": [
-            "écrans",
-            "ecrans",
-            "écran",
-            "ecran"
+            "cosmos"
           ],
           "hints": [
-            "Cherche les surfaces bleutées sur les murs.",
-            "Elles affichent des informations numériques."
+            "3=C, 15=O.",
+            "Les six lettres forment C O S M O S."
           ],
           "rewards": [
             "releve_des_ecrans"
@@ -170,15 +166,16 @@
         },
         {
           "id": "cart_sablier",
-          "title": "La mesure du silence",
-          "description": "À droite, sur un bureau, un objet transparent contient une matière lumineuse qui s’écoule. Nomme cet objet.",
+          "title": "La suite du temps",
+          "description": "Le cadran du dispositif temporel affiche la suite 2, 4, 8, 16, ?. Quel nombre doit remplacer le point d’interrogation ?",
           "answers": [
-            "sablier",
-            "un sablier"
+            "32",
+            "trente deux",
+            "trente-deux"
           ],
           "hints": [
-            "Observe le premier plan, côté droit.",
-            "Deux ampoules de verre réunies par un étranglement."
+            "Chaque terme est le double du précédent.",
+            "16 × 2 = 32."
           ],
           "rewards": [
             "mesure_du_temps"
@@ -202,16 +199,16 @@
         },
         {
           "id": "cart_parchemin",
-          "title": "Le message scellé",
-          "description": "Un document enroulé et fermé par un sceau repose sur le bureau de droite. Quel nom donne-t-on à ce document ?",
+          "title": "Le parchemin inversé",
+          "description": "Le parchemin porte un mot écrit à l’envers : « ELIOTE ». Lis les lettres de droite à gauche et indique le mot obtenu.",
           "answers": [
-            "parchemin",
-            "rouleau",
-            "rouleau de parchemin"
+            "etoile",
+            "étoile",
+            "une étoile"
           ],
           "hints": [
-            "Cherche près du sablier.",
-            "C’est un support d’écriture ancien, ici enroulé."
+            "Commence par la dernière lettre.",
+            "E L I O T E devient E T O I L E."
           ],
           "rewards": [
             "message_scellé"
@@ -280,14 +277,14 @@
         },
         {
           "id": "atelier_2",
-          "title": "La force captive",
-          "description": "Quel phénomène s’échappe des conduites chaudes au plafond ?",
+          "title": "La chaudière chiffrée",
+          "description": "Sur la chaudière, une inscription indique : A=1, B=2, ..., Z=26. Décode 22-1-16-5-21-18 pour rétablir la pression.",
           "answers": [
             "vapeur"
           ],
           "hints": [
-            "Cherche la brume près des tuyaux.",
-            "Réfléchis au vocabulaire de la salle : la force captive."
+            "Convertis chaque nombre en lettre de l’alphabet.",
+            "22=V, 1=A, 16=P, 5=E, 21=U, 18=R."
           ],
           "rewards": [
             "atelier_fragment_2"
@@ -295,14 +292,14 @@
         },
         {
           "id": "atelier_3",
-          "title": "L’escalier du contremaître",
-          "description": "Quel matériau constitue principalement les marches et passerelles de l’atelier ?",
+          "title": "Les trois leviers",
+          "description": "Trois leviers A, B et C doivent être activés. B doit précéder A, et C doit suivre A. Dans quel ordre faut-il les actionner ? Réponds avec les trois lettres, sans espace.",
           "answers": [
-            "metal"
+            "bac"
           ],
           "hints": [
-            "Observe les marches et leurs garde-corps.",
-            "Réfléchis au vocabulaire de la salle : l’escalier du contremaître."
+            "B est avant A ; A est avant C.",
+            "L’ordre est B, puis A, puis C."
           ],
           "rewards": [
             "atelier_fragment_3"
@@ -310,14 +307,14 @@
         },
         {
           "id": "atelier_4",
-          "title": "Le cœur bleu",
-          "description": "Quelle couleur domine l’énergie lumineuse du réacteur ?",
+          "title": "La fréquence du cœur",
+          "description": "Le réacteur émet des impulsions : 2, 4, 8, 16, ?. Quel nombre faut-il régler sur le cadran ?",
           "answers": [
-            "bleu"
+            "32"
           ],
           "hints": [
-            "Regarde le réacteur central.",
-            "Réfléchis au vocabulaire de la salle : le cœur bleu."
+            "Chaque impulsion double la précédente.",
+            "16 × 2 = 32."
           ],
           "rewards": [
             "atelier_fragment_4"
@@ -340,14 +337,15 @@
         },
         {
           "id": "atelier_6",
-          "title": "La transmission",
-          "description": "Quel mécanisme relie les grandes roues aux machines ?",
+          "title": "La transmission inversée",
+          "description": "La roue A tourne dans le sens horaire. Elle entraîne directement B, qui entraîne directement C. Dans quel sens tourne C ? Réponds « horaire » ou « antihoraire ».",
           "answers": [
-            "engrenage"
+            "horaire",
+            "sens horaire"
           ],
           "hints": [
-            "Pense aux dents qui s’emboîtent.",
-            "Réfléchis au vocabulaire de la salle : la transmission."
+            "Deux roues en contact tournent en sens opposés.",
+            "A horaire → B antihoraire → C horaire."
           ],
           "rewards": [
             "atelier_fragment_6"
@@ -466,14 +464,14 @@
         },
         {
           "id": "archives_2",
-          "title": "Le regard de verre",
-          "description": "Quel instrument sert à grossir les petits caractères sur le bureau ?",
+          "title": "L’index codé",
+          "description": "Un index porte le code 12-9-22-18-5 (A=1, B=2, ..., Z=26). Quel mot révèle-t-il ?",
           "answers": [
-            "loupe"
+            "livre"
           ],
           "hints": [
-            "Cherche un verre rond avec une poignée.",
-            "Réfléchis au vocabulaire de la salle : le regard de verre."
+            "Transforme les nombres en lettres.",
+            "12=L, 9=I, 22=V, 18=R, 5=E."
           ],
           "rewards": [
             "archives_fragment_2"
@@ -481,14 +479,14 @@
         },
         {
           "id": "archives_3",
-          "title": "Les rouleaux oubliés",
-          "description": "Comment nomme-t-on un document ancien enroulé sur lui-même ?",
+          "title": "Le message renversé",
+          "description": "Un rouleau porte le mot « ERBMO ». Lis-le de droite à gauche. Quel mot apparaît ?",
           "answers": [
-            "parchemin"
+            "ombre"
           ],
           "hints": [
-            "Cherche les rouleaux sur le bureau.",
-            "Réfléchis au vocabulaire de la salle : les rouleaux oubliés."
+            "Inverse l’ordre des cinq lettres.",
+            "E-R-B-M-O devient O-M-B-R-E."
           ],
           "rewards": [
             "archives_fragment_3"
@@ -496,14 +494,14 @@
         },
         {
           "id": "archives_4",
-          "title": "La plume du scribe",
-          "description": "Quel instrument traditionnel permet d’écrire avec de l’encre ?",
+          "title": "L’acrostiche du scribe",
+          "description": "Quatre lignes commencent par : Passage, Ombre, Rêve, Temps, Étoile. Lis leurs premières lettres. Quel mot obtiens-tu ?",
           "answers": [
-            "plume"
+            "porte"
           ],
           "hints": [
-            "Regarde près des documents ouverts.",
-            "Réfléchis au vocabulaire de la salle : la plume du scribe."
+            "Ne lis que les initiales.",
+            "P-O-R-T-E."
           ],
           "rewards": [
             "archives_fragment_4"
@@ -526,14 +524,14 @@
         },
         {
           "id": "archives_6",
-          "title": "La mémoire des archives",
-          "description": "Quel objet contient les récits que protègent les rayonnages ?",
+          "title": "Le classement des tomes",
+          "description": "Trois tomes portent les numéros 7, 3 et 5. Le gardien les range du plus petit au plus grand. Quel est le numéro du tome central ?",
           "answers": [
-            "livre"
+            "5"
           ],
           "hints": [
-            "Pense à ce qui se lit page après page.",
-            "Réfléchis au vocabulaire de la salle : la mémoire des archives."
+            "Trie les trois nombres.",
+            "3, 5, 7 : le milieu est 5."
           ],
           "rewards": [
             "archives_fragment_6"
@@ -658,14 +656,14 @@
         },
         {
           "id": "laboratoire_2",
-          "title": "L’éclat violet",
-          "description": "Quelle couleur caractérise la déchirure visible au fond du laboratoire ?",
+          "title": "Le spectre des anomalies",
+          "description": "La machine donne les longueurs de séquence 3, 6, 12, 24, ?. Quel nombre complète la mesure ?",
           "answers": [
-            "violet"
+            "48"
           ],
           "hints": [
-            "Regarde la fissure lumineuse.",
-            "Réfléchis au vocabulaire de la salle : l’éclat violet."
+            "La valeur est multipliée par deux.",
+            "24 × 2 = 48."
           ],
           "rewards": [
             "laboratoire_fragment_2"
@@ -673,14 +671,14 @@
         },
         {
           "id": "laboratoire_3",
-          "title": "La matière brillante",
-          "description": "Quel matériau minéral lumineux est conservé dans le laboratoire ?",
+          "title": "Le protocole des cuves",
+          "description": "Les cuves A, B et C sont liées : C doit être ouverte après B, et B après A. Quel ordre est sûr ? Réponds avec trois lettres.",
           "answers": [
-            "cristal"
+            "abc"
           ],
           "hints": [
-            "Cherche les formations translucides.",
-            "Réfléchis au vocabulaire de la salle : la matière brillante."
+            "Respecte les deux contraintes successives.",
+            "A puis B puis C."
           ],
           "rewards": [
             "laboratoire_fragment_3"
@@ -688,14 +686,14 @@
         },
         {
           "id": "laboratoire_4",
-          "title": "Les préparations",
-          "description": "Comment appelle-t-on les petits récipients contenant des liquides expérimentaux ?",
+          "title": "Le code des fioles",
+          "description": "Quatre fioles sont étiquetées F, I, O et L. Le protocole exige de lire la troisième, puis la deuxième, puis la quatrième, puis la première. Quel code obtiens-tu ?",
           "answers": [
-            "fioles"
+            "olif"
           ],
           "hints": [
-            "Observe les petites bouteilles sur les tables.",
-            "Réfléchis au vocabulaire de la salle : les préparations."
+            "Applique les positions 3-2-4-1.",
+            "O-L-I-F."
           ],
           "rewards": [
             "laboratoire_fragment_4"
@@ -718,14 +716,14 @@
         },
         {
           "id": "laboratoire_6",
-          "title": "L’alerte",
-          "description": "Quel mot désigne un phénomène qui dévie du fonctionnement attendu ?",
+          "title": "L’équilibre du réacteur",
+          "description": "Deux capteurs affichent 9 et 14 unités. Quel nombre d’unités faut-il ajouter au premier pour égaliser les mesures ?",
           "answers": [
-            "anomalie"
+            "5"
           ],
           "hints": [
-            "C’est le nom de ce laboratoire.",
-            "Réfléchis au vocabulaire de la salle : l’alerte."
+            "Calcule la différence.",
+            "14 - 9 = 5."
           ],
           "rewards": [
             "laboratoire_fragment_6"
@@ -850,14 +848,14 @@
         },
         {
           "id": "jardin_2",
-          "title": "Les eaux tranquilles",
-          "description": "Quel élément liquide occupe le bassin circulaire ?",
+          "title": "Les bassins reliés",
+          "description": "Le premier bassin contient 4 mesures d’eau. Le deuxième en contient le double, et le troisième la moitié du deuxième. Combien de mesures contient le troisième ?",
           "answers": [
-            "eau"
+            "4"
           ],
           "hints": [
-            "Observe le bassin au centre.",
-            "Réfléchis au vocabulaire de la salle : les eaux tranquilles."
+            "Deuxième bassin : 8 mesures.",
+            "La moitié de 8 vaut 4."
           ],
           "rewards": [
             "jardin_fragment_2"
@@ -865,14 +863,14 @@
         },
         {
           "id": "jardin_3",
-          "title": "La lumière des fleurs",
-          "description": "Quel mot désigne une plante à pétales colorés ?",
+          "title": "Les pétales cryptés",
+          "description": "Une fleur porte cinq pétales marqués E, T, O, I, L. Une inscription demande de les lire dans l’ordre 3-5-2-4-1. Quel code de cinq lettres obtiens-tu ?",
           "answers": [
-            "fleur"
+            "oltie"
           ],
           "hints": [
-            "Regarde près du bassin.",
-            "Réfléchis au vocabulaire de la salle : la lumière des fleurs."
+            "Prends les lettres aux positions indiquées.",
+            "3=O, 5=L, 2=T, 4=I, 1=E : OLTIE."
           ],
           "rewards": [
             "jardin_fragment_3"
@@ -880,14 +878,14 @@
         },
         {
           "id": "jardin_4",
-          "title": "Les racines profondes",
-          "description": "Quelle partie d’un arbre s’enfonce dans le sol ?",
+          "title": "Les racines jumelles",
+          "description": "Un arbre possède 2 racines principales. Chacune se divise en 3 branches. Combien de branches terminales y a-t-il ?",
           "answers": [
-            "racines"
+            "6"
           ],
           "hints": [
-            "Suis les formes torsadées au pied du tronc.",
-            "Réfléchis au vocabulaire de la salle : les racines profondes."
+            "Multiplie le nombre de racines par leurs divisions.",
+            "2 × 3 = 6."
           ],
           "rewards": [
             "jardin_fragment_4"
@@ -910,14 +908,15 @@
         },
         {
           "id": "jardin_6",
-          "title": "La mémoire du vivant",
-          "description": "Quel être vivant porte les racines qui traversent le sol ?",
+          "title": "La ronde des saisons",
+          "description": "Un cadran affiche printemps → été → automne → hiver → ?. Quelle saison vient ensuite ?",
           "answers": [
-            "arbre"
+            "printemps",
+            "le printemps"
           ],
           "hints": [
-            "Retourne au plus grand végétal de la salle.",
-            "Réfléchis au vocabulaire de la salle : la mémoire du vivant."
+            "Le cycle des saisons recommence.",
+            "Après l’hiver revient le printemps."
           ],
           "rewards": [
             "jardin_fragment_6"
@@ -1027,14 +1026,15 @@
       "puzzles": [
         {
           "id": "galeries_1",
-          "title": "La voie de fer",
-          "description": "Sur quoi roulent les wagonnets ?",
+          "title": "Les aiguillages du mineur",
+          "description": "Un wagonnet part vers le nord. À la première bifurcation il tourne à droite, puis à la suivante il tourne à gauche. Vers quel point cardinal roule-t-il maintenant ?",
           "answers": [
-            "rails"
+            "nord",
+            "le nord"
           ],
           "hints": [
-            "Observe le sol de la galerie.",
-            "Réfléchis au vocabulaire de la salle : la voie de fer."
+            "Le premier virage mène vers l’est.",
+            "Depuis l’est, tourner à gauche ramène vers le nord."
           ],
           "rewards": [
             "galeries_fragment_1"
@@ -1042,14 +1042,15 @@
         },
         {
           "id": "galeries_2",
-          "title": "Le transporteur",
-          "description": "Quel véhicule minier transporte les pierres extraites ?",
+          "title": "Le code des wagonnets",
+          "description": "Trois wagonnets portent les nombres 2, 4 et 8. Le quatrième suit la même règle. Quel nombre porte-t-il ?",
           "answers": [
-            "wagonnet"
+            "16",
+            "seize"
           ],
           "hints": [
-            "Cherche le chariot posé sur les rails.",
-            "Réfléchis au vocabulaire de la salle : le transporteur."
+            "Chaque nombre est lié au précédent.",
+            "On multiplie par deux."
           ],
           "rewards": [
             "galeries_fragment_2"
@@ -1057,14 +1058,15 @@
         },
         {
           "id": "galeries_3",
-          "title": "La lumière minérale",
-          "description": "Quels objets naturels brillent dans les parois ?",
+          "title": "La formule des cristaux",
+          "description": "Sur la paroi est gravé : CRISTAL = 7, ROC = 3, MINE = 4. Quelle valeur vaut GALERIE selon cette règle ?",
           "answers": [
-            "cristaux"
+            "7",
+            "sept"
           ],
           "hints": [
-            "Observe les parois turquoise.",
-            "Réfléchis au vocabulaire de la salle : la lumière minérale."
+            "La règle ne dépend pas de la signification des mots.",
+            "Compte les lettres."
           ],
           "rewards": [
             "galeries_fragment_3"
@@ -1072,14 +1074,15 @@
         },
         {
           "id": "galeries_4",
-          "title": "La lumière des mineurs",
-          "description": "Quel objet portable éclaire les galeries ?",
+          "title": "La lanterne chiffrée",
+          "description": "La lanterne projette 12-21-14-5. En utilisant A=1, B=2, jusqu’à Z=26, quel mot apparaît ?",
           "answers": [
-            "lanterne"
+            "lune",
+            "la lune"
           ],
           "hints": [
-            "Cherche les sources de lumière suspendues.",
-            "Réfléchis au vocabulaire de la salle : la lumière des mineurs."
+            "Chaque nombre désigne une lettre.",
+            "12=L, 21=U, 14=N, 5=E."
           ],
           "rewards": [
             "galeries_fragment_4"
@@ -1087,14 +1090,14 @@
         },
         {
           "id": "galeries_5",
-          "title": "Les passages suspendus",
-          "description": "Quel ouvrage permet de franchir les crevasses ?",
+          "title": "Le pont des trois dalles",
+          "description": "Un pont comporte trois dalles numérotées 1, 2 et 3. L’indice dit : « La dernière d’abord, puis la première, enfin celle du milieu. » Quel code à trois chiffres faut-il entrer ?",
           "answers": [
-            "pont"
+            "312"
           ],
           "hints": [
-            "Regarde les passerelles au-dessus du vide.",
-            "Réfléchis au vocabulaire de la salle : les passages suspendus."
+            "Écris les numéros dans l’ordre indiqué.",
+            "Dernière = 3, première = 1, milieu = 2."
           ],
           "rewards": [
             "galeries_fragment_5"
@@ -1102,14 +1105,14 @@
         },
         {
           "id": "galeries_6",
-          "title": "Le minerai oublié",
-          "description": "Quel mot désigne une matière rocheuse extraite d’une mine ?",
+          "title": "L’acrostiche du minerai",
+          "description": "Une inscription indique trois lignes : « Murmures dans la pierre / Images de l’oubli / Nuit sans fin ». Lis la première lettre de chaque ligne. Quel mot obtiens-tu ?",
           "answers": [
-            "minerai"
+            "min"
           ],
           "hints": [
-            "Pense à ce que transportent les wagonnets.",
-            "Réfléchis au vocabulaire de la salle : le minerai oublié."
+            "Cherche une lettre par ligne.",
+            "Les initiales sont M, I et N."
           ],
           "rewards": [
             "galeries_fragment_6"
@@ -1219,14 +1222,15 @@
       "puzzles": [
         {
           "id": "sanctuaire_1",
-          "title": "Le miroir liquide",
-          "description": "Quelle étendue d’eau reflète les ruines ?",
+          "title": "Le reflet inversé",
+          "description": "Sur la surface du lac apparaît le mot « OHCÉ ». Lis les lettres de droite à gauche, sans tenir compte de l’accent. Quel mot obtiens-tu ?",
           "answers": [
-            "lac"
+            "echo",
+            "écho"
           ],
           "hints": [
-            "Observe le centre de la grotte.",
-            "Réfléchis au vocabulaire de la salle : le miroir liquide."
+            "Inverse l’ordre des lettres.",
+            "O-H-C-É devient É-C-H-O."
           ],
           "rewards": [
             "sanctuaire_fragment_1"
@@ -1234,14 +1238,15 @@
         },
         {
           "id": "sanctuaire_2",
-          "title": "La pierre suspendue",
-          "description": "Quel minéral flotte au-dessus de l’autel ?",
+          "title": "La suite des résonances",
+          "description": "Le cristal émet 1 pulsation, puis 2, puis 4, puis 8. Combien de pulsations lors de la prochaine émission ?",
           "answers": [
-            "cristal"
+            "16",
+            "seize"
           ],
           "hints": [
-            "Regarde l’élément lumineux central.",
-            "Réfléchis au vocabulaire de la salle : la pierre suspendue."
+            "La quantité double à chaque étape.",
+            "Après 8 vient 16."
           ],
           "rewards": [
             "sanctuaire_fragment_2"
@@ -1249,14 +1254,15 @@
         },
         {
           "id": "sanctuaire_3",
-          "title": "Les chutes souterraines",
-          "description": "Comment appelle-t-on l’eau qui tombe verticalement depuis la roche ?",
+          "title": "Les trois cascades",
+          "description": "Trois cascades portent les nombres 9, 6 et 3. L’autel exige la somme des deux nombres extrêmes moins celui du milieu. Quel résultat donner ?",
           "answers": [
-            "cascade"
+            "6",
+            "six"
           ],
           "hints": [
-            "Observe les côtés de la grotte.",
-            "Réfléchis au vocabulaire de la salle : les chutes souterraines."
+            "Les extrêmes sont 9 et 3.",
+            "9 + 3 − 6 = 6."
           ],
           "rewards": [
             "sanctuaire_fragment_3"
@@ -1264,14 +1270,14 @@
         },
         {
           "id": "sanctuaire_4",
-          "title": "Les vestiges",
-          "description": "Quel nom donne-t-on aux restes d’anciens bâtiments ?",
+          "title": "Le mot des vestiges",
+          "description": "Les quatre pierres portent R, U, I, N. Replace-les pour former le début du mot qui désigne les vestiges anciens. Quel groupe de quatre lettres obtiens-tu ?",
           "answers": [
-            "ruines"
+            "ruin"
           ],
           "hints": [
-            "Observe les constructions de pierre.",
-            "Réfléchis au vocabulaire de la salle : les vestiges."
+            "Le mot complet est « ruines ».",
+            "Ses quatre premières lettres sont R-U-I-N."
           ],
           "rewards": [
             "sanctuaire_fragment_4"
@@ -1411,14 +1417,15 @@
       "puzzles": [
         {
           "id": "crypte_1",
-          "title": "Les sentinelles",
-          "description": "Quel type de sculpture représente les gardiens immobiles ?",
+          "title": "Les sentinelles immobiles",
+          "description": "Quatre statues regardent successivement le nord, l’est, le sud et l’ouest. Celle qui regarde à l’opposé de l’est porte le sceau. Vers quelle direction regarde-t-elle ?",
           "answers": [
-            "statue"
+            "ouest",
+            "l ouest"
           ],
           "hints": [
-            "Observe les personnages de pierre.",
-            "Réfléchis au vocabulaire de la salle : les sentinelles."
+            "Cherche le point cardinal opposé.",
+            "L’opposé de l’est est l’ouest."
           ],
           "rewards": [
             "crypte_fragment_1"
@@ -1426,14 +1433,15 @@
         },
         {
           "id": "crypte_2",
-          "title": "Les flammes",
-          "description": "Quel objet fixé au mur porte une flamme pour éclairer la crypte ?",
+          "title": "Le rituel des torches",
+          "description": "Les torches s’allument dans l’ordre 1, 3, 5, puis 7. Quelle est la prochaine torche dans cette suite ?",
           "answers": [
-            "torche"
+            "9",
+            "neuf"
           ],
           "hints": [
-            "Regarde les éclairages de la crypte.",
-            "Réfléchis au vocabulaire de la salle : les flammes."
+            "La suite avance à pas constants.",
+            "Ajoute deux à chaque fois."
           ],
           "rewards": [
             "crypte_fragment_2"
@@ -1441,14 +1449,14 @@
         },
         {
           "id": "crypte_3",
-          "title": "Les sépultures",
-          "description": "Quel mot désigne les constructions qui abritent les morts ?",
+          "title": "Le code du tombeau",
+          "description": "Une pierre affiche 20-15-13-2-5. Avec A=1 et Z=26, quel mot de cinq lettres obtiens-tu ?",
           "answers": [
-            "tombeaux"
+            "tombe"
           ],
           "hints": [
-            "Observe les pierres funéraires.",
-            "Réfléchis au vocabulaire de la salle : les sépultures."
+            "Transforme les nombres en lettres.",
+            "20=T, 15=O, 13=M, 2=B, 5=E."
           ],
           "rewards": [
             "crypte_fragment_3"
@@ -1456,14 +1464,15 @@
         },
         {
           "id": "crypte_4",
-          "title": "Le signe nocturne",
-          "description": "Quel astre apparaît sous forme de croissant parmi les symboles ?",
+          "title": "Le cycle des astres",
+          "description": "Les symboles alternent : lune, soleil, lune, soleil, lune. Quel symbole vient ensuite ?",
           "answers": [
-            "lune"
+            "soleil",
+            "le soleil"
           ],
           "hints": [
-            "Cherche un croissant.",
-            "Réfléchis au vocabulaire de la salle : le signe nocturne."
+            "Observe l’alternance des deux astres.",
+            "Après chaque lune vient un soleil."
           ],
           "rewards": [
             "crypte_fragment_4"
@@ -1471,14 +1480,15 @@
         },
         {
           "id": "crypte_5",
-          "title": "Le signe diurne",
-          "description": "Quel astre est représenté par un disque rayonnant ?",
+          "title": "Le cadran des gardiens",
+          "description": "Un cadran possède douze positions. Son aiguille part du 3 et avance de quatre positions dans le sens horaire. Sur quel nombre s’arrête-t-elle ?",
           "answers": [
-            "soleil"
+            "7",
+            "sept"
           ],
           "hints": [
-            "Cherche un symbole rayonnant.",
-            "Réfléchis au vocabulaire de la salle : le signe diurne."
+            "Compte quatre positions après le 3.",
+            "3 → 4 → 5 → 6 → 7."
           ],
           "rewards": [
             "crypte_fragment_5"
@@ -1486,14 +1496,14 @@
         },
         {
           "id": "crypte_6",
-          "title": "Le devoir",
-          "description": "Quel nom portent les protecteurs représentés par les statues ?",
+          "title": "Le serment des gardiens",
+          "description": "Les initiales de « Garder, Aider, Rester, Défendre » forment un code. Quel code de quatre lettres faut-il entrer ?",
           "answers": [
-            "gardiens"
+            "gard"
           ],
           "hints": [
-            "C’est le nom de ceux qui protégeaient les portes.",
-            "Réfléchis au vocabulaire de la salle : le devoir."
+            "Lis la première lettre de chaque verbe.",
+            "G-A-R-D."
           ],
           "rewards": [
             "crypte_fragment_6"
@@ -1603,14 +1613,15 @@
       "puzzles": [
         {
           "id": "prison_1",
-          "title": "Les entraves",
-          "description": "Quels liens métalliques retiennent les cages au-dessus du vide ?",
+          "title": "Le rythme des chaînes",
+          "description": "Trois chaînes vibrent à intervalles de 2, 4 et 6 secondes. Au bout de combien de secondes vibrent-elles de nouveau toutes ensemble ?",
           "answers": [
-            "chaines"
+            "12",
+            "12 secondes"
           ],
           "hints": [
-            "Observe ce qui pend du plafond.",
-            "Réfléchis au vocabulaire de la salle : les entraves."
+            "Cherche un multiple commun à 2, 4 et 6.",
+            "Le plus petit multiple commun est 12."
           ],
           "rewards": [
             "prison_fragment_1"
@@ -1618,14 +1629,14 @@
         },
         {
           "id": "prison_2",
-          "title": "Les chambres closes",
-          "description": "Comment appelle-t-on les pièces où l’on enferme des prisonniers ?",
+          "title": "Le code des cellules",
+          "description": "Les cellules sont numérotées 3, 6, 12, 24. Quel numéro vient ensuite ?",
           "answers": [
-            "cellules"
+            "48"
           ],
           "hints": [
-            "Regarde derrière les barreaux.",
-            "Réfléchis au vocabulaire de la salle : les chambres closes."
+            "Chaque numéro dépend du précédent.",
+            "Multiplie chaque terme par deux."
           ],
           "rewards": [
             "prison_fragment_2"
@@ -1633,14 +1644,14 @@
         },
         {
           "id": "prison_3",
-          "title": "Le passage étroit",
-          "description": "Quel ouvrage relie les deux bords du gouffre ?",
+          "title": "Le passage chiffré",
+          "description": "La passerelle indique : A=1, B=2, ... Z=26. Décode 16-15-14-20 pour trouver le mot de passage.",
           "answers": [
-            "passerelle"
+            "pont"
           ],
           "hints": [
-            "Cherche les chemins suspendus.",
-            "Réfléchis au vocabulaire de la salle : le passage étroit."
+            "Chaque nombre représente une lettre.",
+            "16=P, 15=O, 14=N, 20=T."
           ],
           "rewards": [
             "prison_fragment_3"
@@ -1648,14 +1659,14 @@
         },
         {
           "id": "prison_4",
-          "title": "La profondeur",
-          "description": "Quel mot désigne un trou extrêmement profond et vertigineux ?",
+          "title": "Les directions du gouffre",
+          "description": "Depuis le nord, le gardien tourne à droite, puis fait demi-tour, puis tourne à gauche. Dans quelle direction regarde-t-il ?",
           "answers": [
-            "gouffre"
+            "sud"
           ],
           "hints": [
-            "Observe le vide sous les cages.",
-            "Réfléchis au vocabulaire de la salle : la profondeur."
+            "Nord puis droite : est.",
+            "Est puis demi-tour : ouest ; ouest puis gauche : sud."
           ],
           "rewards": [
             "prison_fragment_4"
@@ -1663,14 +1674,14 @@
         },
         {
           "id": "prison_5",
-          "title": "Les barreaux",
-          "description": "Quel matériau compose les grilles et les chaînes de la prison ?",
+          "title": "Le message derrière les barreaux",
+          "description": "Sur une grille, lis une lettre sur deux dans F-X-E-X-R-X. Quel métal obtient-on ?",
           "answers": [
             "fer"
           ],
           "hints": [
-            "Pense au métal des barreaux.",
-            "Réfléchis au vocabulaire de la salle : les barreaux."
+            "Ignore les lettres X.",
+            "Les lettres utiles sont F, E et R."
           ],
           "rewards": [
             "prison_fragment_5"
@@ -1678,14 +1689,15 @@
         },
         {
           "id": "prison_6",
-          "title": "La captivité",
-          "description": "Quel mot désigne l’état d’une personne enfermée ?",
+          "title": "La clé du geôlier",
+          "description": "Le geôlier grave le mot codé M J C F S F. Chaque lettre a été avancée d’un rang dans l’alphabet. Quel mot de six lettres ouvre la porte ?",
           "answers": [
-            "prisonnier"
+            "libere",
+            "libéré"
           ],
           "hints": [
-            "Pense à celui qui occupe une cellule.",
-            "Réfléchis au vocabulaire de la salle : la captivité."
+            "Recule chaque lettre d’un rang.",
+            "M→L, J→I, C→B, F→E, S→R, F→E : LIBERE."
           ],
           "rewards": [
             "prison_fragment_6"
@@ -1693,10 +1705,10 @@
         },
         {
           "id": "prison_porte",
-          "title": "Le verrou de la salle",
-          "description": "Le mécanisme final exige que toutes les découvertes de cette salle soient enregistrées. Quel mot complète le nom de cette salle : Étoiles ?",
+          "title": "Le code des six chaînes",
+          "description": "Les six chaînes de la prison portent, dans l’ordre des épreuves, les chiffres 2, 4, 6, 8, 10 et 12. Le verrou demande la somme des nombres inscrits sur les chaînes de rang pair (2e, 4e et 6e). Quel nombre faut-il saisir ?",
           "answers": [
-            "Étoiles"
+            "24"
           ],
           "requires_solved": [
             "prison_1",
@@ -1714,8 +1726,8 @@
             "prison_assemblage_central"
           ],
           "hints": [
-            "Toutes les épreuves de la salle doivent être terminées.",
-            "Le dernier mot du titre de cette salle ouvre le verrou."
+            "Repère les chaînes aux positions 2, 4 et 6, pas les nombres pairs dans leur ensemble.",
+            "Additionne 4 + 8 + 12."
           ],
           "next_room": "fracture"
         }
@@ -1795,14 +1807,14 @@
       "puzzles": [
         {
           "id": "fracture_1",
-          "title": "Les fragments suspendus",
-          "description": "Quelle matière solide forme les îlots flottants ?",
+          "title": "Les îlots de réalité",
+          "description": "Trois îlots portent 2, 5 et 8 runes. Si la progression reste constante, combien de runes porte le quatrième ?",
           "answers": [
-            "pierre"
+            "11"
           ],
           "hints": [
-            "Observe les fragments dans le vide.",
-            "Réfléchis au vocabulaire de la salle : les fragments suspendus."
+            "Compare les écarts.",
+            "On ajoute 3 à chaque îlot."
           ],
           "rewards": [
             "fracture_fragment_1"
@@ -1810,14 +1822,14 @@
         },
         {
           "id": "fracture_2",
-          "title": "La couleur du chaos",
-          "description": "Quelle couleur domine la grande déchirure ?",
+          "title": "La faille chromatique",
+          "description": "Le spectre de la faille répète ROUGE – BLEU – VIOLET – ROUGE – BLEU – ?. Quelle couleur manque ?",
           "answers": [
             "violet"
           ],
           "hints": [
-            "Regarde le centre de la scène.",
-            "Réfléchis au vocabulaire de la salle : la couleur du chaos."
+            "Le cycle comporte trois couleurs.",
+            "La troisième couleur est violet."
           ],
           "rewards": [
             "fracture_fragment_2"
@@ -1825,14 +1837,14 @@
         },
         {
           "id": "fracture_3",
-          "title": "Les arcs brisés",
-          "description": "Quel élément architectural en forme de courbe est partiellement détruit ?",
+          "title": "Les arches jumelles",
+          "description": "Une arche est marquée 4, son reflet 8 ; une autre 7, son reflet 14. Quel reflet correspond à 9 ?",
           "answers": [
-            "arche"
+            "18"
           ],
           "hints": [
-            "Regarde les structures flottantes.",
-            "Réfléchis au vocabulaire de la salle : les arcs brisés."
+            "Les reflets suivent une même règle.",
+            "Double le nombre de l’arche."
           ],
           "rewards": [
             "fracture_fragment_3"
@@ -1840,14 +1852,14 @@
         },
         {
           "id": "fracture_4",
-          "title": "La lumière vive",
-          "description": "Quel phénomène électrique traverse la fracture ?",
+          "title": "Le signal électrique",
+          "description": "Une impulsion clignote selon le code Morse · – · · . Quelle lettre représente-t-elle ?",
           "answers": [
-            "eclair"
+            "l"
           ],
           "hints": [
-            "Observe les traits lumineux dans le ciel.",
-            "Réfléchis au vocabulaire de la salle : la lumière vive."
+            "Un point vaut court, un tiret vaut long.",
+            "En Morse, · – · · correspond à L."
           ],
           "rewards": [
             "fracture_fragment_4"
@@ -1855,14 +1867,15 @@
         },
         {
           "id": "fracture_5",
-          "title": "Le temps inversé",
-          "description": "Quel objet rempli de sable permet de mesurer une durée ?",
+          "title": "Le sablier inversé",
+          "description": "Un sablier cosmique se vide en 8 minutes. Deux sabliers identiques sont retournés en même temps. Combien de minutes avant qu’ils soient tous deux vides ?",
           "answers": [
-            "sablier"
+            "8",
+            "8 minutes"
           ],
           "hints": [
-            "Cherche un objet du premier plan.",
-            "Réfléchis au vocabulaire de la salle : le temps inversé."
+            "Ils fonctionnent simultanément.",
+            "Deux durées de 8 minutes en parallèle restent 8 minutes."
           ],
           "rewards": [
             "fracture_fragment_5"
@@ -1870,14 +1883,14 @@
         },
         {
           "id": "fracture_6",
-          "title": "La déchirure",
-          "description": "Quel mot désigne la faille qui sépare le cosmos ?",
+          "title": "Le mot disloqué",
+          "description": "Rassemble les fragments FRA – CTU – RE pour nommer la déchirure cosmique.",
           "answers": [
             "fracture"
           ],
           "hints": [
-            "C’est le nom de l’aventure.",
-            "Réfléchis au vocabulaire de la salle : la déchirure."
+            "Lis les fragments dans l’ordre.",
+            "FRA + CTU + RE."
           ],
           "rewards": [
             "fracture_fragment_6"
@@ -1885,10 +1898,10 @@
         },
         {
           "id": "fracture_porte",
-          "title": "Le verrou de la salle",
-          "description": "Le mécanisme final exige que toutes les découvertes de cette salle soient enregistrées. Quel mot complète le nom de cette salle : Fracture ?",
+          "title": "La stabilisation du cœur",
+          "description": "Trois cadrans indiquent 3, 6 et 12 unités. Pour stabiliser la fracture, NOX doit régler un quatrième cadran en poursuivant la règle « chaque valeur double ». Quelle valeur doit-il saisir ?",
           "answers": [
-            "Fracture"
+            "24"
           ],
           "requires_solved": [
             "fracture_1",
@@ -1906,8 +1919,8 @@
             "fracture_assemblage_central"
           ],
           "hints": [
-            "Toutes les épreuves de la salle doivent être terminées.",
-            "Le dernier mot du titre de cette salle ouvre le verrou."
+            "Observe comment on passe de 3 à 6, puis de 6 à 12.",
+            "Double 12."
           ],
           "next_room": "tribunal"
         }
@@ -1987,14 +2000,15 @@
       "puzzles": [
         {
           "id": "tribunal_1",
-          "title": "Les sièges du jugement",
-          "description": "Quel siège monumental accueille les juges ?",
+          "title": "Les douze sièges",
+          "description": "Douze juges sont assis en cercle. Un siège sur trois s’illumine. Combien de sièges s’allument ?",
           "answers": [
-            "trone"
+            "4",
+            "quatre"
           ],
           "hints": [
-            "Observe le cercle de sièges.",
-            "Réfléchis au vocabulaire de la salle : les sièges du jugement."
+            "Partage douze en groupes de trois.",
+            "12 ÷ 3 = 4."
           ],
           "rewards": [
             "tribunal_fragment_1"
@@ -2002,14 +2016,15 @@
         },
         {
           "id": "tribunal_2",
-          "title": "L’équilibre",
-          "description": "Quel instrument possède deux plateaux et sert à comparer des poids ?",
+          "title": "La balance des astres",
+          "description": "Deux étoiles pèsent autant que six lunes. Combien de lunes équivalent à une étoile ?",
           "answers": [
-            "balance"
+            "3",
+            "trois"
           ],
           "hints": [
-            "Regarde le centre du tribunal.",
-            "Réfléchis au vocabulaire de la salle : l’équilibre."
+            "Divise les deux côtés de la balance par deux.",
+            "Une étoile vaut trois lunes."
           ],
           "rewards": [
             "tribunal_fragment_2"
@@ -2017,14 +2032,14 @@
         },
         {
           "id": "tribunal_3",
-          "title": "La matière claire",
-          "description": "Quelle pierre blanche polie recouvre le sol du tribunal ?",
+          "title": "L’inscription du sol",
+          "description": "Les dalles affichent M – A – R – B – R – E. Quel matériau forment-elles ?",
           "answers": [
             "marbre"
           ],
           "hints": [
-            "Observe le sol brillant.",
-            "Réfléchis au vocabulaire de la salle : la matière claire."
+            "Lis les lettres de gauche à droite.",
+            "Le mot est MARBRE."
           ],
           "rewards": [
             "tribunal_fragment_3"
@@ -2032,14 +2047,14 @@
         },
         {
           "id": "tribunal_4",
-          "title": "La lumière froide",
-          "description": "Quelle couleur éclaire l’un des plateaux de la balance ?",
+          "title": "Le plateau froid",
+          "description": "Sur le plateau froid, les lettres sont décalées d’un rang vers l’avant : C M F V. Recule chaque lettre d’un rang pour trouver la couleur.",
           "answers": [
             "bleu"
           ],
           "hints": [
-            "Observe le plateau à la lumière froide.",
-            "Réfléchis au vocabulaire de la salle : la lumière froide."
+            "C devient B.",
+            "C→B, M→L, F→E, V→U."
           ],
           "rewards": [
             "tribunal_fragment_4"
@@ -2047,14 +2062,14 @@
         },
         {
           "id": "tribunal_5",
-          "title": "La lumière chaude",
-          "description": "Quelle couleur éclaire l’autre plateau ?",
+          "title": "Le plateau chaud",
+          "description": "Le plateau chaud affiche les codes 15 et 18, avec A=1. Quelle matière précieuse désignent-ils ?",
           "answers": [
             "or"
           ],
           "hints": [
-            "Observe le plateau à la lumière chaude.",
-            "Réfléchis au vocabulaire de la salle : la lumière chaude."
+            "Convertis les nombres en lettres.",
+            "15=O et 18=R."
           ],
           "rewards": [
             "tribunal_fragment_5"
@@ -2062,14 +2077,14 @@
         },
         {
           "id": "tribunal_6",
-          "title": "Le verdict",
-          "description": "Quel mot désigne la décision rendue à l’issue d’un jugement ?",
+          "title": "Le jugement caché",
+          "description": "Le greffier a écrit V-E-R-D-I-C-T sur sept sceaux. Quel mot forme leur lecture ?",
           "answers": [
             "verdict"
           ],
           "hints": [
-            "Pense à la fonction du tribunal.",
-            "Réfléchis au vocabulaire de la salle : le verdict."
+            "Lis les sceaux dans l’ordre.",
+            "C’est la décision du tribunal."
           ],
           "rewards": [
             "tribunal_fragment_6"
@@ -2077,10 +2092,10 @@
         },
         {
           "id": "tribunal_porte",
-          "title": "Le verrou de la salle",
-          "description": "Le mécanisme final exige que toutes les découvertes de cette salle soient enregistrées. Quel mot complète le nom de cette salle : Éternités ?",
+          "title": "Le jugement des trois balances",
+          "description": "Trois balances portent les verdicts 2, 5 et 8. Le tribunal exige un dernier nombre suivant la même progression régulière. Quelle valeur doit être gravée sur le sceau final ?",
           "answers": [
-            "Éternités"
+            "11"
           ],
           "requires_solved": [
             "tribunal_1",
@@ -2098,8 +2113,8 @@
             "tribunal_assemblage_central"
           ],
           "hints": [
-            "Toutes les épreuves de la salle doivent être terminées.",
-            "Le dernier mot du titre de cette salle ouvre le verrou."
+            "La différence entre deux valeurs successives est constante.",
+            "Ajoute 3 à 8."
           ],
           "conditional_next_room": {
             "room": "origine_cachee",
@@ -2195,14 +2210,15 @@
       "puzzles": [
         {
           "id": "origine_trace",
-          "title": "Une trace oubliée",
-          "description": "Les souvenirs semblent dessiner une première correspondance. Quel mot revient dans les récits précédents ?",
+          "title": "Les archives du souvenir",
+          "description": "NOX découvre un message : « Ma première lettre ouvre Monde ; ma deuxième ouvre Étoile ; ma troisième ouvre Mémoire ; ma quatrième ouvre Origine ; ma cinquième ouvre Iris ; ma sixième ouvre Résonance ; ma septième ouvre Écho. » Quel mot forme-t-il ?",
           "answers": [
-            "memoire"
+            "memoire",
+            "mémoire"
           ],
           "hints": [
-            "Pense aux traces laissées par les salles.",
-            "Ce que l’on garde du passé."
+            "Prends la première lettre de chaque mot dans l’ordre.",
+            "M – É – M – O – I – R – É."
           ],
           "rewards": [
             "origine_eclat_1"
@@ -2210,8 +2226,8 @@
         },
         {
           "id": "origine_reflet",
-          "title": "Le reflet inversé",
-          "description": "Deux aspects d’une même histoire se répondent. Quel mot désigne leur relation ?",
+          "title": "Le reflet codé",
+          "description": "Le miroir inverse l’ordre des lettres. Une inscription apparaît : R I O R I M. Quel mot de six lettres se lit dans le bon sens ?",
           "answers": [
             "miroir"
           ],
@@ -2219,7 +2235,8 @@
             "origine_trace"
           ],
           "hints": [
-            "Un objet qui renvoie une image."
+            "Lis la suite de droite à gauche.",
+            "Commence par M, puis I."
           ],
           "rewards": [
             "origine_eclat_2"
@@ -2227,16 +2244,18 @@
         },
         {
           "id": "origine_fil",
-          "title": "Le fil des mondes",
-          "description": "Ce qui relie les mondes n’est pas une chaîne. Quel terme décrit une connexion entre deux choses ?",
+          "title": "La trame des mondes",
+          "description": "Trois portails sont reliés par 2, 4 puis 8 fils lumineux. Le quatrième portail en compte deux fois plus que le précédent. Combien de fils doit-on activer ?",
           "answers": [
-            "lien"
+            "16",
+            "seize"
           ],
           "requires_solved": [
             "origine_reflet"
           ],
           "hints": [
-            "Ce qui unit sans enfermer."
+            "Chaque nombre est le double du précédent.",
+            "8 × 2 = 16."
           ],
           "rewards": [
             "origine_eclat_3"
@@ -2244,8 +2263,8 @@
         },
         {
           "id": "origine_assemblage",
-          "title": "L’accord impossible",
-          "description": "Les trois éclats doivent être réunis. Quel mot désigne le fait de les réunir en un ensemble ?",
+          "title": "L’accord des éclats",
+          "description": "Trois éclats sont gravés des lettres U, N et I. Sur le socle, deux autres lettres apparaissent : O et N. En les plaçant dans cet ordre — U, N, I, O, N — quel mot d’accord forme-t-on ?",
           "answers": [
             "union"
           ],
@@ -2258,7 +2277,8 @@
             "origine_eclat_3"
           ],
           "hints": [
-            "Rassembler plutôt que séparer."
+            "Les cinq lettres forment un mot qui signifie le rassemblement.",
+            "Lis U – N – I – O – N."
           ],
           "rewards": [
             "origine_clef"
@@ -2266,10 +2286,11 @@
         },
         {
           "id": "origine_final",
-          "title": "Le dernier choix",
-          "description": "Le lieu ne demande plus une force, mais une intention. Quel mot exprime le souhait de préserver plutôt que détruire ?",
+          "title": "Le dernier choix de NOX",
+          "description": "Sur le seuil final, cinq runes indiquent P – R – O – T – É et trois autres G – E – R. Assemble-les pour écrire le verbe qui décrit la décision de préserver les mondes.",
           "answers": [
-            "proteger"
+            "proteger",
+            "protéger"
           ],
           "requires_solved": [
             "origine_assemblage"
@@ -2279,7 +2300,8 @@
             "origine_inscription"
           ],
           "hints": [
-            "Le contraire de mettre en danger."
+            "Lis les deux groupes de runes à la suite.",
+            "P R O T É + G E R."
           ],
           "finish": true
         }

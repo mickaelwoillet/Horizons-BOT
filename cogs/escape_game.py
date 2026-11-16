@@ -15,6 +15,7 @@ from config import DATA_DIR
 from .embed_theme import horizons_embed
 from escape_engine import Engine, load_adventure, AdventureError
 from escape_ui import show_room
+from escape_event_logs import log_escape_event
 
 DB = DATA_DIR / 'escape_game.sqlite3'
 STATE = DATA_DIR / 'escape_installation.json'
@@ -76,8 +77,20 @@ class Portal(discord.ui.View):
   with db() as con:
    solo=con.execute('SELECT room FROM progress WHERE guild_id=? AND user_id=? AND adventure=?',(interaction.guild_id,interaction.user.id,'fractures')).fetchone()
    team=con.execute('SELECT t.id,t.room FROM teams t JOIN team_members m ON m.team_id=t.id WHERE t.guild_id=? AND t.adventure=? AND m.user_id=?',(interaction.guild_id,'fractures',interaction.user.id)).fetchone()
-  msg=f'**Solo :** {"profil créé" if solo else "pas encore commencé"}\\n**Équipe :** {"#"+str(team[0]) if team else "aucune"}\\nUtilise `/escape jouer` pour reprendre ta partie.'
-  await interaction.response.send_message(msg.replace('\\n','\n'),ephemeral=True)
+  engine = Engine(DB)
+  solo_state = engine.status(interaction.guild_id, 'fractures', 'solo', interaction.user.id) if solo else None
+  team_state = engine.status(interaction.guild_id, 'fractures', 'team', team[0]) if team else None
+  solo_room = solo_state.get('room_id', 'inconnue') if solo_state else 'profil créé' if solo else 'pas encore commencé'
+  team_room = team_state.get('room_id', 'inconnue') if team_state else 'équipe créée' if team else 'aucune'
+  team_label = f'#{team[0]} — {team_room}' if team else team_room
+  msg = (f'💾 **Ta progression sauvegardée**\n'
+         f'**Solo :** {solo_room}\n'
+         f'**Collectif :** {team_label}\n\n'
+         '🔄 Pour retrouver des boutons actifs après une pause ou un redémarrage, '
+         'utilise `/escape jouer` et sélectionne le même mode. '
+         'Les anciennes interfaces expirées ne peuvent pas être réactivées.')
+  await interaction.response.send_message(msg, ephemeral=True)
+
  @discord.ui.button(label='Les aventures',style=discord.ButtonStyle.secondary,emoji='🗝️',custom_id='escape:catalog')
  async def catalog(self,interaction:discord.Interaction,button:discord.ui.Button):
   await interaction.response.send_message(embed=emb('🗝️ Le catalogue des aventures','🌌 **Les Fractures du Cosmos** — jouable avec `/escape jouer`\n🏚️ **Le Manoir des Murmures** — à venir\n🌊 **La Cité Engloutie** — à venir'),ephemeral=True)
@@ -110,8 +123,11 @@ class EscapeGame(commands.GroupCog, group_name='escape', group_description='Port
     return await interaction.response.send_message('Rejoins ou crée une équipe avant de jouer en collectif.', ephemeral=True)
    owner=team[0]
   engine=Engine(DB)
+  previous = engine.status(interaction.guild_id, 'fractures', mode.value, owner)
   engine.start(interaction.guild_id,'fractures',mode.value,owner,content['rooms'][0]['id'])
   await show_room(interaction,engine,content,(interaction.guild_id,'fractures',mode.value,owner))
+  if previous is None:
+   await log_escape_event(interaction, 'start', mode=mode.value)
 
  @app_commands.command(name='installer',description='Installer la catégorie Escape Game et ses cinq salons (administration).')
  @app_commands.default_permissions(administrator=True)
