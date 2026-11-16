@@ -121,6 +121,37 @@ async def open_fractures(interaction:discord.Interaction,mode:str):
   await log_escape_event(interaction, 'start', mode=mode)
 
 
+class RestartSoloConfirmation(discord.ui.View):
+ def __init__(self, user_id: int):
+  super().__init__(timeout=120)
+  self.user_id = user_id
+
+ @discord.ui.button(label='Confirmer : recommencer depuis la salle 1',style=discord.ButtonStyle.danger,emoji='🔄')
+ async def confirm(self, interaction:discord.Interaction, button:discord.ui.Button):
+  if interaction.user.id != self.user_id or not interaction.guild:
+   return await interaction.response.send_message('Cette confirmation ne t’est pas destinée.',ephemeral=True)
+  try:
+   content = load_adventure(CONTENT_FILE)
+   engine = Engine(DB)
+   engine.restart_solo(interaction.guild_id,'fractures',self.user_id,content['rooms'][0]['id'])
+   # Clear legacy solo records too; never touch team or other adventure data.
+   with db() as con:
+    con.execute('DELETE FROM progress WHERE guild_id=? AND user_id=? AND adventure=?',
+                (interaction.guild_id,self.user_id,'fractures'))
+    con.execute('DELETE FROM inventory WHERE guild_id=? AND mode=? AND owner_id=? AND adventure=?',
+                (interaction.guild_id,'solo',self.user_id,'fractures'))
+  except (ValueError, KeyError, OSError, sqlite3.Error) as exc:
+   return await interaction.response.send_message(f'⚠️ Impossible de recommencer : {exc}',ephemeral=True)
+  for child in self.children: child.disabled = True
+  await interaction.response.edit_message(content='🔄 Partie solo réinitialisée. Tu peux reprendre depuis la salle 1 avec `/escape jouer` (Solo).',view=self)
+
+ @discord.ui.button(label='Annuler',style=discord.ButtonStyle.secondary)
+ async def cancel(self,interaction:discord.Interaction,button:discord.ui.Button):
+  if interaction.user.id != self.user_id:
+   return await interaction.response.send_message('Cette confirmation ne t’est pas destinée.',ephemeral=True)
+  await interaction.response.edit_message(content='Réinitialisation annulée : ta progression est conservée.',view=None)
+
+
 class JoinTeamModal(discord.ui.Modal, title='Rejoindre une équipe'):
  team_number=discord.ui.TextInput(label="Numéro de l'équipe",placeholder="Exemple : 7",max_length=12)
  async def on_submit(self,interaction:discord.Interaction):
@@ -269,23 +300,38 @@ class Portal(discord.ui.View):
   await interaction.response.send_message(f'📨 **Inviter dans l’équipe #{team[0]}** : sélectionne un membre.',view=InviteMemberPicker(interaction.guild_id,team[0],interaction.user.id),ephemeral=True)
  @discord.ui.button(label='Rejoindre une équipe',style=discord.ButtonStyle.secondary,emoji='🤝',custom_id='escape:join_team')
  async def join_team(self,interaction:discord.Interaction,button:discord.ui.Button):
+  if not interaction.guild:
+   return await interaction.response.send_message('Disponible uniquement sur le serveur.',ephemeral=True)
   await interaction.response.send_modal(JoinTeamModal())
  @discord.ui.button(label='Quitter mon équipe',style=discord.ButtonStyle.secondary,emoji='🚪',custom_id='escape:leave_team')
  async def leave(self,interaction:discord.Interaction,button:discord.ui.Button):
+  if not interaction.guild:
+   return await interaction.response.send_message('Disponible uniquement sur le serveur.',ephemeral=True)
   with db() as con:
    team=con.execute("SELECT t.id FROM teams t JOIN team_members m ON m.team_id=t.id WHERE t.guild_id=? AND t.adventure='fractures' AND m.user_id=?",(interaction.guild_id,interaction.user.id)).fetchone()
   if not team:
    return await interaction.response.send_message('Tu ne fais partie d’aucune équipe Escape Game.',ephemeral=True)
   await interaction.response.send_message(f'⚠️ Confirmer ton départ de l’équipe **#{team[0]}** ? La progression collective restera sauvegardée.',view=ConfirmTeamDeparture(interaction.user.id),ephemeral=True)
+ @discord.ui.button(label='Recommencer en solo',style=discord.ButtonStyle.secondary,emoji='🔄',custom_id='escape:restart_solo')
+ async def restart_solo_button(self,interaction:discord.Interaction,button:discord.ui.Button):
+  if not interaction.guild:
+   return await interaction.response.send_message('Disponible uniquement sur le serveur.',ephemeral=True)
+  await interaction.response.send_message(
+   '⚠️ **Recommencer ton aventure solo depuis la salle 1 ?** '
+   'Cette action efface uniquement tes énigmes, objets et indices de l’Escape Game solo. '
+   'Les autres joueurs, les équipes, NOX et NOX Junior ne seront pas affectés.',
+   view=RestartSoloConfirmation(interaction.user.id),ephemeral=True)
+
  @discord.ui.button(label='Ma progression',style=discord.ButtonStyle.secondary,emoji='💾',custom_id='escape:progress')
  async def progress(self, interaction:discord.Interaction, button:discord.ui.Button):
+  if not interaction.guild:
+   return await interaction.response.send_message('Disponible uniquement sur le serveur.',ephemeral=True)
   with db() as con:
-   solo=con.execute('SELECT room FROM progress WHERE guild_id=? AND user_id=? AND adventure=?',(interaction.guild_id,interaction.user.id,'fractures')).fetchone()
    team=con.execute('SELECT t.id,t.room FROM teams t JOIN team_members m ON m.team_id=t.id WHERE t.guild_id=? AND t.adventure=? AND m.user_id=?',(interaction.guild_id,'fractures',interaction.user.id)).fetchone()
   engine = Engine(DB)
-  solo_state = engine.status(interaction.guild_id, 'fractures', 'solo', interaction.user.id) if solo else None
+  solo_state = engine.status(interaction.guild_id, 'fractures', 'solo', interaction.user.id)
   team_state = engine.status(interaction.guild_id, 'fractures', 'team', team[0]) if team else None
-  solo_room = solo_state.get('room_id', 'inconnue') if solo_state else 'profil créé' if solo else 'pas encore commencé'
+  solo_room = solo_state.get('room_id', 'inconnue') if solo_state else 'pas encore commencé'
   team_room = team_state.get('room_id', 'inconnue') if team_state else 'équipe créée' if team else 'aucune'
   team_label = f'#{team[0]} — {team_room}' if team else team_room
   msg = (f'💾 **Ta progression sauvegardée**\n'
@@ -312,6 +358,17 @@ class EscapeGame(commands.GroupCog, group_name='escape', group_description='Port
  @app_commands.choices(mode=[app_commands.Choice(name='Solo',value='solo'),app_commands.Choice(name='Collectif',value='team')])
  async def jouer(self,interaction:discord.Interaction,mode:app_commands.Choice[str]):
   await open_fractures(interaction,mode.value)
+
+ @app_commands.command(name='recommencer',description='Recommencer ton aventure solo depuis la salle 1 après confirmation.')
+ async def recommencer(self,interaction:discord.Interaction):
+  if not interaction.guild:
+   return await interaction.response.send_message('Commande réservée au serveur.',ephemeral=True)
+  if not CONTENT_FILE.is_file():
+   return await interaction.response.send_message('Aventure momentanément indisponible.',ephemeral=True)
+  await interaction.response.send_message(
+   '⚠️ **Recommencer l’aventure solo ?** Toutes tes énigmes résolues, tes objets et tes indices Escape Game solo seront effacés. '
+   'Ta progression collective, les autres joueurs, NOX et NOX Junior ne seront pas modifiés.',
+   view=RestartSoloConfirmation(interaction.user.id),ephemeral=True)
 
  @app_commands.command(name='installer',description='Installer la catégorie Escape Game et ses six salons (administration).')
  @app_commands.default_permissions(administrator=True)
@@ -438,6 +495,9 @@ async def setup(bot):
  except sqlite3.Error as exc:
   print(f'[ESCAPE] Impossible de restaurer les invitations en attente : {exc}')
   return
+ restored=0
  for guild_id,team_id,user_id in invitations:
   bot.add_view(InvitationActions(guild_id,team_id,user_id))
+  restored+=1
+ print(f'[ESCAPE] {restored} invitation(s) persistante(s) restaurée(s).')
 

@@ -95,6 +95,23 @@ class Engine:
                         (guild, adventure, mode, owner, first_room))
         return self.status(guild, adventure, mode, owner)
 
+    def restart_solo(self, guild: int, adventure: str, owner: int, first_room: str):
+        """Reset only this player's solo Escape Game session, transactionally."""
+        if not first_room:
+            raise AdventureError('Salle initiale invalide')
+        with self.connect() as con:
+            key = (guild, adventure, 'solo', owner)
+            for table in ('escape_solved', 'escape_items', 'escape_hints'):
+                con.execute(
+                    f'DELETE FROM {table} WHERE guild_id=? AND adventure=? AND mode=? AND owner_id=?',
+                    key)
+            con.execute(
+                'INSERT INTO escape_sessions (guild_id,adventure,mode,owner_id,room_id,completed) '
+                'VALUES (?,?,?,?,?,0) ON CONFLICT(guild_id,adventure,mode,owner_id) '
+                'DO UPDATE SET room_id=excluded.room_id,completed=0,updated_at=CURRENT_TIMESTAMP',
+                (*key, first_room))
+        return self.status(guild, adventure, 'solo', owner)
+
     def status(self, guild: int, adventure: str, mode: str, owner: int):
         with self.connect() as con:
             row = con.execute('SELECT room_id,completed FROM escape_sessions WHERE guild_id=? AND adventure=? AND mode=? AND owner_id=?',

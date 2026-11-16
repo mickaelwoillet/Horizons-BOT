@@ -354,9 +354,9 @@
         {
           "id": "atelier_porte",
           "title": "Le verrou de la salle",
-          "description": "Le mécanisme final exige que toutes les découvertes de cette salle soient enregistrées. Quel mot complète le nom de cette salle : célestes ?",
+          "description": "Sur l’établi, trois engrenages portent les nombres 3, 5 et 8. Le cadran de sortie demande la somme du premier et du troisième, multipliée par le deuxième. Quel nombre faut-il régler ?",
           "answers": [
-            "célestes"
+            "55"
           ],
           "requires_solved": [
             "atelier_1",
@@ -374,8 +374,8 @@
             "atelier_assemblage_central"
           ],
           "hints": [
-            "Toutes les épreuves de la salle doivent être terminées.",
-            "Le dernier mot du titre de cette salle ouvre le verrou."
+            "Commence par additionner le premier et le troisième engrenage.",
+            "(3 + 8) × 5."
           ],
           "next_room": "archives"
         }
@@ -540,9 +540,9 @@
         {
           "id": "archives_porte",
           "title": "Le verrou de la salle",
-          "description": "Le mécanisme final exige que toutes les découvertes de cette salle soient enregistrées. Quel mot complète le nom de cette salle : interdites ?",
+          "description": "Trois rayonnages numérotés 2, 4 et 6 contiennent respectivement 7, 3 et 5 sceaux. Le registre demande le total des sceaux des rayonnages dont le numéro est divisible par 4 ou par 3. Quel total inscris-tu ?",
           "answers": [
-            "interdites"
+            "8"
           ],
           "requires_solved": [
             "archives_1",
@@ -560,8 +560,8 @@
             "archives_assemblage_central"
           ],
           "hints": [
-            "Toutes les épreuves de la salle doivent être terminées.",
-            "Le dernier mot du titre de cette salle ouvre le verrou."
+            "Seuls les rayonnages 4 et 6 répondent à la condition.",
+            "Additionne 3 et 5."
           ],
           "next_room": "laboratoire"
         }
@@ -689,11 +689,11 @@
           "title": "Le code des fioles",
           "description": "Quatre fioles sont étiquetées F, I, O et L. Le protocole exige de lire la troisième, puis la deuxième, puis la quatrième, puis la première. Quel code obtiens-tu ?",
           "answers": [
-            "olif"
+            "OILF"
           ],
           "hints": [
-            "Applique les positions 3-2-4-1.",
-            "O-L-I-F."
+            "Lis les positions 3, 2, 4, puis 1.",
+            "O puis I puis L puis F."
           ],
           "rewards": [
             "laboratoire_fragment_4"
@@ -702,13 +702,19 @@
         {
           "id": "laboratoire_5",
           "title": "Le journal d’essais",
-          "description": "Quel objet à pages ouvertes sert à consigner les expériences ?",
+          "description": "Quel support de notes, appelé aussi carnet ou cahier de laboratoire, permet de consigner les expériences ?",
           "answers": [
-            "carnet"
+            "carnet",
+            "cahier",
+            "journal",
+            "carnet de laboratoire",
+            "cahier de laboratoire",
+            "journal d’essais",
+            "journal d'essais"
           ],
           "hints": [
             "Cherche les notes sur l’établi.",
-            "Réfléchis au vocabulaire de la salle : le journal d’essais."
+            "Un carnet, un cahier ou un journal peuvent servir à consigner des expériences."
           ],
           "rewards": [
             "laboratoire_fragment_5"
@@ -732,9 +738,10 @@
         {
           "id": "laboratoire_porte",
           "title": "Le verrou de la salle",
-          "description": "Le mécanisme final exige que toutes les découvertes de cette salle soient enregistrées. Quel mot complète le nom de cette salle : anomalies ?",
+          "description": "Sur la console, quatre fioles de contrôle portent les valeurs 2, 5, 3 et 4. Le protocole exige de multiplier les valeurs des fioles aux positions impaires, puis de soustraire la somme des valeurs aux positions paires. Quel nombre obtiens-tu ?",
           "answers": [
-            "anomalies"
+            "-3",
+            "moins trois"
           ],
           "requires_solved": [
             "laboratoire_1",
@@ -752,8 +759,8 @@
             "laboratoire_assemblage_central"
           ],
           "hints": [
-            "Toutes les épreuves de la salle doivent être terminées.",
-            "Le dernier mot du titre de cette salle ouvre le verrou."
+            "Les positions impaires sont la première et la troisième.",
+            "(2 × 3) − (5 + 4)."
           ],
           "next_room": "jardin"
         }
@@ -925,9 +932,10 @@
         {
           "id": "jardin_porte",
           "title": "Le verrou de la salle",
-          "description": "Le mécanisme final exige que toutes les découvertes de cette salle soient enregistrées. Quel mot complète le nom de cette salle : éteintes ?",
+          "description": "Trois graines stellaires s’illuminent successivement après 2, 4 puis 8 pulsations. Une quatrième graine suit exactement la même règle. Après combien de pulsations s’illumine-t-elle ?",
           "answers": [
-            "éteintes"
+            "16",
+            "seize"
           ],
           "requires_solved": [
             "jardin_1",
@@ -945,8 +953,8 @@
             "jardin_assemblage_central"
           ],
           "hints": [
-            "Toutes les épreuves de la salle doivent être terminées.",
-            "Le dernier mot du titre de cette salle ouvre le verrou."
+            "Le nombre de pulsations double à chaque graine.",
+            "8 × 2."
           ],
           "next_room": "galeries"
         }
@@ -1121,9 +1129,9 @@
         {
           "id": "galeries_porte",
           "title": "Le verrou de la salle",
-          "description": "Le mécanisme final exige que toutes les découvertes de cette salle soient enregistrées. Quel mot complète le nom de cette salle : oubliées ?",
+          "description": "Les portes A, B et C portent les nombres 9, 4 et 7. Une inscription indique : « Commence par la porte dont le nombre est le plus petit, puis la plus grande, termine par celle qui reste. » Quel code de trois lettres faut-il saisir ?",
           "answers": [
-            "oubliées"
+            "BAC"
           ],
           "requires_solved": [
             "galeries_1",
@@ -1141,8 +1149,8 @@
             "galeries_assemblage_central"
           ],
           "hints": [
-            "Toutes les épreuves de la salle doivent être terminées.",
-            "Le dernier mot du titre de cette salle ouvre le verrou."
+            "Classe les nombres 4, 9 et 7 selon l’ordre demandé.",
+            "4 correspond à B, 9 à A, 7 à C."
           ],
           "next_room": "sanctuaire"
         }
@@ -1316,9 +1324,9 @@
         {
           "id": "sanctuaire_porte",
           "title": "Le verrou de la salle",
-          "description": "Le mécanisme final exige que toutes les découvertes de cette salle soient enregistrées. Quel mot complète le nom de cette salle : Échos ?",
+          "description": "Quatre cloches du sanctuaire portent les lettres G (grave), A (aiguë) et M (médiane). Le gardien demande un code composé de la cloche la plus aiguë, puis de la médiane, puis deux fois de la grave. Quel code de quatre lettres faut-il entrer ?",
           "answers": [
-            "Échos"
+            "AMGG"
           ],
           "requires_solved": [
             "sanctuaire_1",
@@ -1336,8 +1344,8 @@
             "sanctuaire_assemblage_central"
           ],
           "hints": [
-            "Toutes les épreuves de la salle doivent être terminées.",
-            "Le dernier mot du titre de cette salle ouvre le verrou."
+            "Traduis les quatre indications en lettres, dans l’ordre donné.",
+            "A puis M puis G puis G."
           ],
           "next_room": "crypte"
         }
@@ -1497,13 +1505,13 @@
         {
           "id": "crypte_6",
           "title": "Le serment des gardiens",
-          "description": "Les initiales de « Garder, Aider, Rester, Défendre » forment un code. Quel code de quatre lettres faut-il entrer ?",
+          "description": "Le gardien a laissé quatre stèles : « Ombre », « Ronce », « Brume », « Écho ». Une inscription indique : « Lis d’abord celle qui cache la lumière, puis celle qui pique, puis celle qui voile, enfin celle qui répond. » Quel code de quatre lettres obtiens-tu ?",
           "answers": [
-            "gard"
+            "orbe"
           ],
           "hints": [
-            "Lis la première lettre de chaque verbe.",
-            "G-A-R-D."
+            "Chaque description correspond à une stèle.",
+            "Ombre → Ronce → Brume → Écho : prends leurs initiales."
           ],
           "rewards": [
             "crypte_fragment_6"
@@ -1512,9 +1520,10 @@
         {
           "id": "crypte_porte",
           "title": "Le verrou de la salle",
-          "description": "Le mécanisme final exige que toutes les découvertes de cette salle soient enregistrées. Quel mot complète le nom de cette salle : Gardiens ?",
+          "description": "Sur le sarcophage, trois runes portent 4, 7 et 10. Le gardien demande la valeur de la quatrième rune si l’écart entre deux runes reste constant. Quel nombre faut-il inscrire ?",
           "answers": [
-            "Gardiens"
+            "13",
+            "treize"
           ],
           "requires_solved": [
             "crypte_1",
@@ -1532,8 +1541,8 @@
             "crypte_assemblage_central"
           ],
           "hints": [
-            "Toutes les épreuves de la salle doivent être terminées.",
-            "Le dernier mot du titre de cette salle ouvre le verrou."
+            "Observe l’écart entre 4 et 7, puis entre 7 et 10.",
+            "Ajoute 3 à 10."
           ],
           "next_room": "prison"
         }
@@ -2227,7 +2236,7 @@
         {
           "id": "origine_reflet",
           "title": "Le reflet codé",
-          "description": "Le miroir inverse l’ordre des lettres. Une inscription apparaît : R I O R I M. Quel mot de six lettres se lit dans le bon sens ?",
+          "description": "Sur le miroir, une suite chiffrée est gravée : 18-9-15-18-9-13. La surface inverse l'ordre des signes. En remplaçant chaque nombre par sa lettre (A=1), quel mot apparaît ?",
           "answers": [
             "miroir"
           ],
@@ -2235,8 +2244,8 @@
             "origine_trace"
           ],
           "hints": [
-            "Lis la suite de droite à gauche.",
-            "Commence par M, puis I."
+            "Inverse d'abord l'ordre des six nombres.",
+            "13-9-18-15-9-18 donne M-I-R-O-I-R."
           ],
           "rewards": [
             "origine_eclat_2"
@@ -2264,7 +2273,7 @@
         {
           "id": "origine_assemblage",
           "title": "L’accord des éclats",
-          "description": "Trois éclats sont gravés des lettres U, N et I. Sur le socle, deux autres lettres apparaissent : O et N. En les plaçant dans cet ordre — U, N, I, O, N — quel mot d’accord forme-t-on ?",
+          "description": "Cinq fragments portent les lettres U, N, I, O et N. Le premier est une voyelle, le deuxième une consonne, le troisième une voyelle. Les deux derniers forment la syllabe « ON ». Le mot recherché signifie « rassemblement ». Quel mot faut-il former ?",
           "answers": [
             "union"
           ],
@@ -2277,8 +2286,8 @@
             "origine_eclat_3"
           ],
           "hints": [
-            "Les cinq lettres forment un mot qui signifie le rassemblement.",
-            "Lis U – N – I – O – N."
+            "Commence par U, puis N, puis I.",
+            "Les deux derniers fragments sont O et N."
           ],
           "rewards": [
             "origine_clef"
@@ -2287,7 +2296,7 @@
         {
           "id": "origine_final",
           "title": "Le dernier choix de NOX",
-          "description": "Sur le seuil final, cinq runes indiquent P – R – O – T – É et trois autres G – E – R. Assemble-les pour écrire le verbe qui décrit la décision de préserver les mondes.",
+          "description": "Sur le seuil, huit runes présentent le code Q-S-P-U-F-H-F-S. NOX découvre la règle : chaque lettre a été avancée d'une place dans l'alphabet. Quel verbe de huit lettres décrit la décision qui sauvera les mondes ?",
           "answers": [
             "proteger",
             "protéger"
@@ -2300,8 +2309,8 @@
             "origine_inscription"
           ],
           "hints": [
-            "Lis les deux groupes de runes à la suite.",
-            "P R O T É + G E R."
+            "Pour déchiffrer, recule chaque lettre d'une position.",
+            "Q devient P, S devient R : le mot commence par PR."
           ],
           "finish": true
         }

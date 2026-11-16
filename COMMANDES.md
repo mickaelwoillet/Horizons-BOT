@@ -231,3 +231,5 @@ Depuis `/monnox` → **Mini-jeux**, 12 activités sont disponibles, dont **Cache
 - Les deux autres aventures sont annoncées « À venir prochainement ».
 - **État de validation :** le catalogue des 13 salles et les fonctions principales sont présents dans le projet de travail ; les tests Python locaux ne remplacent pas un essai sur Discord. Les audits automatisés des 13 images et des repères visuels réussissent ; la vérification Discord réelle et l’intégration finale restent à effectuer avant diffusion.
 - Les réponses et secrets ne doivent jamais figurer dans les messages publics ou la documentation des membres.
+
+- Le portail **🌌・fractures-du-cosmos** comporte le bouton **🔄 Recommencer en solo** (avec confirmation). La commande `/escape recommencer` reste disponible.
