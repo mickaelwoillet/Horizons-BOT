@@ -1,0 +1,2365 @@
+{
+  "id": "fractures",
+  "title": "Les Fractures du Cosmos",
+  "development_status": "rooms_1_12_draft_requires_visual_and_gameplay_review",
+  "rooms": [
+    {
+      "id": "observatoire",
+      "title": "Salle 01 — L’Observatoire oublié",
+      "description": "Le dôme s’ouvre sur une nuit impossible. Une porte de métal occupe le fond de la pièce. Autour de toi, les instruments d’un astronome semblent attendre qu’on leur rende leur fonction. NOX murmure : « Les étoiles nous regardent… mais elles ne nous disent pas tout. » Explore les détails de l’illustration et résous les épreuves avant de tenter la porte.",
+      "image_file": "observatoire.png",
+      "puzzles": [
+        {
+          "id": "obs_instrument",
+          "title": "Le regard vers les étoiles",
+          "description": "Un long instrument repose à gauche de la salle, pointé vers la nuit. Quel est son nom ?",
+          "answers": [
+            "télescope",
+            "telescope"
+          ],
+          "rewards": [
+            "lentille_d_observation"
+          ],
+          "hints": [
+            "Observe le côté gauche de la salle.",
+            "Cet instrument permet de regarder les astres."
+          ]
+        },
+        {
+          "id": "obs_sable",
+          "title": "Le temps prisonnier",
+          "description": "Près du bureau, un petit objet transparent laisse s’écouler le temps. Quel objet est-ce ?",
+          "answers": [
+            "sablier"
+          ],
+          "rewards": [
+            "poussiere_du_temps"
+          ],
+          "hints": [
+            "Regarde à droite de l’image, au-dessus des livres.",
+            "Il mesure le temps avec du sable."
+          ]
+        },
+        {
+          "id": "obs_lune",
+          "title": "Les quatre visages",
+          "description": "Au-dessus de la grande porte, quatre représentations célestes racontent un cycle. Quel astre est représenté ?",
+          "answers": [
+            "lune",
+            "la lune"
+          ],
+          "rewards": [
+            "fragment_lunaire"
+          ],
+          "hints": [
+            "Lève les yeux au-dessus de la porte.",
+            "Cet astre possède des phases."
+          ]
+        },
+        {
+          "id": "obs_plume",
+          "title": "Le témoin silencieux",
+          "description": "Sur le bureau, un instrument d’écriture blanc se dresse dans son encrier. Que faut-il nommer ?",
+          "answers": [
+            "plume",
+            "une plume",
+            "plume d écriture"
+          ],
+          "rewards": [
+            "plume_astrale"
+          ],
+          "hints": [
+            "Cherche au premier plan à droite.",
+            "Avant les stylos, on écrivait parfois avec cet objet."
+          ]
+        },
+        {
+          "id": "obs_boussole",
+          "title": "Le point immobile",
+          "description": "Au centre du sol, un motif oriente les voyageurs. Quel symbole à plusieurs pointes évoque les directions cardinales ?",
+          "answers": [
+            "rose des vents",
+            "rose des vent",
+            "boussole"
+          ],
+          "rewards": [
+            "sceau_des_directions"
+          ],
+          "hints": [
+            "Observe le centre du sol.",
+            "Le motif ressemble à une rose des vents."
+          ]
+        },
+        {
+          "id": "obs_porte",
+          "title": "Le serment de l’observatoire",
+          "description": "La porte réclame le nom de l’astre qui éclaire l’horloge monumentale sur le mur de droite. Réponds par un seul mot.",
+          "answers": [
+            "soleil",
+            "le soleil"
+          ],
+          "requires_solved": [
+            "obs_instrument",
+            "obs_sable",
+            "obs_lune",
+            "obs_plume",
+            "obs_boussole"
+          ],
+          "next_room": "cartographie",
+          "hints": [
+            "Regarde la grande horloge tout à droite.",
+            "Son cadran possède un visage rayonnant."
+          ]
+        }
+      ],
+      "hotspots": [
+        {
+          "id": "observatoire_instrument_examen",
+          "title": "L’instrument d’observation",
+          "description": "Un mécanisme d’optique conserve les traces de nombreuses observations. Une marque semble avoir été laissée par son ancien propriétaire.",
+          "requires_solved": [
+            "obs_instrument"
+          ],
+          "rewards": [],
+          "visual_anchor": "Télescope monumental sur son support, dans la partie gauche de l’Observatoire",
+          "visual_verified": true,
+          "visual_verification_note": "Élément de grande taille confirmé sur illustration ; aucun détail minuscule requis. Interaction narrative sans objet supplémentaire."
+        }
+      ]
+    },
+    {
+      "id": "cartographie",
+      "title": "Salle 02 — Le Centre de cartographie céleste",
+      "image_file": "cartographie.png",
+      "description": "Les instruments de l’Observatoire oublié ont livré une première piste. Derrière la porte, une salle de contrôle dévoile les trajectoires des astres. Au-dessus d’une table circulaire, une sphère lumineuse tourne lentement, tandis que les écrans montrent une déchirure violette dans le ciel. Les cartes ne décrivent plus le cosmos tel qu’il est : elles montrent ce qu’il est en train de devenir. NOX chuchote : « Ce n’est pas une carte du ciel… c’est peut-être un avertissement. »",
+      "puzzles": [
+        {
+          "id": "cart_sphere",
+          "title": "Le monde suspendu",
+          "description": "Au-dessus de la table centrale flotte une représentation lumineuse en trois dimensions. Quel objet géométrique forme-t-elle ?",
+          "answers": [
+            "sphère",
+            "sphere",
+            "une sphère"
+          ],
+          "hints": [
+            "Regarde au centre de la salle, au-dessus de la table.",
+            "Pense à une forme parfaitement ronde en trois dimensions."
+          ],
+          "rewards": [
+            "empreinte_orbitale"
+          ]
+        },
+        {
+          "id": "cart_ecrans",
+          "title": "Les yeux du centre",
+          "description": "Sur les murs, plusieurs dispositifs rectangulaires affichent des diagrammes et des cartes. Comment appelle-t-on ces dispositifs ?",
+          "answers": [
+            "écrans",
+            "ecrans",
+            "écran",
+            "ecran"
+          ],
+          "hints": [
+            "Cherche les surfaces bleutées sur les murs.",
+            "Elles affichent des informations numériques."
+          ],
+          "rewards": [
+            "releve_des_ecrans"
+          ]
+        },
+        {
+          "id": "cart_sablier",
+          "title": "La mesure du silence",
+          "description": "À droite, sur un bureau, un objet transparent contient une matière lumineuse qui s’écoule. Nomme cet objet.",
+          "answers": [
+            "sablier",
+            "un sablier"
+          ],
+          "hints": [
+            "Observe le premier plan, côté droit.",
+            "Deux ampoules de verre réunies par un étranglement."
+          ],
+          "rewards": [
+            "mesure_du_temps"
+          ]
+        },
+        {
+          "id": "cart_compas",
+          "title": "Le cercle des directions",
+          "description": "Sur le sol, au premier plan, un grand motif indique plusieurs directions. Quel est le nom traditionnel de ce symbole ?",
+          "answers": [
+            "rose des vents",
+            "rose des vent"
+          ],
+          "hints": [
+            "Observe les lignes dorées du sol.",
+            "On le retrouve sur certaines cartes marines."
+          ],
+          "rewards": [
+            "orientation_celeste"
+          ]
+        },
+        {
+          "id": "cart_parchemin",
+          "title": "Le message scellé",
+          "description": "Un document enroulé et fermé par un sceau repose sur le bureau de droite. Quel nom donne-t-on à ce document ?",
+          "answers": [
+            "parchemin",
+            "rouleau",
+            "rouleau de parchemin"
+          ],
+          "hints": [
+            "Cherche près du sablier.",
+            "C’est un support d’écriture ancien, ici enroulé."
+          ],
+          "rewards": [
+            "message_scellé"
+          ]
+        },
+        {
+          "id": "cart_sortie",
+          "title": "L’étoile des passages",
+          "description": "Le mécanisme de sortie reprend le symbole doré visible sur la grande porte de gauche. Quel astre ce symbole représente-t-il ?",
+          "answers": [
+            "étoile",
+            "etoile",
+            "une étoile"
+          ],
+          "hints": [
+            "Observe la grande porte, sur la gauche.",
+            "Au centre du symbole rayonnent plusieurs pointes."
+          ],
+          "requires_solved": [
+            "cart_sphere",
+            "cart_ecrans",
+            "cart_sablier",
+            "cart_compas",
+            "cart_parchemin"
+          ],
+          "next_room": "atelier",
+          "requires": [
+            "orientation_celeste"
+          ]
+        }
+      ],
+      "hotspots": [
+        {
+          "id": "cartographie_table_examen",
+          "title": "La table des trajectoires",
+          "description": "Les trajectoires lumineuses se réorganisent à votre approche. Certaines données ne prennent sens qu’après les premières observations.",
+          "requires_solved": [
+            "cart_sphere"
+          ],
+          "rewards": [],
+          "visual_anchor": "Grande table circulaire de cartographie holographique au centre de la salle",
+          "visual_verified": true,
+          "visual_verification_note": "Élément de grande taille confirmé sur illustration ; aucun détail minuscule requis. Interaction narrative sans objet supplémentaire."
+        }
+      ]
+    },
+    {
+      "id": "atelier",
+      "title": "Salle 03 — L’Atelier des mécanismes célestes",
+      "description": "Le réacteur de l’atelier sommeille sous l’observatoire. Un bruit de métal résonne derrière les murs. Les mécanismes ne semblent pas tous arrêtés…",
+      "puzzles": [
+        {
+          "id": "atelier_1",
+          "title": "Les roues dentées",
+          "description": "Quel nom donne-t-on aux roues dentées qui transmettent le mouvement dans l’atelier ?",
+          "answers": [
+            "engrenage"
+          ],
+          "hints": [
+            "Regarde les roues métalliques emboîtées.",
+            "Réfléchis au vocabulaire de la salle : les roues dentées."
+          ],
+          "rewards": [
+            "atelier_fragment_1"
+          ]
+        },
+        {
+          "id": "atelier_2",
+          "title": "La force captive",
+          "description": "Quel phénomène s’échappe des conduites chaudes au plafond ?",
+          "answers": [
+            "vapeur"
+          ],
+          "hints": [
+            "Cherche la brume près des tuyaux.",
+            "Réfléchis au vocabulaire de la salle : la force captive."
+          ],
+          "rewards": [
+            "atelier_fragment_2"
+          ]
+        },
+        {
+          "id": "atelier_3",
+          "title": "L’escalier du contremaître",
+          "description": "Quel matériau constitue principalement les marches et passerelles de l’atelier ?",
+          "answers": [
+            "metal"
+          ],
+          "hints": [
+            "Observe les marches et leurs garde-corps.",
+            "Réfléchis au vocabulaire de la salle : l’escalier du contremaître."
+          ],
+          "rewards": [
+            "atelier_fragment_3"
+          ]
+        },
+        {
+          "id": "atelier_4",
+          "title": "Le cœur bleu",
+          "description": "Quelle couleur domine l’énergie lumineuse du réacteur ?",
+          "answers": [
+            "bleu"
+          ],
+          "hints": [
+            "Regarde le réacteur central.",
+            "Réfléchis au vocabulaire de la salle : le cœur bleu."
+          ],
+          "rewards": [
+            "atelier_fragment_4"
+          ]
+        },
+        {
+          "id": "atelier_5",
+          "title": "L’atelier du temps",
+          "description": "Quel objet de mesure du temps est posé parmi les instruments ?",
+          "answers": [
+            "sablier"
+          ],
+          "hints": [
+            "Observe les petits objets sur les établis.",
+            "Réfléchis au vocabulaire de la salle : l’atelier du temps."
+          ],
+          "rewards": [
+            "atelier_fragment_5"
+          ]
+        },
+        {
+          "id": "atelier_6",
+          "title": "La transmission",
+          "description": "Quel mécanisme relie les grandes roues aux machines ?",
+          "answers": [
+            "engrenage"
+          ],
+          "hints": [
+            "Pense aux dents qui s’emboîtent.",
+            "Réfléchis au vocabulaire de la salle : la transmission."
+          ],
+          "rewards": [
+            "atelier_fragment_6"
+          ]
+        },
+        {
+          "id": "atelier_porte",
+          "title": "Le verrou de la salle",
+          "description": "Le mécanisme final exige que toutes les découvertes de cette salle soient enregistrées. Quel mot complète le nom de cette salle : célestes ?",
+          "answers": [
+            "célestes"
+          ],
+          "requires_solved": [
+            "atelier_1",
+            "atelier_2",
+            "atelier_3",
+            "atelier_4",
+            "atelier_5",
+            "atelier_6"
+          ],
+          "requires": [
+            "atelier_fragment_3",
+            "atelier_fragment_4",
+            "atelier_fragment_5",
+            "atelier_fragment_6",
+            "atelier_assemblage_central"
+          ],
+          "hints": [
+            "Toutes les épreuves de la salle doivent être terminées.",
+            "Le dernier mot du titre de cette salle ouvre le verrou."
+          ],
+          "next_room": "archives"
+        }
+      ],
+      "image_file": "atelier.png",
+      "recipes": [
+        {
+          "ingredients": [
+            "atelier_fragment_1",
+            "atelier_fragment_2"
+          ],
+          "result": "atelier_assemblage_central",
+          "consume": true
+        }
+      ],
+      "scene_stages": [
+        {
+          "id": "eveil",
+          "requires_solved": [
+            "atelier_1",
+            "atelier_2"
+          ],
+          "description": "Le réacteur de l’atelier sommeille sous l’observatoire. Un bruit de métal résonne derrière les murs. Les mécanismes ne semblent pas tous arrêtés…\n\n✦ Un grondement traverse les machines. Les mécanismes répondent à vos premières découvertes, mais leur fonction reste obscure."
+        }
+      ],
+      "nox_reactions": [
+        {
+          "id": "arrival",
+          "text": "Ça grince, ça vibre… Je préfère quand les machines font des biscuits."
+        },
+        {
+          "id": "progress",
+          "requires_solved": [
+            "atelier_1",
+            "atelier_2"
+          ],
+          "text": "Je crois que quelque chose vient de se réveiller. Et non, ce n’est pas mon estomac."
+        }
+      ],
+      "memory_echoes": [
+        {
+          "id": "echo_cartographie",
+          "requires_solved": [
+            "cart_sortie"
+          ],
+          "text": "Un souvenir de votre passage précédent refait surface."
+        }
+      ],
+      "hotspots": [
+        {
+          "id": "trace_atelier",
+          "title": "Le pupitre de maintenance",
+          "description": "Un compartiment de maintenance conserve une trace des premiers réglages.",
+          "requires_solved": [
+            "atelier_1"
+          ],
+          "rewards": [
+            "souvenir_atelier"
+          ],
+          "visual_anchor": "Établi de maintenance au premier plan, à gauche, avec engrenages et documents",
+          "visual_verified": true,
+          "visual_verification_note": "Repère de décor identifié sur illustration; le texte de découverte reste narratif, aucun texte microscopique à lire."
+        }
+      ]
+    },
+    {
+      "id": "archives",
+      "title": "Salle 04 — Les Archives interdites",
+      "description": "Une porte déverrouillée révèle des milliers d’ouvrages. Un livre est resté ouvert, comme si quelqu’un venait de le consulter. Une voix murmure : « Certaines vérités ont été cachées. »",
+      "image_file": "archives.png",
+      "puzzles": [
+        {
+          "id": "archives_1",
+          "title": "Les gardiens de papier",
+          "description": "Comment appelle-t-on les volumes rangés par milliers sur les étagères ?",
+          "answers": [
+            "livres"
+          ],
+          "hints": [
+            "Observe les rayonnages.",
+            "Réfléchis au vocabulaire de la salle : les gardiens de papier."
+          ],
+          "rewards": [
+            "archives_fragment_1"
+          ]
+        },
+        {
+          "id": "archives_2",
+          "title": "Le regard de verre",
+          "description": "Quel instrument sert à grossir les petits caractères sur le bureau ?",
+          "answers": [
+            "loupe"
+          ],
+          "hints": [
+            "Cherche un verre rond avec une poignée.",
+            "Réfléchis au vocabulaire de la salle : le regard de verre."
+          ],
+          "rewards": [
+            "archives_fragment_2"
+          ]
+        },
+        {
+          "id": "archives_3",
+          "title": "Les rouleaux oubliés",
+          "description": "Comment nomme-t-on un document ancien enroulé sur lui-même ?",
+          "answers": [
+            "parchemin"
+          ],
+          "hints": [
+            "Cherche les rouleaux sur le bureau.",
+            "Réfléchis au vocabulaire de la salle : les rouleaux oubliés."
+          ],
+          "rewards": [
+            "archives_fragment_3"
+          ]
+        },
+        {
+          "id": "archives_4",
+          "title": "La plume du scribe",
+          "description": "Quel instrument traditionnel permet d’écrire avec de l’encre ?",
+          "answers": [
+            "plume"
+          ],
+          "hints": [
+            "Regarde près des documents ouverts.",
+            "Réfléchis au vocabulaire de la salle : la plume du scribe."
+          ],
+          "rewards": [
+            "archives_fragment_4"
+          ]
+        },
+        {
+          "id": "archives_5",
+          "title": "Les étages du savoir",
+          "description": "Quel équipement mobile permet d’atteindre les livres les plus hauts ?",
+          "answers": [
+            "echelle"
+          ],
+          "hints": [
+            "Cherche le moyen de grimper aux rayonnages.",
+            "Réfléchis au vocabulaire de la salle : les étages du savoir."
+          ],
+          "rewards": [
+            "archives_fragment_5"
+          ]
+        },
+        {
+          "id": "archives_6",
+          "title": "La mémoire des archives",
+          "description": "Quel objet contient les récits que protègent les rayonnages ?",
+          "answers": [
+            "livre"
+          ],
+          "hints": [
+            "Pense à ce qui se lit page après page.",
+            "Réfléchis au vocabulaire de la salle : la mémoire des archives."
+          ],
+          "rewards": [
+            "archives_fragment_6"
+          ]
+        },
+        {
+          "id": "archives_porte",
+          "title": "Le verrou de la salle",
+          "description": "Le mécanisme final exige que toutes les découvertes de cette salle soient enregistrées. Quel mot complète le nom de cette salle : interdites ?",
+          "answers": [
+            "interdites"
+          ],
+          "requires_solved": [
+            "archives_1",
+            "archives_2",
+            "archives_3",
+            "archives_4",
+            "archives_5",
+            "archives_6"
+          ],
+          "requires": [
+            "archives_fragment_3",
+            "archives_fragment_4",
+            "archives_fragment_5",
+            "archives_fragment_6",
+            "archives_assemblage_central"
+          ],
+          "hints": [
+            "Toutes les épreuves de la salle doivent être terminées.",
+            "Le dernier mot du titre de cette salle ouvre le verrou."
+          ],
+          "next_room": "laboratoire"
+        }
+      ],
+      "recipes": [
+        {
+          "ingredients": [
+            "archives_fragment_1",
+            "archives_fragment_2"
+          ],
+          "result": "archives_assemblage_central",
+          "consume": true
+        }
+      ],
+      "scene_stages": [
+        {
+          "id": "eveil",
+          "requires_solved": [
+            "archives_1",
+            "archives_2"
+          ],
+          "description": "Une porte déverrouillée révèle des milliers d’ouvrages. Un livre est resté ouvert, comme si quelqu’un venait de le consulter. Une voix murmure : « Certaines vérités ont été cachées. »\n\n✦ Des feuillets se déplacent dans un souffle invisible. Une nouvelle piste se dessine parmi les archives."
+        }
+      ],
+      "nox_reactions": [
+        {
+          "id": "arrival",
+          "text": "Chut… Même mes pattes font trop de bruit ici."
+        },
+        {
+          "id": "progress",
+          "requires_solved": [
+            "archives_1",
+            "archives_2"
+          ],
+          "text": "Ces pages semblent se souvenir de nous."
+        }
+      ],
+      "memory_echoes": [
+        {
+          "id": "echo_atelier",
+          "requires_solved": [
+            "atelier_porte"
+          ],
+          "text": "Un souvenir de votre passage précédent refait surface."
+        },
+        {
+          "id": "souvenir_retrouve_atelier",
+          "requires": [
+            "souvenir_atelier"
+          ],
+          "text": "Un détail recueilli auparavant éclaire autrement ce que vous découvrez ici."
+        }
+      ],
+      "hotspots": [
+        {
+          "id": "trace_archives",
+          "title": "Le registre de consultation",
+          "description": "Une annotation ancienne évoque une information volontairement écartée.",
+          "requires_solved": [
+            "archives_1"
+          ],
+          "rewards": [
+            "souvenir_archives"
+          ],
+          "visual_anchor": "Grand livre ouvert sur le pupitre au premier plan, devant les rayonnages",
+          "visual_verified": true,
+          "visual_verification_note": "Repère de décor identifié sur illustration; le texte de découverte reste narratif, aucun texte microscopique à lire."
+        }
+      ]
+    },
+    {
+      "id": "laboratoire",
+      "title": "Salle 05 — Le Laboratoire des anomalies",
+      "description": "Les archives ont livré un avertissement. Derrière des parois de verre, les expériences tournent encore. Une voix mécanique annonce : « Protocole de confinement compromis. »",
+      "image_file": "laboratoire.png",
+      "puzzles": [
+        {
+          "id": "laboratoire_1",
+          "title": "Les récipients transparents",
+          "description": "De quelle matière sont faites les grandes cuves permettant de voir les expériences ?",
+          "answers": [
+            "verre"
+          ],
+          "hints": [
+            "Observe les réservoirs transparents.",
+            "Réfléchis au vocabulaire de la salle : les récipients transparents."
+          ],
+          "rewards": [
+            "laboratoire_fragment_1"
+          ]
+        },
+        {
+          "id": "laboratoire_2",
+          "title": "L’éclat violet",
+          "description": "Quelle couleur caractérise la déchirure visible au fond du laboratoire ?",
+          "answers": [
+            "violet"
+          ],
+          "hints": [
+            "Regarde la fissure lumineuse.",
+            "Réfléchis au vocabulaire de la salle : l’éclat violet."
+          ],
+          "rewards": [
+            "laboratoire_fragment_2"
+          ]
+        },
+        {
+          "id": "laboratoire_3",
+          "title": "La matière brillante",
+          "description": "Quel matériau minéral lumineux est conservé dans le laboratoire ?",
+          "answers": [
+            "cristal"
+          ],
+          "hints": [
+            "Cherche les formations translucides.",
+            "Réfléchis au vocabulaire de la salle : la matière brillante."
+          ],
+          "rewards": [
+            "laboratoire_fragment_3"
+          ]
+        },
+        {
+          "id": "laboratoire_4",
+          "title": "Les préparations",
+          "description": "Comment appelle-t-on les petits récipients contenant des liquides expérimentaux ?",
+          "answers": [
+            "fioles"
+          ],
+          "hints": [
+            "Observe les petites bouteilles sur les tables.",
+            "Réfléchis au vocabulaire de la salle : les préparations."
+          ],
+          "rewards": [
+            "laboratoire_fragment_4"
+          ]
+        },
+        {
+          "id": "laboratoire_5",
+          "title": "Le journal d’essais",
+          "description": "Quel objet à pages ouvertes sert à consigner les expériences ?",
+          "answers": [
+            "carnet"
+          ],
+          "hints": [
+            "Cherche les notes sur l’établi.",
+            "Réfléchis au vocabulaire de la salle : le journal d’essais."
+          ],
+          "rewards": [
+            "laboratoire_fragment_5"
+          ]
+        },
+        {
+          "id": "laboratoire_6",
+          "title": "L’alerte",
+          "description": "Quel mot désigne un phénomène qui dévie du fonctionnement attendu ?",
+          "answers": [
+            "anomalie"
+          ],
+          "hints": [
+            "C’est le nom de ce laboratoire.",
+            "Réfléchis au vocabulaire de la salle : l’alerte."
+          ],
+          "rewards": [
+            "laboratoire_fragment_6"
+          ]
+        },
+        {
+          "id": "laboratoire_porte",
+          "title": "Le verrou de la salle",
+          "description": "Le mécanisme final exige que toutes les découvertes de cette salle soient enregistrées. Quel mot complète le nom de cette salle : anomalies ?",
+          "answers": [
+            "anomalies"
+          ],
+          "requires_solved": [
+            "laboratoire_1",
+            "laboratoire_2",
+            "laboratoire_3",
+            "laboratoire_4",
+            "laboratoire_5",
+            "laboratoire_6"
+          ],
+          "requires": [
+            "laboratoire_fragment_3",
+            "laboratoire_fragment_4",
+            "laboratoire_fragment_5",
+            "laboratoire_fragment_6",
+            "laboratoire_assemblage_central"
+          ],
+          "hints": [
+            "Toutes les épreuves de la salle doivent être terminées.",
+            "Le dernier mot du titre de cette salle ouvre le verrou."
+          ],
+          "next_room": "jardin"
+        }
+      ],
+      "recipes": [
+        {
+          "ingredients": [
+            "laboratoire_fragment_1",
+            "laboratoire_fragment_2"
+          ],
+          "result": "laboratoire_assemblage_central",
+          "consume": true
+        }
+      ],
+      "scene_stages": [
+        {
+          "id": "eveil",
+          "requires_solved": [
+            "laboratoire_1",
+            "laboratoire_2"
+          ],
+          "description": "Les archives ont livré un avertissement. Derrière des parois de verre, les expériences tournent encore. Une voix mécanique annonce : « Protocole de confinement compromis. »\n\n✦ Les instruments réagissent à vos observations. Une vibration parcourt les dispositifs de confinement."
+        }
+      ],
+      "nox_reactions": [
+        {
+          "id": "arrival",
+          "text": "Je n’aime pas quand les bocaux brillent tout seuls."
+        },
+        {
+          "id": "progress",
+          "requires_solved": [
+            "laboratoire_1",
+            "laboratoire_2"
+          ],
+          "text": "Le silence du laboratoire est devenu très suspect."
+        }
+      ],
+      "memory_echoes": [
+        {
+          "id": "echo_archives",
+          "requires_solved": [
+            "archives_porte"
+          ],
+          "text": "Un souvenir de votre passage précédent refait surface."
+        },
+        {
+          "id": "souvenir_retrouve_archives",
+          "requires": [
+            "souvenir_archives"
+          ],
+          "text": "Un détail recueilli auparavant éclaire autrement ce que vous découvrez ici."
+        }
+      ],
+      "hotspots": [
+        {
+          "id": "trace_laboratoire",
+          "title": "La console de surveillance",
+          "description": "Le journal des anomalies révèle une mesure restée sans explication.",
+          "requires_solved": [
+            "laboratoire_1"
+          ],
+          "rewards": [
+            "souvenir_laboratoire"
+          ],
+          "visual_anchor": "Cahier ouvert et instruments de mesure sur la table du laboratoire au premier plan",
+          "visual_verified": true,
+          "visual_verification_note": "Repère de décor identifié sur illustration; le texte de découverte reste narratif, aucun texte microscopique à lire."
+        }
+      ]
+    },
+    {
+      "id": "jardin",
+      "title": "Salle 06 — Le Jardin des étoiles éteintes",
+      "description": "Un passage envahi de racines mène à une serre oubliée. Des fleurs privées de lumière entourent un arbre immense. « Lorsque le ciel perd sa lumière, la terre conserve sa mémoire. »",
+      "image_file": "jardin.png",
+      "puzzles": [
+        {
+          "id": "jardin_1",
+          "title": "Le géant vivant",
+          "description": "Quel végétal immense domine le jardin ?",
+          "answers": [
+            "arbre"
+          ],
+          "hints": [
+            "Regarde la droite de la serre.",
+            "Réfléchis au vocabulaire de la salle : le géant vivant."
+          ],
+          "rewards": [
+            "jardin_fragment_1"
+          ]
+        },
+        {
+          "id": "jardin_2",
+          "title": "Les eaux tranquilles",
+          "description": "Quel élément liquide occupe le bassin circulaire ?",
+          "answers": [
+            "eau"
+          ],
+          "hints": [
+            "Observe le bassin au centre.",
+            "Réfléchis au vocabulaire de la salle : les eaux tranquilles."
+          ],
+          "rewards": [
+            "jardin_fragment_2"
+          ]
+        },
+        {
+          "id": "jardin_3",
+          "title": "La lumière des fleurs",
+          "description": "Quel mot désigne une plante à pétales colorés ?",
+          "answers": [
+            "fleur"
+          ],
+          "hints": [
+            "Regarde près du bassin.",
+            "Réfléchis au vocabulaire de la salle : la lumière des fleurs."
+          ],
+          "rewards": [
+            "jardin_fragment_3"
+          ]
+        },
+        {
+          "id": "jardin_4",
+          "title": "Les racines profondes",
+          "description": "Quelle partie d’un arbre s’enfonce dans le sol ?",
+          "answers": [
+            "racines"
+          ],
+          "hints": [
+            "Suis les formes torsadées au pied du tronc.",
+            "Réfléchis au vocabulaire de la salle : les racines profondes."
+          ],
+          "rewards": [
+            "jardin_fragment_4"
+          ]
+        },
+        {
+          "id": "jardin_5",
+          "title": "Le jardin sous verre",
+          "description": "Quel nom donne-t-on à un bâtiment destiné à protéger des plantes ?",
+          "answers": [
+            "serre"
+          ],
+          "hints": [
+            "Pense au lieu où tu te trouves.",
+            "Réfléchis au vocabulaire de la salle : le jardin sous verre."
+          ],
+          "rewards": [
+            "jardin_fragment_5"
+          ]
+        },
+        {
+          "id": "jardin_6",
+          "title": "La mémoire du vivant",
+          "description": "Quel être vivant porte les racines qui traversent le sol ?",
+          "answers": [
+            "arbre"
+          ],
+          "hints": [
+            "Retourne au plus grand végétal de la salle.",
+            "Réfléchis au vocabulaire de la salle : la mémoire du vivant."
+          ],
+          "rewards": [
+            "jardin_fragment_6"
+          ]
+        },
+        {
+          "id": "jardin_porte",
+          "title": "Le verrou de la salle",
+          "description": "Le mécanisme final exige que toutes les découvertes de cette salle soient enregistrées. Quel mot complète le nom de cette salle : éteintes ?",
+          "answers": [
+            "éteintes"
+          ],
+          "requires_solved": [
+            "jardin_1",
+            "jardin_2",
+            "jardin_3",
+            "jardin_4",
+            "jardin_5",
+            "jardin_6"
+          ],
+          "requires": [
+            "jardin_fragment_3",
+            "jardin_fragment_4",
+            "jardin_fragment_5",
+            "jardin_fragment_6",
+            "jardin_assemblage_central"
+          ],
+          "hints": [
+            "Toutes les épreuves de la salle doivent être terminées.",
+            "Le dernier mot du titre de cette salle ouvre le verrou."
+          ],
+          "next_room": "galeries"
+        }
+      ],
+      "recipes": [
+        {
+          "ingredients": [
+            "jardin_fragment_1",
+            "jardin_fragment_2"
+          ],
+          "result": "jardin_assemblage_central",
+          "consume": true
+        }
+      ],
+      "scene_stages": [
+        {
+          "id": "eveil",
+          "requires_solved": [
+            "jardin_1",
+            "jardin_2"
+          ],
+          "description": "Un passage envahi de racines mène à une serre oubliée. Des fleurs privées de lumière entourent un arbre immense. « Lorsque le ciel perd sa lumière, la terre conserve sa mémoire. »\n\n✦ Une lueur traverse les racines du jardin. Le lieu semble reconnaître votre présence."
+        }
+      ],
+      "nox_reactions": [
+        {
+          "id": "arrival",
+          "text": "Oh ! Une feuille lumineuse ! Promis, je ne la mange pas."
+        },
+        {
+          "id": "progress",
+          "requires_solved": [
+            "jardin_1",
+            "jardin_2"
+          ],
+          "text": "Le jardin réagit à notre présence…"
+        }
+      ],
+      "memory_echoes": [
+        {
+          "id": "echo_laboratoire",
+          "requires_solved": [
+            "laboratoire_porte"
+          ],
+          "text": "Un souvenir de votre passage précédent refait surface."
+        },
+        {
+          "id": "souvenir_retrouve_laboratoire",
+          "requires": [
+            "souvenir_laboratoire"
+          ],
+          "text": "Un détail recueilli auparavant éclaire autrement ce que vous découvrez ici."
+        }
+      ],
+      "hotspots": [
+        {
+          "id": "trace_jardin",
+          "title": "Le bassin de mémoire",
+          "description": "Une vibration traverse l’eau, comme si le jardin conservait un souvenir.",
+          "requires_solved": [
+            "jardin_1"
+          ],
+          "rewards": [
+            "souvenir_jardin"
+          ],
+          "visual_anchor": "Livre ouvert et instruments sur la table de pierre au premier plan, près du bassin",
+          "visual_verified": true,
+          "visual_verification_note": "Repère de décor identifié sur illustration; le texte de découverte reste narratif, aucun texte microscopique à lire."
+        }
+      ]
+    },
+    {
+      "id": "galeries",
+      "title": "Salle 07 — Les Galeries oubliées",
+      "description": "Les racines débouchent dans des tunnels où reposent des wagonnets. Les cristaux vibrent au rythme des fractures. Dans le noir, un chariot se met en mouvement.",
+      "image_file": "galeries.png",
+      "puzzles": [
+        {
+          "id": "galeries_1",
+          "title": "La voie de fer",
+          "description": "Sur quoi roulent les wagonnets ?",
+          "answers": [
+            "rails"
+          ],
+          "hints": [
+            "Observe le sol de la galerie.",
+            "Réfléchis au vocabulaire de la salle : la voie de fer."
+          ],
+          "rewards": [
+            "galeries_fragment_1"
+          ]
+        },
+        {
+          "id": "galeries_2",
+          "title": "Le transporteur",
+          "description": "Quel véhicule minier transporte les pierres extraites ?",
+          "answers": [
+            "wagonnet"
+          ],
+          "hints": [
+            "Cherche le chariot posé sur les rails.",
+            "Réfléchis au vocabulaire de la salle : le transporteur."
+          ],
+          "rewards": [
+            "galeries_fragment_2"
+          ]
+        },
+        {
+          "id": "galeries_3",
+          "title": "La lumière minérale",
+          "description": "Quels objets naturels brillent dans les parois ?",
+          "answers": [
+            "cristaux"
+          ],
+          "hints": [
+            "Observe les parois turquoise.",
+            "Réfléchis au vocabulaire de la salle : la lumière minérale."
+          ],
+          "rewards": [
+            "galeries_fragment_3"
+          ]
+        },
+        {
+          "id": "galeries_4",
+          "title": "La lumière des mineurs",
+          "description": "Quel objet portable éclaire les galeries ?",
+          "answers": [
+            "lanterne"
+          ],
+          "hints": [
+            "Cherche les sources de lumière suspendues.",
+            "Réfléchis au vocabulaire de la salle : la lumière des mineurs."
+          ],
+          "rewards": [
+            "galeries_fragment_4"
+          ]
+        },
+        {
+          "id": "galeries_5",
+          "title": "Les passages suspendus",
+          "description": "Quel ouvrage permet de franchir les crevasses ?",
+          "answers": [
+            "pont"
+          ],
+          "hints": [
+            "Regarde les passerelles au-dessus du vide.",
+            "Réfléchis au vocabulaire de la salle : les passages suspendus."
+          ],
+          "rewards": [
+            "galeries_fragment_5"
+          ]
+        },
+        {
+          "id": "galeries_6",
+          "title": "Le minerai oublié",
+          "description": "Quel mot désigne une matière rocheuse extraite d’une mine ?",
+          "answers": [
+            "minerai"
+          ],
+          "hints": [
+            "Pense à ce que transportent les wagonnets.",
+            "Réfléchis au vocabulaire de la salle : le minerai oublié."
+          ],
+          "rewards": [
+            "galeries_fragment_6"
+          ]
+        },
+        {
+          "id": "galeries_porte",
+          "title": "Le verrou de la salle",
+          "description": "Le mécanisme final exige que toutes les découvertes de cette salle soient enregistrées. Quel mot complète le nom de cette salle : oubliées ?",
+          "answers": [
+            "oubliées"
+          ],
+          "requires_solved": [
+            "galeries_1",
+            "galeries_2",
+            "galeries_3",
+            "galeries_4",
+            "galeries_5",
+            "galeries_6"
+          ],
+          "requires": [
+            "galeries_fragment_3",
+            "galeries_fragment_4",
+            "galeries_fragment_5",
+            "galeries_fragment_6",
+            "galeries_assemblage_central"
+          ],
+          "hints": [
+            "Toutes les épreuves de la salle doivent être terminées.",
+            "Le dernier mot du titre de cette salle ouvre le verrou."
+          ],
+          "next_room": "sanctuaire"
+        }
+      ],
+      "recipes": [
+        {
+          "ingredients": [
+            "galeries_fragment_1",
+            "galeries_fragment_2"
+          ],
+          "result": "galeries_assemblage_central",
+          "consume": true
+        }
+      ],
+      "scene_stages": [
+        {
+          "id": "eveil",
+          "requires_solved": [
+            "galeries_1",
+            "galeries_2"
+          ],
+          "description": "Les racines débouchent dans des tunnels où reposent des wagonnets. Les cristaux vibrent au rythme des fractures. Dans le noir, un chariot se met en mouvement.\n\n✦ Un écho résonne dans les galeries. Les cristaux diffusent une lumière nouvelle."
+        }
+      ],
+      "nox_reactions": [
+        {
+          "id": "arrival",
+          "text": "J’espère que tu sais retrouver la sortie. Moi, je suivais les miettes."
+        },
+        {
+          "id": "progress",
+          "requires_solved": [
+            "galeries_1",
+            "galeries_2"
+          ],
+          "text": "Les profondeurs nous racontent quelque chose."
+        }
+      ],
+      "memory_echoes": [
+        {
+          "id": "echo_jardin",
+          "requires_solved": [
+            "jardin_porte"
+          ],
+          "text": "Un souvenir de votre passage précédent refait surface."
+        },
+        {
+          "id": "souvenir_retrouve_jardin",
+          "requires": [
+            "souvenir_jardin"
+          ],
+          "text": "Un détail recueilli auparavant éclaire autrement ce que vous découvrez ici."
+        }
+      ],
+      "hotspots": [
+        {
+          "id": "trace_galeries",
+          "title": "Le poste des mineurs",
+          "description": "Un carnet de relevés mentionne une expédition oubliée.",
+          "requires_solved": [
+            "galeries_1"
+          ],
+          "rewards": [
+            "souvenir_galeries"
+          ],
+          "visual_anchor": "Documents et rouleaux disposés sur la table de relevés au premier plan, près des rails",
+          "visual_verified": true,
+          "visual_verification_note": "Repère de décor identifié sur illustration; le texte de découverte reste narratif, aucun texte microscopique à lire."
+        }
+      ]
+    },
+    {
+      "id": "sanctuaire",
+      "title": "Salle 08 — Le Sanctuaire des Échos",
+      "description": "Les galeries mènent à un lac souterrain. Au centre des ruines, un cristal flotte entre des arches brisées. Une voix ancienne évoque les portes du ciel.",
+      "image_file": "sanctuaire.png",
+      "puzzles": [
+        {
+          "id": "sanctuaire_1",
+          "title": "Le miroir liquide",
+          "description": "Quelle étendue d’eau reflète les ruines ?",
+          "answers": [
+            "lac"
+          ],
+          "hints": [
+            "Observe le centre de la grotte.",
+            "Réfléchis au vocabulaire de la salle : le miroir liquide."
+          ],
+          "rewards": [
+            "sanctuaire_fragment_1"
+          ]
+        },
+        {
+          "id": "sanctuaire_2",
+          "title": "La pierre suspendue",
+          "description": "Quel minéral flotte au-dessus de l’autel ?",
+          "answers": [
+            "cristal"
+          ],
+          "hints": [
+            "Regarde l’élément lumineux central.",
+            "Réfléchis au vocabulaire de la salle : la pierre suspendue."
+          ],
+          "rewards": [
+            "sanctuaire_fragment_2"
+          ]
+        },
+        {
+          "id": "sanctuaire_3",
+          "title": "Les chutes souterraines",
+          "description": "Comment appelle-t-on l’eau qui tombe verticalement depuis la roche ?",
+          "answers": [
+            "cascade"
+          ],
+          "hints": [
+            "Observe les côtés de la grotte.",
+            "Réfléchis au vocabulaire de la salle : les chutes souterraines."
+          ],
+          "rewards": [
+            "sanctuaire_fragment_3"
+          ]
+        },
+        {
+          "id": "sanctuaire_4",
+          "title": "Les vestiges",
+          "description": "Quel nom donne-t-on aux restes d’anciens bâtiments ?",
+          "answers": [
+            "ruines"
+          ],
+          "hints": [
+            "Observe les constructions de pierre.",
+            "Réfléchis au vocabulaire de la salle : les vestiges."
+          ],
+          "rewards": [
+            "sanctuaire_fragment_4"
+          ]
+        },
+        {
+          "id": "sanctuaire_5",
+          "title": "Les portes anciennes",
+          "description": "Quel élément architectural courbe domine les ruines ?",
+          "answers": [
+            "arches"
+          ],
+          "hints": [
+            "Regarde les structures au-dessus de l’île.",
+            "Réfléchis au vocabulaire de la salle : les portes anciennes."
+          ],
+          "rewards": [
+            "sanctuaire_fragment_5"
+          ]
+        },
+        {
+          "id": "sanctuaire_6",
+          "title": "La résonance",
+          "description": "Quel phénomène répète un son dans une grotte ?",
+          "answers": [
+            "echo"
+          ],
+          "hints": [
+            "C’est le nom du sanctuaire.",
+            "Réfléchis au vocabulaire de la salle : la résonance."
+          ],
+          "rewards": [
+            "sanctuaire_fragment_6"
+          ]
+        },
+        {
+          "id": "sanctuaire_porte",
+          "title": "Le verrou de la salle",
+          "description": "Le mécanisme final exige que toutes les découvertes de cette salle soient enregistrées. Quel mot complète le nom de cette salle : Échos ?",
+          "answers": [
+            "Échos"
+          ],
+          "requires_solved": [
+            "sanctuaire_1",
+            "sanctuaire_2",
+            "sanctuaire_3",
+            "sanctuaire_4",
+            "sanctuaire_5",
+            "sanctuaire_6"
+          ],
+          "requires": [
+            "sanctuaire_fragment_3",
+            "sanctuaire_fragment_4",
+            "sanctuaire_fragment_5",
+            "sanctuaire_fragment_6",
+            "sanctuaire_assemblage_central"
+          ],
+          "hints": [
+            "Toutes les épreuves de la salle doivent être terminées.",
+            "Le dernier mot du titre de cette salle ouvre le verrou."
+          ],
+          "next_room": "crypte"
+        }
+      ],
+      "recipes": [
+        {
+          "ingredients": [
+            "sanctuaire_fragment_1",
+            "sanctuaire_fragment_2"
+          ],
+          "result": "sanctuaire_assemblage_central",
+          "consume": true
+        }
+      ],
+      "scene_stages": [
+        {
+          "id": "eveil",
+          "requires_solved": [
+            "sanctuaire_1",
+            "sanctuaire_2"
+          ],
+          "description": "Les galeries mènent à un lac souterrain. Au centre des ruines, un cristal flotte entre des arches brisées. Une voix ancienne évoque les portes du ciel.\n\n✦ La surface du lac se trouble. Le sanctuaire paraît s’éveiller peu à peu."
+        }
+      ],
+      "nox_reactions": [
+        {
+          "id": "arrival",
+          "text": "Je vais parler doucement. Cet endroit écoute."
+        },
+        {
+          "id": "progress",
+          "requires_solved": [
+            "sanctuaire_1",
+            "sanctuaire_2"
+          ],
+          "text": "Tu as entendu cet écho ? Il ne venait pas de moi."
+        }
+      ],
+      "memory_echoes": [
+        {
+          "id": "echo_galeries",
+          "requires_solved": [
+            "galeries_porte"
+          ],
+          "text": "Un souvenir de votre passage précédent refait surface."
+        },
+        {
+          "id": "souvenir_retrouve_galeries",
+          "requires": [
+            "souvenir_galeries"
+          ],
+          "text": "Un détail recueilli auparavant éclaire autrement ce que vous découvrez ici."
+        }
+      ],
+      "hotspots": [
+        {
+          "id": "trace_sanctuaire",
+          "title": "Le socle des offrandes",
+          "description": "Une inscription effacée relie ce lieu à une époque plus ancienne.",
+          "requires_solved": [
+            "sanctuaire_1"
+          ],
+          "rewards": [
+            "souvenir_sanctuaire"
+          ],
+          "visual_anchor": "Parchemin et instruments sur le socle de pierre au premier plan, à gauche du lac",
+          "visual_verified": true,
+          "visual_verification_note": "Repère de décor identifié sur illustration; le texte de découverte reste narratif, aucun texte microscopique à lire."
+        }
+      ]
+    },
+    {
+      "id": "crypte",
+      "title": "Salle 09 — La Crypte des Gardiens",
+      "description": "Sous le sanctuaire reposent trois gardiens de pierre. Une lueur rouge traverse les tombeaux. « Nous avons sacrifié notre lumière pour maintenir les portes fermées. »",
+      "image_file": "crypte.png",
+      "puzzles": [
+        {
+          "id": "crypte_1",
+          "title": "Les sentinelles",
+          "description": "Quel type de sculpture représente les gardiens immobiles ?",
+          "answers": [
+            "statue"
+          ],
+          "hints": [
+            "Observe les personnages de pierre.",
+            "Réfléchis au vocabulaire de la salle : les sentinelles."
+          ],
+          "rewards": [
+            "crypte_fragment_1"
+          ]
+        },
+        {
+          "id": "crypte_2",
+          "title": "Les flammes",
+          "description": "Quel objet fixé au mur porte une flamme pour éclairer la crypte ?",
+          "answers": [
+            "torche"
+          ],
+          "hints": [
+            "Regarde les éclairages de la crypte.",
+            "Réfléchis au vocabulaire de la salle : les flammes."
+          ],
+          "rewards": [
+            "crypte_fragment_2"
+          ]
+        },
+        {
+          "id": "crypte_3",
+          "title": "Les sépultures",
+          "description": "Quel mot désigne les constructions qui abritent les morts ?",
+          "answers": [
+            "tombeaux"
+          ],
+          "hints": [
+            "Observe les pierres funéraires.",
+            "Réfléchis au vocabulaire de la salle : les sépultures."
+          ],
+          "rewards": [
+            "crypte_fragment_3"
+          ]
+        },
+        {
+          "id": "crypte_4",
+          "title": "Le signe nocturne",
+          "description": "Quel astre apparaît sous forme de croissant parmi les symboles ?",
+          "answers": [
+            "lune"
+          ],
+          "hints": [
+            "Cherche un croissant.",
+            "Réfléchis au vocabulaire de la salle : le signe nocturne."
+          ],
+          "rewards": [
+            "crypte_fragment_4"
+          ]
+        },
+        {
+          "id": "crypte_5",
+          "title": "Le signe diurne",
+          "description": "Quel astre est représenté par un disque rayonnant ?",
+          "answers": [
+            "soleil"
+          ],
+          "hints": [
+            "Cherche un symbole rayonnant.",
+            "Réfléchis au vocabulaire de la salle : le signe diurne."
+          ],
+          "rewards": [
+            "crypte_fragment_5"
+          ]
+        },
+        {
+          "id": "crypte_6",
+          "title": "Le devoir",
+          "description": "Quel nom portent les protecteurs représentés par les statues ?",
+          "answers": [
+            "gardiens"
+          ],
+          "hints": [
+            "C’est le nom de ceux qui protégeaient les portes.",
+            "Réfléchis au vocabulaire de la salle : le devoir."
+          ],
+          "rewards": [
+            "crypte_fragment_6"
+          ]
+        },
+        {
+          "id": "crypte_porte",
+          "title": "Le verrou de la salle",
+          "description": "Le mécanisme final exige que toutes les découvertes de cette salle soient enregistrées. Quel mot complète le nom de cette salle : Gardiens ?",
+          "answers": [
+            "Gardiens"
+          ],
+          "requires_solved": [
+            "crypte_1",
+            "crypte_2",
+            "crypte_3",
+            "crypte_4",
+            "crypte_5",
+            "crypte_6"
+          ],
+          "requires": [
+            "crypte_fragment_3",
+            "crypte_fragment_4",
+            "crypte_fragment_5",
+            "crypte_fragment_6",
+            "crypte_assemblage_central"
+          ],
+          "hints": [
+            "Toutes les épreuves de la salle doivent être terminées.",
+            "Le dernier mot du titre de cette salle ouvre le verrou."
+          ],
+          "next_room": "prison"
+        }
+      ],
+      "recipes": [
+        {
+          "ingredients": [
+            "crypte_fragment_1",
+            "crypte_fragment_2"
+          ],
+          "result": "crypte_assemblage_central",
+          "consume": true
+        }
+      ],
+      "scene_stages": [
+        {
+          "id": "eveil",
+          "requires_solved": [
+            "crypte_1",
+            "crypte_2"
+          ],
+          "description": "Sous le sanctuaire reposent trois gardiens de pierre. Une lueur rouge traverse les tombeaux. « Nous avons sacrifié notre lumière pour maintenir les portes fermées. »\n\n✦ Les ombres des gardiens se déplacent sur la pierre. Une présence ancienne semble vous observer."
+        }
+      ],
+      "nox_reactions": [
+        {
+          "id": "arrival",
+          "text": "Les statues me regardent. Je ne bouge plus."
+        },
+        {
+          "id": "progress",
+          "requires_solved": [
+            "crypte_1",
+            "crypte_2"
+          ],
+          "text": "Je crois que les gardiens nous ont reconnus."
+        }
+      ],
+      "memory_echoes": [
+        {
+          "id": "echo_sanctuaire",
+          "requires_solved": [
+            "sanctuaire_porte"
+          ],
+          "text": "Un souvenir de votre passage précédent refait surface."
+        },
+        {
+          "id": "souvenir_retrouve_sanctuaire",
+          "requires": [
+            "souvenir_sanctuaire"
+          ],
+          "text": "Un détail recueilli auparavant éclaire autrement ce que vous découvrez ici."
+        }
+      ],
+      "hotspots": [
+        {
+          "id": "trace_crypte",
+          "title": "La pierre commémorative",
+          "description": "Un hommage discret témoigne d’un sacrifice ancien.",
+          "requires_solved": [
+            "crypte_1"
+          ],
+          "rewards": [
+            "souvenir_crypte"
+          ],
+          "visual_anchor": "Livre ouvert et rouleau sur la table au premier plan, devant les tombeaux",
+          "visual_verified": true,
+          "visual_verification_note": "Repère de décor identifié sur illustration; le texte de découverte reste narratif, aucun texte microscopique à lire."
+        }
+      ]
+    },
+    {
+      "id": "prison",
+      "title": "Salle 10 — La Prison des Étoiles",
+      "description": "La crypte débouche sur une prison suspendue au-dessus d’un gouffre rouge. Plusieurs cellules sont ouvertes. Une voix demande qui vous a conduits jusqu’ici.",
+      "image_file": "prison.png",
+      "puzzles": [
+        {
+          "id": "prison_1",
+          "title": "Les entraves",
+          "description": "Quels liens métalliques retiennent les cages au-dessus du vide ?",
+          "answers": [
+            "chaines"
+          ],
+          "hints": [
+            "Observe ce qui pend du plafond.",
+            "Réfléchis au vocabulaire de la salle : les entraves."
+          ],
+          "rewards": [
+            "prison_fragment_1"
+          ]
+        },
+        {
+          "id": "prison_2",
+          "title": "Les chambres closes",
+          "description": "Comment appelle-t-on les pièces où l’on enferme des prisonniers ?",
+          "answers": [
+            "cellules"
+          ],
+          "hints": [
+            "Regarde derrière les barreaux.",
+            "Réfléchis au vocabulaire de la salle : les chambres closes."
+          ],
+          "rewards": [
+            "prison_fragment_2"
+          ]
+        },
+        {
+          "id": "prison_3",
+          "title": "Le passage étroit",
+          "description": "Quel ouvrage relie les deux bords du gouffre ?",
+          "answers": [
+            "passerelle"
+          ],
+          "hints": [
+            "Cherche les chemins suspendus.",
+            "Réfléchis au vocabulaire de la salle : le passage étroit."
+          ],
+          "rewards": [
+            "prison_fragment_3"
+          ]
+        },
+        {
+          "id": "prison_4",
+          "title": "La profondeur",
+          "description": "Quel mot désigne un trou extrêmement profond et vertigineux ?",
+          "answers": [
+            "gouffre"
+          ],
+          "hints": [
+            "Observe le vide sous les cages.",
+            "Réfléchis au vocabulaire de la salle : la profondeur."
+          ],
+          "rewards": [
+            "prison_fragment_4"
+          ]
+        },
+        {
+          "id": "prison_5",
+          "title": "Les barreaux",
+          "description": "Quel matériau compose les grilles et les chaînes de la prison ?",
+          "answers": [
+            "fer"
+          ],
+          "hints": [
+            "Pense au métal des barreaux.",
+            "Réfléchis au vocabulaire de la salle : les barreaux."
+          ],
+          "rewards": [
+            "prison_fragment_5"
+          ]
+        },
+        {
+          "id": "prison_6",
+          "title": "La captivité",
+          "description": "Quel mot désigne l’état d’une personne enfermée ?",
+          "answers": [
+            "prisonnier"
+          ],
+          "hints": [
+            "Pense à celui qui occupe une cellule.",
+            "Réfléchis au vocabulaire de la salle : la captivité."
+          ],
+          "rewards": [
+            "prison_fragment_6"
+          ]
+        },
+        {
+          "id": "prison_porte",
+          "title": "Le verrou de la salle",
+          "description": "Le mécanisme final exige que toutes les découvertes de cette salle soient enregistrées. Quel mot complète le nom de cette salle : Étoiles ?",
+          "answers": [
+            "Étoiles"
+          ],
+          "requires_solved": [
+            "prison_1",
+            "prison_2",
+            "prison_3",
+            "prison_4",
+            "prison_5",
+            "prison_6"
+          ],
+          "requires": [
+            "prison_fragment_3",
+            "prison_fragment_4",
+            "prison_fragment_5",
+            "prison_fragment_6",
+            "prison_assemblage_central"
+          ],
+          "hints": [
+            "Toutes les épreuves de la salle doivent être terminées.",
+            "Le dernier mot du titre de cette salle ouvre le verrou."
+          ],
+          "next_room": "fracture"
+        }
+      ],
+      "recipes": [
+        {
+          "ingredients": [
+            "prison_fragment_1",
+            "prison_fragment_2"
+          ],
+          "result": "prison_assemblage_central",
+          "consume": true
+        }
+      ],
+      "scene_stages": [
+        {
+          "id": "eveil",
+          "requires_solved": [
+            "prison_1",
+            "prison_2"
+          ],
+          "description": "La crypte débouche sur une prison suspendue au-dessus d’un gouffre rouge. Plusieurs cellules sont ouvertes. Une voix demande qui vous a conduits jusqu’ici.\n\n✦ Les chaînes vibrent dans le silence de la prison. Quelque chose a changé dans les profondeurs."
+        }
+      ],
+      "nox_reactions": [
+        {
+          "id": "arrival",
+          "text": "Je préfère les paniers aux cages, personnellement."
+        },
+        {
+          "id": "progress",
+          "requires_solved": [
+            "prison_1",
+            "prison_2"
+          ],
+          "text": "Quelqu’un est passé ici avant nous…"
+        }
+      ],
+      "memory_echoes": [
+        {
+          "id": "echo_crypte",
+          "requires_solved": [
+            "crypte_porte"
+          ],
+          "text": "Un souvenir de votre passage précédent refait surface."
+        },
+        {
+          "id": "souvenir_retrouve_crypte",
+          "requires": [
+            "souvenir_crypte"
+          ],
+          "text": "Un détail recueilli auparavant éclaire autrement ce que vous découvrez ici."
+        }
+      ],
+      "hotspots": [
+        {
+          "id": "trace_prison",
+          "title": "Le registre des cellules",
+          "description": "Une note indique que toutes les portes n’ont pas été ouvertes de l’extérieur.",
+          "requires_solved": [
+            "prison_1"
+          ],
+          "rewards": [
+            "souvenir_prison"
+          ],
+          "visual_anchor": "Parchemin posé au premier plan près des chaînes et du pont suspendu",
+          "visual_verified": true,
+          "visual_verification_note": "Repère de décor identifié sur illustration; le texte de découverte reste narratif, aucun texte microscopique à lire."
+        }
+      ]
+    },
+    {
+      "id": "fracture",
+      "title": "Salle 11 — Le Cœur de la Fracture",
+      "description": "La prison ouvre sur un espace où la gravité s’effondre. Les pierres flottent et une déchirure violette aspire la lumière. Les lieux traversés semblent exister en même temps.",
+      "image_file": "fracture.png",
+      "puzzles": [
+        {
+          "id": "fracture_1",
+          "title": "Les fragments suspendus",
+          "description": "Quelle matière solide forme les îlots flottants ?",
+          "answers": [
+            "pierre"
+          ],
+          "hints": [
+            "Observe les fragments dans le vide.",
+            "Réfléchis au vocabulaire de la salle : les fragments suspendus."
+          ],
+          "rewards": [
+            "fracture_fragment_1"
+          ]
+        },
+        {
+          "id": "fracture_2",
+          "title": "La couleur du chaos",
+          "description": "Quelle couleur domine la grande déchirure ?",
+          "answers": [
+            "violet"
+          ],
+          "hints": [
+            "Regarde le centre de la scène.",
+            "Réfléchis au vocabulaire de la salle : la couleur du chaos."
+          ],
+          "rewards": [
+            "fracture_fragment_2"
+          ]
+        },
+        {
+          "id": "fracture_3",
+          "title": "Les arcs brisés",
+          "description": "Quel élément architectural en forme de courbe est partiellement détruit ?",
+          "answers": [
+            "arche"
+          ],
+          "hints": [
+            "Regarde les structures flottantes.",
+            "Réfléchis au vocabulaire de la salle : les arcs brisés."
+          ],
+          "rewards": [
+            "fracture_fragment_3"
+          ]
+        },
+        {
+          "id": "fracture_4",
+          "title": "La lumière vive",
+          "description": "Quel phénomène électrique traverse la fracture ?",
+          "answers": [
+            "eclair"
+          ],
+          "hints": [
+            "Observe les traits lumineux dans le ciel.",
+            "Réfléchis au vocabulaire de la salle : la lumière vive."
+          ],
+          "rewards": [
+            "fracture_fragment_4"
+          ]
+        },
+        {
+          "id": "fracture_5",
+          "title": "Le temps inversé",
+          "description": "Quel objet rempli de sable permet de mesurer une durée ?",
+          "answers": [
+            "sablier"
+          ],
+          "hints": [
+            "Cherche un objet du premier plan.",
+            "Réfléchis au vocabulaire de la salle : le temps inversé."
+          ],
+          "rewards": [
+            "fracture_fragment_5"
+          ]
+        },
+        {
+          "id": "fracture_6",
+          "title": "La déchirure",
+          "description": "Quel mot désigne la faille qui sépare le cosmos ?",
+          "answers": [
+            "fracture"
+          ],
+          "hints": [
+            "C’est le nom de l’aventure.",
+            "Réfléchis au vocabulaire de la salle : la déchirure."
+          ],
+          "rewards": [
+            "fracture_fragment_6"
+          ]
+        },
+        {
+          "id": "fracture_porte",
+          "title": "Le verrou de la salle",
+          "description": "Le mécanisme final exige que toutes les découvertes de cette salle soient enregistrées. Quel mot complète le nom de cette salle : Fracture ?",
+          "answers": [
+            "Fracture"
+          ],
+          "requires_solved": [
+            "fracture_1",
+            "fracture_2",
+            "fracture_3",
+            "fracture_4",
+            "fracture_5",
+            "fracture_6"
+          ],
+          "requires": [
+            "fracture_fragment_3",
+            "fracture_fragment_4",
+            "fracture_fragment_5",
+            "fracture_fragment_6",
+            "fracture_assemblage_central"
+          ],
+          "hints": [
+            "Toutes les épreuves de la salle doivent être terminées.",
+            "Le dernier mot du titre de cette salle ouvre le verrou."
+          ],
+          "next_room": "tribunal"
+        }
+      ],
+      "recipes": [
+        {
+          "ingredients": [
+            "fracture_fragment_1",
+            "fracture_fragment_2"
+          ],
+          "result": "fracture_assemblage_central",
+          "consume": true
+        }
+      ],
+      "scene_stages": [
+        {
+          "id": "eveil",
+          "requires_solved": [
+            "fracture_1",
+            "fracture_2"
+          ],
+          "description": "La prison ouvre sur un espace où la gravité s’effondre. Les pierres flottent et une déchirure violette aspire la lumière. Les lieux traversés semblent exister en même temps.\n\n✦ La fracture pulse avec une intensité nouvelle. Les fragments de réalité semblent se rapprocher."
+        }
+      ],
+      "nox_reactions": [
+        {
+          "id": "arrival",
+          "text": "Le sol est en morceaux ! Je reste près de toi."
+        },
+        {
+          "id": "progress",
+          "requires_solved": [
+            "fracture_1",
+            "fracture_2"
+          ],
+          "text": "Tout semble relié, même ce qu’on croyait oublié."
+        }
+      ],
+      "memory_echoes": [
+        {
+          "id": "echo_prison",
+          "requires_solved": [
+            "prison_porte"
+          ],
+          "text": "Un souvenir de votre passage précédent refait surface."
+        },
+        {
+          "id": "souvenir_retrouve_prison",
+          "requires": [
+            "souvenir_prison"
+          ],
+          "text": "Un détail recueilli auparavant éclaire autrement ce que vous découvrez ici."
+        }
+      ],
+      "hotspots": [
+        {
+          "id": "trace_fracture",
+          "title": "Le fragment immobile",
+          "description": "Au milieu du chaos, une trace demeure étonnamment stable.",
+          "requires_solved": [
+            "fracture_1"
+          ],
+          "rewards": [
+            "souvenir_fracture"
+          ],
+          "visual_anchor": "Livre ouvert et rouleau au premier plan, face à la fracture violette",
+          "visual_verified": true,
+          "visual_verification_note": "Repère de décor identifié sur illustration; le texte de découverte reste narratif, aucun texte microscopique à lire."
+        }
+      ]
+    },
+    {
+      "id": "tribunal",
+      "title": "Salle 12 — Le Tribunal des Éternités",
+      "description": "Le chaos s’apaise. Douze trônes entourent une balance cosmique. Une voix annonce que comprendre le passé ne suffit pas à sauver l’avenir.",
+      "image_file": "tribunal.png",
+      "puzzles": [
+        {
+          "id": "tribunal_1",
+          "title": "Les sièges du jugement",
+          "description": "Quel siège monumental accueille les juges ?",
+          "answers": [
+            "trone"
+          ],
+          "hints": [
+            "Observe le cercle de sièges.",
+            "Réfléchis au vocabulaire de la salle : les sièges du jugement."
+          ],
+          "rewards": [
+            "tribunal_fragment_1"
+          ]
+        },
+        {
+          "id": "tribunal_2",
+          "title": "L’équilibre",
+          "description": "Quel instrument possède deux plateaux et sert à comparer des poids ?",
+          "answers": [
+            "balance"
+          ],
+          "hints": [
+            "Regarde le centre du tribunal.",
+            "Réfléchis au vocabulaire de la salle : l’équilibre."
+          ],
+          "rewards": [
+            "tribunal_fragment_2"
+          ]
+        },
+        {
+          "id": "tribunal_3",
+          "title": "La matière claire",
+          "description": "Quelle pierre blanche polie recouvre le sol du tribunal ?",
+          "answers": [
+            "marbre"
+          ],
+          "hints": [
+            "Observe le sol brillant.",
+            "Réfléchis au vocabulaire de la salle : la matière claire."
+          ],
+          "rewards": [
+            "tribunal_fragment_3"
+          ]
+        },
+        {
+          "id": "tribunal_4",
+          "title": "La lumière froide",
+          "description": "Quelle couleur éclaire l’un des plateaux de la balance ?",
+          "answers": [
+            "bleu"
+          ],
+          "hints": [
+            "Observe le plateau à la lumière froide.",
+            "Réfléchis au vocabulaire de la salle : la lumière froide."
+          ],
+          "rewards": [
+            "tribunal_fragment_4"
+          ]
+        },
+        {
+          "id": "tribunal_5",
+          "title": "La lumière chaude",
+          "description": "Quelle couleur éclaire l’autre plateau ?",
+          "answers": [
+            "or"
+          ],
+          "hints": [
+            "Observe le plateau à la lumière chaude.",
+            "Réfléchis au vocabulaire de la salle : la lumière chaude."
+          ],
+          "rewards": [
+            "tribunal_fragment_5"
+          ]
+        },
+        {
+          "id": "tribunal_6",
+          "title": "Le verdict",
+          "description": "Quel mot désigne la décision rendue à l’issue d’un jugement ?",
+          "answers": [
+            "verdict"
+          ],
+          "hints": [
+            "Pense à la fonction du tribunal.",
+            "Réfléchis au vocabulaire de la salle : le verdict."
+          ],
+          "rewards": [
+            "tribunal_fragment_6"
+          ]
+        },
+        {
+          "id": "tribunal_porte",
+          "title": "Le verrou de la salle",
+          "description": "Le mécanisme final exige que toutes les découvertes de cette salle soient enregistrées. Quel mot complète le nom de cette salle : Éternités ?",
+          "answers": [
+            "Éternités"
+          ],
+          "requires_solved": [
+            "tribunal_1",
+            "tribunal_2",
+            "tribunal_3",
+            "tribunal_4",
+            "tribunal_5",
+            "tribunal_6"
+          ],
+          "requires": [
+            "tribunal_fragment_3",
+            "tribunal_fragment_4",
+            "tribunal_fragment_5",
+            "tribunal_fragment_6",
+            "tribunal_assemblage_central"
+          ],
+          "hints": [
+            "Toutes les épreuves de la salle doivent être terminées.",
+            "Le dernier mot du titre de cette salle ouvre le verrou."
+          ],
+          "conditional_next_room": {
+            "room": "origine_cachee",
+            "requires_items": [
+              "souvenir_atelier",
+              "souvenir_archives",
+              "souvenir_laboratoire",
+              "souvenir_jardin",
+              "souvenir_galeries",
+              "souvenir_sanctuaire",
+              "souvenir_crypte",
+              "souvenir_prison",
+              "souvenir_fracture",
+              "souvenir_tribunal"
+            ]
+          },
+          "finish_if_unqualified": true
+        }
+      ],
+      "recipes": [
+        {
+          "ingredients": [
+            "tribunal_fragment_1",
+            "tribunal_fragment_2"
+          ],
+          "result": "tribunal_assemblage_central",
+          "consume": true
+        }
+      ],
+      "scene_stages": [
+        {
+          "id": "eveil",
+          "requires_solved": [
+            "tribunal_1",
+            "tribunal_2"
+          ],
+          "description": "Le chaos s’apaise. Douze trônes entourent une balance cosmique. Une voix annonce que comprendre le passé ne suffit pas à sauver l’avenir.\n\n✦ La balance tremble imperceptiblement. Le tribunal paraît attendre la suite de votre cheminement."
+        }
+      ],
+      "nox_reactions": [
+        {
+          "id": "arrival",
+          "text": "Douze sièges… et pas un seul coussin pour NOX."
+        },
+        {
+          "id": "progress",
+          "requires_solved": [
+            "tribunal_1",
+            "tribunal_2"
+          ],
+          "text": "Je suis là. Quelle que soit la suite."
+        }
+      ],
+      "memory_echoes": [
+        {
+          "id": "echo_fracture",
+          "requires_solved": [
+            "fracture_porte"
+          ],
+          "text": "Un souvenir de votre passage précédent refait surface."
+        },
+        {
+          "id": "souvenir_retrouve_fracture",
+          "requires": [
+            "souvenir_fracture"
+          ],
+          "text": "Un détail recueilli auparavant éclaire autrement ce que vous découvrez ici."
+        }
+      ],
+      "hotspots": [
+        {
+          "id": "trace_tribunal",
+          "title": "Le livre des délibérations",
+          "description": "Un dernier témoignage suggère que le jugement ne s’achève pas ici.",
+          "requires_solved": [
+            "tribunal_1"
+          ],
+          "rewards": [
+            "souvenir_tribunal"
+          ],
+          "visual_anchor": "Livre ouvert et rouleau au premier plan, face aux trônes et à la balance",
+          "visual_verified": true,
+          "visual_verification_note": "Repère de décor identifié sur illustration; le texte de découverte reste narratif, aucun texte microscopique à lire."
+        }
+      ]
+    },
+    {
+      "id": "origine_cachee",
+      "title": "Salle secrète — ???",
+      "description": "Une présence impossible répond à vos découvertes. Ce lieu n’aurait jamais dû être trouvé. Les souvenirs rassemblés semblent s’y reconnaître.\n\n**🔎 Cliquer sur l’image pour l’agrandir.**",
+      "image_file": "origine_cachee.png",
+      "secret": true,
+      "puzzles": [
+        {
+          "id": "origine_trace",
+          "title": "Une trace oubliée",
+          "description": "Les souvenirs semblent dessiner une première correspondance. Quel mot revient dans les récits précédents ?",
+          "answers": [
+            "memoire"
+          ],
+          "hints": [
+            "Pense aux traces laissées par les salles.",
+            "Ce que l’on garde du passé."
+          ],
+          "rewards": [
+            "origine_eclat_1"
+          ]
+        },
+        {
+          "id": "origine_reflet",
+          "title": "Le reflet inversé",
+          "description": "Deux aspects d’une même histoire se répondent. Quel mot désigne leur relation ?",
+          "answers": [
+            "miroir"
+          ],
+          "requires_solved": [
+            "origine_trace"
+          ],
+          "hints": [
+            "Un objet qui renvoie une image."
+          ],
+          "rewards": [
+            "origine_eclat_2"
+          ]
+        },
+        {
+          "id": "origine_fil",
+          "title": "Le fil des mondes",
+          "description": "Ce qui relie les mondes n’est pas une chaîne. Quel terme décrit une connexion entre deux choses ?",
+          "answers": [
+            "lien"
+          ],
+          "requires_solved": [
+            "origine_reflet"
+          ],
+          "hints": [
+            "Ce qui unit sans enfermer."
+          ],
+          "rewards": [
+            "origine_eclat_3"
+          ]
+        },
+        {
+          "id": "origine_assemblage",
+          "title": "L’accord impossible",
+          "description": "Les trois éclats doivent être réunis. Quel mot désigne le fait de les réunir en un ensemble ?",
+          "answers": [
+            "union"
+          ],
+          "requires_solved": [
+            "origine_fil"
+          ],
+          "requires": [
+            "origine_sceau",
+            "origine_eclat_2",
+            "origine_eclat_3"
+          ],
+          "hints": [
+            "Rassembler plutôt que séparer."
+          ],
+          "rewards": [
+            "origine_clef"
+          ]
+        },
+        {
+          "id": "origine_final",
+          "title": "Le dernier choix",
+          "description": "Le lieu ne demande plus une force, mais une intention. Quel mot exprime le souhait de préserver plutôt que détruire ?",
+          "answers": [
+            "proteger"
+          ],
+          "requires_solved": [
+            "origine_assemblage"
+          ],
+          "requires": [
+            "origine_clef",
+            "origine_inscription"
+          ],
+          "hints": [
+            "Le contraire de mettre en danger."
+          ],
+          "finish": true
+        }
+      ],
+      "nox_reactions": [
+        {
+          "id": "arrival",
+          "text": "Je… je crois qu’on vient de trouver quelque chose qui ne figure sur aucune carte."
+        },
+        {
+          "id": "progress",
+          "requires_solved": [
+            "origine_fil"
+          ],
+          "text": "Je reste avec vous. Même si les étoiles changent de place."
+        },
+        {
+          "id": "seuil",
+          "requires": [
+            "origine_sceau"
+          ],
+          "text": "Euh… vous aussi, vous avez vu ça bouger ? Je promets que je n’ai touché à rien !"
+        }
+      ],
+      "hotspots": [
+        {
+          "id": "origine_resonance",
+          "title": "Résonance silencieuse",
+          "description": "Une vibration répond aux traces rassemblées. Un fragment de matière semble se détacher du silence.",
+          "requires_solved": [
+            "origine_reflet"
+          ],
+          "rewards": [
+            "origine_resonance_fragment"
+          ],
+          "visual_verified": true,
+          "visual_verification_note": "Repère identifiable sur origine_cachee.png ; les détails narratifs sont révélés via le menu Discord, sans lecture de minuscules inscriptions.",
+          "visual_anchor": "Cristal central suspendu dans les anneaux métalliques au-dessus du socle"
+        },
+        {
+          "id": "origine_seuil",
+          "title": "Seuil immobile",
+          "description": "Le seuil révèle une inscription qui n’était pas perceptible auparavant.",
+          "requires": [
+            "origine_sceau"
+          ],
+          "rewards": [
+            "origine_inscription"
+          ],
+          "visual_verified": true,
+          "visual_verification_note": "Repère identifiable sur origine_cachee.png ; les détails narratifs sont révélés via le menu Discord, sans lecture de minuscules inscriptions.",
+          "visual_anchor": "Socle circulaire lumineux sous le cristal, au centre de la salle"
+        }
+      ],
+      "recipes": [
+        {
+          "ingredients": [
+            "origine_eclat_1",
+            "origine_resonance_fragment"
+          ],
+          "result": "origine_sceau",
+          "consume": true
+        }
+      ],
+      "scene_stages": [
+        {
+          "id": "origine_reveillee",
+          "requires_solved": [
+            "origine_fil"
+          ],
+          "description": "Une présence impossible répond à vos découvertes. Ce lieu n’aurait jamais dû être trouvé. Les souvenirs rassemblés semblent s’y reconnaître.\n\n**🔎 Cliquer sur l’image pour l’agrandir.**\n\nUne résonance traverse désormais le lieu. Quelque chose attend d’être examiné."
+        },
+        {
+          "id": "origine_seuil_ouvert",
+          "requires": [
+            "origine_sceau"
+          ],
+          "description": "Une présence impossible répond à vos découvertes. Ce lieu n’aurait jamais dû être trouvé. Les souvenirs rassemblés semblent s’y reconnaître.\n\n**🔎 Cliquer sur l’image pour l’agrandir.**\n\nUn seuil auparavant invisible devient perceptible. La dernière étape approche."
+        }
+      ]
+    }
+  ]
+}

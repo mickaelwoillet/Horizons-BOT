@@ -189,6 +189,7 @@ EXTENSIONS: Final[tuple[str, ...]] = (
     "cogs.nox_diagnostics",
     "cogs.nox_planning",
     "cogs.nox_interactions",
+    "cogs.escape_game",
 )
 
 # ---------------------------------------------------------------------------

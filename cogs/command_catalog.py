@@ -15,7 +15,7 @@ STAFF_ONLY = {
     "avertir", "avertissements", "retirer_avertissement", "timeout", "untimeout",
     "expulser", "bannir", "debannir", "purger", "note_membre", "dashboard",
     "tache_creer", "taches", "tache_statut", "service",
-    "alerte_equipe", "givemonnox",
+    "alerte_equipe", "givemonnox", "escape installer",
 }
 MIXED_ACCESS = {
     "evenement_fermer": "Membres (créateur de l'événement) et équipe",
@@ -23,6 +23,7 @@ MIXED_ACCESS = {
 }
 STAFF_PERMISSIONS = {
     "export_structure": "Permission Administrateur Discord.",
+    "escape installer": "Permission Administrateur Discord ; le bot doit pouvoir gérer les salons, envoyer et consulter les messages.",
     "annonce": "Rôle staff autorisé ou permission de gestion prévue par le serveur.",
     "idee_statut": "Rôle staff ou administrateur.",
     "actualiser_rangs": "Permission Gérer les rôles.",
@@ -50,6 +51,7 @@ CATEGORIES = (
     ("💬 Communauté et entraide", {"question_du_jour", "compliment", "idee", "mes_idees", "idee_statut", "remercier", "proposer"}),
     ("🧭 Missions et expériences", {"mon_passeport", "valider_mission", "chercher", "defi_collectif", "rejoindre_defi", "creer_defi", "parcours", "actualiser_rangs"}),
     ("🎉 Événements et jeux", {"evenements", "evenement_fermer", "creer", "annuler", "reroll", "blague", "devinette"}),
+    ("🔐 Escape Game", {"escape jouer", "escape inviter", "escape rejoindre", "escape refuser", "escape installer"}),
     ("🎮 Arcade et progression", {"jeux", "xpjeux"}),
     ("🐣 NOX Junior", {"monnox", "montrermonnox", "givemonnox"}),
     ("🌌 Trésors et constellations", {"gratter", "givegratte", "echanger_fragments", "echanger_poussiere", "collection_etoiles", "constellations", "inventaire_celeste", "souvenirs_celestes", "etoile"}),

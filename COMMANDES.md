@@ -217,3 +217,17 @@ Depuis `/monnox` → **Mini-jeux**, 12 activités sont disponibles, dont **Cache
 - `/prochains_anniversaires` : affiche les dix prochains anniversaires enregistrés, sans divulguer les années de naissance.
 - Les anciennes commandes `/structure` et `/reglement_staff` ont été retirées. Les panneaux Staff déjà publiés restent utilisables.
 - Les anciens rôles de zones cardinales et de tranches d'âge ne sont **pas supprimés automatiquement** : vérifier les attributions existantes avant un nettoyage manuel.
+
+
+## Escape Game — Les Fractures du Cosmos (tests locaux validés, Discord non testé)
+- `/escape installer` : crée ou retrouve la catégorie et les cinq salons et publie les panneaux permanents (administrateur).
+- `/escape jouer mode:Solo` : ouvre la salle actuelle de la partie personnelle, ou crée une sauvegarde au premier lancement.
+- `/escape jouer mode:Collectif` : ouvre la salle de l’équipe à laquelle appartient le membre.
+- `/escape inviter` : invite un membre dans une équipe de 2 à 6 (capitaine).
+- `/escape rejoindre` : accepte une invitation à une équipe.
+- `/escape refuser` : refuse une invitation à une équipe.
+- Panneau permanent : jouer en solo, créer une équipe, consulter sa progression et les aventures.
+- Dans une salle : examiner les épreuves, répondre, demander un indice, explorer le décor, consulter l’inventaire, assembler deux objets et actualiser la salle.
+- Les deux autres aventures sont annoncées « À venir prochainement ».
+- **État de validation :** le catalogue des 13 salles et les fonctions principales sont présents dans le projet de travail ; les tests Python locaux ne remplacent pas un essai sur Discord. Les audits automatisés des 13 images et des repères visuels réussissent ; la vérification Discord réelle et l’intégration finale restent à effectuer avant diffusion.
+- Les réponses et secrets ne doivent jamais figurer dans les messages publics ou la documentation des membres.
