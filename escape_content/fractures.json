@@ -465,13 +465,13 @@
         {
           "id": "archives_2",
           "title": "L’index codé",
-          "description": "Un index porte le code 12-9-22-18-5 (A=1, B=2, ..., Z=26). Quel mot révèle-t-il ?",
+          "description": "Un ancien index des Archives porte le code 18-5-7-9-19-20-18-5 (A=1, B=2, ..., Z=26). Quel mot de huit lettres révèle-t-il ?",
           "answers": [
-            "livre"
+            "registre"
           ],
           "hints": [
-            "Transforme les nombres en lettres.",
-            "12=L, 9=I, 22=V, 18=R, 5=E."
+            "Transforme chaque nombre en lettre en suivant son rang dans l’alphabet.",
+            "18=R, 5=E, 7=G, 9=I, 19=S, 20=T, 18=R, 5=E."
           ],
           "rewards": [
             "archives_fragment_2"
@@ -540,7 +540,7 @@
         {
           "id": "archives_porte",
           "title": "Le verrou de la salle",
-          "description": "Trois rayonnages numérotés 2, 4 et 6 contiennent respectivement 7, 3 et 5 sceaux. Le registre demande le total des sceaux des rayonnages dont le numéro est divisible par 4 ou par 3. Quel total inscris-tu ?",
+          "description": "Dans les Archives, trois rayonnages renferment des sceaux anciens : le rayonnage 2 contient 7 sceaux, le rayonnage 4 en contient 3 et le rayonnage 6 en contient 5. Une note du gardien indique : « Seuls les sceaux des deux rayonnages portant les numéros les plus élevés doivent être comptés. » Combien de sceaux faut-il inscrire dans le registre ?",
           "answers": [
             "8"
           ],
@@ -560,8 +560,8 @@
             "archives_assemblage_central"
           ],
           "hints": [
-            "Seuls les rayonnages 4 et 6 répondent à la condition.",
-            "Additionne 3 et 5."
+            "Observe les numéros des rayonnages, pas leur nombre de sceaux.",
+            "Les deux rayonnages concernés portent les numéros 4 et 6."
           ],
           "next_room": "laboratoire"
         }
