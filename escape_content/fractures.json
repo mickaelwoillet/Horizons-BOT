@@ -354,9 +354,10 @@
         {
           "id": "atelier_porte",
           "title": "Le verrou de la salle",
-          "description": "Sur l’établi, trois engrenages portent les nombres 3, 5 et 8. Le cadran de sortie demande la somme du premier et du troisième, multipliée par le deuxième. Quel nombre faut-il régler ?",
+          "description": "Trois engrenages portent les nombres 3, 5 et 8. Une note indique : « Pour ouvrir la porte, additionne les nombres du plus petit et du plus grand engrenage. » Quel nombre faut-il saisir ?",
           "answers": [
-            "55"
+            "11",
+            "onze"
           ],
           "requires_solved": [
             "atelier_1",
@@ -374,8 +375,8 @@
             "atelier_assemblage_central"
           ],
           "hints": [
-            "Commence par additionner le premier et le troisième engrenage.",
-            "(3 + 8) × 5."
+            "Repère le plus petit et le plus grand nombre.",
+            "Additionne 3 et 8."
           ],
           "next_room": "archives"
         }
@@ -738,10 +739,10 @@
         {
           "id": "laboratoire_porte",
           "title": "Le verrou de la salle",
-          "description": "Sur la console, quatre fioles de contrôle portent les valeurs 2, 5, 3 et 4. Le protocole exige de multiplier les valeurs des fioles aux positions impaires, puis de soustraire la somme des valeurs aux positions paires. Quel nombre obtiens-tu ?",
+          "description": "Sur la console du Laboratoire, quatre fioles portent les nombres 2, 5, 3 et 4. Une inscription indique : « Trouve les deux nombres qui se suivent et dont la somme est la plus élevée. » Les fioles ne doivent pas forcément être côte à côte. Quel total permet d’ouvrir le passage ?",
           "answers": [
-            "-3",
-            "moins trois"
+            "9",
+            "neuf"
           ],
           "requires_solved": [
             "laboratoire_1",
@@ -759,8 +760,8 @@
             "laboratoire_assemblage_central"
           ],
           "hints": [
-            "Les positions impaires sont la première et la troisième.",
-            "(2 × 3) − (5 + 4)."
+            "Cherche deux nombres consécutifs, même si leurs fioles sont éloignées.",
+            "Les deux nombres sont 4 et 5 : additionne-les."
           ],
           "next_room": "jardin"
         }
@@ -1324,9 +1325,9 @@
         {
           "id": "sanctuaire_porte",
           "title": "Le verrou de la salle",
-          "description": "Quatre cloches du sanctuaire portent les lettres G (grave), A (aiguë) et M (médiane). Le gardien demande un code composé de la cloche la plus aiguë, puis de la médiane, puis deux fois de la grave. Quel code de quatre lettres faut-il entrer ?",
+          "description": "Trois cloches portent les lettres G (grave), M (médiane) et A (aiguë). Une inscription demande : « Fais sonner d’abord la cloche grave, puis la médiane, enfin l’aiguë. » Quel code de trois lettres faut-il saisir ?",
           "answers": [
-            "AMGG"
+            "GMA"
           ],
           "requires_solved": [
             "sanctuaire_1",
@@ -1344,8 +1345,8 @@
             "sanctuaire_assemblage_central"
           ],
           "hints": [
-            "Traduis les quatre indications en lettres, dans l’ordre donné.",
-            "A puis M puis G puis G."
+            "Associe chaque hauteur de son à la lettre indiquée.",
+            "Grave = G, médiane = M, aiguë = A."
           ],
           "next_room": "crypte"
         }
@@ -1715,9 +1716,10 @@
         {
           "id": "prison_porte",
           "title": "Le code des six chaînes",
-          "description": "Les six chaînes de la prison portent, dans l’ordre des épreuves, les chiffres 2, 4, 6, 8, 10 et 12. Le verrou demande la somme des nombres inscrits sur les chaînes de rang pair (2e, 4e et 6e). Quel nombre faut-il saisir ?",
+          "description": "Six chaînes portent les nombres 2, 4, 6, 8, 10 et 12. Une inscription indique : « Pour ouvrir la cellule, additionne le nombre de la première chaîne et celui de la dernière. » Quel total obtiens-tu ?",
           "answers": [
-            "24"
+            "14",
+            "quatorze"
           ],
           "requires_solved": [
             "prison_1",
@@ -1735,8 +1737,8 @@
             "prison_assemblage_central"
           ],
           "hints": [
-            "Repère les chaînes aux positions 2, 4 et 6, pas les nombres pairs dans leur ensemble.",
-            "Additionne 4 + 8 + 12."
+            "Observe les deux extrémités de la liste.",
+            "La première chaîne porte 2, la dernière 12."
           ],
           "next_room": "fracture"
         }
