@@ -136,13 +136,18 @@ class AnswerModal(discord.ui.Modal, title='Répondre à une énigme'):
             msg = '🚪 La porte s’ouvre ! Une nouvelle salle est accessible.'
         else:
             msg = '✅ Épreuve réussie ! Une nouvelle découverte est enregistrée.'
-        await interaction.response.send_message(msg, ephemeral=True)
         if result.get('correct') and not result.get('already_solved'):
-            # Fresh panel with updated checkmarks and newly unlocked puzzles.
+            # One single response: confirmation and refreshed room panel together.
+            # Avoid two ephemeral messages whose visual ordering may be confusing.
             try:
-                await show_room_followup(interaction, self.engine, self.content, self.key, transition=bool(result.get('next_room')))
+                await show_room_followup(interaction, self.engine, self.content, self.key,
+                                         transition=bool(result.get('next_room')),
+                                         notice=msg, initial=True)
             except (discord.HTTPException, discord.NotFound):
-                pass
+                if not interaction.response.is_done():
+                    await interaction.response.send_message(msg, ephemeral=True)
+        else:
+            await interaction.response.send_message(msg, ephemeral=True)
         # The engine returns a transition only for the first successful solve.
         # Logging after the response keeps the interaction responsive.
         if result.get('finished'):
@@ -532,7 +537,7 @@ async def show_room(interaction, engine, content, key):
     await interaction.response.send_message(**kwargs)
 
 
-async def show_room_followup(interaction, engine, content, key, transition=False):
+async def show_room_followup(interaction, engine, content, key, transition=False, notice=None, initial=False):
     """Post a new panel after a modal has already acknowledged its interaction."""
     state = engine.status(*key)
     room = room_for(content, state) if state else None
@@ -541,8 +546,9 @@ async def show_room_followup(interaction, engine, content, key, transition=False
     scene = engine.scene(*key, content)
     solved = sum(p['id'] in state['solved'] for p in room['puzzles'])
     embed = discord.Embed(title=('🚪 Nouvelle salle accessible — ' if transition else '🔄 Salle actualisée — ') + room['title'],
-                          description=f'✅ **{solved}/{len(room["puzzles"])}** épreuves réussies\n\n⏳ Boutons expirés ? Relance `/escape jouer` : la sauvegarde reste intacte.', color=0xc6993f)
+                          description=(f'**{notice}**\n\n' if notice else '') + f'✅ **{solved}/{len(room["puzzles"])}** épreuves réussies\n\n⏳ Boutons expirés ? Relance `/escape jouer` : la sauvegarde reste intacte.', color=0xc6993f)
     embed.add_field(name='🔒 Conditions du verrou', value=room_requirements(room, state), inline=False)
     if state.get('completed'):
         embed.add_field(name='🏆 Aventure terminée', value='Félicitations !', inline=False)
-    await interaction.followup.send(embed=embed, view=None if state.get('completed') else (NextRoomView(engine, content, key) if transition else RoomView(engine, content, *key)), ephemeral=True)
+    send = interaction.response.send_message if initial else interaction.followup.send
+    await send(embed=embed, view=None if state.get('completed') else (NextRoomView(engine, content, key) if transition else RoomView(engine, content, *key)), ephemeral=True)
