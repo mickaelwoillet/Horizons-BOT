@@ -1068,14 +1068,14 @@
         {
           "id": "galeries_3",
           "title": "La formule des cristaux",
-          "description": "Sur la paroi est gravé : CRISTAL = 7, ROC = 3, MINE = 4. Quelle valeur vaut GALERIE selon cette règle ?",
+          "description": "Dans la galerie, trois cristaux portent des inscriptions mystérieuses : CRISTAL = 7, ROC = 3, MINE = 4. Un message gravé dans la roche indique : « Chaque mot possède une valeur. Pour la découvrir, compte les lettres qui le composent. » Quelle est la valeur du mot GALERIE ?",
           "answers": [
             "7",
             "sept"
           ],
           "hints": [
-            "La règle ne dépend pas de la signification des mots.",
-            "Compte les lettres."
+            "La valeur dépend du nombre de lettres dans chaque mot.",
+            "Compte les lettres de GALERIE."
           ],
           "rewards": [
             "galeries_fragment_3"
@@ -1280,13 +1280,13 @@
         {
           "id": "sanctuaire_4",
           "title": "Le mot des vestiges",
-          "description": "Les quatre pierres portent R, U, I, N. Replace-les pour former le début du mot qui désigne les vestiges anciens. Quel groupe de quatre lettres obtiens-tu ?",
+          "description": "Quatre pierres anciennes portent les lettres N, I, R et U, dans le désordre. Remets-les dans le bon ordre pour former les quatre premières lettres du mot « ruines ». Quel groupe de quatre lettres obtiens-tu ?",
           "answers": [
             "ruin"
           ],
           "hints": [
-            "Le mot complet est « ruines ».",
-            "Ses quatre premières lettres sont R-U-I-N."
+            "Le mot à retrouver commence comme « ruines ».",
+            "Les quatre premières lettres de « ruines » sont R, U, I et N."
           ],
           "rewards": [
             "sanctuaire_fragment_4"
@@ -1295,13 +1295,14 @@
         {
           "id": "sanctuaire_5",
           "title": "Les portes anciennes",
-          "description": "Quel élément architectural courbe domine les ruines ?",
+          "description": "Au milieu des ruines, tu découvres plusieurs grandes ouvertures de pierre. Leur partie supérieure forme un arrondi. Comment appelle-t-on ces constructions au pluriel ?",
           "answers": [
-            "arches"
+            "arches",
+            "arche"
           ],
           "hints": [
-            "Regarde les structures au-dessus de l’île.",
-            "Réfléchis au vocabulaire de la salle : les portes anciennes."
+            "Ces ouvertures de pierre ont un sommet en forme de courbe.",
+            "Le mot recherché commence par A, comporte six lettres et se termine par S."
           ],
           "rewards": [
             "sanctuaire_fragment_5"
