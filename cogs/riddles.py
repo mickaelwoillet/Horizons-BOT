@@ -4,7 +4,7 @@ from cogs.embed_theme import horizons_embed, wait_for_logo_ready
 import logging
 import sqlite3
 from pathlib import Path
-from datetime import time
+from datetime import datetime, time
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
@@ -20,6 +20,7 @@ def _riddle_db():
     RIDDLE_DB.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(RIDDLE_DB, timeout=5)
     conn.execute("CREATE TABLE IF NOT EXISTS published_riddles (message_id INTEGER PRIMARY KEY, answer TEXT NOT NULL)")
+    conn.execute("CREATE TABLE IF NOT EXISTS daily_riddle_posts (day TEXT PRIMARY KEY, message_id INTEGER NOT NULL)")
     return conn
 
 class DailyRiddleView(discord.ui.View):
@@ -105,6 +106,14 @@ class Riddles(commands.Cog):
 
     @tasks.loop(time=time(hour=17, minute=30, tzinfo=LOCAL_TIMEZONE))
     async def daily_riddle(self):
+        day = datetime.now(LOCAL_TIMEZONE).date().isoformat()
+        try:
+            with _riddle_db() as conn:
+                if conn.execute("SELECT 1 FROM daily_riddle_posts WHERE day=?", (day,)).fetchone():
+                    return
+        except sqlite3.Error:
+            log.exception("Impossible de vérifier la date de publication de la devinette.")
+            return
         channel = self.bot.get_channel(RIDDLE_DAILY_CHANNEL_ID) if RIDDLE_DAILY_CHANNEL_ID else None
         if channel is None and RIDDLE_DAILY_CHANNEL_ID:
             try:
@@ -142,6 +151,7 @@ class Riddles(commands.Cog):
                 return
             with _riddle_db() as conn:
                 conn.execute("INSERT OR REPLACE INTO published_riddles(message_id,answer) VALUES(?,?)", (published.id, item["reponse"]))
+                conn.execute("INSERT OR IGNORE INTO daily_riddle_posts(day,message_id) VALUES(?,?)", (day, published.id))
         except discord.Forbidden:
             log.exception("Permissions insuffisantes pour publier la devinette quotidienne.")
         except discord.HTTPException:

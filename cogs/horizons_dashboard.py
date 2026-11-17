@@ -324,15 +324,13 @@ class HorizonsDashboard(commands.Cog):
             for days in self._selected_days(period):
                 start, end, prev_start, prev_end = _period_bounds(days)
                 with db() as conn:
-                    missions = _range_count(conn, "passport_completions", "completed_at", guild.id, start, end)
-                    missions_old = _range_count(conn, "passport_completions", "completed_at", guild.id, prev_start, prev_end)
                     interests = _count(conn, "SELECT COUNT(*) FROM activity_request_interests i JOIN activity_requests r ON r.id=i.request_id WHERE r.guild_id=? AND substr(i.created_at,1,10) BETWEEN ? AND ?", (guild.id, start, end))
                     interests_old = _count(conn, "SELECT COUNT(*) FROM activity_request_interests i JOIN activity_requests r ON r.id=i.request_id WHERE r.guild_id=? AND substr(i.created_at,1,10) BETWEEN ? AND ?", (guild.id, prev_start, prev_end))
                     ideas = _range_count(conn, "community_ideas", "created_at", guild.id, start, end)
                     ideas_old = _range_count(conn, "community_ideas", "created_at", guild.id, prev_start, prev_end)
                     thanks = _range_count(conn, "solidarity_thanks", "created_at", guild.id, start, end)
                     thanks_old = _range_count(conn, "solidarity_thanks", "created_at", guild.id, prev_start, prev_end)
-                e.add_field(name=f"Sur {days} jours · période précédente entre parenthèses", value=f"Missions validées : **{missions}** ({missions_old})\nIntérêts pour une activité : **{interests}** ({interests_old})\nSuggestions déposées : **{ideas}** ({ideas_old})\nRemerciements solidaires : **{thanks}** ({thanks_old})", inline=False)
+                e.add_field(name=f"Sur {days} jours · période précédente entre parenthèses", value=f"Intérêts pour une activité : **{interests}** ({interests_old})\nSuggestions déposées : **{ideas}** ({ideas_old})\nRemerciements solidaires : **{thanks}** ({thanks_old})", inline=False)
             e.set_footer(text="Données agrégées issues des fonctionnalités existantes du bot.")
             return e
 
@@ -341,15 +339,11 @@ class HorizonsDashboard(commands.Cog):
             for days in self._selected_days(period):
                 start, end, prev_start, prev_end = _period_bounds(days)
                 with db() as conn:
-                    missions = _range_count(conn, "passport_completions", "completed_at", guild.id, start, end)
-                    missions_old = _range_count(conn, "passport_completions", "completed_at", guild.id, prev_start, prev_end)
-                    challenge_joins = _count(conn, "SELECT COUNT(*) FROM collective_challenge_members m JOIN collective_challenges c ON c.id=m.challenge_id WHERE c.guild_id=? AND substr(m.joined_at,1,10) BETWEEN ? AND ?", (guild.id, start, end))
-                    challenge_old = _count(conn, "SELECT COUNT(*) FROM collective_challenge_members m JOIN collective_challenges c ON c.id=m.challenge_id WHERE c.guild_id=? AND substr(m.joined_at,1,10) BETWEEN ? AND ?", (guild.id, prev_start, prev_end))
                     event_rsvps = _count(conn, "SELECT COUNT(*) FROM event_rsvps r JOIN events e ON e.id=r.event_id WHERE e.guild_id=? AND substr(r.created_at,1,10) BETWEEN ? AND ?", (guild.id, start, end))
                     event_rsvps_old = _count(conn, "SELECT COUNT(*) FROM event_rsvps r JOIN events e ON e.id=r.event_id WHERE e.guild_id=? AND substr(r.created_at,1,10) BETWEEN ? AND ?", (guild.id, prev_start, prev_end))
                     events = _range_count(conn, "events", "created_at", guild.id, start, end)
                     events_old = _range_count(conn, "events", "created_at", guild.id, prev_start, prev_end)
-                e.add_field(name=f"Sur {days} jours · période précédente entre parenthèses", value=f"Missions validées : **{missions}** ({missions_old})\nParticipations aux défis collectifs : **{challenge_joins}** ({challenge_old})\nRéponses aux événements : **{event_rsvps}** ({event_rsvps_old})\nÉvénements créés : **{events}** ({events_old})", inline=False)
+                e.add_field(name=f"Sur {days} jours · période précédente entre parenthèses", value=f"Réponses aux événements : **{event_rsvps}** ({event_rsvps_old})\nÉvénements créés : **{events}** ({events_old})", inline=False)
             e.set_footer(text="Une participation peut être comptabilisée à nouveau si elle concerne une activité différente.")
             return e
 
@@ -358,16 +352,12 @@ class HorizonsDashboard(commands.Cog):
             states = {
                 "horizons_daily": _read_json("horizons_publications_history.json"),
                 "calendar": _read_json("publication_calendar_history.json"),
-                "weekly": _read_json("weekly_animations_history.json"),
             }
             tasks_info = [
                 ("Horizon du jour", "HorizonsDaily", "horizon_of_day", "horizons_daily", 9, 30, None),
                 ("Débat hebdomadaire", "HorizonsDaily", "weekly_debate", "horizons_debate", 19, 30, (6,)),
                 ("Événement thématique (si date concernée)", "PublicationCalendar", "daily_thematic_event", "calendar", 8, 0, None),
                 ("Quiz éditorial", "PublicationCalendar", "daily_quiz", "calendar", 13, 30, (0, 2, 5)),
-                ("Inspiration du soir", "PublicationCalendar", "daily_inspiration", "calendar", 19, 30, (0, 2, 5)),
-                ("Message bienveillant", "PublicationCalendar", "daily_positive_message", "calendar", 21, 30, (1, 3, 6)),
-                ("Animation collective", "WeeklyAnimations", "friday_animation", "weekly_animations", 19, 30, (4,)),
             ]
             for label, cog_name, loop_name, state_key, hour, minute, weekdays in tasks_info:
                 cog = self.bot.get_cog(cog_name)
@@ -377,8 +367,6 @@ class HorizonsDashboard(commands.Cog):
                     last = states["horizons_daily"].get("published_horizon_date")
                 elif state_key == "horizons_debate":
                     last = states["horizons_daily"].get("published_debate_week")
-                elif state_key == "weekly_animations":
-                    last = states["weekly"].get("published_at")
                 else:
                     dates = states["calendar"].get("published_dates", {})
                     last = max(dates.values()) if dates else None
@@ -392,7 +380,6 @@ class HorizonsDashboard(commands.Cog):
         extensions = [
             ("Publications quotidiennes", "cogs.horizons_daily"),
             ("Calendrier éditorial", "cogs.publication_calendar"),
-            ("Animations hebdomadaires", "cogs.weekly_animations"),
             ("Activité et rangs", "cogs.community_ranks"),
             ("Expériences", "cogs.experiences"),
             ("Communauté", "cogs.community_hub"),

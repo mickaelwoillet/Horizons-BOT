@@ -13,7 +13,6 @@ from config import (
     AGENDA_CHANNEL_ID,
     DATA_DIR,
     HORIZON_DAILY_CHANNEL_ID,
-    INSPIRATION_CHANNEL_ID,
     LOCAL_TIMEZONE,
     QUIZ_CHANNEL_ID,
 )
@@ -107,14 +106,14 @@ class PublicationCalendar(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.daily_quiz.start()
-        self.daily_inspiration.start()
-        self.daily_positive_message.start()
+        # RENOUVEAU: publication inspiration desactivee (anciennement: self.daily_inspiration.start())
+        # RENOUVEAU: publication inspiration desactivee (anciennement: self.daily_positive_message.start())
         self.daily_thematic_event.start()
 
     def cog_unload(self):
         self.daily_quiz.cancel()
-        self.daily_inspiration.cancel()
-        self.daily_positive_message.cancel()
+        # RENOUVEAU: publication inspiration desactivee (anciennement: self.daily_inspiration.cancel())
+        # RENOUVEAU: publication inspiration desactivee (anciennement: self.daily_positive_message.cancel())
         self.daily_thematic_event.cancel()
 
     async def cog_load(self):
@@ -168,51 +167,6 @@ class PublicationCalendar(commands.Cog):
 
     @daily_quiz.before_loop
     async def before_daily_quiz(self):
-        await self.bot.wait_until_ready(); await wait_for_logo_ready()
-
-    @tasks.loop(time=time(hour=19, minute=30, tzinfo=LOCAL_TIMEZONE))
-    async def daily_inspiration(self):
-        # Le vendredi est réservé à l'animation collective et le dimanche au débat.
-        # On évite donc toute publication concurrente à 19 h 30 ces deux jours.
-        weekday = datetime.now(LOCAL_TIMEZONE).weekday()
-        if weekday not in (0, 2, 5):  # lundi, mercredi, samedi
-            return
-        today = datetime.now(LOCAL_TIMEZONE).date().isoformat()
-        state = _load_state()
-        if state.get("published_dates", {}).get("inspiration") == today:
-            return
-        quote = _pick_item("citations.json", "citations")
-        proverb = _pick_item("proverbes.json", "proverbes")
-        if not quote or not quote.get("texte") or not proverb or not proverb.get("texte"):
-            log.warning("Banque citations.json ou proverbes.json vide/invalide.")
-            return
-        description = (
-            f"✦ **La citation**\n{quote['texte']}\n"
-            f"— {quote.get('auteur', 'Pensée HORIZONS')}\n\n"
-            f"🌿 **Le proverbe**\n{proverb['texte']}"
-        )
-        embed = horizons_embed(title="📚 L'inspiration du soir", description=description, color=discord.Color.blurple())
-        if quote.get("theme"):
-            embed.add_field(name="Thème de la citation", value=str(quote["theme"]), inline=True)
-        if proverb.get("origine"):
-            embed.add_field(name="Origine du proverbe", value=str(proverb["origine"]), inline=True)
-        embed.set_footer(text="HORIZONS • Une pensée à emporter avec soi")
-        if await _send_embed(self.bot, INSPIRATION_CHANNEL_ID, embed):
-            state = _load_state(); state.setdefault("published_dates", {})["inspiration"] = today; _save_state(state)
-
-    @daily_inspiration.before_loop
-    async def before_daily_inspiration(self):
-        await self.bot.wait_until_ready(); await wait_for_logo_ready()
-
-    @tasks.loop(time=time(hour=21, minute=30, tzinfo=LOCAL_TIMEZONE))
-    async def daily_positive_message(self):
-        # Mardi, jeudi et dimanche : un dernier message doux, sans publication quotidienne excessive.
-        if datetime.now(LOCAL_TIMEZONE).weekday() not in (1, 3, 6):
-            return
-        await self._publish_daily_bank("messages.json", "messages", INSPIRATION_CHANNEL_ID, "🌻 Le message bienveillant du jour", discord.Color.gold())
-
-    @daily_positive_message.before_loop
-    async def before_daily_positive_message(self):
         await self.bot.wait_until_ready(); await wait_for_logo_ready()
 
     @tasks.loop(time=time(hour=8, minute=0, tzinfo=LOCAL_TIMEZONE))

@@ -12,7 +12,6 @@ from config import (
     GUILD_ID, LOCAL_TIMEZONE, BIRTHDAY_CHANNEL_ID, INTRO_CHANNEL_ID,
     ANONYMOUS_CHANNEL_ID, CONFESSION_CHANNEL_ID, SPIRIT_CHANNEL_ID,
     STAFF_COMMANDS_CHANNEL_ID, FIND_PARTNER_CHANNEL_ID,
-    COLLECTIVE_CHALLENGES_CHANNEL_ID,
 )
 from .storage import db
 
@@ -23,7 +22,7 @@ STAFF_ONLY = {
     "annonce", "alerte_equipe", "actualiser_rangs", "avertir", "avertissements",
     "retirer_avertissement", "timeout", "untimeout", "expulser", "bannir",
     "debannir", "purger", "note_membre", "evenement_fermer",
-    "concours_creer", "concours_annuler", "creer_defi",
+    "concours_creer", "concours_annuler",
     "dashboard", "tache_creer", "taches", "tache_statut", "service", "publier_guides_cercles",
 }
 CATEGORY = {
@@ -32,9 +31,7 @@ CATEGORY = {
     "anniversaire_supprimer": "🎂 Anniversaires",
     "question_du_jour": "💬 Vie communautaire", "compliment": "💬 Vie communautaire",
     "blague": "🎲 Jeux et détente", "devinette": "🎲 Jeux et détente",
-    "mon_passeport": "🧭 Expériences HORIZONS", "valider_mission": "🧭 Expériences HORIZONS",
-    "chercher": "🧭 Expériences HORIZONS", "defi_collectif": "🧭 Expériences HORIZONS",
-    "rejoindre_defi": "🧭 Expériences HORIZONS", "creer_defi": "🧭 Expériences HORIZONS",
+    "chercher": "🧭 Expériences HORIZONS",
     "mon_parcours": "🌱 Progression", "actualiser_rangs": "🌱 Progression",
     "evenements": "🎉 Événements et concours",
     "evenement_fermer": "🎉 Événements et concours", "concours_creer": "🎉 Événements et concours",
@@ -246,19 +243,6 @@ class ServerGuides(commands.Cog):
         partner.add_field(name="✨ Petit conseil", value="Précise le jeu, le créneau ou le type d'échange recherché pour faciliter les rencontres.", inline=False)
         # Ancien panneau remplacé par le panneau interactif géré par salon_harmony.
 
-        challenge = horizons_embed(
-            title="✦ Défis collectifs HORIZONS",
-            description=(
-                "Ici, on avance ensemble ! Les défis collectifs proposent un objectif commun pour faire vivre le serveur et créer des liens.\n\n"
-                "• `/defi_collectif` : consulter le défi en cours et sa progression.\n"
-                "• `/rejoindre_defi` : rejoindre le défi et contribuer à l'objectif commun.\n"
-                "• `/creer_defi` : proposer un nouveau défi (commande réservée à l'équipe autorisée).\n\n"
-                "Chaque participation compte. L'idée n'est pas de se comparer, mais de construire quelque chose ensemble, dans la bonne humeur et sans pression."
-            ), color=teal,
-        )
-        challenge.add_field(name="🧭 L'esprit du défi", value="Un objectif partagé, une participation libre et une communauté qui progresse à son rythme.", inline=False)
-        # Ancien panneau remplacé par le panneau interactif géré par salon_harmony.
-
         birthday = horizons_embed(
             title="✦ Les anniversaires HORIZONS",
             description=(
@@ -294,7 +278,9 @@ class ServerGuides(commands.Cog):
                 "• ce que tu aimerais trouver ici : discuter, jouer, rencontrer des amis, participer aux activités… ;\n"
                 "• une petite anecdote ou un fait amusant, si tu le souhaites.\n\n"
                 "Tu choisis ce que tu souhaites dévoiler. Évite les informations privées comme ton adresse, ton numéro de téléphone, ton établissement ou tes habitudes précises. "
-                "Et surtout : sois toi-même, sans pression. 💜"
+                "Et surtout : sois toi-même, sans pression. 💜\n\n"
+                "**Modèle à copier-coller (rubriques facultatives) :**\n"
+                "```text\nPrénom ou pseudo :\nÂge (facultatif) :\nPassions :\nLoisirs / jeux :\nMusique / films / séries :\nCe que je recherche sur HORIZONS :\nUn petit mot pour la communauté :\n```"
             ), color=purple,
         )
         result.append((INTRO_CHANNEL_ID, "presentation", intro))

@@ -48,7 +48,6 @@ class TodayChoice(discord.ui.Select):
                 discord.SelectOption(label="Rencontrer", value="meet", emoji="🤝", description="Voir les propositions existantes"),
                 discord.SelectOption(label="Mes affinités", value="affinities", emoji="🧩", description="Accéder aux affinités existantes"),
                 discord.SelectOption(label="Proposer une activité", value="propose", emoji="✨", description="Créer une invitation sans commande"),
-                discord.SelectOption(label="Défi du jour", value="daily_challenge", emoji="🌱", description="Un petit geste collectif, sans compétition"),
                 discord.SelectOption(label="Participer", value="events", emoji="📅", description="Voir les événements"),
                 discord.SelectOption(label="Petits Bonheurs", value="bonheurs", emoji="💙", description="Déposer un petit moment positif"),
                 discord.SelectOption(label="Mystère du jour", value="mystere", emoji="🔎", description="Résoudre une mini-énigme"),
@@ -589,7 +588,7 @@ class TodayHub(commands.Cog):
                 "Bienvenue dans ton carrefour communautaire !\n\n"
                 "Choisis une activité dans le menu ci-dessous : discuter, jouer, "
                 "explorer les Trésors du Ciel, prendre soin de NOX, rencontrer des membres, participer "
-                "à un événement, relever un défi collectif, déposer un petit bonheur, "
+                "à un événement, déposer un petit bonheur, "
                 "résoudre un mystère, découvrir une surprise ou prendre une pause.\n\n"
                 f"**Idée du jour :** {idea}\n\n"
                 "💙 **Tu avances à ton rythme.** Aucun choix n'est obligatoire. "

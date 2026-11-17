@@ -2,6 +2,7 @@
 from __future__ import annotations
 import json
 import logging
+import asyncio
 from pathlib import Path
 import discord
 from discord import app_commands
@@ -115,9 +116,19 @@ class ProfileHub(discord.ui.View):
         for idx, category in enumerate(catalog()):
             self.add_item(CategoryButton(category,idx))
 
+class CategoryEntryView(discord.ui.View):
+    """Une seule entrée publique par catégorie ; les choix restent privés."""
+    def __init__(self, category, idx):
+        super().__init__(timeout=None)
+        self.add_item(CategoryButton(category, idx))
+
 class RolePanels(commands.Cog):
-    def __init__(self,bot): self.bot=bot
-    async def cog_load(self): self.bot.add_view(ProfileHub())
+    def __init__(self,bot):
+        self.bot = bot
+        self._publication_locks = {}
+    async def cog_load(self): 
+        for idx, category in enumerate(catalog()):
+            self.bot.add_view(CategoryEntryView(category, idx))
 
     @app_commands.command(name='installer_roles',description='Créer les rôles de profil manquants et actualiser le panneau (administration).')
     @app_commands.default_permissions(manage_roles=True)
@@ -146,7 +157,7 @@ class RolePanels(commands.Cog):
         CATALOG_PATH.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
         await interaction.followup.send(f'✅ {len(created)} nouveaux rôles créés ; catalogue actualisé. Utilise `/publier_roles` dans le salon des rôles pour afficher le panneau.',ephemeral=True)
 
-    @app_commands.command(name='publier_roles',description='Publier le panneau unique de personnalisation du profil HORIZONS.')
+    @app_commands.command(name='publier_roles',description='Publier un panneau par rubrique de rôles (un bouton chacun).')
     @app_commands.default_permissions(manage_guild=True)
     async def publier_roles(self,interaction:discord.Interaction):
         if not isinstance(interaction.user,discord.Member) or not (interaction.user.guild_permissions.manage_guild or interaction.user.guild_permissions.administrator):
@@ -156,22 +167,56 @@ class RolePanels(commands.Cog):
         missing=sum(1 for options in catalog().values() for _,rid in options if not rid or not interaction.guild.get_role(int(rid)))
         if missing:
             return await interaction.response.send_message(f'{missing} rôles restent à installer. Lance d’abord `/installer_roles`.',ephemeral=True)
-        embed=horizons_embed(title='🎭 Mon profil HORIZONS',description='Choisis une rubrique ci-dessous. Les boutons ouvrent des choix **privés**, modifiables à tout moment.\n\nLes informations personnelles sont entièrement facultatives.',color=discord.Color.gold())
-        embed.set_footer(text='HORIZONS • Unis dans la diversité')
         await interaction.response.defer(ephemeral=True)
-        # Retirer seulement les anciens panneaux répertoriés dans SQLite, jamais les messages des membres.
-        from .storage import db
-        with db() as conn:
-            rows=conn.execute('SELECT channel_id,message_id FROM role_panels WHERE channel_id=?',(interaction.channel.id,)).fetchall()
-        for row in rows:
+        lock = self._publication_locks.setdefault(interaction.channel.id, asyncio.Lock())
+        if lock.locked():
+            return await interaction.followup.send('Une publication des rôles est déjà en cours dans ce salon.', ephemeral=True)
+        async with lock:
+            from .storage import db
             try:
-                msg=await interaction.channel.fetch_message(row['message_id'])
-                if msg.author.id == self.bot.user.id: await msg.delete()
-            except discord.HTTPException: pass
-        message=await interaction.channel.send(embed=embed,view=ProfileHub())
-        with db() as conn:
-            conn.execute('DELETE FROM role_panels WHERE channel_id=?',(interaction.channel.id,))
-            conn.execute('INSERT INTO role_panels(channel_id,message_id,category) VALUES(?,?,?)',(interaction.channel.id,message.id,'Profil HORIZONS'))
-        await interaction.followup.send('✅ Panneau de profil publié. Les anciens panneaux enregistrés ont été remplacés.',ephemeral=True)
+                with db() as conn:
+                    rows = conn.execute('SELECT channel_id,message_id FROM role_panels WHERE channel_id=?', (interaction.channel.id,)).fetchall()
+            except Exception:
+                LOG.exception('Impossible de lire les panneaux existants')
+                return await interaction.followup.send('Impossible de consulter les panneaux existants. Aucune publication effectuée.', ephemeral=True)
+            # Publier avant de retirer les anciens panneaux ; restaurer en cas d'échec.
+            sent = []
+            try:
+                for idx, category in enumerate(catalog()):
+                    embed = horizons_embed(
+                        title=f'{EMOJIS.get(category,"🎭")} {category}',
+                        description='Ouvre cette rubrique pour choisir ou retirer tes rôles en privé. Tous les choix sont facultatifs.',
+                        color=discord.Color.gold())
+                    sent.append((category, await interaction.channel.send(embed=embed, view=CategoryEntryView(category, idx))))
+                with db() as conn:
+                    conn.execute('DELETE FROM role_panels WHERE channel_id=?', (interaction.channel.id,))
+                    for category, msg in sent:
+                        conn.execute('INSERT INTO role_panels(channel_id,message_id,category) VALUES(?,?,?)',
+                                     (interaction.channel.id, msg.id, category))
+            except Exception as exc:
+                LOG.exception('Échec de publication ou sauvegarde des panneaux de rôles')
+                for _, msg in sent:
+                    try:
+                        await msg.delete()
+                    except discord.HTTPException:
+                        LOG.warning('Impossible de retirer un panneau incomplet : %s', msg.id)
+                return await interaction.followup.send(
+                    'Publication interrompue : les anciens panneaux ont été conservés. Vérifie les permissions et les journaux.',
+                    ephemeral=True)
+            failed_deletions = 0
+            for row in rows:
+                try:
+                    msg = await interaction.channel.fetch_message(row['message_id'])
+                    if msg.author.id == self.bot.user.id:
+                        await msg.delete()
+                except discord.NotFound:
+                    pass
+                except discord.HTTPException:
+                    failed_deletions += 1
+            suffix = (f' ⚠️ {failed_deletions} ancien(s) panneau(x) non supprimé(s) : nettoyage manuel nécessaire.'
+                      if failed_deletions else '')
+            await interaction.followup.send(
+                f'✅ {len(sent)} rubriques publiées, avec un bouton par rubrique.' + suffix,
+                ephemeral=True)
 
 async def setup(bot):await bot.add_cog(RolePanels(bot))

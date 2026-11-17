@@ -22,8 +22,8 @@ SECTIONS = {
     "passerelles": ("🌉 Mes Passerelles", "Choisis volontairement tes centres d’intérêt. Découvre des affinités anonymes, sans révéler les identités ni envoyer de messages privés."),
     "coffre": ("🎁 Mon Coffre des Horizons", "Retrouve tes cartes célestes, tes étoiles, tes constellations et tes souvenirs. Ton Coffre utilise les Trésors du Ciel existants : aucune collection concurrente."),
     "capsules": ("⏳ Mes Capsules du Temps", "Confie un souvenir à ton futur toi pour 30, 90 ou 180 jours. Une question collective mensuelle est proposée si le staff l’active. Participation volontaire et modérée."),
-    "activites": ("🧭 Mes activités", "Retrouve tes inscriptions, tes présences confirmées et les activités à venir, ainsi que tes saisons, ton passeport, tes jeux et tes idées."),
-    "suivi": ("🌠 Ma vie HORIZONS", "Tes Cercles, tes propositions, tes missions et tes jeux, réunis dans ton Centre personnel."),
+    "activites": ("🧭 Mes activités", "Retrouve tes inscriptions, tes présences confirmées et les activités à venir, ainsi que tes jeux et tes idées."),
+    "suivi": ("🌠 Ma vie HORIZONS", "Tes Cercles, tes propositions et tes jeux, réunis dans ton Centre personnel."),
 }
 
 
@@ -132,14 +132,13 @@ def section_embed(key: str, member: discord.abc.User, guild_id: int) -> discord.
                  for r in rows]
         embed.add_field(name="Tes derniers événements", value="\n".join(lines) or "Aucune inscription pour le moment.", inline=False)
         embed.add_field(name="Participations confirmées", value=f"**{confirmed}** présence(s) confirmée(s) par un organisateur ou le staff.", inline=False)
-        embed.add_field(name="À découvrir", value="Utilise `/evenements` pour les prochains rendez-vous, `/mon_passeport` pour les missions et `/mes_idees` pour tes propositions.", inline=False)
+        embed.add_field(name="À découvrir", value="Utilise `/evenements` pour les prochains rendez-vous et `/mes_idees` pour tes propositions.", inline=False)
     if key == "suivi":
         info = community_snapshot(guild_id, member.id)
         embed.add_field(name="🌙 Tes Cercles", value="\n".join(info['circles']) or "Aucun Cercle suivi pour le moment.", inline=False)
         embed.add_field(name="💡 Tes idées", value="\n".join(info['ideas']) or "Aucune proposition pour le moment.", inline=False)
-        embed.add_field(name="🧭 Ton passeport", value=info['missions'], inline=False)
         embed.add_field(name="🎮 Ton Arcade", value=info['arcade'], inline=False)
-        embed.add_field(name="Pour aller plus loin", value="Utilise le menu « Ma progression » ci-dessous pour ton rang, ton parcours et tes badges. `/mon_passeport`, `/jeux` et `/mes_idees` restent disponibles.", inline=False)
+        embed.add_field(name="Pour aller plus loin", value="Utilise le menu « Ma progression » ci-dessous pour ton rang et tes badges. `/jeux` et `/mes_idees` restent disponibles.", inline=False)
     if key == "passerelles":
         ideas = compatible_activities(guild_id, member.id)
         if ideas:
@@ -387,32 +386,6 @@ class BridgeInboxSelect(discord.ui.Select):
 
 
 
-class SeasonActionSelect(discord.ui.Select):
-    """Les actions de saison réunies dans le Centre, sans commande slash supplémentaire."""
-    def __init__(self):
-        super().__init__(placeholder="🌅 Saison : choisir une action…", row=2, options=[
-            discord.SelectOption(label="Découvrir la saison", value="saison", emoji="🌅"),
-            discord.SelectOption(label="Rejoindre la saison", value="rejoindre_saison", emoji="🤝"),
-            discord.SelectOption(label="Voir mes étapes", value="missions_saison", emoji="🧭"),
-            discord.SelectOption(label="Valider une étape", value="valider", emoji="✅"),
-            discord.SelectOption(label="Mes distinctions", value="mes_recompenses_saison", emoji="🏅"),
-        ])
-
-    async def callback(self, interaction: discord.Interaction):
-        cog = interaction.client.get_cog("Seasons")
-        if cog is None:
-            await interaction.response.send_message("Les saisons sont temporairement indisponibles.", ephemeral=True)
-            return
-        action = self.values[0]
-        if action == "valider":
-            from .mission_hub import MissionSteps
-            await interaction.response.send_message("Quelle étape as-tu accomplie ?", view=MissionSteps("Seasons", "valider_etape_saison", "etape"), ephemeral=True)
-        elif action == "saison":
-            await cog.saison.callback(cog, interaction)
-        else:
-            await getattr(cog, action)(interaction)
-
-
 class ActivityFunSelect(discord.ui.Select):
     """Jeux rapides accessibles depuis /centre → Activités."""
     def __init__(self):
@@ -470,12 +443,11 @@ class CentreView(discord.ui.View):
 
     def update_section_controls(self, guild_id: int | None, user_id: int | None):
         for item in list(self.children):
-            if isinstance(item, (LetterDurationSelect, LetterManageSelect, CapsuleDurationSelect, CapsuleManageSelect, CollectiveCapsuleButton, CollectiveWithdrawButton, BridgeInterestsSelect, BridgeLeaveButton, BridgeInviteButton, BridgeCancelButton, BridgeInboxSelect, SeasonActionSelect, ActivityFunSelect, ProgressionSelect)):
+            if isinstance(item, (LetterDurationSelect, LetterManageSelect, CapsuleDurationSelect, CapsuleManageSelect, CollectiveCapsuleButton, CollectiveWithdrawButton, BridgeInterestsSelect, BridgeLeaveButton, BridgeInviteButton, BridgeCancelButton, BridgeInboxSelect, ActivityFunSelect, ProgressionSelect)):
                 self.remove_item(item)
         if guild_id is None:
             return
         if self.selected == "activites":
-            self.add_item(SeasonActionSelect())
             self.add_item(ActivityFunSelect())
             return
         if self.selected == "suivi":

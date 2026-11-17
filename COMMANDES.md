@@ -1,3 +1,16 @@
+> **Inventaire vérifiable hors ligne :** consulter `COMMANDES_ACTIVES_AUDIT.md` à la racine du bot (phase 33). La liste historique ci-dessous n’est pas la liste des commandes actives.
+
+# État actuel — Renouveau HORIZONS (version de travail)
+
+> **Attention :** les sections historiques ci-dessous documentent d’anciennes versions et ne constituent pas la liste des commandes actives. Certaines commandes NOX TV, Chaos cosmique, missions, saisons, défis et inspirations ont été désactivées ou supprimées. Ne pas les proposer aux membres.
+> **Commandes administratives actuelles prévues :** `/renouveau audit`, `/renouveau tickets`, `/renouveau supprimer_salons`. Les deux dernières nécessitent une confirmation explicite.
+> **Conservés :** NOX Refuge, NOX Junior, Escape Games, `/centre`, `/dashboard`, tickets, jeux et publications validées (Horizon du jour, question du jour, débats, quiz culturel, blague, devinette).
+> **Validation :** contrôles hors ligne uniquement ; l’enregistrement des commandes et les interactions Discord restent à tester.
+
+---
+
+## Historique des versions précédentes — archives non contractuelles
+
 # Commandes et fonctionnalités — HORIZONS
 
 > Ce document décrit les panneaux et modules. Le catalogue `/aide` et `/aidestaff` est construit dynamiquement à partir des commandes effectivement chargées.
@@ -233,3 +246,17 @@ Depuis `/monnox` → **Mini-jeux**, 12 activités sont disponibles, dont **Cache
 - Les réponses et secrets ne doivent jamais figurer dans les messages publics ou la documentation des membres.
 
 - Le portail **🌌・fractures-du-cosmos** comporte le bouton **🔄 Recommencer en solo** (avec confirmation). La commande `/escape recommencer` reste disponible.
+
+
+### Renouveau HORIZONS — accueil et rôles
+- `/publier_roles` : publie un message par rubrique de rôles, avec un bouton ouvrant les choix privés.
+- `/presentation` : fournit un modèle de présentation copiable.
+- Les anciennes publications NOX, missions et défis supprimés du parcours ne doivent plus être proposés aux membres.
+
+## Renouveau — commandes réservées au propriétaire
+
+- `/renouveau audit` : affiche les sept salons proposés à la suppression, sans action.
+- `/renouveau tickets confirmation:DEPLACER` : déplace le salon de demande de ticket dans Accueil & Informations, autorise le rôle Nouveau membre et place la catégorie Support & Tickets après Espace Staff.
+- `/renouveau supprimer_salons confirmation:SUPPRIMER-7-SALONS` : supprime définitivement les sept salons identifiés dans l'export du 17 novembre 2026. Vérifier l'audit et sauvegarder l'historique nécessaire auparavant.
+
+Ces commandes ne sont pas exécutées automatiquement au démarrage. Les permissions Discord du bot sont nécessaires.

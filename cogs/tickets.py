@@ -324,7 +324,7 @@ class Tickets(commands.Cog):
             return
 
         try:
-            async for message in channel.history(limit=50):
+            async for message in channel.history(limit=None):
                 if message.author.id != self.bot.user.id:
                     continue
                 if any(
@@ -335,7 +335,11 @@ class Tickets(commands.Cog):
                     self.panel_ready = True
                     return
         except discord.Forbidden:
-            log.warning("Impossible de vérifier l'ancien panneau : permission Lire l'historique manquante.")
+            log.warning("Impossible de vérifier l'ancien panneau : permission Lire l'historique manquante. Aucune création automatique pour éviter un doublon.")
+            return
+        except discord.HTTPException:
+            log.exception("Impossible de parcourir l'historique du panneau de tickets. Création reportée pour éviter un doublon.")
+            return
 
         embed = horizons_embed(
             title="🎫 Besoin d'aide ?",

@@ -8,7 +8,7 @@ import discord
 from discord.ext import commands
 from config import (GUILD_ID, AFFINITY_CHANNEL_ID,
                     IDEAS_CHANNEL_ID, SOLIDARITY_CHANNEL_ID,
-                    FIND_PARTNER_CHANNEL_ID, COLLECTIVE_CHALLENGES_CHANNEL_ID, ANONYMOUS_CHANNEL_ID)
+                    FIND_PARTNER_CHANNEL_ID, ANONYMOUS_CHANNEL_ID)
 from .storage import db
 from .embed_theme import wait_for_logo_ready, horizons_embed, GOLD, get_logo_url
 
@@ -20,7 +20,6 @@ NAMES = {
     IDEAS_CHANNEL_ID: '💡・boite-a-idees',
     SOLIDARITY_CHANNEL_ID: '💜・eclats-de-reconnaissance',
     FIND_PARTNER_CHANNEL_ID: '🤝・activites-ensemble',
-    COLLECTIVE_CHALLENGES_CHANNEL_ID: '🌟・defis-collectifs',
 }
 
 EXPLANATIONS = {
@@ -31,12 +30,7 @@ EXPLANATIONS = {
         'Le bouton **Voir les activités ouvertes** affiche les invitations disponibles.\n\n'
         'Participation libre, respect des limites et des règles du serveur.'
     ),
-    COLLECTIVE_CHALLENGES_CHANNEL_ID: (
-        '🌟 Défis collectifs · Ensemble, plus loin',
-        'Consulte le défi collectif en cours, suis sa progression et rejoins-le directement avec les boutons.\n\n'
-        'Le défi quotidien est également accessible ici. Il est indépendant du défi collectif.\n\n'
-        'Aucune obligation de participer et aucun classement entre membres.'
-    ),
+
 }
 
 class ActivitySalonView(discord.ui.View):
@@ -75,38 +69,6 @@ class ActivitySalonView(discord.ui.View):
                                                 allowed_mentions=discord.AllowedMentions.none())
 
 
-class CollectiveSalonView(discord.ui.View):
-    def __init__(self):
-        super().__init__(timeout=None)
-
-    @discord.ui.button(label="Voir le défi collectif", emoji="🌟", style=discord.ButtonStyle.primary,
-                       custom_id="horizons:salon:collective:see")
-    async def see(self, interaction: discord.Interaction, button: discord.ui.Button):
-        cog = interaction.client.get_cog("Experiences")
-        if cog is None:
-            await interaction.response.send_message("Défis momentanément indisponibles.", ephemeral=True)
-            return
-        await cog.defi_collectif.callback(cog, interaction)
-
-    @discord.ui.button(label="Rejoindre le défi", emoji="🙌", style=discord.ButtonStyle.success,
-                       custom_id="horizons:salon:collective:join")
-    async def join(self, interaction: discord.Interaction, button: discord.ui.Button):
-        cog = interaction.client.get_cog("Experiences")
-        if cog is None:
-            await interaction.response.send_message("Défis momentanément indisponibles.", ephemeral=True)
-            return
-        await cog.rejoindre_defi.callback(cog, interaction)
-
-    @discord.ui.button(label="Défi du jour", emoji="🌱", style=discord.ButtonStyle.secondary,
-                       custom_id="horizons:salon:collective:daily")
-    async def daily(self, interaction: discord.Interaction, button: discord.ui.Button):
-        cog = interaction.client.get_cog("TodayHub")
-        if cog is None:
-            await interaction.response.send_message("Défi quotidien indisponible.", ephemeral=True)
-            return
-        await cog.show_daily_challenge(interaction)
-
-
 class SalonHarmony(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -114,7 +76,6 @@ class SalonHarmony(commands.Cog):
 
     async def cog_load(self):
         self.bot.add_view(ActivitySalonView())
-        self.bot.add_view(CollectiveSalonView())
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -160,7 +121,7 @@ class SalonHarmony(commands.Cog):
         if logo:
             embed.set_thumbnail(url=str(logo))
         embed.set_footer(text='HORIZONS • Panneau interactif permanent • Nos différences nous rapprochent')
-        view = ActivitySalonView() if channel.id == FIND_PARTNER_CHANNEL_ID else CollectiveSalonView()
+        view = ActivitySalonView()
         key = f'v7_harmony_panel_{channel.id}'
         with db() as conn:
             row = conn.execute('SELECT value FROM bot_settings WHERE key=?', (key,)).fetchone()
@@ -178,8 +139,7 @@ class SalonHarmony(commands.Cog):
             try:
                 async for candidate in channel.history(limit=250):
                     if candidate.author.id == self.bot.user.id and any(
-                        e.title == title or (channel.id == COLLECTIVE_CHALLENGES_CHANNEL_ID
-                                             and e.title and 'Défis collectifs · Ensemble' in e.title)
+                        e.title == title
                         for e in candidate.embeds
                     ):
                         message = candidate
@@ -203,7 +163,6 @@ class SalonHarmony(commands.Cog):
         # intervient uniquement après création/récupération du panneau interactif.
         legacy_titles = {
             FIND_PARTNER_CHANNEL_ID: {"✦ Cherche quelqu'un pour partager une activité"},
-            COLLECTIVE_CHALLENGES_CHANNEL_ID: {"✦ Défis collectifs HORIZONS"},
         }
         try:
             async for old in channel.history(limit=250):

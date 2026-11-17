@@ -107,7 +107,12 @@ class Birthdays(commands.Cog):
                 exists = conn.execute("SELECT 1 FROM birthday_posts WHERE guild_id=? AND year=? AND user_id=?", (channel.guild.id,today.year,uid)).fetchone()
             if exists: continue
             member = channel.guild.get_member(uid)
-            if not member: continue
+            if member is None:
+                # Le cache des membres peut être incomplet après un redémarrage.
+                try:
+                    member = await channel.guild.fetch_member(uid)
+                except (discord.NotFound, discord.Forbidden, discord.HTTPException):
+                    continue
             try:
                 age = today.year - int(row["birth_year"]) if row["birth_year"] is not None else None
                 age_text = f" qui fête ses **{age} ans**" if age is not None and age >= 0 else ""

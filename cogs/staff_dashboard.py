@@ -375,8 +375,6 @@ class DashboardView(discord.ui.View):
                 self.add_item(EventBoardButton())
             if level in {"founder", "admin"}:
                 self.add_item(CapsuleStaffButton())
-            if level in {"founder", "admin"}:
-                self.add_item(NoxTVStaffButton())
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user.id != self.user_id:
@@ -597,27 +595,6 @@ class CommunityHubButton(discord.ui.Button):
         await interaction.response.send_message(embed=cog.dashboard_embed(interaction.guild, "overview"), view=CommunityDashboardView(cog), ephemeral=True)
 
 
-class NoxTVStaffButton(discord.ui.Button):
-    """Navigation vers les outils NOX TV sans nouvelle commande globale."""
-    def __init__(self):
-        super().__init__(label="NOX TV", emoji="🎬", style=discord.ButtonStyle.secondary, row=4)
-
-    async def callback(self, interaction: discord.Interaction):
-        if not interaction.guild or not interaction.user.guild_permissions.manage_guild:
-            await interaction.response.send_message("Accès réservé aux responsables du serveur.", ephemeral=True)
-            return
-        if not interaction.guild_id or not is_on_service(interaction.guild_id, interaction.user.id):
-            await interaction.response.send_message("Prends d'abord ton service.", ephemeral=True)
-            return
-        cog = interaction.client.get_cog("NoxTV")
-        if cog is None:
-            await interaction.response.send_message("NOX TV est indisponible.", ephemeral=True)
-            return
-        from .nox_tv import NoxTVDashboard
-        embed = horizons_embed(title="🎬 NOX TV — Tableau de bord", description="Statut, diagnostic, audit, simulation et catalogue. Aucune publication déclenchée à l'ouverture.", color=0x7764ff)
-        await interaction.response.send_message(embed=embed, view=NoxTVDashboard(), ephemeral=True)
-
-
 class ThematicStaffView(discord.ui.View):
     """Panneau privé en lecture seule : aucune publication ni changement d'horaire."""
     def __init__(self, owner_id: int, theme: str):
@@ -632,7 +609,6 @@ class ThematicStaffView(discord.ui.View):
         self.add_item(ThematicScheduleButton())
         if theme == "publications":
             self.add_item(PublicationHealthButton())
-            self.add_item(PublicationNoxTVControlButton())
             self.add_item(TechnicalBackupButton())
         self.add_item(ThematicRefreshButton())
 
@@ -650,14 +626,13 @@ def thematic_staff_embed(guild: discord.Guild, theme: str, choice: str = "overvi
     if theme == "publications":
         sections = {
             "overview": ("📰 Publications et routines", "Vue d'ensemble des publications. Les horaires automatiques restent inchangés."),
-            "routines": ("☀️ Routines HORIZONS", "Question du jour, blague, devinette, Horizon du jour et inspiration quotidienne."),
+            "routines": ("☀️ Routines HORIZONS", "Question du jour, blague, devinette et Horizon du jour."),
             "calendrier": ("📅 Calendrier éditorial", "Les publications programmées sont assurées par les modules existants. Ce panneau n'exécute aucun test ni envoi."),
         }
     else:
         sections = {
             "overview": ("🎉 Animations et événements", "Retrouve les animations de la communauté depuis un seul panneau."),
             "quiz": ("🧠 Quiz culturels", "Les quiz conservent leur fonctionnement et leurs commandes actuelles."),
-            "defis": ("🎯 Défis collectifs", "L'animation hebdomadaire est programmée le vendredi à 19 h 30, heure de Paris."),
             "evenements": ("📆 Événements", "Consulte l'agenda, les événements et les animations du serveur."),
         }
     title, description = sections.get(choice, sections["overview"])
@@ -665,7 +640,7 @@ def thematic_staff_embed(guild: discord.Guild, theme: str, choice: str = "overvi
     import config
     channel_keys = ({"routines": ["DAILY_QUESTION_CHANNEL_ID", "HORIZON_DAILY_CHANNEL_ID", "JOKE_DAILY_CHANNEL_ID", "RIDDLE_DAILY_CHANNEL_ID"],
                      "calendrier": ["AGENDA_CHANNEL_ID"]} if theme == "publications" else
-                    {"quiz": ["QUIZ_CHANNEL_ID"], "defis": ["COLLECTIVE_CHALLENGES_CHANNEL_ID", "MISSIONS_CHANNEL_ID"],
+                    {"quiz": ["QUIZ_CHANNEL_ID"],
                      "evenements": ["AGENDA_CHANNEL_ID"]})
     ids = [getattr(config, key, None) for key in channel_keys.get(choice, [])]
     links = [f"<#{channel_id}>" for channel_id in ids if isinstance(channel_id, int) and guild.get_channel(channel_id)]
@@ -681,7 +656,7 @@ class ThematicStaffSelect(discord.ui.Select):
         entries = ([('overview', 'Vue générale'), ('routines', 'Routines quotidiennes'), ('calendrier', 'Calendrier')]
                    if theme == 'publications' else
                    [('overview', 'Vue générale'), ('quiz', 'Quiz culturels'),
-                    ('defis', 'Défis et missions'), ('evenements', 'Événements')])
+                    ('evenements', 'Événements')])
         super().__init__(placeholder="Choisir une rubrique", row=0,
                          options=[discord.SelectOption(label=label, value=key) for key, label in entries])
 
@@ -705,7 +680,6 @@ def thematic_status_embed(bot: commands.Bot, theme: str) -> discord.Embed:
         "Quiz": "cogs.quizzes",
         "Animations hebdomadaires": "cogs.weekly_animations",
         "Événements": "cogs.events",
-        "Missions": "cogs.mission_hub",
     })
     lines = [f"{'🟢' if extension in bot.extensions else '🔴'} **{label}** — {'chargé' if extension in bot.extensions else 'non chargé'}"
              for label, extension in extensions.items()]
@@ -728,8 +702,7 @@ def thematic_content_embed(theme: str) -> discord.Embed:
     root = Path(__file__).resolve().parent.parent / "data"
     files = ({
         "Blagues": "blagues", "Devinettes": "devinettes.json",
-        "Questions": "questions_du_jour.json", "Citations": "citations.json",
-        "Proverbes": "proverbes.json",
+        "Questions": "questions_du_jour.json",
     } if theme == "publications" else {
         "Quiz culturel": "quiz_culturel.json", "Événements": "evenements.json",
         "Animations hebdomadaires": "weekly_animations.json",
@@ -789,7 +762,6 @@ def thematic_channels_embed(guild: discord.Guild, theme: str) -> discord.Embed:
         "Agenda": ("AGENDA_CHANNEL_ID",),
     } if theme == "publications" else {
         "Quiz": ("QUIZ_CHANNEL_ID",),
-        "Défis et missions": ("COLLECTIVE_CHALLENGES_CHANNEL_ID", "MISSIONS_CHANNEL_ID"),
         "Événements": ("AGENDA_CHANNEL_ID",),
     })
     lines = []
@@ -835,8 +807,6 @@ def thematic_schedule_embed(bot: commands.Bot, theme: str) -> discord.Embed:
     now = datetime.now(LOCAL_TIMEZONE)
     entries = ({
         "Quiz éditorial (lun/mer/sam)": ("PublicationCalendar", "daily_quiz", "quiz"),
-        "Inspiration": ("PublicationCalendar", "daily_inspiration", "inspiration"),
-        "Message bienveillant (mar/jeu/dim)": ("PublicationCalendar", "daily_positive_message", "messages"),
         "Événement thématique (si date correspondante)": ("PublicationCalendar", "daily_thematic_event", "evenement"),
     } if theme == "publications" else {
         "Quiz éditorial (lun/mer/sam)": ("PublicationCalendar", "daily_quiz", "quiz"),
@@ -861,7 +831,6 @@ def thematic_schedule_embed(bot: commands.Bot, theme: str) -> discord.Embed:
     } if theme == "publications" else {
         "Animation hebdomadaire": ("WeeklyAnimations", "friday_animation", None),
         "Anniversaires": ("Birthdays", "daily_birthdays", None),
-        "NOX TV (vérification horaire)": ("NoxTV", "clock", None),
     })
     entries.update(extra)
     lines = []
@@ -906,15 +875,12 @@ def publication_health_embed(bot: commands.Bot) -> discord.Embed:
     now = datetime.now(LOCAL_TIMEZONE)
     loops = (
         ("Quiz éditorial", "PublicationCalendar", "daily_quiz"),
-        ("Inspiration", "PublicationCalendar", "daily_inspiration"),
-        ("Message bienveillant", "PublicationCalendar", "daily_positive_message"),
         ("Événement thématique", "PublicationCalendar", "daily_thematic_event"),
         ("Question du jour", "Community", "daily_question"),
         ("Blagues", "Jokes", "daily_joke"),
         ("Devinettes", "Riddles", "daily_riddle"),
         ("Horizon du jour", "HorizonsDaily", "horizon_of_day"),
         ("Débat hebdomadaire", "HorizonsDaily", "weekly_debate"),
-        ("NOX TV", "NoxTV", "clock"),
     )
     lines = []
     running = stopped = missing = 0
@@ -967,27 +933,6 @@ class PublicationHealthButton(discord.ui.Button):
         await interaction.response.edit_message(
             embed=publication_health_embed(interaction.client), view=self.view,
         )
-
-
-class PublicationNoxTVControlButton(discord.ui.Button):
-    """Accès au pilotage NOX TV existant, sans commande supplémentaire."""
-    def __init__(self):
-        super().__init__(label="Piloter NOX TV", emoji="🎬", style=discord.ButtonStyle.primary, row=2)
-
-    async def callback(self, interaction: discord.Interaction):
-        if not interaction.guild or not interaction.user.guild_permissions.manage_guild:
-            await interaction.response.send_message("Accès réservé aux responsables du serveur.", ephemeral=True)
-            return
-        if interaction.client.get_cog("NoxTV") is None:
-            await interaction.response.send_message("NOX TV n'est pas chargé.", ephemeral=True)
-            return
-        from .nox_tv import NoxTVDashboard
-        await interaction.response.send_message(
-            "🎬 **Pilotage NOX TV** — statut, diagnostic, catalogue interactif et publication confirmée. "
-            "L'activation ou la suspension de la rotation nécessite une confirmation.",
-            view=NoxTVDashboard(), ephemeral=True,
-        )
-
 
 
 class TechnicalBackupButton(discord.ui.Button):

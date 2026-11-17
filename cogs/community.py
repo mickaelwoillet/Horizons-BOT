@@ -2,7 +2,7 @@
 from __future__ import annotations
 from cogs.embed_theme import horizons_embed, wait_for_logo_ready
 import json, random
-from datetime import time
+from datetime import datetime, time
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
@@ -51,6 +51,11 @@ class Community(commands.Cog):
 
     @tasks.loop(time=time(hour=11,minute=30,tzinfo=LOCAL_TIMEZONE))
     async def daily_question(self):
+        # Empêche une seconde publication le même jour après un redémarrage.
+        today = datetime.now(LOCAL_TIMEZONE).date().isoformat()
+        publication_state = load_json(STATE, {"questions": []})
+        if publication_state.get("last_daily_question_date") == today:
+            return
         channel = self.bot.get_channel(DAILY_QUESTION_CHANNEL_ID) if DAILY_QUESTION_CHANNEL_ID else None
         if channel is None and DAILY_QUESTION_CHANNEL_ID:
             try: channel = await self.bot.fetch_channel(DAILY_QUESTION_CHANNEL_ID)
@@ -84,6 +89,11 @@ class Community(commands.Cog):
                         f"[Community] Le salon configuré pour la question du jour "
                         f"n'est ni un Forum ni un salon textuel (type : {type(channel).__name__})."
                     )
+                    return
+                # Recharger l'historique après pick_question pour préserver la rotation.
+                publication_state = load_json(STATE, {"questions": []})
+                publication_state["last_daily_question_date"] = today
+                save_json(STATE, publication_state)
             except discord.Forbidden as exc:
                 print(f"[Community] Permissions insuffisantes pour publier la question du jour : {exc}")
             except discord.HTTPException as exc:

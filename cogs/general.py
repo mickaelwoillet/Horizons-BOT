@@ -92,6 +92,6 @@ class General(commands.Cog):
         from config import INTRO_CHANNEL_ID
         channel = self.bot.get_channel(INTRO_CHANNEL_ID) if INTRO_CHANNEL_ID else None
         mention = channel.mention if channel else "le salon de présentation"
-        await interaction.response.send_message(f"Bienvenue dans HORIZONS ! Tu peux faire connaissance avec la communauté dans {mention}.", ephemeral=True)
+        await interaction.response.send_message(f"Bienvenue dans HORIZONS ! Présente-toi dans {mention}.\n```text\nPrénom ou pseudo :\nÂge (facultatif) :\nPassions :\nLoisirs / jeux :\nMusique / films / séries :\nCe que je recherche ici :\nUn petit mot :\n```", ephemeral=True)
 
 async def setup(bot: commands.Bot): await bot.add_cog(General(bot))
